@@ -76,6 +76,36 @@ Decisión:
 - Los datos de ejemplo viven **solo** en `app/playground/` y en los tests, y son evidentemente ficticios.
 Motivo: avanzar con el frontend sin Supabase y sin meter datos falsos en el código productivo. Cuando llegue el backend, las páginas los conectan al DAL sin reescribir los componentes.
 
+### D-010 — Tabla `profiles` mínima
+Fecha: 2026-09-24
+Decisión: `profiles` tiene solo `id`, `role` y `created_at`. Cada usuario lee únicamente su propia fila; el rol no lo puede cambiar el usuario. No se agregan datos personales mientras Q-009 siga abierta.
+Motivo: recolectar el mínimo (Ley 25.326) y cumplir RNF2.
+
+### D-011 — Asignación de rol al registrarse
+Fecha: 2026-09-24
+Decisión: un trigger crea el perfil al crearse el usuario. Solo acepta `applicant` o `company` desde el registro; cualquier otro valor queda como `applicant`. Las cuentas admin se crean a mano y se promueven por SQL (RF1.1.4).
+Motivo: `user_metadata` lo puede editar el usuario, así que no puede darle el rol admin.
+
+### D-012 — Route Handlers y hooks con `fetch`
+Fecha: 2026-09-24
+Decisión: el backend HTTP usa Route Handlers `/api/...` que llaman al DAL, y el frontend usa hooks (`useNombre.ts`) con `fetch`, como en el README de referencia. Los Server Actions no son el camino por defecto. El DAL sigue siendo el único que toca Supabase y verifica permisos. Ajusta lo que D-009 dice sobre cómo llegan los datos a los componentes.
+
+### D-013 — Manejo de errores provisorio
+Fecha: 2026-09-24
+Decisión: por ahora los hooks muestran el mensaje de error tal cual (`e.message`). El manejo de errores definitivo se define más adelante. Mientras tanto, el servidor no incluye stack traces ni errores crudos de la base en sus respuestas.
+
+### D-014 — Nombres en español en el código
+Fecha: 2026-09-24
+Decisión: los identificadores de dominio (componentes, hooks, funciones, tipos) van en español (`Oferta`, `useOferta`), como pauta flexible. Lo técnico genérico sigue en inglés. Comentarios y nombres de tests, en inglés. Los nombres de la base están abiertos (Q-015).
+
+### D-015 — Git: Pull Request, ramas y commits
+Fecha: 2026-09-24
+Decisión: se integra por Pull Request revisado por un compañero. Las ramas nuevas se llaman `feature/<tarea>` (las existentes conservan su nombre). Los commits usan `tipo: descripción` en español, con los tipos `feat`, `fix`, `style`, `refactor` y `docs`. Reemplaza lo que decía D-004 sobre el formato de los commits.
+
+### D-016 — Estructura `src/` y sin Antigravity
+Fecha: 2026-09-24
+Decisión: todo el código de la app vive en `src/` y el alias `@/` apunta a `src/`. `docs/` no va nunca dentro de `public/`. Se eliminaron `GEMINI.md` y `docs/ANTIGRAVITY_SETUP.md`; la mención a Antigravity en D-009 queda obsoleta.
+
 ---
 
 ## Abiertas
@@ -121,3 +151,6 @@ El relevamiento describe la derivación al CIT a la 3.ª postulación no exitosa
 
 ### Q-014 — Registro de empresas
 ¿Una empresa registrada puede cargar ofertas enseguida, o la Oficina tiene que validarla primero (por ejemplo, verificar el CUIT)?
+
+### Q-015 — Idioma de los nombres en la base de datos
+¿Las tablas, columnas y valores de enum van en español (`ofertas`, `postulaciones`, `postulante`) o en inglés (`job_offers`, `applications`, `applicant`)? El usuario dijo que "seguramente" en español, pero no está decidido. La migración de `profiles` (`user_role`, `applicant | company | admin`) usa inglés y **no está aplicada**; se ajusta cuando se decida. *Por ahora no se aplica ninguna migración.*

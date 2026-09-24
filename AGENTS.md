@@ -40,12 +40,15 @@ Rules:
 
 ## 3. Language
 
-- Talk to the user in **Spanish**. Write code, identifiers, comments, commit messages, and test names in **English**.
+- Talk to the user in **Spanish**. Commit messages are in **Spanish** too (see Git flow). Comments and test names stay in **English**.
+- Domain identifiers in code (components, hooks, functions, types, files) are in **Spanish**, as in the reference README: `Oferta`, `useOferta`, `OfertaDetallePage`, `FormularioOferta`. Generic technical names stay in English (`handleSubmit`, `params`, `loading`, `error`). This is a guideline, not a strict rule: be consistent inside a feature and prefer the name that makes the function easy to find.
 - All UI text in **Argentine Spanish** (voseo: "Ingresá", "Subí tu CV"). Use short sentences, plain words, and no jargon (RNF3).
-- User-facing URL segments are in Spanish (`/ofertas`, `/mi-perfil`, `/empresa`, `/admin`). Everything else is English.
-- Use the glossary exactly. Never invent synonyms (no `vacancy`, `candidate`, `jobPost`, `employer`).
+- User-facing URL segments are in Spanish (`/ofertas`, `/mi-perfil`, `/empresa`, `/admin`).
+- Use one name per concept. Do not mix synonyms for the same thing (for example `Oferta` and `Vacante`).
 
 ## 4. Glossary (canonical)
+
+The names below are the ones already used by the DB schema and enums written so far (`profiles`, `user_role`). Whether the DB keeps English names is an open question; until it is decided, do not rename them. For code identifiers, see §3.
 
 | Spanish (docs/UI) | Code / DB |
 |---|---|
@@ -73,39 +76,45 @@ The installed versions are the only truth. Check `package.json` and the bundled 
   - Request interception is `proxy.ts`, **not** `middleware.ts`.
   - `params`, `searchParams`, `cookies()` and `headers()` are async. Await them.
   - No Pages Router, `getServerSideProps`, `getStaticProps`, `next/router` or `next/head`.
-  - Forms use Server Actions with `useActionState`, not `useFormState`.
+  - Forms send their data with `fetch` to a Route Handler under `/api/...` and navigate afterwards with `useRouter` from `next/navigation` (reference README). Server Actions are not the default; use one only if the user asks for it.
 - **React 19.2**, TypeScript `strict`.
-- **Tailwind CSS v4**, CSS-first. Theme tokens live in `app/globals.css`. There is no `tailwind.config.js`; do not create one.
+- **Tailwind CSS v4**, CSS-first. Theme tokens live in `src/app/globals.css`. There is no `tailwind.config.js`; do not create one.
 - **shadcn/ui, style `base-vega`, built on `@base-ui/react` — NOT Radix.**
   - There is no `asChild`. Base UI composes with the `render` prop (e.g. `render={<Button />}`).
   - Before using a component, open its file in `components/ui/` and use only the props it actually exposes.
   - `cn` is imported from the `cn` package (via `@/lib/utils` in app code).
-- **Supabase**: Postgres + Auth + Storage, used through `@supabase/ssr` and `@supabase/supabase-js`. Not installed yet; bootstrapping it is a planned task. Deployment target is **Vercel**.
+- **Supabase**: Postgres + Auth + Storage, used through `@supabase/ssr` and `@supabase/supabase-js`. Installed; see §13 for what exists. Deployment target is **Vercel**.
 - **Validation**: Zod 4 (`zod`). **Tests**: Vitest 5 + Testing Library (unit), Playwright (e2e). **Package manager**: npm only.
 
 ## 6. Architecture
 
 ```
-app/                     routes (Server Components by default)
-  <route>/actions.ts     Server Actions: thin (validate → call DAL → return typed result)
-components/ui/           shadcn-generated primitives, customized by the user (do not hand-write here)
-hooks/                   shared client hooks (use-mobile.ts comes from shadcn)
-components/<feature>/    feature components (e.g. components/job-offers/)
-lib/dal/                 Data Access Layer: 'server-only', all DB access + authorization, returns DTOs
-lib/validation/          Zod schemas shared by forms and Server Actions
-lib/supabase/            server.ts, client.ts, admin.ts (admin = secret key, server-only)
-supabase/migrations/     versioned SQL migrations (schema + RLS policies)
-e2e/                     Playwright specs
-**/*.test.ts(x)          Vitest tests, next to the code they test
+src/app/                     routes (Server Components by default)
+src/app/api/<resource>/route.ts   Route Handlers (GET/POST/PATCH/DELETE): thin (validate → check session and role → call DAL → return JSON with HTTP status)
+src/proxy.ts                 request interception (session refresh); logic in lib/supabase/proxy.ts
+src/components/ui/           shadcn-generated primitives, customized by the user (do not hand-write here)
+src/hooks/                   client hooks named useNombre.ts that fetch /api/... and expose { data, loading, error } (use-mobile.ts comes from shadcn and keeps its name)
+src/components/<feature>/    feature components (e.g. components/job-offers/)
+src/lib/dal/                 Data Access Layer: 'server-only', all DB access + authorization, returns DTOs
+src/lib/validation/          Zod schemas shared by forms and Route Handlers
+src/lib/supabase/            server.ts, client.ts, admin.ts (admin = secret key, server-only)
+supabase/migrations/         versioned SQL migrations (schema + RLS policies)
+supabase/tests/              pgTAP tests for RLS
+docs/                        requirements, screens, decisions (never under public/)
+e2e/                         Playwright specs
+**/*.test.ts(x)              Vitest tests, next to the code they test
 ```
 
+All app code lives under `src/`, and the `@/` alias maps to `src/`. Paths written without `src/` elsewhere in this file (for example `components/ui/` or `lib/dal/`) are relative to it.
+
 - Server Components by default. Add `"use client"` only to the smallest interactive leaf that needs it.
-- Only `lib/dal/` and `lib/supabase/` talk to Supabase or read `process.env`. Pages, components, and actions call the DAL.
-- The DAL returns **DTOs** with only the fields the caller needs. Never pass raw DB rows to Client Components.
-- Server Actions return a typed result (`{ ok: true, data } | { ok: false, error }`) with user-safe Spanish messages. Never return stack traces or DB errors.
+- Only `lib/dal/` and `lib/supabase/` talk to Supabase or read `process.env`. Route Handlers and Server Components call the DAL; Client Components never call it, they use hooks that call `/api/...`.
+- The DAL returns **DTOs** with only the fields the caller needs. Never pass raw DB rows to Client Components or return them from a Route Handler.
+- Route Handlers answer with the right HTTP status: 200 OK, 201 Created (POST), 204 No Content (DELETE), 400 invalid data, 401 no session, 403 no permission, 404 not found, 409 conflict, 500 unexpected error. Error bodies are `{ error: "message" }`.
+- Error handling is temporary: hooks show the error message as it comes (`e.message`), as in the reference README. The user will define proper error handling later. Until then, do not put stack traces or raw database errors in the `error` field of a response.
 - Generate DB types from Supabase. Do not hand-write row types.
 - No generic repositories, factories, service layers, or "utils" dumping grounds. Add an abstraction only when it has at least 2 real call sites.
-- **Frontend-first split (D-009)**: feature components in `components/<feature>/` are presentational. They receive typed props (the future DTO shape) and never fetch data. Pages in `app/` fetch through the DAL and pass props down. Until the DAL exists, preview components only in `app/playground/`, which is blocked in production. Example data lives **only** in `app/playground/` and in tests, uses obviously fake values, and is never imported from `components/`, `lib/` or real routes.
+- **Frontend-first split (D-009)**: feature components in `components/<feature>/` are presentational. They receive typed props (the future DTO shape) and never fetch data. Data reaches them from a hook in `hooks/` (client) or from a Server Component page that reads the DAL, and is passed down as props. Until the DAL exists, preview components only in `app/playground/`, which is blocked in production. Example data lives **only** in `app/playground/` and in tests, uses obviously fake values, and is never imported from `components/`, `lib/` or real routes.
 
 ## 7. Security (non-negotiable)
 
@@ -151,7 +160,7 @@ The machine runs Windows with PowerShell 5.1, and the project lives on `D:\`. A 
 - Any command against Supabase (migrations, `db push`, `db reset`, type generation against a remote project).
 - `git add`, `commit`, `branch`, `switch`, `merge`, `stash`, `rebase`.
 - Deleting any file. List the exact paths, one by one.
-- Editing config: `package.json`, `package-lock.json`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `components.json`, `vitest.config.mts`, `playwright.config.ts`, `.gitignore`, `app/globals.css` theme tokens.
+- Editing config: `package.json`, `package-lock.json`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `components.json`, `vitest.config.mts`, `playwright.config.ts`, `.gitignore`, `src/app/globals.css` theme tokens.
 
 **Allowed without asking**
 - Reading any file in the repo.
@@ -166,8 +175,9 @@ The machine runs Windows with PowerShell 5.1, and the project lives on `D:\`. A 
 
 **Git flow**
 - `main` is untouchable. `testing` is the integration branch.
-- Work happens on `feat/<topic>`, `fix/<topic>` or session branches created from `testing`.
-- Commit only when asked. Use Conventional Commits in English (`feat(job-offers): add close request action`), one logical change per commit.
+- New work goes on a branch named `feature/<task>` (reference README). Branches that already exist (`feat/*`, `fix/*`, `testing`) keep their names.
+- Integration is by Pull Request, reviewed by a teammate. The agent never pushes, opens the merge, or merges; the user does.
+- Commit only when asked, and ask for the user's OK before `git add`, `commit` or any branch operation. Messages follow `tipo: descripción` in Spanish, with the types `feat`, `fix`, `style`, `refactor`, `docs` (`feat: agrega formulario de postulación`). One logical change per commit.
 
 ## 9. Dependencies
 
@@ -190,6 +200,7 @@ The machine runs Windows with PowerShell 5.1, and the project lives on `D:\`. A 
 - **`components/ui/` belongs to the user.** The user customizes these files by hand. Never run `shadcn add` with `--overwrite`, and never re-add or regenerate an existing component. Edit a primitive only when the task explicitly requires it, and show the diff. For a one-off variation, pass `className` or compose in `components/<feature>/` instead of changing the primitive.
 - Dates are shown in Spanish (es-AR): pass the `es` locale from `date-fns/locale` to `calendar` and use `Intl.DateTimeFormat("es-AR")` for text.
 - Offer details open in a modal (shadcn `dialog`) without leaving the list (RF1.4.2).
+- Navigate between pages with `<Link>` from `next/link`, never with `<a href>` for internal routes. For navigation from code (for example after a form), use `useRouter` from `next/navigation`.
 - Every async UI has loading, empty, and error states.
 
 ## 11. Workflow — no vibe coding
@@ -239,9 +250,10 @@ If the same fix fails twice, stop. Explain what you tried, your hypotheses, and 
 
 ## 13. Current state
 
-- The Next.js 16 app is clean: placeholder home page, `lang="es-AR"`, Inter font.
-- shadcn/ui is configured (`components.json`, theme tokens in `app/globals.css`). Installed in `components/ui/`: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, calendar, card, chart, checkbox, dialog, dropdown-menu, empty, field, input, label, navigation-menu, pagination, popover, radio-group, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, tooltip. Read the file before using any of them. Anything else is added on demand (see §10). The `Toaster` (sonner) is not mounted yet.
-- Testing works: `npm run test` (Vitest) and `npm run test:e2e` (Playwright, mobile + desktop, port 3100). `npm run verify` is green.
-- `.env.example` lists the Supabase variable names.
-- **Not done yet**: Supabase is not installed (no clients, schema, auth, or storage). No feature screens exist.
-- Suggested first task: Supabase bootstrap. Install the packages (ask first), add the `lib/supabase/*` clients, create the `profiles` table with the role and RLS policies, and add auth helpers in `lib/dal/`. This needs the user's development-project keys in `.env.local`, which the user sets, not the agent.
+- The Next.js 16 app lives under `src/`: placeholder home page, a `landing` page in progress by the user, `lang="es-AR"`, Inter font.
+- shadcn/ui is configured (`components.json`, theme tokens in `src/app/globals.css`). Installed in `components/ui/`: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, calendar, card, chart, checkbox, dialog, dropdown-menu, empty, field, input, label, navigation-menu, pagination, popover, radio-group, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, tooltip. Read the file before using any of them. Anything else is added on demand (see §10). The `Toaster` (sonner) is not mounted yet.
+- Testing works: `npm run test` (Vitest) and `npm run test:e2e` (Playwright, mobile + desktop, port 3100). `npm run verify` is green. Every request goes through `proxy.ts`, which needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: without a `.env.local` (or those variables in the shell), `npm run dev` and `npm run test:e2e` answer 500.
+- `.env.example` lists the Supabase variable names. The user creates `.env.local`.
+- **Supabase, done**: packages installed, clients in `lib/supabase/` (`server`, `client`, `admin`, `proxy`, `env`), `proxy.ts` refreshing the session, `lib/dal/auth.ts` (`getCurrentUser`, `requireRole`) with unit tests, and the migration `supabase/migrations/20260924120000_create_profiles.sql` (table `profiles`, RLS, trigger) with pgTAP tests in `supabase/tests/`.
+- **Supabase, pending**: the migration is **not applied** anywhere and the pgTAP tests were never run (the Supabase CLI is not installed). DB types are not generated. The DB naming (English vs Spanish) is open, see Q-015. No login/registration screens, Route Handlers or hooks exist yet.
+- Next step: once Q-015 is decided, adjust the migration names if needed, apply it to the development project (ask first), then build the auth flow (P02, P08, P13).

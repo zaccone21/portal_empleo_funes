@@ -46,8 +46,6 @@ npm run dev
 ## Agentes de IA
 
 - `AGENTS.md`: reglas obligatorias para cualquier agente (arquitectura, seguridad, flujo de trabajo).
-- `GEMINI.md`: reglas adicionales para Antigravity.
-- `docs/ANTIGRAVITY_SETUP.md`: checklist de configuración segura de Antigravity.
 
 ## Flujo git
 
