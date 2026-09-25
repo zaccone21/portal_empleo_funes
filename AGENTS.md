@@ -108,13 +108,13 @@ e2e/                         Playwright specs
 All app code lives under `src/`, and the `@/` alias maps to `src/`. Paths written without `src/` elsewhere in this file (for example `components/ui/` or `lib/dal/`) are relative to it.
 
 - Server Components by default. Add `"use client"` only to the smallest interactive leaf that needs it.
-- Only `lib/dal/` and `lib/supabase/` talk to Supabase or read `process.env`. Route Handlers and Server Components call the DAL; Client Components never call it, they use hooks that call `/api/...`.
+- Only `lib/dal/` and `lib/supabase/` talk to Supabase or read `process.env`. Only Route Handlers call the DAL (D-017); pages and Client Components never call it, they use hooks that call `/api/...`.
 - The DAL returns **DTOs** with only the fields the caller needs. Never pass raw DB rows to Client Components or return them from a Route Handler.
 - Route Handlers answer with the right HTTP status: 200 OK, 201 Created (POST), 204 No Content (DELETE), 400 invalid data, 401 no session, 403 no permission, 404 not found, 409 conflict, 500 unexpected error. Error bodies are `{ error: "message" }`.
 - Error handling is temporary: hooks show the error message as it comes (`e.message`), as in the reference README. The user will define proper error handling later. Until then, do not put stack traces or raw database errors in the `error` field of a response.
 - Generate DB types from Supabase. Do not hand-write row types.
 - No generic repositories, factories, service layers, or "utils" dumping grounds. Add an abstraction only when it has at least 2 real call sites.
-- **Frontend-first split (D-009)**: feature components in `components/<feature>/` are presentational. They receive typed props (the future DTO shape) and never fetch data. Data reaches them from a hook in `hooks/` (client) or from a Server Component page that reads the DAL, and is passed down as props. Until the DAL exists, preview components only in `app/playground/`, which is blocked in production. Example data lives **only** in `app/playground/` and in tests, uses obviously fake values, and is never imported from `components/`, `lib/` or real routes.
+- **Frontend-first split (D-009)**: feature components in `components/<feature>/` are presentational. They receive typed props (the future DTO shape) and never fetch data. Data reaches them from a hook in `hooks/` that calls `/api/...` (D-017) and is passed down as props. Until the DAL exists, preview components only in `app/playground/`, which is blocked in production. Example data lives **only** in `app/playground/` and in tests, uses obviously fake values, and is never imported from `components/`, `lib/` or real routes.
 
 ## 7. Security (non-negotiable)
 
@@ -257,3 +257,6 @@ If the same fix fails twice, stop. Explain what you tried, your hypotheses, and 
 - **Supabase, done**: packages installed, clients in `lib/supabase/` (`server`, `client`, `admin`, `proxy`, `env`), `proxy.ts` refreshing the session, `lib/dal/auth.ts` (`getCurrentUser`, `requireRole`) with unit tests, and the migration `supabase/migrations/20260924120000_create_profiles.sql` (table `profiles`, RLS, trigger) with pgTAP tests in `supabase/tests/`.
 - **Supabase, pending**: the migration is **not applied** anywhere and the pgTAP tests were never run (the Supabase CLI is not installed). DB types are not generated. The DB naming (English vs Spanish) is open, see Q-015. No login/registration screens, Route Handlers or hooks exist yet.
 - Next step: once Q-015 is decided, adjust the migration names if needed, apply it to the development project (ask first), then build the auth flow (P02, P08, P13).
+
+## 14. deuda_tecnica.md
+- Whenever a decision taken by the agent, even if the developer agreed on it, generates any sort of technical debt beacause of a poor developing estructure, a bad programming practice is applicated to the proyect, maybe for test or debugging, or any type of thing that wouldnt be on production code it has to be reported in the document ../docs/deuda_tecnica.md 

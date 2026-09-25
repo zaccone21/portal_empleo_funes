@@ -106,6 +106,9 @@ Decisión: se integra por Pull Request revisado por un compañero. Las ramas nue
 Fecha: 2026-09-24
 Decisión: todo el código de la app vive en `src/` y el alias `@/` apunta a `src/`. `docs/` no va nunca dentro de `public/`. Se eliminaron `GEMINI.md` y `docs/ANTIGRAVITY_SETUP.md`; la mención a Antigravity en D-009 queda obsoleta.
 
+### D-017 — Los datos llegan por Route Handlers
+Fecha: 2026-09-24
+Decisión: por ahora las páginas no buscan datos en el servidor. Los componentes cliente obtienen los datos con hooks que hacen `fetch` a `/api/...`, y cada Route Handler llama al DAL. `page.tsx` y `layout.tsx` pueden existir como cáscaras que renderizan componentes cliente. Se reevalúa usar Server Components para leer datos cuando se investigue el trade-off (por ejemplo, si el rendimiento en celulares de gama baja lo justifica).
 ---
 
 ## Abiertas
