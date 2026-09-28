@@ -118,7 +118,12 @@ All app code lives under `src/`, and the `@/` alias maps to `src/`. Paths writte
 - Error handling is temporary: hooks show the error message as it comes (`e.message`), as in the reference README. The user will define proper error handling later. Until then, do not put stack traces or raw database errors in the `error` field of a response.
 - Generate DB types from Supabase. Do not hand-write row types.
 - No generic repositories, factories, service classes, or "utils" dumping grounds. Use cases are plain functions: no classes, interfaces, or dependency injection. Add any other abstraction only when it has at least 2 real call sites (use cases are the exception, D-018).
-- **Frontend-first split (D-009)**: feature components in `components/<feature>/` are presentational. They receive typed props (the future DTO shape) and never fetch data. Data reaches them from a hook in `hooks/` that calls `/api/...` (D-017) and is passed down as props. Until the DAL exists, preview components only in `app/playground/`, which is blocked in production. Example data lives **only** in `app/playground/` and in tests, uses obviously fake values, and is never imported from `components/`, `lib/` or real routes.
+- **Screen structure (D-021, replaces part of D-009)**: route group → screen → components.
+  - A screen is its `page.tsx`: a Server Component that exports `metadata.title` and composes the view from components in `components/<feature>/`, with its own texts and links.
+  - `src/app/` holds only routing files (`page.tsx`, `layout.tsx`, `route.ts`), never components.
+  - A component that sends or loads data (for example a form) calls its hook from `hooks/` directly (D-017) and handles loading, error and success. Components that only display receive typed props (the DTO shape).
+  - There is no container layer in between. Test components that use a hook by mocking the hook.
+- **Preview data (D-009)**: a screen that shows data cannot be previewed in a real route before its API exists. For that case only, propose a preview in `app/playground/` (blocked in production) and let the user choose between it and building the backend first. Example data lives **only** in `app/playground/` and in tests, uses obviously fake values, and is never imported from `components/`, `lib/` or real routes.
 
 ## 7. Security (non-negotiable)
 
@@ -193,6 +198,7 @@ The machine runs Windows with PowerShell 5.1, and the project lives on `D:\`. A 
 
 ## 10. UI and accessibility
 
+- Read `docs/DESIGN.md` before building a screen. It holds the visual defaults: palette tokens and contrast, typography, sizes, which component to use for what, form and copy rules, and an accessibility checklist.
 - Design mobile-first (RNF3). Touch targets must be ≥ 44×44 px, and inputs use font size ≥ 16 px to avoid iOS zoom. Keep one primary action per screen and one-way flows.
 - Target WCAG 2.2 AA:
   - Every input has a visible `<label>`; do not rely on placeholders as labels.
@@ -203,7 +209,7 @@ The machine runs Windows with PowerShell 5.1, and the project lives on `D:\`. A 
 - Build screens from `components/ui/`. Components are added **on demand, one at a time, only when the current task needs them**: name the component, why this screen needs it, and ask before running `npx shadcn@4.21.0 add <name>` (use `--dry-run` first to show files and new deps). Never add components "for later". Never hand-write or copy a primitive.
 - **`components/ui/` belongs to the user.** The user customizes these files by hand. Never run `shadcn add` with `--overwrite`, and never re-add or regenerate an existing component. Edit a primitive only when the task explicitly requires it, and show the diff. For a one-off variation, pass `className` or compose in `components/<feature>/` instead of changing the primitive.
 - Dates are shown in Spanish (es-AR): pass the `es` locale from `date-fns/locale` to `calendar` and use `Intl.DateTimeFormat("es-AR")` for text.
-- Offer details open in a modal (shadcn `dialog`) without leaving the list (RF1.4.2).
+- Offer details open next to the list on the same page, never in a modal (D-025, RF1.4.2): list + detail side by side on desktop, the detail in place of the list on phones, and the selection in the URL (`?oferta=<id>`). Use `dialog` only for short confirmations, not for long content or forms.
 - Navigate between pages with `<Link>` from `next/link`, never with `<a href>` for internal routes. For navigation from code (for example after a form), use `useRouter` from `next/navigation`.
 - Every async UI has loading, empty, and error states.
 
@@ -254,14 +260,27 @@ If the same fix fails twice, stop. Explain what you tried, your hypotheses, and 
 
 ## 13. Current state
 
-- The Next.js 16 app lives under `src/`: placeholder home page, a `landing` page in progress by the user, `lang="es-AR"`, Inter font.
-- shadcn/ui is configured (`components.json`, theme tokens in `src/app/globals.css`). Installed in `components/ui/`: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, calendar, card, chart, checkbox, dialog, dropdown-menu, empty, field, input, label, navigation-menu, pagination, popover, radio-group, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, tooltip. Read the file before using any of them. Anything else is added on demand (see §10). The `Toaster` (sonner) is not mounted yet.
+- The Next.js 16 app lives under `src/`: placeholder home page, a `landing` page in progress by the user, `lang="es-AR"`. Municipal palette and fonts (Be Vietnam Pro + Sora) are set (D-019, `docs/DESIGN.md`). `Button` and `Input` were resized to 44 px touch targets (D-021). Visual direction "Mosaico de oficios" (D-022, `docs/DESIGN.md` §0): brand tokens `brand-deep/leaf/mint/sun`, brand components in `components/marca/`. Every new screen follows it; a plain default-looking screen is not done.
+- shadcn/ui is configured (`components.json`, theme tokens in `src/app/globals.css`). Installed in `components/ui/`: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, calendar, card, chart, checkbox, dialog, dropdown-menu, empty, field, input, label, navigation-menu, pagination, popover, radio-group, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, tooltip. Read the file before using any of them. Anything else is added on demand (see §10). The `Toaster` (sonner) is mounted in the root layout (light theme, top center).
 - Testing works: `npm run test` (Vitest) and `npm run test:e2e` (Playwright, mobile + desktop, port 3100). `npm run verify` is green. Every request goes through `proxy.ts`, which needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: without a `.env.local` (or those variables in the shell), `npm run dev` and `npm run test:e2e` answer 500.
 - `.env.example` lists the Supabase variable names. The user creates `.env.local`.
 - **Supabase, done**: packages installed, clients in `lib/supabase/` (`server`, `client`, `admin`, `proxy`, `env`), `proxy.ts` refreshing the session, `lib/dal/auth.ts` (`getCurrentUser`, `requireRole`) with unit tests, and the migration `supabase/migrations/20260924120000_create_profiles.sql` (table `profiles`, RLS, trigger) with pgTAP tests in `supabase/tests/`.
-- **Supabase, pending**: the migration is **not applied** anywhere and the pgTAP tests were never run (the Supabase CLI is not installed). DB types are not generated. The DB naming (English vs Spanish) is open, see Q-015. No login/registration screens, Route Handlers, use cases or hooks exist yet.
+- **Supabase, pending**: the migration is **not applied** anywhere and the pgTAP tests were never run (the Supabase CLI is not installed). DB types are not generated. The DB naming (English vs Spanish) is open, see Q-015. No Route Handlers or use cases exist yet.
+- **Access flow, frontend done (D-020, D-021)**: the screens are `src/app/(acceso)/{postulante,empresa}/{ingresar,registrarse,recuperar-contrasena}/page.tsx`, `admin/ingresar` and `nueva-contrasena`. Their components (forms that send with their hook, fields, card, links) are in `components/auth/`, the Zod schemas in `lib/validation/auth.ts`, the hooks are `useIngreso`, `useRegistro`, `useRecuperarContrasena` and `useNuevaContrasena`, and the fetch helper is `lib/http.ts`. The `/api/auth/*` endpoints do not exist yet, so the forms show the generic error until they do. The frame and slogans come from `MarcoAcceso` (group layout) and `PanelAcceso` (one layout per portal).
+- **Applicant area, frontend done (D-023 to D-026)**:
+  - Screens in `src/app/(postulante)/`: `/ofertas` (P05 list + P06 detail on the same page), `/postulante/postulaciones` (P07) and `/postulante/cv` (P04).
+  - Components are in `components/ofertas/`, `components/postulaciones/` and `components/cv/`. The hooks are `useOfertasPublicadas`, `usePostularme`, `useMisPostulaciones` and `useMiCv`.
+  - The APIs `/api/ofertas`, `/api/postulaciones` and `/api/cv` are **simulated** (DT-003, D-026): fake data and in-memory state from `src/mocks/`, 404 in production. `e2e/postulacion.spec.ts` runs against them.
+  - Offer fields (DT-002) and CV rules (DT-004) are provisional.
+  - `src/app/playground/ofertas/page.tsx` is obsolete and pending deletion.
+  - There is no "Salir" or session-aware navigation yet.
 - **Architecture (D-018)**: the layers are documented but `lib/use-cases/` does not exist yet. `requireRole` in `lib/dal/auth.ts` predates D-018 and does not fit it (see DT-001 in `docs/deuda_tecnica.md`); resolve it when writing the first use case.
-- Next step: once Q-015 is decided, adjust the migration names if needed, apply it to the development project (ask first), then build the auth flow (P02, P08, P13).
+- Next step:
+  1. Once Q-015 is decided, adjust the migration names if needed and apply the migration to the development project (ask first).
+  2. Implement `/api/auth/*` behind the D-020 contract (Route Handler → use case → DAL).
+  3. Add the route that receives the email link (confirmation and recovery), which redirects to `/nueva-contrasena` in the recovery case.
+  4. In Supabase Auth, turn on email confirmation and set the minimum password length to 8.
+  5. Frontend: session-aware navigation with "Salir" for each role, then flow 3 (P03 profile, P04 CV), which depends on Q-009, Q-005 and Q-006.
 
 ## 14. deuda_tecnica.md
 - Whenever a decision taken by the agent, even if the developer agreed on it, generates any sort of technical debt beacause of a poor developing estructure, a bad programming practice is applicated to the proyect, maybe for test or debugging, or any type of thing that wouldnt be on production code it has to be reported in the document ../docs/deuda_tecnica.md 

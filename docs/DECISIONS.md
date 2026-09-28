@@ -121,6 +121,133 @@ Decisión:
 - Todo son funciones comunes, sin clases ni interfaces. Todo Route Handler pasa por un caso de uso, aunque sea simple.
 Motivo: tener las reglas de negocio en un solo lugar, fáciles de leer y de testear, separadas del HTTP y de las consultas.
 
+### D-019 — Paleta y tipografía municipales
+Fecha: 2026-09-28
+Decisión:
+- Colores del sitio de la Municipalidad de Funes: verde `#074A1F` (primario), gris oscuro `#262b35` (texto) y gris medio `#868d98`.
+- El gris medio da 3,4:1 sobre blanco, así que se usa solo en bordes de campos e íconos. El texto secundario usa `#636a75` (5,4:1).
+- Fuentes: Be Vietnam Pro para el texto y Sora para los títulos, cargadas con `next/font/google`.
+- Los valores son tokens de `src/app/globals.css`, y los componentes usan el token, nunca el hex. El detalle está en `docs/DESIGN.md`.
+- No hay modo oscuro: el bloque `.dark` no se toca y el `Toaster` se fuerza a modo claro.
+
+Motivo: identidad institucional y contraste WCAG AA (AGENTS §10) para usuarios con celulares de gama baja (RNF3).
+
+### D-020 — Flujo de acceso
+Fecha: 2026-09-28
+Decisión:
+- URLs, simétricas por rol (cada rol tiene su carpeta):
+  - Postulante: `/postulante/ingresar`, `/postulante/registrarse`, `/postulante/recuperar-contrasena`.
+  - Empresa: `/empresa/ingresar`, `/empresa/registrarse`, `/empresa/recuperar-contrasena`.
+  - Admin: `/admin/ingresar`.
+  - Compartida: `/nueva-contrasena`, a la que se llega desde el email de recuperación.
+- Registro: solo email y contraseña. El rol lo define la pantalla, nunca un campo, y solo puede ser `applicant` o `company`.
+- La confirmación de email es obligatoria (opción de Supabase Auth).
+- Contraseña: 8 caracteres como mínimo y 72 como máximo (límite de Supabase), sin otras reglas. En Supabase Auth se configura el mismo mínimo.
+- Admin: no tiene registro (RF1.1.4) ni "Olvidé mi contraseña". Si una operadora se olvida la clave, se la resetea alguien con acceso a Supabase.
+- Contrato de `/api/auth/*`:
+
+| Endpoint | Body | OK | Errores |
+|---|---|---|---|
+| `POST /api/auth/ingreso` | `{ email, password }` | 200 `{ destino }` | 400; 401 "Email o contraseña incorrectos" |
+| `POST /api/auth/registro` | `{ email, password, role }` | 201, también si el email ya existe | 400 |
+| `POST /api/auth/recuperar-contrasena` | `{ email }` | 204, siempre | 400 |
+| `PATCH /api/auth/contrasena` | `{ password }` | 200 `{ destino }` | 400; 401 si el link venció |
+
+- `destino` lo decide el servidor según `profiles.role` (`/ofertas`, `/empresa`, `/admin`) y tiene que ser una ruta interna. El portal por el que se ingresa no limita el rol.
+- Ningún mensaje revela si una cuenta existe (AGENTS §7).
+
+Motivo: RF1.1.1 a RF1.1.4. Pantallas separadas por portal, como pide la landing, y un contrato fijo para que el backend de Auth se implemente detrás sin tocar el frontend.
+
+### D-021 — Tamaños táctiles y cómo se arma una pantalla
+Fecha: 2026-09-28 · Reemplaza: en D-009, que los componentes de `components/<feature>/` nunca buscan datos.
+Decisión:
+- `Button`: `default` 44 px (`h-11`, `text-base`), `lg` 48 px, `icon` 44 px, `icon-lg` 48 px. `xs`, `sm`, `icon-xs` e `icon-sm` quedan para vistas densas de escritorio y no se usan en pantallas mobile.
+- `Input`: 44 px y texto de 16 px siempre.
+- Estructura: **grupo → pantalla → componentes**.
+  - La pantalla es su `page.tsx`. Es un Server Component: exporta `metadata.title` y arma la pantalla con componentes de `components/<feature>/`, con sus propios textos y links.
+  - En `src/app/` solo hay archivos de rutas (`page.tsx`, `layout.tsx`, `route.ts`), ningún componente.
+- Un componente que envía o trae datos (por ejemplo, un formulario) llama a su hook directamente (D-017) y maneja la carga, el error y el éxito. Los componentes que solo muestran reciben todo por props.
+- No hay una capa intermedia de "contenedores".
+- Los hooks de mutación usan `sendJson` (`src/lib/http.ts`) y exponen `{ acción, loading, error }`. En los tests, los componentes que usan un hook se prueban con el hook simulado (mock).
+
+Motivo: RNF3 (targets de 44 px), WCAG 2.4.2 (un título por página, que un Client Component no puede exportar) y una estructura simple de leer, donde cada pantalla muestra en un solo archivo qué componentes usa.
+
+### D-022 — Dirección visual "Mosaico de oficios"
+Fecha: 2026-09-28
+Decisión:
+- El portal tiene una identidad visual marcada: **un mural de azulejos con los oficios de la ciudad** en los verdes municipales, con un único acento amarillo "sol".
+- **Forma firma, la "hoja":** dos esquinas muy redondeadas en diagonal.
+- **Fondos de marca en verde monte**, con un lema grande en Sora.
+- **Un solo momento de animación** al cargar, que respeta "reducir movimiento".
+- **Tokens nuevos:** `brand-deep` `#04311a`, `brand-leaf` `#3c8c4f`, `brand-mint` `#cfe6d3` y `brand-sun` `#f2c230`. El sol nunca va en texto.
+- El detalle está en `docs/DESIGN.md` §0.
+- Simple de usar no significa pelado: cada pantalla nueva sigue esta dirección.
+
+Motivo: la primera versión se veía genérica, como una plantilla. El portal representa a la Municipalidad y tiene que verse cuidado, sin perder legibilidad ni los targets de 44 px (RNF3).
+
+### D-023 — Sin retiro de postulación
+Fecha: 2026-09-28 · Resuelve: Q-008
+Decisión:
+- En el MVP el postulante **no puede retirar** una postulación. Si lo necesita, avisa a la Oficina.
+- La empresa no ve nada de las postulaciones (regla de intermediación).
+
+Motivo: retirar una postulación suma un endpoint, reglas nuevas (¿y si la Oficina ya lo preseleccionó o derivó?), una política RLS de borrado y un estado que D-008 no tiene. Todo eso por un caso poco probable: quien busca trabajo rara vez quiere retirarse.
+
+### D-024 — Ofertas y postulaciones del postulante
+Fecha: 2026-09-28
+Decisión:
+- URLs:
+  - `/ofertas`: listado público (P05, RF1.4.1). El detalle se ve en la misma página (P06, RF1.4.2); cómo se muestra lo define D-025.
+  - `/postulante/postulaciones`: P07.
+  - `/postulante/cv`: P04 (D-026).
+- Para postularse hay que tener sesión. Sin sesión, "Postularme" ofrece ingresar o crear una cuenta.
+- Contrato:
+
+| Endpoint | Body | OK | Errores |
+|---|---|---|---|
+| `GET /api/ofertas` | — | 200 `OfertaPublica[]`, solo ofertas `published` | 500 |
+| `POST /api/postulaciones` | `{ ofertaId }` | 201, también si ya estaba postulado | 400; 401 sin sesión; 404 oferta inexistente o no publicada; 409 sin CV (RF1.4.4) |
+| `GET /api/postulaciones` | — | 200 `PostulacionPropia[]` del usuario de la sesión, las más nuevas primero, **sin estado** (RF1.2.4) | 401 |
+
+- El postulante sale siempre de la sesión, nunca del body (AGENTS §7).
+- Postularse dos veces no es un error: el resultado para la persona es el mismo.
+- Las formas de los datos están en `src/lib/validation/ofertas.ts` y `postulaciones.ts`. Sus campos son **provisorios** (DT-002).
+- Los errores de los hooks conservan el código HTTP (`ErrorHttp` en `src/lib/http.ts`), para que la pantalla distinga "sin sesión" (401) de "falta el CV" (409).
+
+Motivo: RF1.4.1 a RF1.4.4 y RF1.2.4. El contrato permite construir el frontend antes que la base; el backend se implementa detrás sin tocar las pantallas.
+
+### D-025 — Ofertas en lista con el detalle al lado, sin modal
+Fecha: 2026-09-28 · Reemplaza: en D-024 y en AGENTS §10, que el detalle de la oferta se abre en un modal.
+Decisión:
+- Las ofertas se ven como en los portales de empleo (por ejemplo Computrabajo): **la lista y, en la misma página, el detalle de la oferta elegida**. No hay modal.
+- La oferta elegida va en la URL: `/ofertas?oferta=<id>`. Así funcionan el botón "atrás", recargar la página y compartir el link.
+- **Desktop:** lista a la izquierda y detalle fijo a la derecha. Si no se eligió ninguna, se muestra la primera.
+- **Mobile:** sin elección se ve solo la lista. Al tocar una oferta se ve solo su detalle, con "Volver a las ofertas"; el "atrás" del celular también vuelve.
+- "Postularme" queda fijo abajo del detalle.
+- Si el link apunta a una oferta que ya no está publicada, se avisa en lugar de mostrar otra.
+
+Motivo: el usuario lo había definido así. Un modal es frágil en celulares de gama baja (scroll dentro de scroll, teclado, botón "atrás" que no lo cierra). RF1.4.2 pide ver el detalle "sin cambiar de página", y esto lo cumple: es la misma página.
+
+### D-026 — API simulada mientras no hay base de datos
+Fecha: 2026-09-28 · Reemplaza: la vista previa con datos ficticios en `/playground/ofertas` (DT-003). Ajusta D-009 para este caso.
+Decisión:
+- Mientras la base no esté modelada, las rutas `/api/ofertas`, `/api/postulaciones` y `/api/cv` responden con un **backend simulado**:
+  - datos ficticios marcados "(ejemplo)";
+  - memoria del servidor de desarrollo, que se borra al reiniciar;
+  - siempre un postulante con sesión.
+- Así las pantallas reales se usan de punta a punta.
+- Todo lo simulado vive en `src/mocks/`. **En producción esas rutas responden 404**, así los datos ficticios nunca llegan a usuarios reales.
+- Respetan los contratos de D-024 y este:
+
+| Endpoint | Body | OK | Errores |
+|---|---|---|---|
+| `GET /api/cv` | — | 200 `{ cv }` (null si no subió) | 401 |
+| `PUT /api/cv` | multipart/form-data, campo `archivo` (PDF) | 200 `{ cv }`; reemplaza al anterior (1 CV por postulante, RF1.2.3) | 400 (no es PDF, pesa demasiado o está vacío); 401 |
+
+- La pantalla del CV (P04) está en `/postulante/cv`. El CV no se puede abrir desde la cuenta del postulante: solo lo ve la Oficina, con URLs firmadas (RNF1).
+
+Motivo: el usuario pidió simular el backend porque no puede modelar la base todavía. La vista previa separada confundía: parecía que las pantallas no existían.
+
 ---
 
 ## Abiertas
@@ -147,7 +274,7 @@ Motivo: tener las reglas de negocio en un solo lugar, fáciles de leer y de test
 Cuando el admin asocia un candidato a una oferta, ¿la postulación registra el origen (`self` / `admin`)? ¿Le aparece al postulante en "Mis postulaciones"?
 
 ### Q-008 — Retiro de postulación
-¿El postulante puede retirar una postulación? ¿La empresa ve algo de las postulaciones? (Por la regla de negocio, la respuesta asumida es no.)
+*Resuelta por D-023.* ¿El postulante puede retirar una postulación? ¿La empresa ve algo de las postulaciones? (Por la regla de negocio, la respuesta asumida es no.)
 
 ### Q-009 — Datos personales del postulante
 ¿Qué campos exactos lleva el perfil (RF1.2.1)? ¿DNI, fecha de nacimiento, dirección, barrio? Solo se piden los necesarios (Ley 25.326).

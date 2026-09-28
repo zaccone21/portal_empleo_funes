@@ -1,20 +1,40 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Be_Vietnam_Pro, Sora } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+// Municipal typography (D-019). Be Vietnam Pro is not a variable font, so the
+// weights must be listed; Sora is variable and loads every weight.
+const beVietnam = Be_Vietnam_Pro({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-be-vietnam",
+});
+const sora = Sora({ subsets: ["latin"], variable: "--font-sora" });
 
 export const metadata: Metadata = {
-  title: "Portal de Empleo — Municipalidad de Funes",
+  // Each page sets its own title (WCAG 2.4.2) and the template adds the portal name.
+  title: {
+    default: "Portal de Empleo — Municipalidad de Funes",
+    template: "%s — Portal de Empleo Funes",
+  },
   description:
     "Portal de Empleo de la Municipalidad de Funes: ofertas laborales, postulaciones y gestión de la Oficina de Empleo.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es-AR" className={cn("h-full antialiased", inter.variable)}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html
+      lang="es-AR"
+      className={cn("h-full antialiased", beVietnam.variable, sora.variable)}
+    >
+      <body className="min-h-full flex flex-col">
+        {children}
+        {/* The app has no dark mode, but the Toaster follows the OS theme
+            unless forced (it reads next-themes without a provider). */}
+        <Toaster theme="light" position="top-center" />
+      </body>
     </html>
   );
 }
