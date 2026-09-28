@@ -109,6 +109,18 @@ Decisión: todo el código de la app vive en `src/` y el alias `@/` apunta a `sr
 ### D-017 — Los datos llegan por Route Handlers
 Fecha: 2026-09-24
 Decisión: por ahora las páginas no buscan datos en el servidor. Los componentes cliente obtienen los datos con hooks que hacen `fetch` a `/api/...`, y cada Route Handler llama al DAL. `page.tsx` y `layout.tsx` pueden existir como cáscaras que renderizan componentes cliente. Se reevalúa usar Server Components para leer datos cuando se investigue el trade-off (por ejemplo, si el rendimiento en celulares de gama baja lo justifica).
+
+### D-018 — Casos de uso entre la API y el DAL
+Fecha: 2026-09-27 · Reemplaza: en D-012, que el DAL verifica permisos; en D-017, que el Route Handler llama al DAL.
+Decisión:
+- Flujo: hook → Route Handler (`/api/...`) → caso de uso → DAL → Supabase.
+- Route Handler: valida los datos con Zod, obtiene el usuario de la sesión con `getCurrentUser()` (si no hay, responde 401), llama a un caso de uso y traduce el resultado al status HTTP. No tiene reglas de negocio. `getCurrentUser()` es lo único del DAL que puede llamar.
+- Caso de uso (`src/lib/use-cases/`): una función por acción del usuario, agrupadas en un archivo por tema (por ejemplo `postulaciones.ts`). Recibe el usuario y los datos ya validados, aplica las reglas de negocio y los permisos (rol y dueño del recurso) y arma los datos que puede ver cada rol. Devuelve el resultado o el error esperado (sin permiso, no existe, conflicto, datos inválidos) con un mensaje corto para mostrar. No conoce HTTP ni usa el cliente de Supabase.
+- DAL (`src/lib/dal/`): las únicas funciones que usan el cliente de Supabase (base, Auth y Storage). Buscan y guardan; no deciden. Usan el cliente con la sesión del usuario, así RLS se aplica a cada consulta.
+- RLS sigue activo en la base como segunda barrera (RNF2): si un caso de uso se olvida un chequeo, la base igual rechaza el acceso.
+- Todo son funciones comunes, sin clases ni interfaces. Todo Route Handler pasa por un caso de uso, aunque sea simple.
+Motivo: tener las reglas de negocio en un solo lugar, fáciles de leer y de testear, separadas del HTTP y de las consultas.
+
 ---
 
 ## Abiertas

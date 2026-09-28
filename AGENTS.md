@@ -90,12 +90,13 @@ The installed versions are the only truth. Check `package.json` and the bundled 
 
 ```
 src/app/                     routes (Server Components by default)
-src/app/api/<resource>/route.ts   Route Handlers (GET/POST/PATCH/DELETE): thin (validate → check session and role → call DAL → return JSON with HTTP status)
+src/app/api/<resource>/route.ts   Route Handlers (GET/POST/PATCH/DELETE): thin (validate with Zod → get the session user → call one use case → map its result to JSON + HTTP status)
 src/proxy.ts                 request interception (session refresh); logic in lib/supabase/proxy.ts
 src/components/ui/           shadcn-generated primitives, customized by the user (do not hand-write here)
 src/hooks/                   client hooks named useNombre.ts that fetch /api/... and expose { data, loading, error } (use-mobile.ts comes from shadcn and keeps its name)
 src/components/<feature>/    feature components (e.g. components/job-offers/)
-src/lib/dal/                 Data Access Layer: 'server-only', all DB access + authorization, returns DTOs
+src/lib/use-cases/           use cases (D-018): 'server-only', one function per user action, one file per feature (e.g. postulaciones.ts); business rules + authorization, no HTTP, no Supabase
+src/lib/dal/                 Data Access Layer: 'server-only', the only code that uses the Supabase client (DB, Auth, Storage); fetches and saves, never decides
 src/lib/validation/          Zod schemas shared by forms and Route Handlers
 src/lib/supabase/            server.ts, client.ts, admin.ts (admin = secret key, server-only)
 supabase/migrations/         versioned SQL migrations (schema + RLS policies)
@@ -108,21 +109,24 @@ e2e/                         Playwright specs
 All app code lives under `src/`, and the `@/` alias maps to `src/`. Paths written without `src/` elsewhere in this file (for example `components/ui/` or `lib/dal/`) are relative to it.
 
 - Server Components by default. Add `"use client"` only to the smallest interactive leaf that needs it.
-- Only `lib/dal/` and `lib/supabase/` talk to Supabase or read `process.env`. Only Route Handlers call the DAL (D-017); pages and Client Components never call it, they use hooks that call `/api/...`.
-- The DAL returns **DTOs** with only the fields the caller needs. Never pass raw DB rows to Client Components or return them from a Route Handler.
+- **Layers (D-018)**: hook → Route Handler → use case → DAL → Supabase. Each layer calls only the next one. Pages and Client Components never call use cases or the DAL; they use hooks that call `/api/...` (D-017).
+  - **Route Handler**: validates the input with Zod, gets the user with `getCurrentUser()` (no user → 401), calls one use case, and maps its result to the HTTP status. No business rules. `getCurrentUser()` is the only DAL function it may call.
+  - **Use case**: receives the current user and the validated input. It checks the role and the ownership of the resource, applies the business rules, and builds the DTO. It returns either the data or an expected error (`forbidden` → 403, `not_found` → 404, `conflict` → 409, `invalid` → 400) with a short Spanish message the UI can show; unexpected failures are thrown (→ 500). It never imports `next/*`, builds HTTP responses, or uses the Supabase client. Every Route Handler goes through a use case, even a simple one.
+  - **DAL**: together with `lib/supabase/`, the only code that uses the Supabase client or reads `process.env`. It uses the session client from `lib/supabase/server.ts`, so RLS applies to every query. It selects only the columns the use case needs and returns typed objects, never Supabase response objects or raw errors. It fetches and saves; it never decides.
+- The use case returns **DTOs** with only the fields the user's role may see. Never pass raw DB rows to Client Components or return them from a Route Handler.
 - Route Handlers answer with the right HTTP status: 200 OK, 201 Created (POST), 204 No Content (DELETE), 400 invalid data, 401 no session, 403 no permission, 404 not found, 409 conflict, 500 unexpected error. Error bodies are `{ error: "message" }`.
 - Error handling is temporary: hooks show the error message as it comes (`e.message`), as in the reference README. The user will define proper error handling later. Until then, do not put stack traces or raw database errors in the `error` field of a response.
 - Generate DB types from Supabase. Do not hand-write row types.
-- No generic repositories, factories, service layers, or "utils" dumping grounds. Add an abstraction only when it has at least 2 real call sites.
+- No generic repositories, factories, service classes, or "utils" dumping grounds. Use cases are plain functions: no classes, interfaces, or dependency injection. Add any other abstraction only when it has at least 2 real call sites (use cases are the exception, D-018).
 - **Frontend-first split (D-009)**: feature components in `components/<feature>/` are presentational. They receive typed props (the future DTO shape) and never fetch data. Data reaches them from a hook in `hooks/` that calls `/api/...` (D-017) and is passed down as props. Until the DAL exists, preview components only in `app/playground/`, which is blocked in production. Example data lives **only** in `app/playground/` and in tests, uses obviously fake values, and is never imported from `components/`, `lib/` or real routes.
 
 ## 7. Security (non-negotiable)
 
 Read `node_modules/next/dist/docs/01-app/02-guides/data-security.md` and `authentication.md` before any auth or data work.
 
-- **RLS** (RNF2): enable it on every table, in the same migration that creates the table, with explicit policies per role and operation. Never disable RLS. Never write `using (true)` or `with check (true)` on writes. Never "temporarily" loosen a policy to make something work.
-- **Keys**: the secret/service-role key is used only in `lib/supabase/admin.ts`, which starts with `import 'server-only'`, and only after the caller's role was verified. Never put a secret in a `NEXT_PUBLIC_*` variable.
-- **Authorization on the server, every time**: each Server Action, Route Handler, and DAL function checks (1) authenticated user, (2) role, (3) ownership of the resource. `proxy.ts` only does optimistic redirects. It is never the only check. Hidden buttons are not security.
+- **RLS** (RNF2): enable it on every table, in the same migration that creates the table, with explicit policies per role and operation. It is the second barrier: the database enforces the same ownership rules the use cases check, so a check missing in code does not leak data. Never disable RLS. Never write `using (true)` or `with check (true)` on writes. Never "temporarily" loosen a policy to make something work.
+- **Keys**: the secret/service-role key is used only in `lib/supabase/admin.ts`, which starts with `import 'server-only'`. It bypasses RLS, so only DAL functions use it, and only when called by a use case that already verified the caller's role. Never put a secret in a `NEXT_PUBLIC_*` variable.
+- **Authorization on the server, every time** (D-018): (1) the Route Handler checks there is a session user (401 otherwise); (2) the use case checks the role and (3) the ownership of the resource; RLS enforces the same rules again in the database. A Server Action, if the user asks for one, follows the Route Handler rules. `proxy.ts` only does optimistic redirects. It is never the only check. Hidden buttons are not security.
 - **Role source**: read the role from the `profiles` table (or `app_metadata`), **never** from `user_metadata`, because users can edit it. Admin accounts are pre-created; there is no admin sign-up path (RF1.1.4).
 - **Input**: validate every input on the server with Zod, even if the client already validated it. Never trust IDs sent by the client for ownership; derive the owner from the session.
 - **CV files** (RNF1, RF1.2.3):
@@ -209,7 +213,7 @@ The machine runs Windows with PowerShell 5.1, and the project lives on `D:\`. A 
 2. **Plan.** List the files to create or modify, the approach, the tests to add, and the risks (security, data exposure, migrations). Wait for approval unless the change is trivial (typo, copy text, one-line fix).
 3. **Implement in small steps.** Do one task at a time with the minimal diff. Do not refactor, rename, reformat, or "improve" code outside the task. Mention such opportunities at the end instead.
 4. **Test.**
-   - Validation, DAL logic, and authorization rules get Vitest tests.
+   - Validation, use cases (business rules and authorization), and DAL logic get Vitest tests. Use-case tests mock the DAL module: it is a dependency, not the unit under test.
    - Critical flows get Playwright specs: sign-up/login, apply to an offer, offer moderation, CV access.
    - Every new table gets tests proving that RLS denies cross-user access.
    - Write the failing test first when fixing a bug.
@@ -241,7 +245,7 @@ If the same fix fails twice, stop. Explain what you tried, your hypotheses, and 
 - **Inventing things**: APIs, props, config options, CLI flags, package names, environment variables, or DB columns you have not verified in the installed code, the bundled docs, or the migrations.
 - **Outdated patterns**: `middleware.ts`, Pages Router APIs, Radix `asChild`, `tailwind.config.js`, `useFormState`, sync `cookies()`/`params`.
 - **Scope creep**: features, fields, screens, roles, or states that are not in the requirements. This includes "nice to have" extras, i18n, analytics, and dark-mode toggles.
-- **Over-engineering**: abstractions for a single use, config-driven "flexible" systems, custom hooks wrapping one call, premature optimization.
+- **Over-engineering**: abstractions for a single use (use cases are the exception, D-018), config-driven "flexible" systems, custom hooks wrapping one call, premature optimization.
 - **Noise**:
   - Comments that narrate the obvious. Comment only the *why* of non-obvious decisions.
   - Emojis in code, commits, or UI.
@@ -255,7 +259,8 @@ If the same fix fails twice, stop. Explain what you tried, your hypotheses, and 
 - Testing works: `npm run test` (Vitest) and `npm run test:e2e` (Playwright, mobile + desktop, port 3100). `npm run verify` is green. Every request goes through `proxy.ts`, which needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: without a `.env.local` (or those variables in the shell), `npm run dev` and `npm run test:e2e` answer 500.
 - `.env.example` lists the Supabase variable names. The user creates `.env.local`.
 - **Supabase, done**: packages installed, clients in `lib/supabase/` (`server`, `client`, `admin`, `proxy`, `env`), `proxy.ts` refreshing the session, `lib/dal/auth.ts` (`getCurrentUser`, `requireRole`) with unit tests, and the migration `supabase/migrations/20260924120000_create_profiles.sql` (table `profiles`, RLS, trigger) with pgTAP tests in `supabase/tests/`.
-- **Supabase, pending**: the migration is **not applied** anywhere and the pgTAP tests were never run (the Supabase CLI is not installed). DB types are not generated. The DB naming (English vs Spanish) is open, see Q-015. No login/registration screens, Route Handlers or hooks exist yet.
+- **Supabase, pending**: the migration is **not applied** anywhere and the pgTAP tests were never run (the Supabase CLI is not installed). DB types are not generated. The DB naming (English vs Spanish) is open, see Q-015. No login/registration screens, Route Handlers, use cases or hooks exist yet.
+- **Architecture (D-018)**: the layers are documented but `lib/use-cases/` does not exist yet. `requireRole` in `lib/dal/auth.ts` predates D-018 and does not fit it (see DT-001 in `docs/deuda_tecnica.md`); resolve it when writing the first use case.
 - Next step: once Q-015 is decided, adjust the migration names if needed, apply it to the development project (ask first), then build the auth flow (P02, P08, P13).
 
 ## 14. deuda_tecnica.md

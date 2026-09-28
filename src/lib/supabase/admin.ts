@@ -4,7 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 
-// Bypasses RLS. Callers must verify the user's role in the DAL before using it.
+// Bypasses RLS. Only DAL functions use it, called by a use case that already
+// verified the user's role (D-018).
 export function createAdminClient() {
   const secretKey = process.env.SUPABASE_SECRET_KEY;
 

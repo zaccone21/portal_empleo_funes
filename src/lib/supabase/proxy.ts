@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 
 // Refreshes the auth session cookies on every request. It does not decide
-// access: authorization is enforced in the DAL and in RLS.
+// access: authorization is enforced in the use cases and in RLS.
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
   const { url, publishableKey } = getSupabasePublicEnv();
