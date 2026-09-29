@@ -135,6 +135,23 @@ export const respuestaConDestinoSchema = z.object({
   destino: z.string().regex(/^\/(?!\/)/, "Destino inválido"),
 });
 
+/**
+ * Answer of GET /api/auth/sesion (D-028): who is logged in, or null. "Nobody"
+ * is a normal answer (200), not an error: public screens ask it too.
+ * Only the role and the email; the role comes from `profiles`, never from
+ * anything the user can edit (AGENTS §7).
+ */
+export const respuestaSesionSchema = z.object({
+  usuario: z
+    .object({
+      rol: roleSchema,
+      email: z.string(),
+    })
+    .nullable(),
+});
+
+export type UsuarioSesion = NonNullable<z.infer<typeof respuestaSesionSchema>["usuario"]>;
+
 export type DatosIngreso = z.infer<typeof ingresoSchema>;
 export type DatosRegistro = z.infer<typeof registroSchema>;
 export type DatosRecuperarContrasena = z.infer<typeof recuperarContrasenaSchema>;

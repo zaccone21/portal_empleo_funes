@@ -1,35 +1,32 @@
-import { BriefcaseBusinessIcon } from "lucide-react";
-
+import { TarjetaSeleccionable } from "@/components/marca/TarjetaSeleccionable";
 import { formatearDia } from "@/lib/fechas";
 import type { PostulacionPropia } from "@/lib/validation/postulaciones";
 
 /**
  * The applicant's application history (P07, RF1.2.4): which offer and when,
  * newest first as the server sends them. It shows no status on purpose: the
- * Office's evaluation is internal. The small mint tile echoes the trade
- * mosaic (D-022).
+ * Office's evaluation is internal.
+ *
+ * Each application is a link to its offer (/ofertas?oferta=<id>), so the
+ * person can read it again in one tap. If the offer was closed meanwhile,
+ * the offers screen says so.
  */
 export function ListaPostulaciones({ postulaciones }: { postulaciones: PostulacionPropia[] }) {
   return (
     <ul className="flex flex-col gap-3">
       {postulaciones.map((postulacion) => (
-        <li
-          key={postulacion.id}
-          className="flex items-start gap-4 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5"
-        >
-          <span
-            aria-hidden="true"
-            className="flex size-12 shrink-0 items-center justify-center rounded-tl-xl rounded-br-xl rounded-tr-sm rounded-bl-sm bg-secondary text-primary"
+        <li key={postulacion.id}>
+          <TarjetaSeleccionable
+            href={`/ofertas?oferta=${encodeURIComponent(postulacion.oferta.id)}`}
+            seleccionada={false}
+            soloEnEscritorio={false}
           >
-            <BriefcaseBusinessIcon className="size-6" />
-          </span>
-          <div className="flex min-w-0 flex-col gap-1">
             <h2 className="font-heading text-lg leading-snug font-semibold">{postulacion.oferta.titulo}</h2>
-            <p className="text-base text-muted-foreground">{postulacion.oferta.lugar}</p>
+            <p className="-mt-2 text-base text-muted-foreground">{postulacion.oferta.lugar}</p>
             <p className="text-sm text-muted-foreground">
               Te postulaste el {formatearDia(postulacion.postuladoEl)}
             </p>
-          </div>
+          </TarjetaSeleccionable>
         </li>
       ))}
     </ul>

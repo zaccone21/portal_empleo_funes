@@ -13,6 +13,16 @@ export const postularseSchema = z.object({
 export type DatosPostularse = z.infer<typeof postularseSchema>;
 
 /**
+ * Application status (D-008), set by the Office (RF1.5.6). Only the Office
+ * sees it; the applicant never does (RF1.2.4).
+ */
+export const estadoPostulacionSchema = z.enum(["applied", "preselected", "referred", "not_suitable"], {
+  error: "Elegí un estado",
+});
+
+export type EstadoPostulacion = z.infer<typeof estadoPostulacionSchema>;
+
+/**
  * One row of "Mis postulaciones" (P07): which offer and when. There is no
  * status field on purpose: the applicant never sees the Office's internal
  * evaluation (RF1.2.4). Zod drops unknown keys when parsing, so even if the

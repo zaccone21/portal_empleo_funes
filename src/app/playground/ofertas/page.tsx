@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { EncabezadoPortal } from "@/components/marca/EncabezadoPortal";
 import { Seccion } from "@/components/marca/Seccion";
 import { AvisoPostulacion } from "@/components/ofertas/AvisoPostulacion";
 import { ListaOfertas } from "@/components/ofertas/ListaOfertas";
@@ -28,7 +27,9 @@ const OFERTAS_DE_EJEMPLO: OfertaPublica[] = [
     requisitos: "Ganas de aprender. Libreta sanitaria o disposición para tramitarla.",
     lugar: "Barrio de ejemplo 1",
     jornada: "Lunes a sábado de 10 a 16",
+    rubro: "otros",
     publicadaEl: "2026-09-25T10:00:00-03:00",
+    yaTePostulaste: false,
   },
   {
     id: "ejemplo-2",
@@ -37,7 +38,9 @@ const OFERTAS_DE_EJEMPLO: OfertaPublica[] = [
     requisitos: "Experiencia en jardinería. Se valora tener herramientas propias.",
     lugar: "Barrio de ejemplo 2",
     jornada: "Martes y jueves de 8 a 13",
+    rubro: "otros",
     publicadaEl: "2026-09-24T09:00:00-03:00",
+    yaTePostulaste: false,
   },
   {
     id: "ejemplo-3",
@@ -46,7 +49,9 @@ const OFERTAS_DE_EJEMPLO: OfertaPublica[] = [
     requisitos: "Matrícula vigente. Registro de conducir.",
     lugar: "Zona de ejemplo",
     jornada: "Lunes a viernes de 7 a 15",
+    rubro: "otros",
     publicadaEl: "2026-09-22T12:00:00-03:00",
+    yaTePostulaste: false,
   },
   {
     id: "ejemplo-4",
@@ -55,7 +60,9 @@ const OFERTAS_DE_EJEMPLO: OfertaPublica[] = [
     requisitos: "Secundario completo. Buen trato con la gente.",
     lugar: "Centro de ejemplo",
     jornada: "Turno tarde, de 15 a 21",
+    rubro: "otros",
     publicadaEl: "2026-09-20T08:30:00-03:00",
+    yaTePostulaste: false,
   },
   {
     id: "ejemplo-5",
@@ -64,7 +71,9 @@ const OFERTAS_DE_EJEMPLO: OfertaPublica[] = [
     requisitos: "Registro profesional. Conocer la zona.",
     lugar: "Parque industrial de ejemplo",
     jornada: "Lunes a viernes de 6 a 14",
+    rubro: "otros",
     publicadaEl: "2026-09-18T11:00:00-03:00",
+    yaTePostulaste: false,
   },
 ];
 
@@ -88,12 +97,6 @@ export default function PlaygroundOfertasPage() {
 
   return (
     <div className="flex min-h-dvh flex-1 flex-col bg-brand-deep">
-      <EncabezadoPortal
-        enlaces={[
-          { href: "/ofertas", texto: "Ofertas" },
-          { href: "/postulante/postulaciones", texto: "Mis postulaciones" },
-        ]}
-      />
       <Seccion
         titulo="Vista previa: ofertas de trabajo"
         bajada="Datos de ejemplo. El botón Postularme llama a la API real, que todavía no existe."

@@ -1,10 +1,15 @@
 import Link from "next/link";
 
+import { LogoMunicipalidad } from "./LogoMunicipalidad";
+
 /**
- * Portal lockup for green surfaces: a 2×2 mini mosaic (the same tiles as
- * MosaicoOficios) and the portal's name. It links to the home page and is a
- * 44px touch target. It stands in for the municipal logo until there is a
- * sharp version of it (docs/LOGOcolor.png is 92×26 px).
+ * Portal lockup for the deep green surfaces: the municipal logo (in white),
+ * a thin divider and the portal's name, side by side. It links to the home
+ * page and is a 44px touch target.
+ *
+ * The logo keeps its own proportions: it is a fixed-size image, not stretched
+ * to the name's width (`shrink-0`), and it is shown at the file's own size
+ * (92×26) because scaling it down made its text unreadable.
  */
 export function MarcaPortal() {
   return (
@@ -12,16 +17,9 @@ export function MarcaPortal() {
       href="/"
       className="inline-flex min-h-11 items-center gap-3 self-start rounded-lg text-primary-foreground outline-none focus-visible:ring-3 focus-visible:ring-brand-mint/70"
     >
-      <span aria-hidden="true" className="grid size-10 grid-cols-2 gap-0.5">
-        <span className="rounded-tl-[45%] rounded-tr-[3px] rounded-br-[3px] rounded-bl-[3px] bg-brand-sun" />
-        <span className="rounded-[3px] bg-brand-mint" />
-        <span className="rounded-[3px] bg-brand-leaf" />
-        <span className="rounded-br-[45%] rounded-tl-[3px] rounded-tr-[3px] rounded-bl-[3px] bg-primary-foreground" />
-      </span>
-      <span className="flex flex-col leading-tight">
-        <span className="font-heading text-base font-semibold">Portal de Empleo</span>
-        <span className="text-sm text-primary-foreground/75">Municipalidad de Funes</span>
-      </span>
+      <LogoMunicipalidad variante="claro" className="h-[26px] w-[92px] shrink-0" />
+      <span aria-hidden="true" className="h-7 w-px shrink-0 bg-primary-foreground/35" />
+      <span className="font-heading text-base leading-tight font-semibold">Portal de Empleo</span>
     </Link>
   );
 }

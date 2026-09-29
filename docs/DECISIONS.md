@@ -205,7 +205,7 @@ Decisión:
 
 | Endpoint | Body | OK | Errores |
 |---|---|---|---|
-| `GET /api/ofertas` | — | 200 `OfertaPublica[]`, solo ofertas `published` | 500 |
+| `GET /api/ofertas` | — | 200 `OfertaPublica[]`, solo ofertas `published`, con `yaTePostulaste` (D-028) | 500 |
 | `POST /api/postulaciones` | `{ ofertaId }` | 201, también si ya estaba postulado | 400; 401 sin sesión; 404 oferta inexistente o no publicada; 409 sin CV (RF1.4.4) |
 | `GET /api/postulaciones` | — | 200 `PostulacionPropia[]` del usuario de la sesión, las más nuevas primero, **sin estado** (RF1.2.4) | 401 |
 
@@ -247,6 +247,127 @@ Decisión:
 - La pantalla del CV (P04) está en `/postulante/cv`. El CV no se puede abrir desde la cuenta del postulante: solo lo ve la Oficina, con URLs firmadas (RNF1).
 
 Motivo: el usuario pidió simular el backend porque no puede modelar la base todavía. La vista previa separada confundía: parecía que las pantallas no existían.
+
+### D-027 — Pantallas de la empresa
+Fecha: 2026-09-28
+Decisión:
+- URLs:
+  - `/empresa`: inicio (P09).
+  - `/empresa/perfil`: datos de la empresa (P10).
+  - `/empresa/ofertas/nueva`: publicar una oferta (P11).
+  - `/empresa/ofertas`: mis ofertas (P12), con lista y detalle en la misma página (D-025) y `?oferta=<id>`.
+- Contrato (simulado por ahora, D-026):
+
+| Endpoint | Body | OK | Errores |
+|---|---|---|---|
+| `GET /api/empresa/perfil` | — | 200 `{ perfil }` (null si no lo cargó) | 401, 403 |
+| `PUT /api/empresa/perfil` | razón social, CUIT, descripción, contacto (nombre, teléfono, email) | 200 `{ perfil }` con el CUIT en formato `XX-XXXXXXXX-X` | 400, 401, 403 |
+| `GET /api/empresa/ofertas` | — | 200 `OfertaEmpresa[]` de la empresa, las más nuevas primero | 401, 403 |
+| `POST /api/empresa/ofertas` | título, descripción, requisitos, lugar, jornada (todos obligatorios) | 201 `{ oferta }` en `pending` (sin borradores, D-007) | 400, 401, 403 |
+| `POST /api/empresa/ofertas/<id>/solicitud-cierre` | — | 200 `{ oferta }` con `cierreSolicitado: true`; también si ya lo había pedido | 401, 403, 404 (no existe o no es suya), 409 (no está publicada) |
+
+- `OfertaEmpresa` trae estado, motivo de rechazo (solo si fue rechazada, RF1.3.5) y el pedido de cierre. **Nunca trae datos de postulantes.**
+- El CUIT se valida con el dígito verificador de AFIP.
+- El inicio (P09) muestra las ofertas por estado mientras Q-012 siga abierta.
+- No se ofrece editar una oferta rechazada (Q-002) ni cancelar un pedido de cierre (Q-003).
+- Una empresa sin datos cargados puede publicar igual (Q-014 sigue abierta); el inicio le recuerda completarlos.
+
+Motivo: RF1.3.1 a RF1.3.6. Mismo patrón que el área del postulante, así el backend real se implementa detrás sin tocar las pantallas.
+
+### D-028 — Sesión, navegación por rol y accesos directos
+Fecha: 2026-09-28 · Amplía: D-020 (contrato de acceso) y D-024 (ofertas)
+Decisión:
+- **Sesión:**
+  - `GET /api/auth/sesion` responde 200 `{ usuario: { rol, email } | null }`. "Nadie ingresó" no es un error.
+  - `POST /api/auth/salida` responde 204 siempre.
+  - Cada área (postulante, empresa) lee la sesión una vez en su layout (`ProveedorSesion`).
+- **Menú según quién ingresó:**
+  - En desktop, en la barra superior.
+  - En el celular, en una **barra fija abajo con ícono y palabra**; el "Publicar" de la empresa va destacado.
+  - "Salir" es un botón visible, no un menú escondido. Al salir, lleva al ingreso de ese rol.
+  - Sin sesión, se ofrecen "Ingresar" y "Crear cuenta".
+- **Pantallas privadas sin acceso** (401 o 403): muestran "Ingresá…" con el botón para ingresar, no un error.
+- **Volver después de ingresar:** el ingreso acepta `?volver=<ruta interna>` y, al entrar, lleva de vuelta ahí. Solo rutas del propio sitio.
+- **Ofertas:** `GET /api/ofertas` agrega `yaTePostulaste` (true solo para el postulante con sesión que ya se postuló). La tarjeta y el detalle lo muestran, y el botón no se ofrece de nuevo. No es un estado interno (RF1.2.4).
+- **Otros accesos directos:**
+  - Aviso "Subí tu CV" arriba de las ofertas si al postulante le falta.
+  - Cada postulación lleva a su oferta.
+  - "Publicar oferta" en la lista de la empresa.
+  - Links cruzados entre el ingreso de postulante y el de empresa, y "Ver las ofertas sin ingresar".
+  - "Saltar al contenido" para teclado.
+- **Logo de la Municipalidad** en la marca de la barra superior y del acceso, en blanco sobre el verde (filtro CSS sobre `public/logo-municipalidad-funes.png`).
+- **Sesión simulada mientras no esté Supabase Auth:** tres usuarios de prueba con cualquier contraseña:
+  - `postulante@ejemplo.com`;
+  - `empresa@ejemplo.com`;
+  - `oficina@ejemplo.com`.
+
+  Todas las rutas de `/api/auth/*` responden con el contrato de D-020. En producción responden 404 (DT-003).
+
+Motivo: RNF3 (usuarios con poca práctica digital, en el celular) y el pedido de dejar las cosas más a mano. En el celular el menú y un encabezado alto ocupaban casi media pantalla antes del contenido.
+
+### D-029 — Inicio con ofertas y catálogo de ofertas
+Fecha: 2026-09-28 · Amplía: D-024, D-025 y D-027
+Decisión:
+- **Inicio (P01, `/`):**
+  - buscador "¿Qué trabajo buscás?" que lleva a `/ofertas?q=…`;
+  - 7 rubros como atajos a `/ofertas?rubro=…`;
+  - las 4 ofertas publicadas más recientes;
+  - "Cómo postularte" en 3 pasos;
+  - un bloque para empresas y, en el pie, el ingreso de la Oficina.
+  Usa el mismo `GET /api/ofertas`. Se muestran las más recientes y no las "más relevantes", porque la relevancia no tiene un criterio definido.
+- **Catálogo (P05 y P06, `/ofertas`):** buscar, filtrar por rubro y ordenar. Todo va en la URL:
+  - `q`: texto; busca en título, descripción, requisitos, lugar, horario y rubro, sin importar tildes ni mayúsculas;
+  - `rubro`: uno de la lista;
+  - `orden`: `recientes` (por defecto) o `antiguas`;
+  - `oferta`: la elegida (D-025). Al abrirla, se conservan los filtros.
+- El filtro se hace en el navegador sobre la lista que ya trae `GET /api/ofertas`: el volumen de una ciudad es chico. Si crece, se pasa al servidor con los mismos parámetros, sin cambiar las pantallas.
+- **Rubro de la oferta:** cada oferta tiene un rubro obligatorio.
+  - `OfertaPublica` y `OfertaEmpresa` lo traen.
+  - `POST /api/empresa/ofertas` lo exige: se suma al body de D-027.
+  - La lista es **provisoria**, con 11 rubros (`src/lib/validation/rubros.ts`). Se propone que sea la misma lista de etiquetas del postulante (RF1.2.2), que sigue abierta en Q-006 (DT-002).
+- El detalle de diseño está en `docs/DESIGN.md` §4 ter.
+
+Motivo: idea del usuario (el inicio muestra ofertas, y las ofertas son un catálogo para buscar y filtrar), RF1.4.1 y RNF3. Con los filtros en la URL funcionan el "atrás" del celular y compartir el link.
+
+### D-030 — Oficina de Empleo: panel y gestión de ofertas
+Fecha: 2026-09-28
+Decisión:
+- URLs:
+  - `/admin`: panel (P14);
+  - `/admin/ofertas?estado=<estado>&oferta=<id>`: gestión de ofertas (P15), con pestañas por estado (RF1.5.2) y lista + detalle en la misma página (D-025). Sin `estado`, abre en Pendientes.
+- **Panel (P14):** 4 números que llevan a resolverlos:
+  - ofertas para revisar;
+  - pedidos de cierre;
+  - postulaciones sin revisar (estado `applied`);
+  - ofertas publicadas.
+
+  Son **provisorios** hasta que se decida Q-012 (DT-006).
+- **Gestión (P15):**
+  - Publicar o rechazar una oferta pendiente, con el motivo obligatorio para rechazar (RF1.5.3).
+  - Cerrar una publicada, solo si la empresa pidió el cierre (RF1.5.4).
+  - Ver los postulantes de la oferta, abrir su CV (RF1.5.5) y cambiar el estado de cada uno (RF1.5.6). Se permite cualquier cambio entre los 4 estados: los requerimientos no fijan un orden.
+  - La Oficina ve los datos de contacto de la empresa.
+  - Del postulante ve solo el email, hasta que se definan los datos del perfil (Q-009).
+- Contrato (simulado por ahora, D-026). Todas las rutas responden 401 sin sesión y 403 si el rol no es `admin`:
+
+| Endpoint | Body | OK | Errores |
+|---|---|---|---|
+| `GET /api/admin/resumen` | — | 200 `{ ofertasPendientes, pedidosDeCierre, ofertasPublicadas, postulacionesSinRevisar }` | 401, 403 |
+| `GET /api/admin/ofertas` | — | 200 `OfertaOficina[]` de todos los estados, con la empresa (o null si no cargó sus datos), el email de la cuenta y la cantidad de postulaciones | 401, 403 |
+| `POST /api/admin/ofertas/<id>/publicacion` | — | 200 `{ oferta }` en `published` | 404; 409 si ya no está pendiente |
+| `POST /api/admin/ofertas/<id>/rechazo` | `{ motivo }` (obligatorio, hasta 500 caracteres) | 200 `{ oferta }` en `rejected` con el motivo | 400; 404; 409 si ya no está pendiente |
+| `POST /api/admin/ofertas/<id>/cierre` | — | 200 `{ oferta }` en `closed` | 404; 409 si no está publicada o la empresa no pidió el cierre |
+| `GET /api/admin/ofertas/<id>/postulaciones` | — | 200 `PostulacionOficina[]` con email, fecha, estado y el CV (nombre y tamaño, o null si no subió) | 404 |
+| `PATCH /api/admin/postulaciones/<id>` | `{ estado }` | 200 `{ postulacion }` | 400; 404 |
+| `GET /api/admin/postulaciones/<id>/cv` | — | El PDF del postulante | 404 si no subió CV |
+
+- **CV:** en la versión simulada, la ruta devuelve el PDF. En la real, genera una **URL firmada de corta duración** del bucket privado y redirige a ella (RNF1, AGENTS §7). El link "Ver CV" no cambia.
+- Un 409 lleva el mensaje del servidor ("Esta oferta ya fue revisada."), por si otra operadora decidió primero.
+- Las formas de los datos están en `src/lib/validation/oficina.ts`.
+- P16 (buscador de postulantes) no se construye: depende de Q-006, Q-007 y Q-009.
+- El detalle de diseño está en `docs/DESIGN.md` §4 ter.
+
+Motivo: RF1.5.1 a RF1.5.6. Mismo patrón que las áreas del postulante y de la empresa, así el backend real se implementa detrás sin tocar las pantallas.
 
 ---
 

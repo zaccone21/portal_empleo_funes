@@ -260,27 +260,44 @@ If the same fix fails twice, stop. Explain what you tried, your hypotheses, and 
 
 ## 13. Current state
 
-- The Next.js 16 app lives under `src/`: placeholder home page, a `landing` page in progress by the user, `lang="es-AR"`. Municipal palette and fonts (Be Vietnam Pro + Sora) are set (D-019, `docs/DESIGN.md`). `Button` and `Input` were resized to 44 px touch targets (D-021). Visual direction "Mosaico de oficios" (D-022, `docs/DESIGN.md` §0): brand tokens `brand-deep/leaf/mint/sun`, brand components in `components/marca/`. Every new screen follows it; a plain default-looking screen is not done.
+- The Next.js 16 app lives under `src/`: the home page (P01, D-029) is `src/app/page.tsx` with its components in `components/inicio/`; `/landing` is a page in progress by the user (do not touch it); `lang="es-AR"`. Municipal palette and fonts (Be Vietnam Pro + Sora) are set (D-019, `docs/DESIGN.md`). `Button` and `Input` were resized to 44 px touch targets (D-021). Visual direction "Mosaico de oficios" (D-022, `docs/DESIGN.md` §0): brand tokens `brand-deep/leaf/mint/sun`, brand components in `components/marca/`. Every new screen follows it; a plain default-looking screen is not done. **Every design decision is recorded in `docs/DESIGN.md`**: the rule in its section and a dated line in §11.
 - shadcn/ui is configured (`components.json`, theme tokens in `src/app/globals.css`). Installed in `components/ui/`: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, calendar, card, chart, checkbox, dialog, dropdown-menu, empty, field, input, label, navigation-menu, pagination, popover, radio-group, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, tooltip. Read the file before using any of them. Anything else is added on demand (see §10). The `Toaster` (sonner) is mounted in the root layout (light theme, top center).
 - Testing works: `npm run test` (Vitest) and `npm run test:e2e` (Playwright, mobile + desktop, port 3100). `npm run verify` is green. Every request goes through `proxy.ts`, which needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: without a `.env.local` (or those variables in the shell), `npm run dev` and `npm run test:e2e` answer 500.
 - `.env.example` lists the Supabase variable names. The user creates `.env.local`.
 - **Supabase, done**: packages installed, clients in `lib/supabase/` (`server`, `client`, `admin`, `proxy`, `env`), `proxy.ts` refreshing the session, `lib/dal/auth.ts` (`getCurrentUser`, `requireRole`) with unit tests, and the migration `supabase/migrations/20260924120000_create_profiles.sql` (table `profiles`, RLS, trigger) with pgTAP tests in `supabase/tests/`.
 - **Supabase, pending**: the migration is **not applied** anywhere and the pgTAP tests were never run (the Supabase CLI is not installed). DB types are not generated. The DB naming (English vs Spanish) is open, see Q-015. No Route Handlers or use cases exist yet.
-- **Access flow, frontend done (D-020, D-021)**: the screens are `src/app/(acceso)/{postulante,empresa}/{ingresar,registrarse,recuperar-contrasena}/page.tsx`, `admin/ingresar` and `nueva-contrasena`. Their components (forms that send with their hook, fields, card, links) are in `components/auth/`, the Zod schemas in `lib/validation/auth.ts`, the hooks are `useIngreso`, `useRegistro`, `useRecuperarContrasena` and `useNuevaContrasena`, and the fetch helper is `lib/http.ts`. The `/api/auth/*` endpoints do not exist yet, so the forms show the generic error until they do. The frame and slogans come from `MarcoAcceso` (group layout) and `PanelAcceso` (one layout per portal).
+- **Access flow, frontend done (D-020, D-021)**: the screens are `src/app/(acceso)/{postulante,empresa}/{ingresar,registrarse,recuperar-contrasena}/page.tsx`, `admin/ingresar` and `nueva-contrasena`. Their components (forms that send with their hook, fields, card, links) are in `components/auth/`, the Zod schemas in `lib/validation/auth.ts`, the hooks are `useIngreso`, `useRegistro`, `useRecuperarContrasena` and `useNuevaContrasena`, and the fetch helper is `lib/http.ts`. The `/api/auth/*` endpoints are simulated (D-028, DT-003). The frame and slogans come from `MarcoAcceso` (group layout) and `PanelAcceso` (one layout per portal).
 - **Applicant area, frontend done (D-023 to D-026)**:
   - Screens in `src/app/(postulante)/`: `/ofertas` (P05 list + P06 detail on the same page), `/postulante/postulaciones` (P07) and `/postulante/cv` (P04).
   - Components are in `components/ofertas/`, `components/postulaciones/` and `components/cv/`. The hooks are `useOfertasPublicadas`, `usePostularme`, `useMisPostulaciones` and `useMiCv`.
   - The APIs `/api/ofertas`, `/api/postulaciones` and `/api/cv` are **simulated** (DT-003, D-026): fake data and in-memory state from `src/mocks/`, 404 in production. `e2e/postulacion.spec.ts` runs against them.
   - Offer fields (DT-002) and CV rules (DT-004) are provisional.
   - `src/app/playground/ofertas/page.tsx` is obsolete and pending deletion.
-  - There is no "Salir" or session-aware navigation yet.
+  - `/ofertas` is a catalog (D-029): search, trade filter and order live in the URL (`q`, `rubro`, `orden`, `oferta`); the logic is in `lib/catalogo.ts` and the controls in `FiltrosOfertas`. Trades are a provisional list in `lib/validation/rubros.ts` (DT-002, Q-006).
+- **Company area, frontend done (D-027)**:
+  - Screens in `src/app/(empresa)/empresa/`: home (P09), `perfil` (P10), `ofertas/nueva` (P11) and `ofertas` (P12, list + detail).
+  - Components are in `components/empresa/`. Shared structure pieces are in `components/marca/` (`ListaConDetalle`, `PanelDetalle`, `TarjetaSeleccionable`); `CampoTexto` is in `components/formularios/`.
+  - The hooks are `usePerfilEmpresa`, `useOfertasEmpresa`, `useCrearOferta` and `useSolicitarCierre`. The APIs under `/api/empresa/` are simulated (DT-003). The company data and the P09 summary are provisional (DT-005).
+  - `e2e/empresa.spec.ts` runs against the simulated API.
+- **Session and navigation, frontend done (D-028)**:
+  - Each area layout wraps its screens in `ProveedorSesion`; read the session with `useSesion` (only for what the screen shows, never for permissions).
+  - Top bar: `EncabezadoPortal`. Phone bottom bar: `BarraInferior`. The menu items live in `components/marca/itemsNavegacion.ts`. Private screens show `PedirIngreso` on 401/403.
+  - Login is **simulated** (`src/mocks/sesion.ts`, cookie `portal_sesion_simulada`). The test users are `postulante@ejemplo.com`, `empresa@ejemplo.com` and `oficina@ejemplo.com`, with any password. `/api/auth/*` follows D-020 plus `sesion` and `salida`.
+  - e2e specs log in through `e2e/ayudas.ts`.
+- **Employment Office, frontend done (D-030)**:
+  - Screens in `src/app/(admin)/admin/`: panel (P14) and `ofertas` (P15, status tabs `?estado=` + list and detail).
+  - Components are in `components/oficina/`, the hooks in `hooks/useOficina.ts`, the schemas in `lib/validation/oficina.ts`.
+  - The APIs under `/api/admin/` are simulated (DT-003). The panel indicators and the applicant data are provisional (DT-006, Q-012, Q-009). P16 is blocked (Q-006, Q-007, Q-009).
+  - `e2e/oficina.spec.ts` runs against the simulated API.
+- **Simulated store**: all simulated routes share one in-memory store (`src/mocks/almacen.ts`), so the whole cycle works across the three roles. Restart `npm run dev` to reset it.
+- **Frontend plan by screen and role**: `docs/plan_frontend.md`. Keep it updated when a screen changes state.
 - **Architecture (D-018)**: the layers are documented but `lib/use-cases/` does not exist yet. `requireRole` in `lib/dal/auth.ts` predates D-018 and does not fit it (see DT-001 in `docs/deuda_tecnica.md`); resolve it when writing the first use case.
 - Next step:
   1. Once Q-015 is decided, adjust the migration names if needed and apply the migration to the development project (ask first).
   2. Implement `/api/auth/*` behind the D-020 contract (Route Handler → use case → DAL).
   3. Add the route that receives the email link (confirmation and recovery), which redirects to `/nueva-contrasena` in the recovery case.
   4. In Supabase Auth, turn on email confirmation and set the minimum password length to 8.
-  5. Frontend: session-aware navigation with "Salir" for each role, then flow 3 (P03 profile, P04 CV), which depends on Q-009, Q-005 and Q-006.
+  5. Frontend: follow `docs/plan_frontend.md`. Phases 1 to 5 are done with simulated data. What is left is blocked by open questions (P03: Q-006, Q-009; P16: Q-006, Q-007, Q-009; indicators: Q-012) or is the real backend (phase 7).
 
 ## 14. deuda_tecnica.md
 - Whenever a decision taken by the agent, even if the developer agreed on it, generates any sort of technical debt beacause of a poor developing estructure, a bad programming practice is applicated to the proyect, maybe for test or debugging, or any type of thing that wouldnt be on production code it has to be reported in the document ../docs/deuda_tecnica.md 

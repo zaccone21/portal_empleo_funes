@@ -76,3 +76,21 @@ test("shows the server error", () => {
 
   expect(screen.getByRole("alert").textContent).toContain("Email o contraseña incorrectos");
 });
+
+test("goes back to the screen that asked to log in (?volver=)", async () => {
+  mocks.ingresar.mockResolvedValue("/ofertas");
+  render(<FormularioIngreso volver="/ofertas?oferta=ejemplo-2" />);
+
+  completar("persona@ejemplo.com", "secreta");
+
+  await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/ofertas?oferta=ejemplo-2"));
+});
+
+test("ignores a ?volver= that points to another site", async () => {
+  mocks.ingresar.mockResolvedValue("/ofertas");
+  render(<FormularioIngreso volver="//otro-sitio.com" />);
+
+  completar("persona@ejemplo.com", "secreta");
+
+  await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/ofertas"));
+});

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { ErrorHttp, getJson, mensajeDeError } from "@/lib/http";
+import { esSinAcceso, getJson, mensajeDeError } from "@/lib/http";
 import { listaPostulacionesSchema, type PostulacionPropia } from "@/lib/validation/postulaciones";
 
 /**
@@ -10,14 +10,15 @@ import { listaPostulacionesSchema, type PostulacionPropia } from "@/lib/validati
  *
  * Returns:
  * - `postulaciones`: the list, or null while it has not arrived;
- * - `sinSesion`: true when the server answered 401 (nobody logged in); the
- *   screen then offers to log in instead of showing an error;
+ * - `sinAcceso`: true when the server answered 401 (nobody logged in) or 403
+ *   (logged in with another role); the screen then offers to log in instead
+ *   of showing an error;
  * - `loading`, `error` and `recargar`: as in useOfertasPublicadas.
  */
 export function useMisPostulaciones() {
   const [postulaciones, setPostulaciones] = useState<PostulacionPropia[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [sinSesion, setSinSesion] = useState(false);
+  const [sinAcceso, setSinAcceso] = useState(false);
   const [intento, setIntento] = useState(0);
 
   useEffect(() => {
@@ -29,8 +30,8 @@ export function useMisPostulaciones() {
       })
       .catch((e: unknown) => {
         if (!vigente) return;
-        if (e instanceof ErrorHttp && e.status === 401) {
-          setSinSesion(true);
+        if (esSinAcceso(e)) {
+          setSinAcceso(true);
         } else {
           setError(mensajeDeError(e));
         }
@@ -44,15 +45,15 @@ export function useMisPostulaciones() {
   function recargar() {
     setPostulaciones(null);
     setError(null);
-    setSinSesion(false);
+    setSinAcceso(false);
     setIntento((n) => n + 1);
   }
 
   return {
     postulaciones,
-    loading: postulaciones === null && error === null && !sinSesion,
+    loading: postulaciones === null && error === null && !sinAcceso,
     error,
-    sinSesion,
+    sinAcceso,
     recargar,
   };
 }

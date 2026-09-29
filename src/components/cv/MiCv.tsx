@@ -6,6 +6,7 @@ import { InfoIcon, ShieldCheckIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
+import { PedirIngreso } from "@/components/estados/PedirIngreso";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,7 +27,7 @@ import { TarjetaCvActual } from "./TarjetaCvActual";
  * send anyone to another site.
  */
 export function MiCv({ ofertaId }: { ofertaId?: string }) {
-  const { cv, loading, error, recargar, subir, subiendo, errorSubida } = useMiCv();
+  const { cv, loading, error, sinAcceso, recargar, subir, subiendo, errorSubida } = useMiCv();
   const [recienSubido, setRecienSubido] = useState(false);
 
   async function handleSubir(archivo: File) {
@@ -46,6 +47,16 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
         </span>
         <Skeleton className="h-64 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card" />
       </div>
+    );
+  }
+
+  if (sinAcceso) {
+    return (
+      <PedirIngreso
+        rol="applicant"
+        titulo="Ingresá para subir tu CV"
+        descripcion="Con tu CV cargado te podés postular a las ofertas."
+      />
     );
   }
 

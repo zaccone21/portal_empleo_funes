@@ -28,7 +28,9 @@ const ofertas: OfertaPublica[] = [
     requisitos: "Libreta sanitaria.",
     lugar: "Barrio de ejemplo",
     jornada: "Lunes a viernes de 8 a 16",
+    rubro: "otros",
     publicadaEl: "2026-09-25T10:00:00-03:00",
+    yaTePostulaste: false,
   },
   {
     id: "o-2",
@@ -37,7 +39,9 @@ const ofertas: OfertaPublica[] = [
     requisitos: "Experiencia.",
     lugar: "Otro barrio de ejemplo",
     jornada: "Martes y jueves",
+    rubro: "otros",
     publicadaEl: "2026-09-24T10:00:00-03:00",
+    yaTePostulaste: false,
   },
 ];
 
@@ -76,4 +80,34 @@ test("says so when the selected offer is no longer published", () => {
   render(<ListaOfertas ofertas={ofertas} seleccionadaId="cerrada" />);
 
   expect(screen.getByText("Esta oferta ya no está publicada")).toBeDefined();
+});
+
+test("an offer already applied to says so on the card and in the detail, without the button", () => {
+  render(<ListaOfertas ofertas={[{ ...ofertas[0], yaTePostulaste: true }, ofertas[1]]} seleccionadaId="o-1" />);
+
+  expect(screen.getAllByText("Te postulaste")).toHaveLength(1);
+  expect(within(detalle()).getByText("Te postulaste a esta oferta")).toBeDefined();
+  expect(screen.queryByRole("button", { name: "Postularme" })).toBeNull();
+});
+
+test("filters by trade and keeps the filters in each card's link (D-029)", () => {
+  render(
+    <ListaOfertas
+      ofertas={[{ ...ofertas[0], rubro: "gastronomia" }, { ...ofertas[1], rubro: "jardineria" }]}
+      filtros={{ q: "", rubro: "jardineria", orden: "recientes" }}
+    />,
+  );
+
+  expect(screen.getByText("Hay 1 oferta de Jardinería y mantenimiento.")).toBeDefined();
+  expect(screen.getByRole("link", { name: /Jardinero \(ejemplo\)/ }).getAttribute("href")).toBe(
+    "/ofertas?rubro=jardineria&oferta=o-2",
+  );
+  expect(screen.queryByRole("link", { name: /Ayudante de cocina/ })).toBeNull();
+});
+
+test("when nothing matches, says so and offers every offer", () => {
+  render(<ListaOfertas ofertas={ofertas} filtros={{ q: "astronauta", rubro: null, orden: "recientes" }} />);
+
+  expect(screen.getByText("No encontramos ofertas con esa búsqueda")).toBeDefined();
+  expect(screen.getByRole("link", { name: "Ver todas las ofertas" }).getAttribute("href")).toBe("/ofertas");
 });

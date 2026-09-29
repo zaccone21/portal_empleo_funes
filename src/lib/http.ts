@@ -110,6 +110,15 @@ export async function sendFormData<T>(
   return schema.parse(await response.json());
 }
 
+/**
+ * True when the server said "you cannot see this": 401 (nobody logged in) or
+ * 403 (logged in with another role). Screens show "Ingresá" instead of an
+ * error for these, because they are a normal situation, not a failure.
+ */
+export function esSinAcceso(e: unknown): boolean {
+  return e instanceof ErrorHttp && (e.status === 401 || e.status === 403);
+}
+
 /** Message to show for any error a hook catches: the Error's own message, or the value as text. */
 export function mensajeDeError(e: unknown): string {
   return e instanceof Error ? e.message : String(e);

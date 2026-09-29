@@ -35,12 +35,12 @@ test("loads the applicant's applications", async () => {
   expect(result.current.loading).toBe(false);
 });
 
-test("a 401 is 'not logged in', not an error", async () => {
+test("a 401 is 'no access', not an error", async () => {
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(respuesta(401, { error: "Sin sesión" })));
 
   const { result } = renderHook(() => useMisPostulaciones());
 
-  await waitFor(() => expect(result.current.sinSesion).toBe(true));
+  await waitFor(() => expect(result.current.sinAcceso).toBe(true));
   expect(result.current.error).toBeNull();
   expect(result.current.loading).toBe(false);
 });

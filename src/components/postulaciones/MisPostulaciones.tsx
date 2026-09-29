@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { InboxIcon, LogInIcon } from "lucide-react";
+import { InboxIcon } from "lucide-react";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
+import { PedirIngreso } from "@/components/estados/PedirIngreso";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Empty,
@@ -23,13 +24,13 @@ import { ListaPostulaciones } from "./ListaPostulaciones";
  * "Mis postulaciones" (P07) with its states: loading, not logged in, error,
  * empty and the list. Loads the data with useMisPostulaciones.
  *
- * "Not logged in" is not an error: the page is reachable from the menu by
- * anyone, so without a session it invites the person to log in. Above the
+ * "No access" (401 or 403) is not an error: without an applicant session it
+ * invites the person to log in and come back here (PedirIngreso). Above the
  * list, one sentence explains what happens next, because the screen shows no
  * status (RF1.2.4) and people would otherwise wonder.
  */
 export function MisPostulaciones() {
-  const { postulaciones, loading, error, sinSesion, recargar } = useMisPostulaciones();
+  const { postulaciones, loading, error, sinAcceso, recargar } = useMisPostulaciones();
 
   if (loading) {
     return (
@@ -44,24 +45,13 @@ export function MisPostulaciones() {
     );
   }
 
-  if (sinSesion) {
+  if (sinAcceso) {
     return (
-      <Empty className="rounded-tl-2xl rounded-br-2xl bg-card">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <LogInIcon aria-hidden="true" />
-          </EmptyMedia>
-          <EmptyTitle>Ingresá para ver tus postulaciones</EmptyTitle>
-          <EmptyDescription className="text-base">
-            Acá vas a ver las ofertas a las que te postulaste.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Link href="/postulante/ingresar" className={cn(buttonVariants({ size: "lg" }), "w-full")}>
-            Ingresar
-          </Link>
-        </EmptyContent>
-      </Empty>
+      <PedirIngreso
+        rol="applicant"
+        titulo="Ingresá para ver tus postulaciones"
+        descripcion="Acá vas a ver las ofertas a las que te postulaste."
+      />
     );
   }
 

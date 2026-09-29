@@ -11,7 +11,8 @@ import { listaOfertasSchema, type OfertaPublica } from "@/lib/validation/ofertas
  * - `ofertas`: the list, or null while it has not arrived;
  * - `loading`: true until the list or an error arrives;
  * - `error`: the message to show (D-013);
- * - `recargar`: tries again (the error screen's "Probar de nuevo").
+ * - `recargar`: tries again (the error screen's "Probar de nuevo");
+ * - `marcarPostulada(id)`: sets `yaTePostulaste` on one offer after applying.
  *
  * `loading` is derived instead of stored: the effect only sets state after
  * the request answers, which is what React's rules for effects ask for.
@@ -45,5 +46,12 @@ export function useOfertasPublicadas() {
     setIntento((n) => n + 1);
   }
 
-  return { ofertas, loading: ofertas === null && error === null, error, recargar };
+  /** Marks an offer as applied to, right after applying, without loading the list again. */
+  function marcarPostulada(ofertaId: string) {
+    setOfertas(
+      (lista) => lista?.map((oferta) => (oferta.id === ofertaId ? { ...oferta, yaTePostulaste: true } : oferta)) ?? null,
+    );
+  }
+
+  return { ofertas, loading: ofertas === null && error === null, error, recargar, marcarPostulada };
 }

@@ -11,7 +11,9 @@ import { cn } from "@/lib/utils";
  * happened and, when something is missing, gives the one next step:
  * - postulado: confirmation, without any status (RF1.2.4), and a link to
  *   "Mis postulaciones";
- * - sin_sesion: log in (or register) to apply;
+ * - sin_sesion: log in (or register) to apply. "Ingresar" carries ?volver=
+ *   with this offer, so after logging in the person is back here, one tap
+ *   away from applying;
  * - falta_cv: the server's message and a link to upload the CV (RF1.4.4, P04).
  *   The link carries the offer id, so after uploading the CV page offers to
  *   go back to this same offer and finish applying;
@@ -46,7 +48,10 @@ export function AvisoPostulacion({ resultado, ofertaId }: { resultado: Resultado
               Si todavía no tenés una, crearla lleva un minuto.
             </AlertDescription>
           </Alert>
-          <Link href="/postulante/ingresar" className={cn(buttonVariants({ size: "lg" }), "w-full")}>
+          <Link
+            href={`/postulante/ingresar?volver=${encodeURIComponent(`/ofertas?oferta=${ofertaId}`)}`}
+            className={cn(buttonVariants({ size: "lg" }), "w-full")}
+          >
             Ingresar
           </Link>
           <Link href="/postulante/registrarse" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full")}>

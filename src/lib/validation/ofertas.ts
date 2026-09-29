@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+import { rubroSchema } from "./rubros";
+import { textoObligatorio } from "./texto";
+
 /*
  * Shape of a published job offer as the public list and the applicant see it
  * (P05, P06; D-024).
@@ -26,10 +29,62 @@ export const ofertaPublicaSchema = z.object({
   lugar: z.string(),
   /** Working hours as free text, for example "Lunes a viernes de 8 a 16". */
   jornada: z.string(),
+  /** Trade or sector, for the catalog filter (D-029). */
+  rubro: rubroSchema,
   /** When the Office published it (ISO 8601 with offset). */
   publicadaEl: z.iso.datetime({ offset: true }),
+  /**
+   * The logged-in applicant already applied to it (D-028). False for anyone
+   * else. It is not an application status: it only says "you applied", which
+   * the applicant already knows (RF1.2.4).
+   */
+  yaTePostulaste: z.boolean(),
 });
 
 export const listaOfertasSchema = z.array(ofertaPublicaSchema);
 
 export type OfertaPublica = z.infer<typeof ofertaPublicaSchema>;
+
+/** Offer status (D-008). The UI shows it in Spanish; see EstadoOferta. */
+export const estadoOfertaSchema = z.enum(["pending", "published", "rejected", "closed"]);
+
+export type EstadoOferta = z.infer<typeof estadoOfertaSchema>;
+
+/**
+ * Form of a new offer (P11, RF1.3.3): every field is required. There is no
+ * draft (D-007): once sent, the offer is "pending" until the Office reviews it.
+ * Body of POST /api/empresa/ofertas. PROVISIONAL fields (DT-002).
+ */
+export const nuevaOfertaSchema = z.object({
+  titulo: textoObligatorio("Ingresá el puesto que buscás", 120),
+  descripcion: textoObligatorio("Contá qué tareas incluye el puesto", 3000),
+  requisitos: textoObligatorio("Contá qué necesita tener la persona", 2000),
+  lugar: textoObligatorio("Indicá dónde es el trabajo", 120),
+  jornada: textoObligatorio("Indicá los días y el horario", 120),
+  rubro: rubroSchema,
+});
+
+export type DatosNuevaOferta = z.infer<typeof nuevaOfertaSchema>;
+
+/**
+ * An offer as its own company sees it (P12, RF1.3.4–RF1.3.6): the offer data
+ * plus its status, the rejection reason (only on rejected offers, and only for
+ * the owning company, RF1.3.5) and whether the company asked to close it
+ * (RF1.3.6: a flag, not a status; the offer stays published, D-008).
+ * Never includes anything about applicants: companies do not see them.
+ */
+export const ofertaEmpresaSchema = nuevaOfertaSchema.extend({
+  id: z.string().min(1),
+  estado: estadoOfertaSchema,
+  motivoRechazo: z.string().nullable(),
+  cierreSolicitado: z.boolean(),
+  /** When the company sent it (ISO 8601 with offset). */
+  creadaEl: z.iso.datetime({ offset: true }),
+});
+
+export const listaOfertasEmpresaSchema = z.array(ofertaEmpresaSchema);
+
+/** Answer of the endpoints that create or change one offer. */
+export const respuestaOfertaEmpresaSchema = z.object({ oferta: ofertaEmpresaSchema });
+
+export type OfertaEmpresa = z.infer<typeof ofertaEmpresaSchema>;

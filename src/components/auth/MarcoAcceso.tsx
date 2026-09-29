@@ -15,8 +15,8 @@ import { MosaicoOficios } from "@/components/marca/MosaicoOficios";
 export function MarcoAcceso({ children }: { children: ReactNode }) {
   return (
     <div className="relative isolate flex min-h-dvh flex-1 flex-col overflow-hidden bg-brand-deep text-primary-foreground">
-      <MosaicoOficios className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_9rem,black_17rem)] lg:[mask-image:linear-gradient(100deg,transparent_34%,black_60%)]" />
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 pt-4 pb-10 lg:px-10 lg:pt-8">
+      <MosaicoOficios className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_8rem,black_14rem)] lg:[mask-image:linear-gradient(100deg,transparent_34%,black_60%)]" />
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 pt-3 pb-10 lg:gap-8 lg:px-10 lg:pt-8">
         <MarcaPortal />
         {children}
       </div>

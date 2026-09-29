@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getJson, mensajeDeError, sendFormData } from "@/lib/http";
+import { esSinAcceso, getJson, mensajeDeError, sendFormData } from "@/lib/http";
 import { respuestaCvSchema, type CvPropio } from "@/lib/validation/cv";
 
 /**
@@ -8,6 +8,7 @@ import { respuestaCvSchema, type CvPropio } from "@/lib/validation/cv";
  *
  * Loading (GET):
  * - `cv`: the current CV, null if there is none, undefined while loading;
+ * - `sinAcceso`: 401 or 403, the screen asks to log in (as in useMisPostulaciones);
  * - `loading`, `error`, `recargar`: as in useOfertasPublicadas.
  *
  * Uploading (PUT, multipart/form-data with the field "archivo"):
@@ -20,6 +21,7 @@ import { respuestaCvSchema, type CvPropio } from "@/lib/validation/cv";
 export function useMiCv() {
   const [cv, setCv] = useState<CvPropio | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const [sinAcceso, setSinAcceso] = useState(false);
   const [intento, setIntento] = useState(0);
   const [subiendo, setSubiendo] = useState(false);
   const [errorSubida, setErrorSubida] = useState<string | null>(null);
@@ -32,7 +34,12 @@ export function useMiCv() {
         if (vigente) setCv(respuesta.cv);
       })
       .catch((e: unknown) => {
-        if (vigente) setError(mensajeDeError(e));
+        if (!vigente) return;
+        if (esSinAcceso(e)) {
+          setSinAcceso(true);
+        } else {
+          setError(mensajeDeError(e));
+        }
       });
 
     return () => {
@@ -43,6 +50,7 @@ export function useMiCv() {
   function recargar() {
     setCv(undefined);
     setError(null);
+    setSinAcceso(false);
     setIntento((n) => n + 1);
   }
 
@@ -65,8 +73,9 @@ export function useMiCv() {
 
   return {
     cv,
-    loading: cv === undefined && error === null,
+    loading: cv === undefined && error === null && !sinAcceso,
     error,
+    sinAcceso,
     recargar,
     subir,
     subiendo,

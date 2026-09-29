@@ -56,48 +56,45 @@ const OFICIOS: LucideIcon[] = [
 ];
 
 /**
- * Tile colors, kept tonal on purpose: mostly greens close to the background,
- * so the wall reads as a sober institutional texture and not as a toy. Light
- * and sun tiles are rare accents.
+ * Tile colors, in full: the municipal greens, a mint and one sun accent. "monte"
+ * is almost the background, so the wall has calm gaps between colored tiles.
  */
 const TONOS = {
-  monte: "bg-brand-deep text-brand-mint/30 ring-1 ring-inset ring-brand-mint/10",
-  municipal: "bg-primary text-brand-mint/70",
-  brote: "bg-brand-leaf/60 text-brand-mint/90",
-  menta: "bg-brand-mint/85 text-primary",
-  sol: "bg-brand-sun/90 text-brand-deep",
+  monte: "bg-brand-deep text-brand-mint/40 ring-1 ring-inset ring-brand-mint/10",
+  municipal: "bg-primary text-brand-mint/80",
+  brote: "bg-brand-leaf text-brand-mint",
+  menta: "bg-brand-mint text-primary",
+  sol: "bg-brand-sun text-brand-deep",
 } as const;
 
 /**
- * Tone sequence. Its length (17) and the shape list's length (3) have no
- * common factor, so the same tone+shape pair does not repeat in a visible
- * rhythm. "sol" appears once in 17 and "menta" once: accents, not colors of
- * their own.
+ * Tone sequence. Its length (13) does not match the number of columns (5 on
+ * a phone, about 12 on desktop), so every row starts at a different point of
+ * the sequence and the colors swap places from one row to the next: the wall
+ * reads as a varied mural, not as stripes. The user liked this effect and
+ * asked to keep it (docs/DESIGN.md §0). "sol" appears once in 13.
  */
 const SECUENCIA_TONOS: (keyof typeof TONOS)[] = [
   "municipal",
   "monte",
-  "monte",
   "brote",
-  "monte",
-  "municipal",
   "monte",
   "menta",
-  "monte",
   "municipal",
   "monte",
   "brote",
-  "monte",
-  "monte",
   "sol",
+  "monte",
   "municipal",
+  "menta",
   "monte",
 ];
 
 /**
  * Square tiles with a slight radius, and every third one with the "hoja"
  * corners (the portal's signature shape; see docs/DESIGN.md). No circles or
- * arches: they made the wall look playful.
+ * arches: they made the wall look playful. 3 and 13 have no common factor,
+ * so a tone does not always fall on the same shape.
  */
 const FORMAS = [
   "rounded-md",

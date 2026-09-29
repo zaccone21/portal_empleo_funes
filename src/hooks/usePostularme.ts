@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { ErrorHttp, mensajeDeError, sendJson } from "@/lib/http";
+import { ErrorHttp, esSinAcceso, mensajeDeError, sendJson } from "@/lib/http";
 
 /**
  * What happened after pressing "Postularme". Each case gets its own message
@@ -19,36 +19,40 @@ export type ResultadoPostulacion =
  * - 201: applied. Also when the applicant had already applied: the server
  *   treats it as done instead of an error, because for the person the result
  *   is the same.
- * - 401: nobody logged in → "sin_sesion" (the screen offers to log in).
+ * - 401 (nobody logged in) or 403 (logged in as a company or the Office) →
+ *   "sin_sesion": the screen offers to log in as an applicant.
  * - 409: the applicant has no CV (RF1.4.4) → "falta_cv" with the server's
  *   message (the screen links to the CV upload, P04).
  * - anything else → "error" with the message (D-013).
  *
- * The result stays in `resultado` so the screen can replace the button with
- * the outcome.
+ * `postularme` resolves to the result too, so the caller can react (for
+ * example, mark the offer as applied in the list). It also stays in
+ * `resultado` so the screen can replace the button with the outcome.
  */
 export function usePostularme() {
   const [loading, setLoading] = useState(false);
   const [resultado, setResultado] = useState<ResultadoPostulacion | null>(null);
 
-  async function postularme(ofertaId: string) {
+  async function postularme(ofertaId: string): Promise<ResultadoPostulacion> {
     setLoading(true);
     setResultado(null);
+    let nuevo: ResultadoPostulacion;
     try {
       await sendJson("/api/postulaciones", { body: { ofertaId } });
-      setResultado({ tipo: "postulado" });
+      nuevo = { tipo: "postulado" };
     } catch (e) {
-      setResultado(clasificarError(e));
-    } finally {
-      setLoading(false);
+      nuevo = clasificarError(e);
     }
+    setResultado(nuevo);
+    setLoading(false);
+    return nuevo;
   }
 
   return { postularme, loading, resultado };
 }
 
 function clasificarError(e: unknown): ResultadoPostulacion {
-  if (e instanceof ErrorHttp && e.status === 401) {
+  if (esSinAcceso(e)) {
     return { tipo: "sin_sesion" };
   }
   if (e instanceof ErrorHttp && e.status === 409) {

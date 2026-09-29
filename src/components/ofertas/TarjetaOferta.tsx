@@ -1,53 +1,42 @@
-import Link from "next/link";
-import { ChevronRightIcon } from "lucide-react";
+import { CircleCheckIcon } from "lucide-react";
 
+import { TarjetaSeleccionable } from "@/components/marca/TarjetaSeleccionable";
 import { formatearDia } from "@/lib/fechas";
-import { cn } from "@/lib/utils";
 import type { OfertaPublica } from "@/lib/validation/ofertas";
 
 import { DatosOferta } from "./DatosOferta";
 
 type Props = {
   oferta: OfertaPublica;
+  /** Where the card goes: the catalog with this offer selected and the current filters kept. */
+  href: string;
   /** This offer's detail is the one on screen. */
   seleccionada: boolean;
-  /**
-   * The highlight only applies from `lg` up. Used when nobody picked an offer
-   * yet: on desktop the first offer's detail is shown next to the list, while
-   * on a phone only the list is visible and nothing should look selected.
-   */
+  /** Highlight only on desktop (nothing was picked yet); see TarjetaSeleccionable. */
   soloEnEscritorio: boolean;
 };
 
 /**
- * One offer in the list (P05, RF1.4.1). The whole card is a link to
- * /ofertas?oferta=<id>: it opens the detail next to the list (desktop) or in
- * place of the list (phone), without a modal (D-025). Being a real link, the
- * back button returns to the list and the offer can be shared.
- *
- * `scroll={false}` keeps the list where it was on desktop; on phones the
- * detail scrolls itself into view (see DetalleOferta).
+ * One offer in the catalog (P05, RF1.4.1): title, trade, where, when and the
+ * publication date, plus "Te postulaste" when the logged-in applicant already
+ * applied (D-028). The card is a link that opens the detail on the same page
+ * (D-025) and keeps the search and filters in the URL, so going back returns
+ * to the same results.
  */
-export function TarjetaOferta({ oferta, seleccionada, soloEnEscritorio }: Props) {
-  const resaltado = "ring-2 ring-primary bg-secondary";
-
+export function TarjetaOferta({ oferta, href, seleccionada, soloEnEscritorio }: Props) {
   return (
-    <Link
-      href={`/ofertas?oferta=${encodeURIComponent(oferta.id)}`}
-      scroll={false}
-      aria-current={seleccionada && !soloEnEscritorio ? "true" : undefined}
-      className={cn(
-        "group flex items-start gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/5 outline-none sm:p-5",
-        "hover:ring-foreground/20 focus-visible:ring-3 focus-visible:ring-ring/50",
-        seleccionada && (soloEnEscritorio ? "lg:ring-2 lg:ring-primary lg:bg-secondary" : resaltado),
-      )}
-    >
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <h2 className="font-heading text-lg leading-snug font-semibold sm:text-xl">{oferta.titulo}</h2>
-        <DatosOferta lugar={oferta.lugar} jornada={oferta.jornada} />
+    <TarjetaSeleccionable href={href} seleccionada={seleccionada} soloEnEscritorio={soloEnEscritorio}>
+      <h2 className="font-heading text-lg leading-snug font-semibold sm:text-xl">{oferta.titulo}</h2>
+      <DatosOferta rubro={oferta.rubro} lugar={oferta.lugar} jornada={oferta.jornada} />
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">Publicada el {formatearDia(oferta.publicadaEl)}</p>
+        {oferta.yaTePostulaste && (
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+            <CircleCheckIcon aria-hidden="true" className="size-4" />
+            Te postulaste
+          </p>
+        )}
       </div>
-      <ChevronRightIcon aria-hidden="true" className="mt-1 size-5 shrink-0 text-muted-foreground" />
-    </Link>
+    </TarjetaSeleccionable>
   );
 }

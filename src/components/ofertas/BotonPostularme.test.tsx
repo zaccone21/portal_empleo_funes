@@ -16,6 +16,7 @@ vi.mock("@/hooks/usePostularme", () => ({
 
 beforeEach(() => {
   mocks.postularme.mockReset();
+  mocks.postularme.mockResolvedValue({ tipo: "postulado" });
   mocks.estado = { loading: false, resultado: null };
 });
 
@@ -44,11 +45,13 @@ test("after applying, shows the confirmation without any status and hides the bu
   expect(screen.queryByRole("button", { name: "Postularme" })).toBeNull();
 });
 
-test("without a session, offers to log in", () => {
+test("without a session, offers to log in and come back to this offer", () => {
   mocks.estado = { loading: false, resultado: { tipo: "sin_sesion" } };
   render(<BotonPostularme ofertaId="o-9" />);
 
-  expect(screen.getByRole("link", { name: "Ingresar" }).getAttribute("href")).toBe("/postulante/ingresar");
+  expect(screen.getByRole("link", { name: "Ingresar" }).getAttribute("href")).toBe(
+    "/postulante/ingresar?volver=%2Fofertas%3Foferta%3Do-9",
+  );
 });
 
 test("without a CV, links to the upload (RF1.4.4)", () => {

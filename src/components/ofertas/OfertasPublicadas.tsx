@@ -2,23 +2,40 @@
 
 import { SearchXIcon } from "lucide-react";
 
+import { AvisoCvFaltante } from "@/components/cv/AvisoCvFaltante";
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOfertasPublicadas } from "@/hooks/useOfertasPublicadas";
+import { useSesion } from "@/hooks/useSesion";
+import { FILTROS_VACIOS, type FiltrosOfertas as Filtros } from "@/lib/catalogo";
+import { cn } from "@/lib/utils";
 
+import { FiltrosOfertas } from "./FiltrosOfertas";
 import { ListaOfertas } from "./ListaOfertas";
 
 /**
- * The public offer list (P05, P06) with its four states: loading, error,
- * empty and the list with its detail. Loads the offers with
- * useOfertasPublicadas; the page passes the offer selected in the URL.
+ * The public offer catalog (P05, P06; D-029) with its four states: loading,
+ * error, empty and the results with their detail. Loads the offers with
+ * useOfertasPublicadas; the page passes the filters and the offer selected in
+ * the URL. The search, trade chips and order sit above the results; on a
+ * phone they hide while an offer is open, so the detail gets the screen.
  *
  * The hook lives here, above ListaOfertas, so choosing another offer (which
- * only changes ?oferta=) re-renders the list without loading it again.
+ * only changes ?oferta=) re-renders the list without loading it again, and
+ * applying marks the offer in place (marcarPostulada).
+ *
+ * For a logged-in applicant it also shows, above the list, the reminder to
+ * upload the CV when it is missing (AvisoCvFaltante).
  */
-export function OfertasPublicadas({ seleccionadaId }: { seleccionadaId?: string }) {
-  const { ofertas, loading, error, recargar } = useOfertasPublicadas();
+type Props = {
+  filtros?: Filtros;
+  seleccionadaId?: string;
+};
+
+export function OfertasPublicadas({ filtros = FILTROS_VACIOS, seleccionadaId }: Props) {
+  const { ofertas, loading, error, recargar, marcarPostulada } = useOfertasPublicadas();
+  const { usuario } = useSesion();
 
   if (loading) {
     return (
@@ -56,5 +73,18 @@ export function OfertasPublicadas({ seleccionadaId }: { seleccionadaId?: string 
     );
   }
 
-  return <ListaOfertas ofertas={ofertas} seleccionadaId={seleccionadaId} />;
+  return (
+    <div className="flex flex-col gap-6">
+      <div className={cn("flex flex-col gap-5", seleccionadaId !== undefined && "hidden lg:flex")}>
+        {usuario?.rol === "applicant" && <AvisoCvFaltante />}
+        <FiltrosOfertas filtros={filtros} />
+      </div>
+      <ListaOfertas
+        ofertas={ofertas}
+        filtros={filtros}
+        seleccionadaId={seleccionadaId}
+        onPostulado={marcarPostulada}
+      />
+    </div>
+  );
 }

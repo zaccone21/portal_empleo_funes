@@ -53,3 +53,21 @@ test("any other failure is a generic error with its message", async () => {
 
   expect((await postularse()).resultado).toEqual({ tipo: "error", mensaje: "Algo falló" });
 });
+
+test("403 (logged in as a company) also asks to log in as an applicant", async () => {
+  mockFetch(403, { error: "Esta sección es para quienes buscan trabajo." });
+
+  expect((await postularse()).resultado).toEqual({ tipo: "sin_sesion" });
+});
+
+test("postularme also returns the result, so the caller can react", async () => {
+  mockFetch(201);
+  const { result } = renderHook(() => usePostularme());
+
+  let devuelto: unknown;
+  await act(async () => {
+    devuelto = await result.current.postularme("o-1");
+  });
+
+  expect(devuelto).toEqual({ tipo: "postulado" });
+});

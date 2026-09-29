@@ -11,9 +11,11 @@ const mocks = vi.hoisted(() => ({
     postulaciones: null as PostulacionPropia[] | null,
     loading: false,
     error: null as string | null,
-    sinSesion: false,
+    sinAcceso: false,
   },
 }));
+
+vi.mock("next/navigation", () => ({ usePathname: () => "/postulante/postulaciones" }));
 
 vi.mock("@/hooks/useMisPostulaciones", () => ({
   useMisPostulaciones: () => ({ ...mocks.estado, recargar: mocks.recargar }),
@@ -21,17 +23,19 @@ vi.mock("@/hooks/useMisPostulaciones", () => ({
 
 beforeEach(() => {
   mocks.recargar.mockReset();
-  mocks.estado = { postulaciones: null, loading: false, error: null, sinSesion: false };
+  mocks.estado = { postulaciones: null, loading: false, error: null, sinAcceso: false };
 });
 
 afterEach(cleanup);
 
-test("without a session, invites to log in", () => {
-  mocks.estado = { ...mocks.estado, sinSesion: true };
+test("without access, invites to log in and come back here", () => {
+  mocks.estado = { ...mocks.estado, sinAcceso: true };
   render(<MisPostulaciones />);
 
   expect(screen.getByText("Ingresá para ver tus postulaciones")).toBeDefined();
-  expect(screen.getByRole("link", { name: "Ingresar" }).getAttribute("href")).toBe("/postulante/ingresar");
+  expect(screen.getByRole("link", { name: "Ingresar" }).getAttribute("href")).toBe(
+    "/postulante/ingresar?volver=%2Fpostulante%2Fpostulaciones",
+  );
 });
 
 test("on error, retries when asked", () => {
