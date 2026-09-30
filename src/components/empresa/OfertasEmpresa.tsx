@@ -54,7 +54,7 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
   if (sinAcceso) {
     return (
       <PedirIngreso
-        rol="company"
+        rol="empresa"
         titulo="Ingresá como empresa"
         descripcion="Acá vas a ver las ofertas que publicaste y cómo avanzan."
       />

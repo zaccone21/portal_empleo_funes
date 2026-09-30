@@ -1,17 +1,12 @@
-import { bloquearEnProduccion } from "@/mocks/respuestas";
-import { leerSesion } from "@/mocks/sesion";
+import { getCurrentUser } from "@/lib/dal/auth";
+import { responder } from "@/lib/respuestas-api";
+import { verSesion } from "@/lib/use-cases/acceso";
 
 /**
- * GET /api/auth/sesion (D-028): who is logged in, `{ usuario: { rol, email } }`,
- * or `{ usuario: null }`. Nobody logged in is a normal answer (200), because
- * public screens ask too, to show "Ingresar" or the person's menu.
- *
- * TEMPORARY (DT-003): reads the simulated session. The real version uses
- * getCurrentUser() and the role from `profiles`.
+ * GET /api/auth/sesion (D-028): `{ usuario: { rol, email } }` or
+ * `{ usuario: null }`. Nobody logged in is a normal answer (200): public
+ * screens ask too, to show "Ingresar" or the person's menu.
  */
 export async function GET() {
-  const bloqueo = bloquearEnProduccion();
-  if (bloqueo) return bloqueo;
-
-  return Response.json({ usuario: await leerSesion() });
+  return responder(verSesion(await getCurrentUser()));
 }

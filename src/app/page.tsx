@@ -16,7 +16,7 @@ import { MarcoArea } from "@/components/marca/MarcoArea";
  */
 export default function Home() {
   return (
-    <MarcoArea area="applicant">
+    <MarcoArea area="postulante">
       <main id="contenido" className="flex flex-1 flex-col">
         <PortadaInicio />
         <div className="relative -mt-6 flex-1 rounded-tl-[1.5rem] bg-muted sm:-mt-8 sm:rounded-tl-[1.75rem] lg:-mt-12 lg:rounded-tl-[2.5rem]">

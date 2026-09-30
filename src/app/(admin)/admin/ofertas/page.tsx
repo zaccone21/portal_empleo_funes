@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Gestión de ofertas" };
 
 /**
  * P15: the Office's offer management (RF1.5.2–RF1.5.6). The URL carries the
- * status tab (?estado=, "pending" by default or when unknown) and the
+ * status tab (?estado=, "pendiente" by default or when unknown) and the
  * selected offer (?oferta=<id>).
  */
 export default async function AdminOfertasPage({ searchParams }: PageProps<"/admin/ofertas">) {
@@ -18,7 +18,7 @@ export default async function AdminOfertasPage({ searchParams }: PageProps<"/adm
   return (
     <Seccion titulo="Gestión de ofertas" bajada="Revisá las ofertas nuevas, cerrá las que piden cierre y seguí a los postulantes.">
       <GestionOfertas
-        estado={estadoValido.success ? estadoValido.data : "pending"}
+        estado={estadoValido.success ? estadoValido.data : "pendiente"}
         seleccionadaId={typeof oferta === "string" ? oferta : undefined}
       />
     </Seccion>

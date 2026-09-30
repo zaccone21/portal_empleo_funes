@@ -7,5 +7,5 @@ import { MarcoArea } from "@/components/marca/MarcoArea";
  * private screens ask to log in when there is no session.
  */
 export default function PostulanteLayout({ children }: { children: ReactNode }) {
-  return <MarcoArea area="applicant">{children}</MarcoArea>;
+  return <MarcoArea area="postulante">{children}</MarcoArea>;
 }

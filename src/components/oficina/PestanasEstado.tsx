@@ -3,13 +3,13 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { EstadoOferta } from "@/lib/validation/ofertas";
 
-export const ORDEN_PESTANAS: EstadoOferta[] = ["pending", "published", "rejected", "closed"];
+export const ORDEN_PESTANAS: EstadoOferta[] = ["pendiente", "publicada", "rechazada", "cerrada"];
 
 const NOMBRE_PESTANA: Record<EstadoOferta, string> = {
-  pending: "Pendientes",
-  published: "Publicadas",
-  rejected: "Rechazadas",
-  closed: "Cerradas",
+  pendiente: "Pendientes",
+  publicada: "Publicadas",
+  rechazada: "Rechazadas",
+  cerrada: "Cerradas",
 };
 
 type Props = {

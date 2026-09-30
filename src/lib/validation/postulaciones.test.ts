@@ -7,7 +7,7 @@ describe("postulacionPropiaSchema", () => {
     const postulacion = postulacionPropiaSchema.parse({
       id: "p-1",
       postuladoEl: "2026-09-20T10:00:00-03:00",
-      estado: "preselected",
+      estado: "preseleccionado",
       oferta: { id: "o-1", titulo: "Ayudante de cocina", lugar: "Centro" },
     });
 
@@ -27,8 +27,8 @@ describe("postulacionPropiaSchema", () => {
 
 describe("postularseSchema", () => {
   test("only accepts the offer id", () => {
-    expect(postularseSchema.parse({ ofertaId: "o-1", postulanteId: "otro" })).toEqual({
-      ofertaId: "o-1",
+    expect(postularseSchema.parse({ ofertaId: "00000000-0000-4000-8000-000000000001", postulanteId: "otro" })).toEqual({
+      ofertaId: "00000000-0000-4000-8000-000000000001",
     });
   });
 

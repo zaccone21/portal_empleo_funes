@@ -76,7 +76,7 @@ export function OfertasPublicadas({ filtros = FILTROS_VACIOS, seleccionadaId }: 
   return (
     <div className="flex flex-col gap-6">
       <div className={cn("flex flex-col gap-5", seleccionadaId !== undefined && "hidden lg:flex")}>
-        {usuario?.rol === "applicant" && <AvisoCvFaltante />}
+        {usuario?.rol === "postulante" && <AvisoCvFaltante />}
         <FiltrosOfertas filtros={filtros} />
       </div>
       <ListaOfertas

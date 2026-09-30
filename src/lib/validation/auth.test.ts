@@ -56,11 +56,11 @@ describe("ingresoSchema", () => {
 });
 
 describe("registroSchema", () => {
-  const valido = { email: "persona@ejemplo.com", password: "12345678", role: "applicant" };
+  const valido = { email: "persona@ejemplo.com", password: "12345678", role: "postulante" };
 
   test("accepts applicant and company", () => {
     expect(registroSchema.safeParse(valido).success).toBe(true);
-    expect(registroSchema.safeParse({ ...valido, role: "company" }).success).toBe(true);
+    expect(registroSchema.safeParse({ ...valido, role: "empresa" }).success).toBe(true);
   });
 
   test("rejects the admin role", () => {

@@ -48,7 +48,7 @@ export function MisPostulaciones() {
   if (sinAcceso) {
     return (
       <PedirIngreso
-        rol="applicant"
+        rol="postulante"
         titulo="Ingresá para ver tus postulaciones"
         descripcion="Acá vas a ver las ofertas a las que te postulaste."
       />

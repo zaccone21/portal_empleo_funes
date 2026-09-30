@@ -369,6 +369,91 @@ Decisión:
 
 Motivo: RF1.5.1 a RF1.5.6. Mismo patrón que las áreas del postulante y de la empresa, así el backend real se implementa detrás sin tocar las pantallas.
 
+### D-031 — Nombres de la base en español
+Fecha: 2026-09-29 · Resuelve: Q-015 · Reemplaza: en D-002, que la base va en inglés; en D-008 y D-011, los valores de los estados y los roles.
+Decisión:
+- Tablas, columnas, enums y sus valores van en español, sin tildes ni ñ: `ofertas`, `postulaciones`, `motivo_rechazo`, `tamano_bytes`.
+- Las fechas terminan en `_el` (`creada_el`, `publicada_el`).
+- Valores:
+  - rol: `postulante | empresa | admin`;
+  - oferta: `pendiente | publicada | rechazada | cerrada`;
+  - postulación: `postulado | preseleccionado | derivado | no_apto`.
+- La migración de `profiles` (no aplicada) se reescribe como `perfiles`. Los valores en inglés que hoy usan el código y los DTOs pasan a español cuando se implementen las migraciones.
+- El glosario de `AGENTS.md` §4 tiene los nombres nuevos.
+
+Motivo: el código de dominio ya está en español (D-014) y los diagramas de flujo del usuario también. Con la base en el mismo idioma, los tipos generados de Supabase se leen como los DTOs y no hay que traducir en el DAL.
+
+### D-032 — Modelo de datos del MVP
+Fecha: 2026-09-29 · Resuelve: Q-007; los campos de Q-009 · Reemplaza: en D-010, que `perfiles` no lleva datos personales; en D-029, que la oferta tiene un solo rubro.
+Decisión:
+- El modelo está en `docs/modelo_datos.md`: 8 tablas (`perfiles`, `postulantes`, `empresas`, `rubros`, `postulante_rubros`, `ofertas`, `oferta_rubros`, `postulaciones`) y el bucket privado `cvs`.
+- `perfiles` suma el `email` de la cuenta, copiado de Supabase Auth por un trigger. La Oficina lo ve (D-030), y con RLS la app no puede leer `auth.users`.
+- **Postulante (Q-009):** nombre, apellido, teléfono y DNI (único). No se piden barrio ni fecha de nacimiento. El CV se guarda en la misma tabla: ruta, nombre del archivo, tamaño y fecha.
+- **Rubros (Q-006):** una sola lista para postulantes y ofertas. El postulante elige varios. La oferta tiene **de 1 a 3**, guardados junto con la oferta por la función `crear_oferta`. La lista definitiva y quién la mantiene siguen abiertas.
+- **Oferta:** suma `sueldo`, opcional y en texto libre.
+- **Empresa:** la persona de contacto va en `empresas`, como en P10.
+- **Origen de la postulación (Q-007):** `postulante` u `oficina` (asociada desde P16). El postulante la ve igual en "Mis postulaciones", sin estado (RF1.2.4).
+- **Registro:** solo se guarda el estado actual, sin qué operadora hizo cada cambio ni cuándo (DT-006).
+- El estado de la postulación queda en `postulaciones`, aunque RLS no oculta columnas (DT-007).
+- Fuera del MVP: carga asistida de postulantes sin cuenta (Q-011), derivaciones y devolución de la empresa, rubro de la empresa.
+
+Motivo: cerrar el diseño de la base para reemplazar el backend simulado (DT-003). El usuario lo decidió en esta sesión, después de comparar la propuesta del agente con su borrador en Supabase. La comparación está en `docs/modelo_datos.md`.
+
+### D-033 — Una migración nueva por cada cambio, y registro
+Fecha: 2026-09-29
+Decisión:
+- Todo cambio en la estructura de la base, por mínimo que sea, es una migración nueva en `supabase/migrations/`. Cuenta como cambio de estructura:
+  - tablas, columnas, restricciones e índices;
+  - políticas, funciones y triggers;
+  - la carga de listas fijas.
+- Una migración que ya se aplicó o se commiteó no se edita: cualquier corrección es otra migración.
+- `docs/migraciones.md` registra cada migración: qué cambia, de qué decisión sale y cuándo se aplicó en desarrollo y en producción.
+- Las migraciones se aplican a mano en el **SQL Editor** del panel de Supabase: cada archivo entero, de a uno y en orden.
+- Supabase no anota en su propio historial lo que se corre en el SQL Editor, así que el registro de `docs/migraciones.md` es la única fuente de qué está aplicado. Si algún día se usa la CLI de Supabase, antes del primer `db push` hay que marcar las ya aplicadas con `supabase migration repair --status applied <versión>`, para que no las corra de nuevo.
+
+Motivo: trazabilidad. Desde el repositorio se tiene que poder seguir cómo cambió la base, paso a paso. El usuario prefiere el SQL Editor a las herramientas de consola.
+
+### D-034 — Acceso con Supabase Auth
+Fecha: 2026-09-29 · Amplía: D-020 (contrato de acceso)
+Decisión:
+- `/api/auth/*` usa Supabase Auth con el mismo contrato de D-020, con estos cambios:
+  - **Registro:** responde 201 `{ destino }`. `destino` es null si la cuenta se activa desde el email (la pantalla dice "Revisá tu correo"). Si Supabase ya dejó a la persona adentro (confirmación de email apagada), es el inicio de su rol, y la pantalla va ahí o a `?volver=`.
+  - El registro acepta `?volver=` igual que el ingreso. "Postularme" sin cuenta → "Crear cuenta" vuelve a la oferta.
+  - **Ingreso:** con la contraseña correcta pero la cuenta sin activar, responde 401 "Todavía no activaste tu cuenta…". Solo lo ve quien sabe la contraseña, así que no revela cuentas a terceros.
+  - **Email no enviado:** si Supabase no puede mandar el email (límite por hora, o una dirección que su servicio de email por defecto no atiende), registro y recuperación responden 503 "No pudimos enviarte el email…".
+- **Link del email:** `GET /acceso/confirmar` recibe los links de Supabase (activación y recuperación). Abre la sesión y lleva a `/nueva-contrasena` o al inicio del rol. Acepta `?code=` (el formato por defecto) y `?token_hash=&type=` (DT-011).
+- **Rol:** el registro manda el rol en el metadata como `rol` (`postulante` o `empresa`), y el trigger de la base lo valida (D-011). Las cuentas de la Oficina se crean a mano en el panel y se promueven con SQL (`docs/como_probar.md`).
+
+Motivo: RF1.1.2 a RF1.1.4 con la base real, y que el flujo "entrar → registrarse → postularse" sea un solo camino para quien entra hoy (pedido del usuario).
+
+### D-035 — Backend real y pruebas sobre la base de testing
+Fecha: 2026-09-29 · Resuelve: DT-003
+Decisión:
+- **Capas:** las 20 rutas de `src/app/api/` siguen D-018: ruta → caso de uso (`src/lib/use-cases/`) → DAL (`src/lib/dal/`) → Supabase, con RLS en cada consulta.
+- **Resultado de un caso de uso:** el dato, o una falla esperada con su mensaje (`src/lib/use-cases/resultado.ts`). La ruta la traduce: 400, 401, 403, 404, 409 o 503 (`src/lib/respuestas-api.ts`).
+- **Sin datos simulados:** se borraron `src/mocks/` y el playground (lista en DT-003). Para probar, se crean cuentas y datos de verdad en el proyecto de testing de Supabase (`docs/como_probar.md`).
+- **E2E:** corren contra ese proyecto, con tres cuentas de prueba cuyas credenciales van en `.env.local` (`E2E_*`, nombres en `.env.example`). Cada test crea sus ofertas por la API y al final las saca del catálogo (DT-010).
+- **Sueldo:** el sueldo opcional (D-032) ya se carga en P11 y se muestra en tarjetas y detalles.
+- **Ofertas visibles para postulados:** una migración nueva deja que el postulante siga viendo las ofertas a las que se postuló aunque se cierren. Así "Mis postulaciones" muestra siempre de qué oferta se trata (RF1.2.4).
+- **`/inicio`:** lleva a `/`, la portada (P01).
+
+Motivo: el usuario pidió dejar el portal funcional sobre la base de testing, sin datos simulados, para probarlo como lo vería alguien que entra hoy.
+
+### D-036 — El agente pasa a ser Antigravity CLI
+Fecha: 2026-09-29 · Reemplaza: en D-016, que se sacan GEMINI.md y la configuración de Antigravity.
+Decisión:
+- Desde el 2026-09-29 el usuario trabaja con **Antigravity CLI** en lugar de Claude Code.
+- **Reglas:** siguen en `AGENTS.md`, que Antigravity lee solo, más la carpeta `.agents/rules/`, con archivos `trigger: always_on`. Antigravity lee como máximo 24 KB por archivo, por eso de `AGENTS.md` se movieron a esa carpeta, sin cambios:
+  - la sección 8: `comandos-y-git.md`;
+  - la sección 10: `ui-y-accesibilidad.md`;
+  - la sección 13: `estado-del-proyecto.md`.
+- **Preferencias del usuario:** van en `.agents/rules/preferencias-del-usuario.md`. Antigravity no tiene memoria propia: el agente agrega ahí cada preferencia nueva que le enseñe el usuario.
+- **Traspaso:** `.agents/rules/traspaso-desde-claude.md` resume lo hecho, el estado del repositorio, lo pendiente y lo que sigue. Se actualiza y se borra cuando deja de servir.
+- **Claude Code sigue funcionando:** `CLAUDE.md` importa `AGENTS.md` y las secciones movidas.
+- **Solo en la máquina del usuario:** las preferencias y el traspaso están en `.gitignore` (DT-012). Son del usuario, no del equipo, así que no se suben al repositorio.
+
+Motivo: que el cambio de herramienta no pierda reglas, decisiones ni la forma de trabajar acordada con el usuario.
+
 ---
 
 ## Abiertas
@@ -390,21 +475,24 @@ Motivo: RF1.5.1 a RF1.5.6. Mismo patrón que las áreas del postulante y de la e
 
 ### Q-006 — Lista de etiquetas/rubros
 ¿Quién mantiene la lista predefinida (RF1.2.2)? ¿Un seed fijo en una migración, o un CRUD para el admin? ¿Cuál es la lista inicial?
+*D-032 decidió la estructura: una tabla `rubros` compartida por postulantes y ofertas, cargada en la migración con los 11 provisorios. Siguen abiertos el contenido definitivo y quién lo mantiene.*
 
 ### Q-007 — Asociación manual desde P16 (RF1.5.8)
-Cuando el admin asocia un candidato a una oferta, ¿la postulación registra el origen (`self` / `admin`)? ¿Le aparece al postulante en "Mis postulaciones"?
+*Resuelta por D-032.* Cuando el admin asocia un candidato a una oferta, ¿la postulación registra el origen (`self` / `admin`)? ¿Le aparece al postulante en "Mis postulaciones"?
 
 ### Q-008 — Retiro de postulación
 *Resuelta por D-023.* ¿El postulante puede retirar una postulación? ¿La empresa ve algo de las postulaciones? (Por la regla de negocio, la respuesta asumida es no.)
 
 ### Q-009 — Datos personales del postulante
 ¿Qué campos exactos lleva el perfil (RF1.2.1)? ¿DNI, fecha de nacimiento, dirección, barrio? Solo se piden los necesarios (Ley 25.326).
+*D-032 decidió los campos: nombre, apellido, teléfono y DNI. Sigue abierto si hace falta el perfil completo para postularse (hoy alcanza con el CV, RF1.4.4).*
 
 ### Q-010 — Baja de cuenta y retención de datos
 ¿Cómo pide un usuario la baja o la eliminación de sus datos? ¿Cuánto tiempo se conservan los CVs y las postulaciones?
 
 ### Q-011 — Carga asistida por operadoras
 El relevamiento (§4.2) habla de operadoras que cargan perfiles de personas sin acceso digital. ¿Entra en el MVP? ¿El admin puede crear postulantes?
+*D-032 lo deja fuera del MVP: cada postulante es una cuenta. Si entra después, `postulantes` necesita un id propio (migración).*
 
 ### Q-012 — KPIs de los dashboards
 ¿Qué indicadores exactos muestran P09 (empresa) y P14 (admin)? RF1.5.1 da ejemplos ("ofertas pendientes", "postulantes activos"). ¿Qué cuenta como "postulante activo"?
@@ -416,4 +504,4 @@ El relevamiento describe la derivación al CIT a la 3.ª postulación no exitosa
 ¿Una empresa registrada puede cargar ofertas enseguida, o la Oficina tiene que validarla primero (por ejemplo, verificar el CUIT)?
 
 ### Q-015 — Idioma de los nombres en la base de datos
-¿Las tablas, columnas y valores de enum van en español (`ofertas`, `postulaciones`, `postulante`) o en inglés (`job_offers`, `applications`, `applicant`)? El usuario dijo que "seguramente" en español, pero no está decidido. La migración de `profiles` (`user_role`, `applicant | company | admin`) usa inglés y **no está aplicada**; se ajusta cuando se decida. *Por ahora no se aplica ninguna migración.*
+*Resuelta por D-031.* ¿Las tablas, columnas y valores de enum van en español (`ofertas`, `postulaciones`, `postulante`) o en inglés (`job_offers`, `applications`, `applicant`)? El usuario dijo que "seguramente" en español, pero no está decidido. La migración de `profiles` (`user_role`, `applicant | company | admin`) usa inglés y **no está aplicada**; se ajusta cuando se decida. *Por ahora no se aplica ninguna migración.*

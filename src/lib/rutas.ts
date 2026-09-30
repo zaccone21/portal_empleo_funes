@@ -2,22 +2,21 @@ import type { Role } from "@/lib/validation/role";
 
 /*
  * Where each role lives in the portal (D-020, D-028). Used by the navigation
- * (the "Inicio" of each role, where "Salir" leads) and by the simulated login.
- * The real server decides `destino` from the role stored in `profiles`, with
- * these same paths.
+ * (the "Inicio" of each role, where "Salir" leads) and by the access use cases,
+ * which decide `destino` from the role stored in `perfiles`.
  */
 
 /** Home of each role after logging in. */
 export const INICIO_POR_ROL: Record<Role, string> = {
-  applicant: "/ofertas",
-  company: "/empresa",
+  postulante: "/ofertas",
+  empresa: "/empresa",
   admin: "/admin",
 };
 
 /** Login screen of each role; "Salir" leads there. */
 export const INGRESO_POR_ROL: Record<Role, string> = {
-  applicant: "/postulante/ingresar",
-  company: "/empresa/ingresar",
+  postulante: "/postulante/ingresar",
+  empresa: "/empresa/ingresar",
   admin: "/admin/ingresar",
 };
 

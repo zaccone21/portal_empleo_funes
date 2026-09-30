@@ -32,8 +32,9 @@ const base: OfertaEmpresa = {
   requisitos: "Moto.",
   lugar: "Centro",
   jornada: "Lunes a viernes",
-  rubro: "otros",
-  estado: "pending",
+  sueldo: null,
+  rubros: ["otros"],
+  estado: "pendiente",
   motivoRechazo: null,
   cierreSolicitado: false,
   creadaEl: "2026-09-27T16:00:00-03:00",
@@ -45,7 +46,7 @@ function renderDetalle(oferta: Partial<OfertaEmpresa>, onActualizada = vi.fn()) 
 }
 
 test("a pending offer explains the review and offers no action", () => {
-  renderDetalle({ estado: "pending" });
+  renderDetalle({ estado: "pendiente" });
 
   expect(screen.getByText("Pendiente")).toBeDefined();
   expect(screen.getByText(/La Oficina de Empleo la está revisando/)).toBeDefined();
@@ -53,16 +54,16 @@ test("a pending offer explains the review and offers no action", () => {
 });
 
 test("a rejected offer shows the Office's reason (RF1.3.5)", () => {
-  renderDetalle({ estado: "rejected", motivoRechazo: "Falta el horario." });
+  renderDetalle({ estado: "rechazada", motivoRechazo: "Falta el horario." });
 
   expect(screen.getByText("Motivo del rechazo")).toBeDefined();
   expect(screen.getByText("Falta el horario.")).toBeDefined();
 });
 
 test("a published offer can be asked to close after confirming (RF1.3.6)", async () => {
-  const actualizada = { ...base, estado: "published" as const, cierreSolicitado: true };
+  const actualizada = { ...base, estado: "publicada" as const, cierreSolicitado: true };
   mocks.solicitar.mockResolvedValue(actualizada);
-  const onActualizada = renderDetalle({ estado: "published" });
+  const onActualizada = renderDetalle({ estado: "publicada" });
 
   fireEvent.click(screen.getByRole("button", { name: "Pedir el cierre" }));
   fireEvent.click(await screen.findByRole("button", { name: "Sí, pedir el cierre" }));
@@ -73,7 +74,7 @@ test("a published offer can be asked to close after confirming (RF1.3.6)", async
 });
 
 test("after asking to close, it says so and does not offer the action again", () => {
-  renderDetalle({ estado: "published", cierreSolicitado: true });
+  renderDetalle({ estado: "publicada", cierreSolicitado: true });
 
   expect(screen.getByText("Pediste el cierre")).toBeDefined();
   expect(screen.queryByRole("button", { name: "Pedir el cierre" })).toBeNull();

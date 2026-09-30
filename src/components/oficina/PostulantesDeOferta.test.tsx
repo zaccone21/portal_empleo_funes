@@ -28,13 +28,13 @@ beforeEach(() => {
   mocks.postulaciones = [
     {
       id: "p-1",
-      estado: "applied",
+      estado: "postulado",
       postuladoEl: "2026-09-26T09:15:00-03:00",
       postulante: { email: "ana.ejemplo@ejemplo.com", cv: { nombre: "cv.pdf", tamanoBytes: 1000 } },
     },
     {
       id: "p-2",
-      estado: "applied",
+      estado: "postulado",
       postuladoEl: "2026-09-26T10:00:00-03:00",
       postulante: { email: "bruno.ejemplo@ejemplo.com", cv: null },
     },
@@ -59,8 +59,8 @@ test("changing the status saves it and confirms (RF1.5.6)", async () => {
   mocks.cambiarEstado.mockResolvedValue(true);
   render(<PostulantesDeOferta ofertaId="o-1" />);
 
-  fireEvent.change(screen.getAllByLabelText("Estado")[0], { target: { value: "preselected" } });
+  fireEvent.change(screen.getAllByLabelText("Estado")[0], { target: { value: "preseleccionado" } });
 
-  await waitFor(() => expect(mocks.cambiarEstado).toHaveBeenCalledWith("p-1", "preselected"));
+  await waitFor(() => expect(mocks.cambiarEstado).toHaveBeenCalledWith("p-1", "preseleccionado"));
   expect(mocks.toastSuccess).toHaveBeenCalledWith("Guardado: Pre-seleccionado.");
 });

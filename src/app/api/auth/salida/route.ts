@@ -1,17 +1,7 @@
-import { bloquearEnProduccion } from "@/mocks/respuestas";
-import { cerrarSesion } from "@/mocks/sesion";
+import { responder } from "@/lib/respuestas-api";
+import { cerrarSesion } from "@/lib/use-cases/acceso";
 
-/**
- * POST /api/auth/salida (D-028): logs out. Always 204, even without a
- * session: the result for the person is the same.
- *
- * TEMPORARY (DT-003): deletes the simulated session cookie. The real version
- * calls Supabase Auth's signOut.
- */
+/** POST /api/auth/salida (D-028): logs out. Always 204, even without a session. */
 export async function POST() {
-  const bloqueo = bloquearEnProduccion();
-  if (bloqueo) return bloqueo;
-
-  await cerrarSesion();
-  return new Response(null, { status: 204 });
+  return responder(await cerrarSesion(), 204);
 }

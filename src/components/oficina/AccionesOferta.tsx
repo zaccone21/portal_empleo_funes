@@ -27,7 +27,7 @@ import { rechazoSchema, type OfertaOficina } from "@/lib/validation/oficina";
  * footer when this is true, so there is no empty bar covering the content.
  */
 export function hayDecisionPendiente(oferta: OfertaOficina): boolean {
-  return oferta.estado === "pending" || (oferta.estado === "published" && oferta.cierreSolicitado);
+  return oferta.estado === "pendiente" || (oferta.estado === "publicada" && oferta.cierreSolicitado);
 }
 
 type Props = {
@@ -73,7 +73,7 @@ export function AccionesOferta({ oferta, onActualizada }: Props) {
     void decidir({ tipo: "rechazar", motivo: resultado.data.motivo }, "Rechazaste la oferta. La empresa va a ver el motivo.");
   }
 
-  if (oferta.estado === "pending" && rechazando) {
+  if (oferta.estado === "pendiente" && rechazando) {
     return (
       <form onSubmit={rechazar} noValidate className="flex flex-col gap-3">
         <CampoTexto
@@ -98,7 +98,7 @@ export function AccionesOferta({ oferta, onActualizada }: Props) {
     );
   }
 
-  if (oferta.estado === "pending") {
+  if (oferta.estado === "pendiente") {
     return (
       <div className="flex flex-col gap-3">
         <ErrorDelServidor error={error} />
@@ -119,7 +119,7 @@ export function AccionesOferta({ oferta, onActualizada }: Props) {
     );
   }
 
-  if (oferta.estado === "published" && oferta.cierreSolicitado) {
+  if (oferta.estado === "publicada" && oferta.cierreSolicitado) {
     return (
       <div className="flex flex-col gap-3">
         <ErrorDelServidor error={error} />

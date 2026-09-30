@@ -54,7 +54,10 @@ export function AvisoPostulacion({ resultado, ofertaId }: { resultado: Resultado
           >
             Ingresar
           </Link>
-          <Link href="/postulante/registrarse" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full")}>
+          <Link
+            href={`/postulante/registrarse?volver=${encodeURIComponent(`/ofertas?oferta=${ofertaId}`)}`}
+            className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full")}
+          >
             Crear cuenta
           </Link>
         </div>

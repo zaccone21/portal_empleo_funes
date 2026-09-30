@@ -12,8 +12,8 @@ import type { Role } from "@/lib/validation/role";
 
 /** Self-registration of each role; the Office has none (RF1.1.4). */
 const REGISTRO: Partial<Record<Role, { href: string; texto: string }>> = {
-  applicant: { href: "/postulante/registrarse", texto: "Crear una cuenta" },
-  company: { href: "/empresa/registrarse", texto: "Registrar la empresa" },
+  postulante: { href: "/postulante/registrarse", texto: "Crear una cuenta" },
+  empresa: { href: "/empresa/registrarse", texto: "Registrar la empresa" },
 };
 
 type Props = {

@@ -26,8 +26,9 @@ const base: OfertaOficina = {
   requisitos: "",
   lugar: "",
   jornada: "",
-  rubro: "transporte",
-  estado: "pending",
+  sueldo: null,
+  rubros: ["transporte"],
+  estado: "pendiente",
   motivoRechazo: null,
   cierreSolicitado: false,
   creadaEl: "2026-09-27T16:00:00-03:00",
@@ -38,7 +39,7 @@ const base: OfertaOficina = {
 };
 
 test("rejecting asks for the reason right there, and it is required (RF1.5.3)", async () => {
-  mocks.moderar.mockResolvedValue({ ...base, estado: "rejected", motivoRechazo: "Falta el horario." });
+  mocks.moderar.mockResolvedValue({ ...base, estado: "rechazada", motivoRechazo: "Falta el horario." });
   const onActualizada = vi.fn();
   render(<AccionesOferta oferta={base} onActualizada={onActualizada} />);
 
@@ -57,7 +58,7 @@ test("rejecting asks for the reason right there, and it is required (RF1.5.3)", 
 });
 
 test("publishing asks for confirmation first", async () => {
-  mocks.moderar.mockResolvedValue({ ...base, estado: "published" });
+  mocks.moderar.mockResolvedValue({ ...base, estado: "publicada" });
   render(<AccionesOferta oferta={base} onActualizada={vi.fn()} />);
 
   fireEvent.click(screen.getByRole("button", { name: "Publicar" }));
@@ -69,18 +70,18 @@ test("publishing asks for confirmation first", async () => {
 });
 
 test("a published offer can only be closed when the company asked for it (RF1.5.4)", () => {
-  const { container } = render(<AccionesOferta oferta={{ ...base, estado: "published" }} onActualizada={vi.fn()} />);
+  const { container } = render(<AccionesOferta oferta={{ ...base, estado: "publicada" }} onActualizada={vi.fn()} />);
   expect(container.textContent).toBe("");
   cleanup();
 
-  render(<AccionesOferta oferta={{ ...base, estado: "published", cierreSolicitado: true }} onActualizada={vi.fn()} />);
+  render(<AccionesOferta oferta={{ ...base, estado: "publicada", cierreSolicitado: true }} onActualizada={vi.fn()} />);
   expect(screen.getByRole("button", { name: "Cerrar la oferta" })).toBeDefined();
 });
 
 test("only pending offers and close requests leave something to decide", () => {
   expect(hayDecisionPendiente(base)).toBe(true);
-  expect(hayDecisionPendiente({ ...base, estado: "published", cierreSolicitado: true })).toBe(true);
-  expect(hayDecisionPendiente({ ...base, estado: "published" })).toBe(false);
-  expect(hayDecisionPendiente({ ...base, estado: "rejected" })).toBe(false);
-  expect(hayDecisionPendiente({ ...base, estado: "closed" })).toBe(false);
+  expect(hayDecisionPendiente({ ...base, estado: "publicada", cierreSolicitado: true })).toBe(true);
+  expect(hayDecisionPendiente({ ...base, estado: "publicada" })).toBe(false);
+  expect(hayDecisionPendiente({ ...base, estado: "rechazada" })).toBe(false);
+  expect(hayDecisionPendiente({ ...base, estado: "cerrada" })).toBe(false);
 });

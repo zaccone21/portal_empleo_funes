@@ -48,7 +48,7 @@ export function PerfilEmpresa() {
   if (sinAcceso) {
     return (
       <PedirIngreso
-        rol="company"
+        rol="empresa"
         titulo="Ingresá como empresa"
         descripcion="Para cargar o cambiar los datos de tu empresa."
       />

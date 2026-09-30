@@ -39,7 +39,8 @@ function oferta(id: string, estado: OfertaEmpresa["estado"]): OfertaEmpresa {
     requisitos: "",
     lugar: "",
     jornada: "",
-    rubro: "otros",
+    sueldo: null,
+    rubros: ["otros"],
     estado,
     motivoRechazo: null,
     cierreSolicitado: false,
@@ -48,7 +49,7 @@ function oferta(id: string, estado: OfertaEmpresa["estado"]): OfertaEmpresa {
 }
 
 test("counts the offers in each status", () => {
-  mocks.ofertas = [oferta("a", "published"), oferta("b", "published"), oferta("c", "pending")];
+  mocks.ofertas = [oferta("a", "publicada"), oferta("b", "publicada"), oferta("c", "pendiente")];
   render(<ResumenEmpresa />);
 
   const resumen = screen.getByRole("region", { name: "Tus ofertas" });

@@ -25,12 +25,12 @@ export function TarjetaOfertaOficina({ oferta, href, seleccionada, soloEnEscrito
       <p className="text-sm font-medium text-muted-foreground">{oferta.empresa?.razonSocial ?? oferta.emailEmpresa}</p>
       <h2 className="-mt-2 font-heading text-lg leading-snug font-semibold">{oferta.titulo}</h2>
       <div className="flex flex-wrap items-center gap-2">
-        {oferta.estado === "published" && oferta.cierreSolicitado && (
+        {oferta.estado === "publicada" && oferta.cierreSolicitado && (
           <Badge variant="destructive" className="h-7 px-2.5 text-sm">
             Pidió el cierre
           </Badge>
         )}
-        {(oferta.estado === "published" || oferta.estado === "closed") && (
+        {(oferta.estado === "publicada" || oferta.estado === "cerrada") && (
           <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <InboxIcon aria-hidden="true" className="size-4" />
             {oferta.cantidadPostulaciones === 1 ? "1 postulación" : `${oferta.cantidadPostulaciones} postulaciones`}

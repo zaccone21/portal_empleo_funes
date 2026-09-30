@@ -76,9 +76,9 @@ function normalizar(texto: string): string {
 
 /**
  * The offers that pass the filters, in the chosen order:
- * - `rubro`: only that trade;
+ * - `rubro`: offers that include that trade (an offer has 1 to 3, D-032);
  * - `q`: every word of the search must appear in the title, description,
- *   requirements, place, hours or trade name (so "cocina centro" finds a
+ *   requirements, place, hours or trade names (so "cocina centro" finds a
  *   kitchen job in the center);
  * - `orden`: by publication date, newest or oldest first.
  */
@@ -86,14 +86,21 @@ export function filtrarOfertas(ofertas: OfertaPublica[], filtros: FiltrosOfertas
   const palabras = normalizar(filtros.q).split(/\s+/).filter(Boolean);
 
   const filtradas = ofertas.filter((oferta) => {
-    if (filtros.rubro && oferta.rubro !== filtros.rubro) {
+    if (filtros.rubro && !oferta.rubros.includes(filtros.rubro)) {
       return false;
     }
     if (palabras.length === 0) {
       return true;
     }
     const texto = normalizar(
-      [oferta.titulo, oferta.descripcion, oferta.requisitos, oferta.lugar, oferta.jornada, NOMBRE_RUBRO[oferta.rubro]].join(" "),
+      [
+        oferta.titulo,
+        oferta.descripcion,
+        oferta.requisitos,
+        oferta.lugar,
+        oferta.jornada,
+        ...oferta.rubros.map((rubro) => NOMBRE_RUBRO[rubro]),
+      ].join(" "),
     );
     return palabras.every((palabra) => texto.includes(palabra));
   });

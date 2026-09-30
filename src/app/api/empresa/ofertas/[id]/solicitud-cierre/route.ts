@@ -1,42 +1,19 @@
-import { almacen } from "@/mocks/almacen";
-import { aOfertaEmpresa } from "@/mocks/dto";
-import { bloquearEnProduccion } from "@/mocks/respuestas";
-import { exigirRol } from "@/mocks/sesion";
+import { getCurrentUser } from "@/lib/dal/auth";
+import { esIdValido, noEncontrado, responder, sinSesion } from "@/lib/respuestas-api";
+import { pedirCierre } from "@/lib/use-cases/empresa";
 
 /**
- * POST /api/empresa/ofertas/[id]/solicitud-cierre: the company asks the
- * Office to close one of its offers (RF1.3.6, D-027). It is a flag, not a
- * status: the offer stays published until the Office closes it (D-008).
- *
- * Rules (the real use case will have the same ones):
- * 1. 404 if the offer does not exist or belongs to another company (the
- *    answer is the same, so nobody learns about other companies' offers).
- * 2. 409 if it is not published (only a published offer can be closed).
- * 3. 200 `{ oferta }`, also when the close was already requested (idempotent).
- *
- * TEMPORARY (DT-003): works on the simulated store.
+ * POST /api/empresa/ofertas/[id]/solicitud-cierre (RF1.3.6, D-027): the
+ * company asks the Office to close its published offer. 200 `{ oferta }`
+ * (also if already asked); 404 if it does not exist or is another company's;
+ * 409 if it is not published.
  */
-export async function POST(
-  _request: Request,
-  ctx: RouteContext<"/api/empresa/ofertas/[id]/solicitud-cierre">,
-) {
-  const bloqueo = bloquearEnProduccion();
-  if (bloqueo) return bloqueo;
-  const usuario = await exigirRol("company");
-  if (usuario instanceof Response) return usuario;
+export async function POST(_request: Request, ctx: RouteContext<"/api/empresa/ofertas/[id]/solicitud-cierre">) {
+  const usuario = await getCurrentUser();
+  if (!usuario) return sinSesion();
 
   const { id } = await ctx.params;
-  const oferta = almacen.ofertas.find((o) => o.id === id && o.emailEmpresa === usuario.email);
-  if (!oferta) {
-    return Response.json({ error: "No encontramos esa oferta." }, { status: 404 });
-  }
-  if (oferta.estado !== "published") {
-    return Response.json(
-      { error: "Solo se puede pedir el cierre de una oferta publicada." },
-      { status: 409 },
-    );
-  }
+  if (!esIdValido(id)) return noEncontrado("No encontramos esa oferta.");
 
-  oferta.cierreSolicitado = true;
-  return Response.json({ oferta: aOfertaEmpresa(oferta) });
+  return responder(await pedirCierre(usuario, id));
 }

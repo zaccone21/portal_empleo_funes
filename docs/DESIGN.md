@@ -164,6 +164,7 @@ La Oficina trabaja con una cola de tareas: la pantalla le dice **qué necesita a
 | Pedir un texto antes de una decisión (motivo del rechazo) | El campo aparece ahí mismo, en la barra de acciones | No es un modal: el teclado del celular y el modal se llevan mal (D-025) |
 | Elegir de una lista corta (ordenar, estado de una postulación) | `SelectorNativo` (el `<select>` del navegador con el estilo del portal) | Abre el selector propio del teléfono, que la gente ya conoce y siempre entra en la pantalla. El `Select` de shadcn queda para listas que necesiten buscar o mostrar íconos |
 | Filtrar por una categoría (rubros) | Chips que son links (`?rubro=`) | El elegido en verde y con `aria-current`; en el celular, fila que se desliza de costado |
+| Elegir varios de una lista corta con tope (rubros de una oferta) | Casillas en tarjeta: `Checkbox` dentro de `FieldLabel` + `Field` horizontal, con el ícono del rubro, en una grilla de 2 columnas desde `sm` | Toda la tarjeta se toca (44 px o más). Al llegar al tope, las demás se apagan y se deshabilitan, y una línea arriba de las casillas (donde la persona está mirando) dice cómo cambiar una. Así el límite nunca aparece como error después de enviar |
 | Separar una lista en estados (Oficina) | Pestañas que son links (`?estado=`), con la cantidad | No `Tabs` de shadcn: el estado va en la URL |
 | Error del servidor en un formulario | `Alert variant="destructive"` arriba del botón | Componente `ErrorDelServidor` |
 | Error de un campo | `FieldError` debajo del campo | Nunca solo en color |
@@ -263,9 +264,9 @@ La Oficina trabaja con una cola de tareas: la pantalla le dice **qué necesita a
 | `OfertasPublicadas` | `src/components/ofertas/` | Trae las ofertas y muestra los filtros, y cargando, error, vacío o la lista |
 | `FiltrosOfertas` | `src/components/ofertas/` | Buscador, chips de rubros, "Ordenar" y "Limpiar filtros"; todo cambia la URL |
 | `ListaOfertas` | `src/components/ofertas/` | Aplica los filtros, dice qué se está viendo y arma lista + detalle en la misma página (D-025) |
-| `TarjetaOferta` | `src/components/ofertas/` | Tarjeta "hoja": es un link a la oferta (conservando los filtros), con rubro, lugar, horario y "Te postulaste" |
+| `TarjetaOferta` | `src/components/ofertas/` | Tarjeta "hoja": es un link a la oferta (conservando los filtros), con rubros, lugar, horario y "Te postulaste" |
 | `IconoRubro` | `src/components/ofertas/IconoRubro.tsx` | El ícono de cada rubro, el mismo en chips, tarjetas y detalle |
-| `DatosOferta` | `src/components/ofertas/` | Rubro, lugar y horario con íconos |
+| `DatosOferta` | `src/components/ofertas/` | Rubros, lugar, horario y sueldo (si la empresa lo cargó) con íconos. Varios rubros van en una sola línea, separados por "·", con el ícono del primero |
 | `DetalleOferta` | `src/components/ofertas/` | Panel del detalle: encabezado verde, descripción, requisitos y "Postularme" fijo abajo |
 | `BotonPostularme` / `AvisoPostulacion` | `src/components/ofertas/` | Envía la postulación y muestra el resultado: postulado, sin sesión, falta el CV (con link a subirlo) o error |
 | `MisPostulaciones` / `ListaPostulaciones` | `src/components/postulaciones/` | Trae las postulaciones y las muestra sin estado (RF1.2.4) |
@@ -277,7 +278,7 @@ La Oficina trabaja con una cola de tareas: la pantalla le dice **qué necesita a
 | `EstadoOferta` | `src/components/ofertas/EstadoOferta.tsx` | Etiqueta del estado (Pendiente, Publicada, Rechazada, Cerrada) con palabra e ícono, nunca solo color; la va a reusar la Oficina |
 | `ResumenEmpresa` | `src/components/empresa/` | Inicio: aviso si faltan los datos, "Publicar una oferta", ofertas por estado y las últimas |
 | `PerfilEmpresa` / `FormularioPerfilEmpresa` | `src/components/empresa/` | Datos de la empresa y de contacto, con CUIT validado |
-| `FormularioOferta` | `src/components/empresa/` | Publicar una oferta: todos los campos obligatorios (rubro incluido, con `SelectorNativo`) y sin borrador |
+| `FormularioOferta` | `src/components/empresa/` | Publicar una oferta: todos los campos obligatorios salvo el sueldo, de 1 a 3 rubros con casillas, y sin borrador |
 | `OfertasEmpresa` / `TarjetaOfertaEmpresa` / `DetalleOfertaEmpresa` | `src/components/empresa/` | Mis ofertas: lista + detalle con estado, motivo del rechazo y pedido de cierre |
 | `BotonSolicitarCierre` | `src/components/empresa/` | "Pedir el cierre" con confirmación (`AlertDialog`, el único tipo de modal del portal) |
 
@@ -331,3 +332,6 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
 - **2026-09-28 — El motivo del rechazo se escribe ahí mismo.** El campo aparece en la barra de acciones del detalle, no en un modal. Publicar y cerrar usan una confirmación corta. Por qué: el teclado del celular y los modales se llevan mal (D-025), y la empresa necesita el motivo (RF1.3.5). (§4 ter, §5, D-030)
 - **2026-09-28 — En el celular, el mosaico no va detrás de un texto.** Se oculta por debajo de 640 px en los encabezados de sección y en el bloque para empresas del inicio. Por qué: tapaba el título y costaba leerlo. (§0)
 - **2026-09-28 — La barra de acciones del detalle solo aparece si hay algo para hacer.** Por qué: vacía, igual ocupaba lugar y tapaba el final del contenido (los postulantes). (§4 ter, §10)
+- **2026-09-29 — Varios rubros por oferta.** En P11, casillas en tarjeta con el ícono de cada rubro, de 1 a 3; al llegar a 3 las demás se apagan y un aviso arriba dice cómo cambiar una. En tarjetas y detalle, los rubros van en una sola línea separados por "·". Por qué: una oferta puede cruzar rubros (D-032); prevenir el error es mejor que mostrarlo, y en el celular una línea no alarga la tarjeta. (§5, D-032)
+- **2026-09-29 — El sueldo, cuando está, en la misma lista que lugar y horario.** Una línea más con ícono de billete; si la empresa no lo cargó, la línea no aparece (nada de "A convenir" inventado). Por qué: es de lo primero que mira quien busca trabajo, y el campo es opcional (D-032). (§4 ter)
+- **2026-09-29 — "Crear cuenta" también vuelve a la oferta.** Desde "Postularme" sin sesión, tanto "Ingresar" como "Crear cuenta" llevan `?volver=` y, al terminar, devuelven a la oferta. Si Supabase deja entrar directo (confirmación de email apagada), no se muestra "Revisá tu correo". Por qué: que postularse sea un solo camino para quien entra por primera vez (D-034). (§5)

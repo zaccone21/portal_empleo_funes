@@ -11,10 +11,10 @@ import { BotonSolicitarCierre } from "./BotonSolicitarCierre";
 
 /** What each status means for the company, in its words. */
 const EXPLICACION: Record<Estado, string> = {
-  pending: "La Oficina de Empleo la está revisando. Cuando la publique, la van a ver quienes buscan trabajo.",
-  published: "Está publicada: la ven quienes buscan trabajo en el portal.",
-  rejected: "La Oficina de Empleo no la publicó.",
-  closed: "Está cerrada: ya no se muestra ni recibe postulaciones.",
+  pendiente: "La Oficina de Empleo la está revisando. Cuando la publique, la van a ver quienes buscan trabajo.",
+  publicada: "Está publicada: la ven quienes buscan trabajo en el portal.",
+  rechazada: "La Oficina de Empleo no la publicó.",
+  cerrada: "Está cerrada: ya no se muestra ni recibe postulaciones.",
 };
 
 type Props = {
@@ -40,7 +40,7 @@ type Props = {
  * not offered while Q-002 and Q-003 are open.
  */
 export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) {
-  const puedePedirCierre = oferta.estado === "published" && !oferta.cierreSolicitado;
+  const puedePedirCierre = oferta.estado === "publicada" && !oferta.cierreSolicitado;
 
   return (
     <PanelDetalle
@@ -57,14 +57,14 @@ export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) 
         <EstadoOferta estado={oferta.estado} />
         <p className="text-base">{EXPLICACION[oferta.estado]}</p>
       </section>
-      {oferta.estado === "rejected" && oferta.motivoRechazo && (
+      {oferta.estado === "rechazada" && oferta.motivoRechazo && (
         <Alert variant="destructive">
           <CircleXIcon aria-hidden="true" />
           <AlertTitle className="text-base">Motivo del rechazo</AlertTitle>
           <AlertDescription className="text-base">{oferta.motivoRechazo}</AlertDescription>
         </Alert>
       )}
-      {oferta.cierreSolicitado && oferta.estado === "published" && (
+      {oferta.cierreSolicitado && oferta.estado === "publicada" && (
         <Alert>
           <InfoIcon aria-hidden="true" />
           <AlertTitle className="text-base">Pediste el cierre</AlertTitle>
@@ -73,7 +73,7 @@ export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) 
           </AlertDescription>
         </Alert>
       )}
-      <DatosOferta rubro={oferta.rubro} lugar={oferta.lugar} jornada={oferta.jornada} />
+      <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
       <section className="flex flex-col gap-2">
         <h3 className="text-lg font-semibold">Descripción del puesto</h3>
         <p className="text-base whitespace-pre-line">{oferta.descripcion}</p>

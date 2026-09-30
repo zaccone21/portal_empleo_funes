@@ -24,7 +24,7 @@ export function TarjetaOfertaEmpresa({ oferta, seleccionada, soloEnEscritorio }:
     >
       <div className="flex flex-wrap items-center gap-2">
         <EstadoOferta estado={oferta.estado} />
-        {oferta.cierreSolicitado && oferta.estado === "published" && (
+        {oferta.cierreSolicitado && oferta.estado === "publicada" && (
           <span className="text-sm text-muted-foreground">Pediste el cierre</span>
         )}
       </div>

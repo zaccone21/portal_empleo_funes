@@ -27,7 +27,7 @@ export function TarjetaOferta({ oferta, href, seleccionada, soloEnEscritorio }: 
   return (
     <TarjetaSeleccionable href={href} seleccionada={seleccionada} soloEnEscritorio={soloEnEscritorio}>
       <h2 className="font-heading text-lg leading-snug font-semibold sm:text-xl">{oferta.titulo}</h2>
-      <DatosOferta rubro={oferta.rubro} lugar={oferta.lugar} jornada={oferta.jornada} />
+      <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">Publicada el {formatearDia(oferta.publicadaEl)}</p>
         {oferta.yaTePostulaste && (

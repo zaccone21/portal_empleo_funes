@@ -16,25 +16,25 @@ import { PestanasEstado } from "./PestanasEstado";
 import { TarjetaOfertaOficina } from "./TarjetaOfertaOficina";
 
 const VACIO: Record<EstadoOferta, string> = {
-  pending: "No hay ofertas para revisar. Está todo al día.",
-  published: "No hay ofertas publicadas.",
-  rejected: "No hay ofertas rechazadas.",
-  closed: "No hay ofertas cerradas.",
+  pendiente: "No hay ofertas para revisar. Está todo al día.",
+  publicada: "No hay ofertas publicadas.",
+  rechazada: "No hay ofertas rechazadas.",
+  cerrada: "No hay ofertas cerradas.",
 };
 
 /**
  * Order inside each status, so what needs attention comes first:
- * - pending: oldest first (first in, first reviewed);
- * - published: the ones whose company asked to close them, then newest;
- * - rejected and closed: newest first.
+ * - pendiente: oldest first (first in, first reviewed);
+ * - publicada: the ones whose company asked to close them, then newest;
+ * - rechazada and cerrada: newest first.
  */
 function ordenar(ofertas: OfertaOficina[], estado: EstadoOferta): OfertaOficina[] {
   const copia = [...ofertas];
-  if (estado === "pending") {
+  if (estado === "pendiente") {
     return copia.sort((a, b) => a.creadaEl.localeCompare(b.creadaEl));
   }
   return copia.sort((a, b) => {
-    if (estado === "published" && a.cierreSolicitado !== b.cierreSolicitado) {
+    if (estado === "publicada" && a.cierreSolicitado !== b.cierreSolicitado) {
       return a.cierreSolicitado ? -1 : 1;
     }
     return b.creadaEl.localeCompare(a.creadaEl);
@@ -91,7 +91,7 @@ export function GestionOfertas({ estado, seleccionadaId }: Props) {
     return <ErrorAlCargar que="las ofertas" mensaje={error ?? MENSAJE_ERROR_GENERICO} onReintentar={recargar} />;
   }
 
-  const cantidades: Record<EstadoOferta, number> = { pending: 0, published: 0, rejected: 0, closed: 0 };
+  const cantidades: Record<EstadoOferta, number> = { pendiente: 0, publicada: 0, rechazada: 0, cerrada: 0 };
   for (const oferta of ofertas) {
     cantidades[oferta.estado] += 1;
   }

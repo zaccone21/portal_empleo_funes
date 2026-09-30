@@ -1,32 +1,14 @@
-import { almacen } from "@/mocks/almacen";
-import { aOfertaOficina } from "@/mocks/dto";
-import { bloquearEnProduccion } from "@/mocks/respuestas";
-import { exigirRol } from "@/mocks/sesion";
+import { getCurrentUser } from "@/lib/dal/auth";
+import { esIdValido, noEncontrado, responder, sinSesion } from "@/lib/respuestas-api";
+import { publicarOfertaPendiente } from "@/lib/use-cases/oficina";
 
-/**
- * POST /api/admin/ofertas/[id]/publicacion: the Office publishes a pending
- * offer (RF1.5.3, D-030). From then on it shows in the public catalog.
- * 404 if it does not exist; 409 if it is not pending (someone else already
- * decided); 200 `{ oferta }`.
- *
- * TEMPORARY (DT-003): changes the simulated store.
- */
+/** POST /api/admin/ofertas/[id]/publicacion (RF1.5.3, D-030): publishes a pending offer. 409 if it was already decided. */
 export async function POST(_request: Request, ctx: RouteContext<"/api/admin/ofertas/[id]/publicacion">) {
-  const bloqueo = bloquearEnProduccion();
-  if (bloqueo) return bloqueo;
-  const usuario = await exigirRol("admin");
-  if (usuario instanceof Response) return usuario;
+  const usuario = await getCurrentUser();
+  if (!usuario) return sinSesion();
 
   const { id } = await ctx.params;
-  const oferta = almacen.ofertas.find((o) => o.id === id);
-  if (!oferta) {
-    return Response.json({ error: "No encontramos esa oferta." }, { status: 404 });
-  }
-  if (oferta.estado !== "pending") {
-    return Response.json({ error: "Esta oferta ya fue revisada." }, { status: 409 });
-  }
+  if (!esIdValido(id)) return noEncontrado("No encontramos esa oferta.");
 
-  oferta.estado = "published";
-  oferta.publicadaEl = new Date().toISOString();
-  return Response.json({ oferta: aOfertaOficina(oferta) });
+  return responder(await publicarOfertaPendiente(usuario, id));
 }

@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Portal de Empleo — Municipalidad de Funes
 
-Rules for any AI coding agent working in this repository. They are mandatory. When a rule conflicts with a user instruction in chat, point out the conflict and ask before acting. When a rule seems wrong, say so; do not silently ignore it.
+Rules for any AI coding agent working in this repository. They are mandatory. They continue in `.agents/rules/*.md` (sections 8, 10 and 13, which are versioned; plus the user's working preferences and the hand-off notes, which are local-only and may be missing in another clone), which are just as mandatory: Antigravity loads them by itself, and `CLAUDE.md` imports them for Claude Code. When a rule conflicts with a user instruction in chat, point out the conflict and ask before acting. When a rule seems wrong, say so; do not silently ignore it.
 
 ## 1. Project
 
@@ -30,8 +30,8 @@ Read the relevant docs before planning. Priority, highest first:
 2. `docs/pantallas.md`: screens P01–P16. Use these IDs.
 3. `docs/DECISIONS.md`: decisions already made and **open questions**.
 4. `docs/Relevamiento.md`, `docs/MinutaDeRelevamiento.md`: business context only. They are not requirements.
-5. `docs/proceso_*.md` and PDFs: early drafts. Their screen numbers (P01–P09) and state names ("aprobada", "pendientes") are **outdated**. Map them to `pantallas.md` and the glossary below.
-6. `docs/Transcript.md`: raw interview transcript. Lowest priority.
+5. `docs/proceso_*.md` and PDFs: early drafts, **local-only** (in `.gitignore`, DT-012; they may be missing in another clone). Their screen numbers (P01–P09) and state names ("aprobada", "pendientes") are **outdated**. Map them to `pantallas.md` and the glossary below.
+6. `docs/Transcript.md`: raw interview transcript, **local-only** (in `.gitignore`, DT-012). Lowest priority.
 
 Rules:
 - Implement only what traces to an RF/RNF or to a decision in `docs/DECISIONS.md`. Cite the IDs (e.g. `RF1.4.4`, `P06`) in every plan.
@@ -48,25 +48,26 @@ Rules:
 
 ## 4. Glossary (canonical)
 
-The names below are the ones already used by the DB schema and enums written so far (`profiles`, `user_role`). Whether the DB keeps English names is an open question; until it is decided, do not rename them. For code identifiers, see §3.
+The DB names are in Spanish (D-031). The full data model is in `docs/modelo_datos.md` (D-032). The code, the DTOs and the URLs (`?estado=pendiente`) use the same Spanish values as the database. Only the first migration (`20260924120000_create_profiles.sql`) keeps the old English names, because applied migrations are never edited (D-033); a later migration renames them. For code identifiers, see §3.
 
-| Spanish (docs/UI) | Code / DB |
+| Spanish (docs/UI) | DB |
 |---|---|
-| Postulante | `applicant` |
-| Empresa | `company` |
+| Postulante | role `postulante`, table `postulantes` |
+| Empresa | role `empresa`, table `empresas` |
 | Oficina de Empleo / Operadora / Admin | role `admin` |
-| Oferta laboral | `job_offer` (table), `JobOffer` (type) |
-| Postulación | `application` |
-| Etiqueta / Rubro / Oficio | `tag` |
-| CV (PDF) | `cv`, storage path `cv_path` |
-| Motivo de rechazo | `rejection_reason` |
-| Solicitud de cierre | `close_requested` (boolean) |
-| Perfil de usuario (rol) | `profile` |
+| Oferta laboral | table `ofertas` (type `Oferta…` in code) |
+| Postulación | table `postulaciones` |
+| Etiqueta / Rubro / Oficio | table `rubros`; links `postulante_rubros`, `oferta_rubros` |
+| CV (PDF) | columns `cv_ruta`, `cv_nombre`, `cv_tamano_bytes`, `cv_subido_el` in `postulantes`; private bucket `cvs` |
+| Motivo de rechazo | `motivo_rechazo` |
+| Solicitud de cierre | `cierre_solicitado` (boolean) |
+| Perfil de usuario (rol) | table `perfiles` |
 
-- Roles: `applicant | company | admin`.
-- Job offer status: `pending | published | rejected | closed` → UI: Pendiente, Publicada, Rechazada, Cerrada.
-- Application status: `applied | preselected | referred | not_suitable` → UI: Postulado, Pre-seleccionado, Derivado, No apto.
-- Tables are plural snake_case (`job_offers`, `applications`, `applicant_tags`). Columns are snake_case. TS types are PascalCase. Variables and functions are camelCase.
+- Roles: `postulante | empresa | admin`.
+- Job offer status: `pendiente | publicada | rechazada | cerrada` → UI: Pendiente, Publicada, Rechazada, Cerrada.
+- Application status: `postulado | preseleccionado | derivado | no_apto` → UI: Postulado, Pre-seleccionado, Derivado, No apto.
+- Application origin: `postulante | oficina`.
+- Tables are plural snake_case (`ofertas`, `postulaciones`, `postulante_rubros`), without accents or ñ (`tamano_bytes`). Columns are snake_case; dates end in `_el` (`creada_el`). TS types are PascalCase. Variables and functions are camelCase.
 
 ## 5. Stack and version traps
 
@@ -117,6 +118,7 @@ All app code lives under `src/`, and the `@/` alias maps to `src/`. Paths writte
 - Route Handlers answer with the right HTTP status: 200 OK, 201 Created (POST), 204 No Content (DELETE), 400 invalid data, 401 no session, 403 no permission, 404 not found, 409 conflict, 500 unexpected error. Error bodies are `{ error: "message" }`.
 - Error handling is temporary: hooks show the error message as it comes (`e.message`), as in the reference README. The user will define proper error handling later. Until then, do not put stack traces or raw database errors in the `error` field of a response.
 - Generate DB types from Supabase. Do not hand-write row types.
+- **Migrations (D-033)**: any change to the DB structure, however small, is a **new** timestamped file in `supabase/migrations/`. That includes tables, columns, constraints, indexes, policies, functions, triggers and fixed-list seeds. Never edit a migration once it was applied or committed; fix it with another migration. Add a row to `docs/migraciones.md` for every new migration, and record the date it was applied. The user applies migrations by hand in the Supabase **SQL Editor** (one whole file at a time, in order). The registry is therefore the only record of what is applied. Do not push the Supabase CLI on the user.
 - No generic repositories, factories, service classes, or "utils" dumping grounds. Use cases are plain functions: no classes, interfaces, or dependency injection. Add any other abstraction only when it has at least 2 real call sites (use cases are the exception, D-018).
 - **Screen structure (D-021, replaces part of D-009)**: route group → screen → components.
   - A screen is its `page.tsx`: a Server Component that exports `metadata.title` and composes the view from components in `components/<feature>/`, with its own texts and links.
@@ -155,38 +157,7 @@ Read `node_modules/next/dist/docs/01-app/02-guides/data-security.md` and `authen
 
 ## 8. Filesystem, commands and git (Windows)
 
-The machine runs Windows with PowerShell 5.1, and the project lives on `D:\`. A wrong path in a delete command can wipe the whole drive.
-
-**Never**
-- Run anything that deletes recursively or irreversibly: `rm -rf`, `rm -r`, `rmdir /s`, `rd /s`, `Remove-Item -Recurse`, `del /s`, `git clean`, `git reset --hard`, `git checkout -- .`, `git restore .`, `git push --force`.
-- Touch any path outside the workspace root, including the user's home, `C:\`, the root of `D:\`, and global npm/npx caches.
-- Delete `node_modules`, `.next`, or lockfiles to "fix" an error.
-- Push, touch `main`, or merge into `main` or `testing`. The user does that.
-- Commit `.env*` files, run `npm audit fix --force`, or disable git hooks (`--no-verify`).
-
-**Ask first** (explain why, show the exact command)
-- Installing, upgrading, or removing dependencies, including `npx shadcn add`.
-- Any command against Supabase (migrations, `db push`, `db reset`, type generation against a remote project).
-- `git add`, `commit`, `branch`, `switch`, `merge`, `stash`, `rebase`.
-- Deleting any file. List the exact paths, one by one.
-- Editing config: `package.json`, `package-lock.json`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `components.json`, `vitest.config.mts`, `playwright.config.ts`, `.gitignore`, `src/app/globals.css` theme tokens.
-
-**Allowed without asking**
-- Reading any file in the repo.
-- Editing source files within the scope of the approved plan.
-- `npm run lint | typecheck | test | test:e2e | build | verify | dev`.
-- `git status | diff | log | branch --show-current`.
-
-**Shell hygiene**
-- PowerShell 5.1: no `&&` or `||`. Use `;` or `if ($?) { ... }`. Do not mix bash syntax.
-- Quote every path. Never build a path from a variable without printing it first.
-- If a dev server is already running (`.next/dev/lock`), reuse it. Do not start a duplicate.
-
-**Git flow**
-- `main` is untouchable. `testing` is the integration branch.
-- New work goes on a branch named `feature/<task>` (reference README). Branches that already exist (`feat/*`, `fix/*`, `testing`) keep their names.
-- Integration is by Pull Request, reviewed by a teammate. The agent never pushes, opens the merge, or merges; the user does.
-- Commit only when asked, and ask for the user's OK before `git add`, `commit` or any branch operation. Messages follow `tipo: descripción` in Spanish, with the types `feat`, `fix`, `style`, `refactor`, `docs` (`feat: agrega formulario de postulación`). One logical change per commit.
+Moved to `.agents/rules/comandos-y-git.md` (Antigravity reads at most 24 KB per rules file). It is as mandatory as the rest of this file.
 
 ## 9. Dependencies
 
@@ -198,20 +169,7 @@ The machine runs Windows with PowerShell 5.1, and the project lives on `D:\`. A 
 
 ## 10. UI and accessibility
 
-- Read `docs/DESIGN.md` before building a screen. It holds the visual defaults: palette tokens and contrast, typography, sizes, which component to use for what, form and copy rules, and an accessibility checklist.
-- Design mobile-first (RNF3). Touch targets must be ≥ 44×44 px, and inputs use font size ≥ 16 px to avoid iOS zoom. Keep one primary action per screen and one-way flows.
-- Target WCAG 2.2 AA:
-  - Every input has a visible `<label>`; do not rely on placeholders as labels.
-  - Show errors next to their field, in plain Spanish.
-  - Use sufficient contrast and a visible focus ring.
-  - Everything must be keyboard-accessible.
-- Use theme tokens (`bg-primary`, `text-muted-foreground`, …). No hardcoded hex/oklch colors in components.
-- Build screens from `components/ui/`. Components are added **on demand, one at a time, only when the current task needs them**: name the component, why this screen needs it, and ask before running `npx shadcn@4.21.0 add <name>` (use `--dry-run` first to show files and new deps). Never add components "for later". Never hand-write or copy a primitive.
-- **`components/ui/` belongs to the user.** The user customizes these files by hand. Never run `shadcn add` with `--overwrite`, and never re-add or regenerate an existing component. Edit a primitive only when the task explicitly requires it, and show the diff. For a one-off variation, pass `className` or compose in `components/<feature>/` instead of changing the primitive.
-- Dates are shown in Spanish (es-AR): pass the `es` locale from `date-fns/locale` to `calendar` and use `Intl.DateTimeFormat("es-AR")` for text.
-- Offer details open next to the list on the same page, never in a modal (D-025, RF1.4.2): list + detail side by side on desktop, the detail in place of the list on phones, and the selection in the URL (`?oferta=<id>`). Use `dialog` only for short confirmations, not for long content or forms.
-- Navigate between pages with `<Link>` from `next/link`, never with `<a href>` for internal routes. For navigation from code (for example after a form), use `useRouter` from `next/navigation`.
-- Every async UI has loading, empty, and error states.
+Moved to `.agents/rules/ui-y-accesibilidad.md` (Antigravity reads at most 24 KB per rules file). It is as mandatory as the rest of this file.
 
 ## 11. Workflow — no vibe coding
 
@@ -260,44 +218,7 @@ If the same fix fails twice, stop. Explain what you tried, your hypotheses, and 
 
 ## 13. Current state
 
-- The Next.js 16 app lives under `src/`: the home page (P01, D-029) is `src/app/page.tsx` with its components in `components/inicio/`; `/landing` is a page in progress by the user (do not touch it); `lang="es-AR"`. Municipal palette and fonts (Be Vietnam Pro + Sora) are set (D-019, `docs/DESIGN.md`). `Button` and `Input` were resized to 44 px touch targets (D-021). Visual direction "Mosaico de oficios" (D-022, `docs/DESIGN.md` §0): brand tokens `brand-deep/leaf/mint/sun`, brand components in `components/marca/`. Every new screen follows it; a plain default-looking screen is not done. **Every design decision is recorded in `docs/DESIGN.md`**: the rule in its section and a dated line in §11.
-- shadcn/ui is configured (`components.json`, theme tokens in `src/app/globals.css`). Installed in `components/ui/`: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, calendar, card, chart, checkbox, dialog, dropdown-menu, empty, field, input, label, navigation-menu, pagination, popover, radio-group, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, tooltip. Read the file before using any of them. Anything else is added on demand (see §10). The `Toaster` (sonner) is mounted in the root layout (light theme, top center).
-- Testing works: `npm run test` (Vitest) and `npm run test:e2e` (Playwright, mobile + desktop, port 3100). `npm run verify` is green. Every request goes through `proxy.ts`, which needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: without a `.env.local` (or those variables in the shell), `npm run dev` and `npm run test:e2e` answer 500.
-- `.env.example` lists the Supabase variable names. The user creates `.env.local`.
-- **Supabase, done**: packages installed, clients in `lib/supabase/` (`server`, `client`, `admin`, `proxy`, `env`), `proxy.ts` refreshing the session, `lib/dal/auth.ts` (`getCurrentUser`, `requireRole`) with unit tests, and the migration `supabase/migrations/20260924120000_create_profiles.sql` (table `profiles`, RLS, trigger) with pgTAP tests in `supabase/tests/`.
-- **Supabase, pending**: the migration is **not applied** anywhere and the pgTAP tests were never run (the Supabase CLI is not installed). DB types are not generated. The DB naming (English vs Spanish) is open, see Q-015. No Route Handlers or use cases exist yet.
-- **Access flow, frontend done (D-020, D-021)**: the screens are `src/app/(acceso)/{postulante,empresa}/{ingresar,registrarse,recuperar-contrasena}/page.tsx`, `admin/ingresar` and `nueva-contrasena`. Their components (forms that send with their hook, fields, card, links) are in `components/auth/`, the Zod schemas in `lib/validation/auth.ts`, the hooks are `useIngreso`, `useRegistro`, `useRecuperarContrasena` and `useNuevaContrasena`, and the fetch helper is `lib/http.ts`. The `/api/auth/*` endpoints are simulated (D-028, DT-003). The frame and slogans come from `MarcoAcceso` (group layout) and `PanelAcceso` (one layout per portal).
-- **Applicant area, frontend done (D-023 to D-026)**:
-  - Screens in `src/app/(postulante)/`: `/ofertas` (P05 list + P06 detail on the same page), `/postulante/postulaciones` (P07) and `/postulante/cv` (P04).
-  - Components are in `components/ofertas/`, `components/postulaciones/` and `components/cv/`. The hooks are `useOfertasPublicadas`, `usePostularme`, `useMisPostulaciones` and `useMiCv`.
-  - The APIs `/api/ofertas`, `/api/postulaciones` and `/api/cv` are **simulated** (DT-003, D-026): fake data and in-memory state from `src/mocks/`, 404 in production. `e2e/postulacion.spec.ts` runs against them.
-  - Offer fields (DT-002) and CV rules (DT-004) are provisional.
-  - `src/app/playground/ofertas/page.tsx` is obsolete and pending deletion.
-  - `/ofertas` is a catalog (D-029): search, trade filter and order live in the URL (`q`, `rubro`, `orden`, `oferta`); the logic is in `lib/catalogo.ts` and the controls in `FiltrosOfertas`. Trades are a provisional list in `lib/validation/rubros.ts` (DT-002, Q-006).
-- **Company area, frontend done (D-027)**:
-  - Screens in `src/app/(empresa)/empresa/`: home (P09), `perfil` (P10), `ofertas/nueva` (P11) and `ofertas` (P12, list + detail).
-  - Components are in `components/empresa/`. Shared structure pieces are in `components/marca/` (`ListaConDetalle`, `PanelDetalle`, `TarjetaSeleccionable`); `CampoTexto` is in `components/formularios/`.
-  - The hooks are `usePerfilEmpresa`, `useOfertasEmpresa`, `useCrearOferta` and `useSolicitarCierre`. The APIs under `/api/empresa/` are simulated (DT-003). The company data and the P09 summary are provisional (DT-005).
-  - `e2e/empresa.spec.ts` runs against the simulated API.
-- **Session and navigation, frontend done (D-028)**:
-  - Each area layout wraps its screens in `ProveedorSesion`; read the session with `useSesion` (only for what the screen shows, never for permissions).
-  - Top bar: `EncabezadoPortal`. Phone bottom bar: `BarraInferior`. The menu items live in `components/marca/itemsNavegacion.ts`. Private screens show `PedirIngreso` on 401/403.
-  - Login is **simulated** (`src/mocks/sesion.ts`, cookie `portal_sesion_simulada`). The test users are `postulante@ejemplo.com`, `empresa@ejemplo.com` and `oficina@ejemplo.com`, with any password. `/api/auth/*` follows D-020 plus `sesion` and `salida`.
-  - e2e specs log in through `e2e/ayudas.ts`.
-- **Employment Office, frontend done (D-030)**:
-  - Screens in `src/app/(admin)/admin/`: panel (P14) and `ofertas` (P15, status tabs `?estado=` + list and detail).
-  - Components are in `components/oficina/`, the hooks in `hooks/useOficina.ts`, the schemas in `lib/validation/oficina.ts`.
-  - The APIs under `/api/admin/` are simulated (DT-003). The panel indicators and the applicant data are provisional (DT-006, Q-012, Q-009). P16 is blocked (Q-006, Q-007, Q-009).
-  - `e2e/oficina.spec.ts` runs against the simulated API.
-- **Simulated store**: all simulated routes share one in-memory store (`src/mocks/almacen.ts`), so the whole cycle works across the three roles. Restart `npm run dev` to reset it.
-- **Frontend plan by screen and role**: `docs/plan_frontend.md`. Keep it updated when a screen changes state.
-- **Architecture (D-018)**: the layers are documented but `lib/use-cases/` does not exist yet. `requireRole` in `lib/dal/auth.ts` predates D-018 and does not fit it (see DT-001 in `docs/deuda_tecnica.md`); resolve it when writing the first use case.
-- Next step:
-  1. Once Q-015 is decided, adjust the migration names if needed and apply the migration to the development project (ask first).
-  2. Implement `/api/auth/*` behind the D-020 contract (Route Handler → use case → DAL).
-  3. Add the route that receives the email link (confirmation and recovery), which redirects to `/nueva-contrasena` in the recovery case.
-  4. In Supabase Auth, turn on email confirmation and set the minimum password length to 8.
-  5. Frontend: follow `docs/plan_frontend.md`. Phases 1 to 5 are done with simulated data. What is left is blocked by open questions (P03: Q-006, Q-009; P16: Q-006, Q-007, Q-009; indicators: Q-012) or is the real backend (phase 7).
+Moved to `.agents/rules/estado-del-proyecto.md` (Antigravity reads at most 24 KB per rules file). It is as mandatory as the rest of this file.
 
 ## 14. deuda_tecnica.md
 - Whenever a decision taken by the agent, even if the developer agreed on it, generates any sort of technical debt beacause of a poor developing estructure, a bad programming practice is applicated to the proyect, maybe for test or debugging, or any type of thing that wouldnt be on production code it has to be reported in the document ../docs/deuda_tecnica.md 

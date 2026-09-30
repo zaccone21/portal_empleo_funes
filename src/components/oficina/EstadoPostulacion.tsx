@@ -7,17 +7,17 @@ type Variante = "default" | "secondary" | "destructive" | "outline";
 
 /** Words of the glossary (AGENTS §4) for each application status (D-008). */
 export const NOMBRE_ESTADO_POSTULACION: Record<Estado, string> = {
-  applied: "Postulado",
-  preselected: "Pre-seleccionado",
-  referred: "Derivado",
-  not_suitable: "No apto",
+  postulado: "Postulado",
+  preseleccionado: "Pre-seleccionado",
+  derivado: "Derivado",
+  no_apto: "No apto",
 };
 
 const ESTILO: Record<Estado, { icono: LucideIcon; variante: Variante }> = {
-  applied: { icono: CircleDotIcon, variante: "outline" },
-  preselected: { icono: UserCheckIcon, variante: "secondary" },
-  referred: { icono: SendIcon, variante: "default" },
-  not_suitable: { icono: BanIcon, variante: "destructive" },
+  postulado: { icono: CircleDotIcon, variante: "outline" },
+  preseleccionado: { icono: UserCheckIcon, variante: "secondary" },
+  derivado: { icono: SendIcon, variante: "default" },
+  no_apto: { icono: BanIcon, variante: "destructive" },
 };
 
 /**

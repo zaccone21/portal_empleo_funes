@@ -8,17 +8,31 @@ import { z } from "zod";
 import { BotonEnviar } from "@/components/auth/BotonEnviar";
 import { ErrorDelServidor } from "@/components/auth/ErrorDelServidor";
 import { CampoTexto } from "@/components/formularios/CampoTexto";
-import { SelectorNativo } from "@/components/formularios/SelectorNativo";
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { IconoRubro } from "@/components/ofertas/IconoRubro";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
 import { useCrearOferta } from "@/hooks/useCrearOferta";
-import { nuevaOfertaSchema, type DatosNuevaOferta } from "@/lib/validation/ofertas";
-import { NOMBRE_RUBRO, RUBROS } from "@/lib/validation/rubros";
+import { MAXIMO_RUBROS_OFERTA, nuevaOfertaSchema, type DatosNuevaOferta } from "@/lib/validation/ofertas";
+import { NOMBRE_RUBRO, RUBROS, type Rubro } from "@/lib/validation/rubros";
 
 type Errores = Partial<Record<keyof DatosNuevaOferta, string[]>>;
 
 /**
- * "Publicar una oferta" (P11, RF1.3.3). Every field is required and there are
- * no drafts (D-007): the offer is either sent or not.
+ * "Publicar una oferta" (P11, RF1.3.3). Every field is required except the
+ * pay (D-032), and there are no drafts (D-007): the offer is either sent or not.
+ *
+ * Trades are checkboxes, 1 to 3 (D-032). Once three are checked the rest are
+ * dimmed and disabled, and a line right under the instructions (where the
+ * person is looking, not after the eleventh option) says how to change one,
+ * so the limit is never an error after the fact.
  *
  * On submit:
  * 1. Reads the fields with FormData and validates them with nuevaOfertaSchema
@@ -34,6 +48,12 @@ export function FormularioOferta() {
   const router = useRouter();
   const { crear, loading, error } = useCrearOferta();
   const [errores, setErrores] = useState<Errores>({});
+  const [rubrosElegidos, setRubrosElegidos] = useState<Rubro[]>([]);
+  const llegoAlMaximo = rubrosElegidos.length >= MAXIMO_RUBROS_OFERTA;
+
+  function cambiarRubro(rubro: Rubro, elegido: boolean) {
+    setRubrosElegidos((actuales) => (elegido ? [...actuales, rubro] : actuales.filter((r) => r !== rubro)));
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,7 +64,8 @@ export function FormularioOferta() {
       requisitos: formData.get("requisitos"),
       lugar: formData.get("lugar"),
       jornada: formData.get("jornada"),
-      rubro: formData.get("rubro"),
+      sueldo: formData.get("sueldo") ?? "",
+      rubros: formData.getAll("rubros"),
     });
 
     if (!resultado.success) {
@@ -74,29 +95,42 @@ export function FormularioOferta() {
           error={errores.titulo?.[0]}
           maxLength={120}
         />
-        <Field data-invalid={errores.rubro ? true : undefined}>
-          <FieldLabel htmlFor="rubro" className="text-base">
-            Rubro
-          </FieldLabel>
-          <FieldDescription id="rubro-descripcion">Así la encuentran quienes buscan en ese rubro.</FieldDescription>
-          <SelectorNativo
-            id="rubro"
-            name="rubro"
-            defaultValue=""
-            aria-invalid={errores.rubro ? true : undefined}
-            aria-describedby={errores.rubro ? "rubro-descripcion rubro-error" : "rubro-descripcion"}
-          >
-            <option value="" disabled>
-              Elegí un rubro
-            </option>
-            {RUBROS.map((rubro) => (
-              <option key={rubro} value={rubro}>
-                {NOMBRE_RUBRO[rubro]}
-              </option>
-            ))}
-          </SelectorNativo>
-          <FieldError id="rubro-error">{errores.rubro?.[0]}</FieldError>
-        </Field>
+        <FieldSet aria-describedby={errores.rubros ? "rubros-descripcion rubros-error" : "rubros-descripcion"}>
+          <FieldLegend className="mb-1">Rubros</FieldLegend>
+          <FieldDescription id="rubros-descripcion">
+            Elegí de 1 a {MAXIMO_RUBROS_OFERTA}. Así la encuentran quienes buscan en esos rubros.
+          </FieldDescription>
+          <p aria-live="polite" className="text-base font-medium text-foreground empty:hidden">
+            {llegoAlMaximo ? `Elegiste ${MAXIMO_RUBROS_OFERTA}, el máximo. Para cambiar uno, sacá otro.` : null}
+          </p>
+          <FieldGroup data-slot="checkbox-group" className="grid gap-2 sm:grid-cols-2">
+            {RUBROS.map((rubro) => {
+              const elegido = rubrosElegidos.includes(rubro);
+              const deshabilitado = !elegido && llegoAlMaximo;
+              return (
+                <FieldLabel key={rubro} className={deshabilitado ? "cursor-not-allowed opacity-50" : undefined}>
+                  <Field
+                    orientation="horizontal"
+                    data-disabled={deshabilitado ? true : undefined}
+                    className="min-h-11 items-center"
+                  >
+                    <Checkbox
+                      name="rubros"
+                      value={rubro}
+                      checked={elegido}
+                      disabled={deshabilitado}
+                      onCheckedChange={(marcado) => cambiarRubro(rubro, marcado)}
+                      aria-invalid={errores.rubros ? true : undefined}
+                    />
+                    <IconoRubro rubro={rubro} className="size-5 shrink-0 text-primary" />
+                    <span className="text-base font-normal">{NOMBRE_RUBRO[rubro]}</span>
+                  </Field>
+                </FieldLabel>
+              );
+            })}
+          </FieldGroup>
+          <FieldError id="rubros-error">{errores.rubros?.[0]}</FieldError>
+        </FieldSet>
         <CampoTexto
           id="descripcion"
           label="Qué va a hacer la persona"
@@ -125,6 +159,13 @@ export function FormularioOferta() {
           label="Días y horario"
           descripcion="Por ejemplo: Lunes a viernes de 8 a 16."
           error={errores.jornada?.[0]}
+          maxLength={120}
+        />
+        <CampoTexto
+          id="sueldo"
+          label="Sueldo (opcional)"
+          descripcion="Por ejemplo: A convenir, o $ 500.000 por mes. Si lo dejás vacío, no se muestra."
+          error={errores.sueldo?.[0]}
           maxLength={120}
         />
       </FieldGroup>

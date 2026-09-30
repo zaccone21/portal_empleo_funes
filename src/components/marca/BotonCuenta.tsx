@@ -14,8 +14,8 @@ import type { Role } from "@/lib/validation/role";
 
 /** Registration screen of each area, where one exists (the Office has none, RF1.1.4). */
 const REGISTRO: Partial<Record<Role, string>> = {
-  applicant: "/postulante/registrarse",
-  company: "/empresa/registrarse",
+  postulante: "/postulante/registrarse",
+  empresa: "/empresa/registrarse",
 };
 
 /**

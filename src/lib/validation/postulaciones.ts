@@ -7,7 +7,7 @@ import { z } from "zod";
 
 /** Body of POST /api/postulaciones. The applicant comes from the session, never from the body (AGENTS §7). */
 export const postularseSchema = z.object({
-  ofertaId: z.string().min(1, "Falta la oferta"),
+  ofertaId: z.uuid("Falta la oferta"),
 });
 
 export type DatosPostularse = z.infer<typeof postularseSchema>;
@@ -16,7 +16,7 @@ export type DatosPostularse = z.infer<typeof postularseSchema>;
  * Application status (D-008), set by the Office (RF1.5.6). Only the Office
  * sees it; the applicant never does (RF1.2.4).
  */
-export const estadoPostulacionSchema = z.enum(["applied", "preselected", "referred", "not_suitable"], {
+export const estadoPostulacionSchema = z.enum(["postulado", "preseleccionado", "derivado", "no_apto"], {
   error: "Elegí un estado",
 });
 

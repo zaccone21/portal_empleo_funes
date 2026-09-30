@@ -9,7 +9,7 @@ import {
 
 /**
  * Sends a new offer (P11, RF1.3.3) through POST /api/empresa/ofertas (D-027).
- * The server creates it as "pending" (no drafts, D-007).
+ * The server creates it as "pendiente" (no drafts, D-007).
  *
  * `crear` resolves to the created offer, or `undefined` with the message in
  * `error` (D-013). As in useIngreso, `loading` stays true after a success

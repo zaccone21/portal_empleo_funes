@@ -17,11 +17,11 @@ import type { EstadoOferta as Estado, OfertaEmpresa } from "@/lib/validation/ofe
 
 import { TarjetaOfertaEmpresa } from "./TarjetaOfertaEmpresa";
 
-const ORDEN_ESTADOS: Estado[] = ["pending", "published", "rejected", "closed"];
+const ORDEN_ESTADOS: Estado[] = ["pendiente", "publicada", "rechazada", "cerrada"];
 
 /** How many offers are in each status. */
 function contarPorEstado(ofertas: OfertaEmpresa[]): Record<Estado, number> {
-  const conteo: Record<Estado, number> = { pending: 0, published: 0, rejected: 0, closed: 0 };
+  const conteo: Record<Estado, number> = { pendiente: 0, publicada: 0, rechazada: 0, cerrada: 0 };
   for (const oferta of ofertas) {
     conteo[oferta.estado] += 1;
   }
@@ -61,7 +61,7 @@ export function ResumenEmpresa() {
   if (ofertas.sinAcceso || perfil.sinAcceso) {
     return (
       <PedirIngreso
-        rol="company"
+        rol="empresa"
         titulo="Ingresá como empresa"
         descripcion="Para publicar ofertas de trabajo y seguir cómo avanzan."
       />

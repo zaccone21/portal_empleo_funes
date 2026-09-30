@@ -18,7 +18,8 @@ function oferta(id: string, datos: Partial<OfertaPublica>): OfertaPublica {
     requisitos: "",
     lugar: "Centro",
     jornada: "",
-    rubro: "otros",
+    sueldo: null,
+    rubros: ["otros"],
     publicadaEl: "2026-09-20T10:00:00-03:00",
     yaTePostulaste: false,
     ...datos,
@@ -26,9 +27,9 @@ function oferta(id: string, datos: Partial<OfertaPublica>): OfertaPublica {
 }
 
 const ofertas = [
-  oferta("cocina", { titulo: "Ayudante de cocina", rubro: "gastronomia", publicadaEl: "2026-09-25T10:00:00-03:00" }),
-  oferta("jardin", { titulo: "Jardinero", rubro: "jardineria", lugar: "Barrio Norte", publicadaEl: "2026-09-24T10:00:00-03:00" }),
-  oferta("chofer", { titulo: "Chofer", rubro: "transporte", descripcion: "Reparto en el centro", publicadaEl: "2026-09-18T10:00:00-03:00" }),
+  oferta("cocina", { titulo: "Ayudante de cocina", rubros: ["gastronomia"], publicadaEl: "2026-09-25T10:00:00-03:00" }),
+  oferta("jardin", { titulo: "Jardinero", rubros: ["jardineria"], lugar: "Barrio Norte", publicadaEl: "2026-09-24T10:00:00-03:00" }),
+  oferta("chofer", { titulo: "Chofer", rubros: ["transporte"], descripcion: "Reparto en el centro", publicadaEl: "2026-09-18T10:00:00-03:00" }),
 ];
 
 describe("leerFiltros", () => {
@@ -54,6 +55,22 @@ describe("filtrarOfertas", () => {
 
   test("by trade", () => {
     expect(filtrarOfertas(ofertas, { ...FILTROS_VACIOS, rubro: "jardineria" }).map((o) => o.id)).toEqual(["jardin"]);
+  });
+
+  test("an offer with several trades shows up under each of them (D-032)", () => {
+    const conDosRubros = [...ofertas, oferta("cadete", { titulo: "Cadete", rubros: ["transporte", "gastronomia"] })];
+
+    expect(filtrarOfertas(conDosRubros, { ...FILTROS_VACIOS, rubro: "gastronomia" }).map((o) => o.id)).toEqual([
+      "cocina",
+      "cadete",
+    ]);
+    expect(filtrarOfertas(conDosRubros, { ...FILTROS_VACIOS, rubro: "transporte" }).map((o) => o.id)).toEqual([
+      "cadete",
+      "chofer",
+    ]);
+    expect(filtrarOfertas(conDosRubros, { ...FILTROS_VACIOS, q: "cadete gastronomia" }).map((o) => o.id)).toEqual([
+      "cadete",
+    ]);
   });
 
   test("the search ignores case and accents, and every word must match", () => {

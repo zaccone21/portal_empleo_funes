@@ -8,5 +8,5 @@ import { MarcoArea } from "@/components/marca/MarcoArea";
  * phone menu.
  */
 export default function EmpresaLayout({ children }: { children: ReactNode }) {
-  return <MarcoArea area="company">{children}</MarcoArea>;
+  return <MarcoArea area="empresa">{children}</MarcoArea>;
 }

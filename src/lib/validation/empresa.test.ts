@@ -59,7 +59,7 @@ describe("nuevaOfertaSchema", () => {
       requisitos: "",
       lugar: "",
       jornada: "",
-      rubro: "",
+      rubros: [],
     });
 
     expect(resultado.success).toBe(false);
@@ -69,7 +69,25 @@ describe("nuevaOfertaSchema", () => {
       "requisitos",
       "lugar",
       "jornada",
-      "rubro",
+      "rubros",
     ]);
+  });
+
+  test("takes one to three trades (D-032)", () => {
+    const oferta = {
+      titulo: "Repartidor",
+      descripcion: "Reparto de pedidos",
+      requisitos: "Moto propia",
+      lugar: "Centro",
+      jornada: "Tardes",
+    };
+
+    expect(nuevaOfertaSchema.safeParse({ ...oferta, rubros: ["gastronomia"] }).success).toBe(true);
+    expect(nuevaOfertaSchema.safeParse({ ...oferta, rubros: ["gastronomia", "transporte", "comercio"] }).success).toBe(true);
+    expect(
+      nuevaOfertaSchema.safeParse({ ...oferta, rubros: ["gastronomia", "transporte", "comercio", "otros"] }).error
+        ?.issues[0].message,
+    ).toBe("Podés elegir hasta 3 rubros");
+    expect(nuevaOfertaSchema.safeParse({ ...oferta, rubros: ["inventado"] }).success).toBe(false);
   });
 });

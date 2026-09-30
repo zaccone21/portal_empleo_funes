@@ -65,7 +65,7 @@ const passwordNuevaSchema = z
 /**
  * Roles someone can register with. Admin accounts are never created from the
  * registration form (RF1.1.4, D-011); the database trigger also turns any
- * other value into 'applicant', so this is the first of two barriers.
+ * other value into 'postulante', so this is the first of two barriers.
  */
 export const rolRegistrableSchema = roleSchema.exclude(["admin"], {
   error: "Tipo de cuenta inválido",
@@ -133,6 +133,15 @@ export const formularioNuevaContrasenaSchema = nuevaContrasenaSchema
  */
 export const respuestaConDestinoSchema = z.object({
   destino: z.string().regex(/^\/(?!\/)/, "Destino inválido"),
+});
+
+/**
+ * Answer of POST /api/auth/registro (D-034): null when the account has to be
+ * activated from the email; the role's home when Supabase logged the person
+ * in right away (email confirmation off, handy in development).
+ */
+export const respuestaRegistroSchema = z.object({
+  destino: z.string().regex(/^\/(?!\/)/, "Destino inválido").nullable(),
 });
 
 /**

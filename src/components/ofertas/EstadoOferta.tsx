@@ -11,10 +11,10 @@ type Variante = "default" | "secondary" | "destructive" | "outline";
  * Shared by the company (P12) and, later, the Office (P15).
  */
 const ESTADOS: Record<Estado, { texto: string; icono: LucideIcon; variante: Variante }> = {
-  pending: { texto: "Pendiente", icono: ClockIcon, variante: "outline" },
-  published: { texto: "Publicada", icono: CircleCheckIcon, variante: "default" },
-  rejected: { texto: "Rechazada", icono: CircleXIcon, variante: "destructive" },
-  closed: { texto: "Cerrada", icono: ArchiveIcon, variante: "secondary" },
+  pendiente: { texto: "Pendiente", icono: ClockIcon, variante: "outline" },
+  publicada: { texto: "Publicada", icono: CircleCheckIcon, variante: "default" },
+  rechazada: { texto: "Rechazada", icono: CircleXIcon, variante: "destructive" },
+  cerrada: { texto: "Cerrada", icono: ArchiveIcon, variante: "secondary" },
 };
 
 /** Offer status as a label (RF1.3.4): Pendiente, Publicada, Rechazada or Cerrada. */

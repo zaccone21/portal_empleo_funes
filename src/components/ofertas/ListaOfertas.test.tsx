@@ -28,7 +28,8 @@ const ofertas: OfertaPublica[] = [
     requisitos: "Libreta sanitaria.",
     lugar: "Barrio de ejemplo",
     jornada: "Lunes a viernes de 8 a 16",
-    rubro: "otros",
+    sueldo: null,
+    rubros: ["otros"],
     publicadaEl: "2026-09-25T10:00:00-03:00",
     yaTePostulaste: false,
   },
@@ -39,7 +40,8 @@ const ofertas: OfertaPublica[] = [
     requisitos: "Experiencia.",
     lugar: "Otro barrio de ejemplo",
     jornada: "Martes y jueves",
-    rubro: "otros",
+    sueldo: null,
+    rubros: ["otros"],
     publicadaEl: "2026-09-24T10:00:00-03:00",
     yaTePostulaste: false,
   },
@@ -93,7 +95,7 @@ test("an offer already applied to says so on the card and in the detail, without
 test("filters by trade and keeps the filters in each card's link (D-029)", () => {
   render(
     <ListaOfertas
-      ofertas={[{ ...ofertas[0], rubro: "gastronomia" }, { ...ofertas[1], rubro: "jardineria" }]}
+      ofertas={[{ ...ofertas[0], rubros: ["gastronomia"] }, { ...ofertas[1], rubros: ["jardineria"] }]}
       filtros={{ q: "", rubro: "jardineria", orden: "recientes" }}
     />,
   );

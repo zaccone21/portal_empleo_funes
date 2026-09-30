@@ -15,10 +15,10 @@ import { PostulantesDeOferta } from "./PostulantesDeOferta";
 
 /** What each status means for the Office, and what is left to do. */
 const EXPLICACION: Record<Estado, string> = {
-  pending: "Revisala y decidí si se publica. Si la rechazás, escribí el motivo para la empresa.",
-  published: "Está en el catálogo y recibe postulaciones.",
-  rejected: "No se publicó. La empresa ve el motivo.",
-  closed: "Ya no se muestra ni recibe postulaciones.",
+  pendiente: "Revisala y decidí si se publica. Si la rechazás, escribí el motivo para la empresa.",
+  publicada: "Está en el catálogo y recibe postulaciones.",
+  rechazada: "No se publicó. La empresa ve el motivo.",
+  cerrada: "Ya no se muestra ni recibe postulaciones.",
 };
 
 type Props = {
@@ -41,7 +41,7 @@ type Props = {
  * (AccionesOferta).
  */
 export function DetalleOfertaOficina({ oferta, elegida, volverHref, onActualizada }: Props) {
-  const conPostulantes = oferta.estado === "published" || oferta.estado === "closed";
+  const conPostulantes = oferta.estado === "publicada" || oferta.estado === "cerrada";
 
   return (
     <PanelDetalle
@@ -63,7 +63,7 @@ export function DetalleOfertaOficina({ oferta, elegida, volverHref, onActualizad
         <p className="text-base">{EXPLICACION[oferta.estado]}</p>
       </section>
 
-      {oferta.estado === "rejected" && oferta.motivoRechazo && (
+      {oferta.estado === "rechazada" && oferta.motivoRechazo && (
         <Alert variant="destructive">
           <CircleXIcon aria-hidden="true" />
           <AlertTitle className="text-base">Motivo del rechazo</AlertTitle>
@@ -71,7 +71,7 @@ export function DetalleOfertaOficina({ oferta, elegida, volverHref, onActualizad
         </Alert>
       )}
 
-      {oferta.estado === "published" && oferta.cierreSolicitado && (
+      {oferta.estado === "publicada" && oferta.cierreSolicitado && (
         <Alert>
           <InfoIcon aria-hidden="true" />
           <AlertTitle className="text-base">La empresa pidió cerrar esta oferta</AlertTitle>
@@ -117,7 +117,7 @@ export function DetalleOfertaOficina({ oferta, elegida, volverHref, onActualizad
         )}
       </section>
 
-      <DatosOferta rubro={oferta.rubro} lugar={oferta.lugar} jornada={oferta.jornada} />
+      <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
       <section className="flex flex-col gap-2">
         <h3 className="text-lg font-semibold">Descripción del puesto</h3>
         <p className="text-base whitespace-pre-line">{oferta.descripcion}</p>

@@ -30,12 +30,12 @@ export type ItemNavegacion = {
  * not in the menu yet (docs/plan_frontend.md).
  */
 export const ITEMS_POR_ROL: Record<Role, ItemNavegacion[]> = {
-  applicant: [
+  postulante: [
     { href: "/ofertas", texto: "Ofertas", icono: BriefcaseBusinessIcon },
     { href: "/postulante/postulaciones", texto: "Postulaciones", icono: ListChecksIcon },
     { href: "/postulante/cv", texto: "Mi CV", icono: FileTextIcon },
   ],
-  company: [
+  empresa: [
     { href: "/empresa", texto: "Inicio", icono: HouseIcon },
     { href: "/empresa/ofertas", texto: "Mis ofertas", icono: ListChecksIcon },
     { href: "/empresa/ofertas/nueva", texto: "Publicar", icono: PlusIcon, destacado: true },
@@ -49,14 +49,14 @@ export const ITEMS_POR_ROL: Record<Role, ItemNavegacion[]> = {
 
 /** What anyone can open without an account in each area (the public offer list). */
 const ITEMS_PUBLICOS: Record<Role, ItemNavegacion[]> = {
-  applicant: [{ href: "/ofertas", texto: "Ofertas", icono: BriefcaseBusinessIcon }],
-  company: [],
+  postulante: [{ href: "/ofertas", texto: "Ofertas", icono: BriefcaseBusinessIcon }],
+  empresa: [],
   admin: [],
 };
 
 const REGISTRO: Partial<Record<Role, ItemNavegacion>> = {
-  applicant: { href: "/postulante/registrarse", texto: "Crear cuenta", icono: UserPlusIcon },
-  company: { href: "/empresa/registrarse", texto: "Registrarse", icono: UserPlusIcon },
+  postulante: { href: "/postulante/registrarse", texto: "Crear cuenta", icono: UserPlusIcon },
+  empresa: { href: "/empresa/registrarse", texto: "Registrarse", icono: UserPlusIcon },
 };
 
 /**

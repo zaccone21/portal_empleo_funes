@@ -1,22 +1,18 @@
+import { datosInvalidos, leerCuerpo, responder } from "@/lib/respuestas-api";
+import { registrarse } from "@/lib/use-cases/acceso";
 import { registroSchema } from "@/lib/validation/auth";
-import { bloquearEnProduccion } from "@/mocks/respuestas";
 
 /**
- * POST /api/auth/registro (D-020): creates an applicant or company account.
- *
- * TEMPORARY (DT-003, D-028): validates and answers 201 without creating
- * anything (only the test users can log in). The real version signs up with
- * Supabase Auth, which sends the confirmation email; it also answers 201 when
- * the email already exists, so nobody can check which accounts exist.
+ * POST /api/auth/registro (D-020, D-034): creates an applicant or company
+ * account. 201 `{ destino }`: null when the account is activated from the
+ * email (Supabase sends it with a link to /acceso/confirmar), or the role's
+ * home when Supabase logged the person in right away. Also 201 when the email
+ * already exists, so nobody learns which accounts exist.
  */
 export async function POST(request: Request) {
-  const bloqueo = bloquearEnProduccion();
-  if (bloqueo) return bloqueo;
+  const datos = registroSchema.safeParse(await leerCuerpo(request));
+  if (!datos.success) return datosInvalidos(datos.error);
 
-  const datos = registroSchema.safeParse(await request.json().catch(() => null));
-  if (!datos.success) {
-    return Response.json({ error: datos.error.issues[0].message }, { status: 400 });
-  }
-
-  return new Response(null, { status: 201 });
+  const urlConfirmacion = `${new URL(request.url).origin}/acceso/confirmar`;
+  return responder(await registrarse(datos.data, urlConfirmacion), 201);
 }

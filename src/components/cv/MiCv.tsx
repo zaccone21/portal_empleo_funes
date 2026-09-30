@@ -53,7 +53,7 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
   if (sinAcceso) {
     return (
       <PedirIngreso
-        rol="applicant"
+        rol="postulante"
         titulo="Ingresá para subir tu CV"
         descripcion="Con tu CV cargado te podés postular a las ofertas."
       />
