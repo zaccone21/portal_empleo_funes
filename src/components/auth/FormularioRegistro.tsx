@@ -17,6 +17,8 @@ import { AvisoRevisaTuCorreo } from "./AvisoRevisaTuCorreo";
 import { BotonEnviar } from "./BotonEnviar";
 import { CampoContrasena } from "./CampoContrasena";
 import { CampoEmail } from "./CampoEmail";
+import { CampoDni } from "./CampoDni";
+import { CampoCuit } from "./CampoCuit";
 import { ErrorDelServidor } from "./ErrorDelServidor";
 
 type Props = {
@@ -26,28 +28,16 @@ type Props = {
   volver?: string;
 };
 
-type Errores = Partial<Record<"email" | "password" | "repetirPassword", string[]>>;
+type Errores = Partial<Record<"email" | "password" | "repetirPassword" | "dni" | "cuit", string[]>>;
 
 /**
- * Registration form for applicants (P02) and companies (P08). It asks only for
- * email and password: profile data is filled in later (P03, P10), and the
- * applicant fields are still open (Q-009). Collecting the minimum also follows
- * Law 25.326.
+ * Registration form for applicants (P02) and companies (P08).
+ * Asks for email, password, and an identifier (DNI for applicants, CUIT for companies).
  *
  * On submit:
- * 1. Validates with formularioRegistroSchema: valid email, password length
- *    (D-020) and both passwords equal. Errors go under each field.
- * 2. Sends email, password and `rol` with useRegistro. The repeated password
- *    stays on screen. The role is not a field the user fills in, so nobody
- *    can register as "admin" (RF1.1.4).
- * 3. On success (D-034):
- *    - if the account must be activated from the email, the form is replaced
- *      by "Revisá tu correo" with the email typed, so the user can spot a typo;
- *    - if Supabase logged the person in right away (confirmation off), the
- *      page goes back to `volver`, or to the role's home.
- * 4. On failure the form stays with the server's message.
- * The server answers the same when the email was already registered, so this
- * screen cannot be used to find out who has an account (AGENTS §7).
+ * 1. Validates with formularioRegistroSchema.
+ * 2. Sends data with useRegistro.
+ * 3. On success: shows "Revisá tu correo" or redirects.
  */
 export function FormularioRegistro({ rol, volver }: Props) {
   const router = useRouter();
@@ -59,9 +49,12 @@ export function FormularioRegistro({ rol, volver }: Props) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const resultado = formularioRegistroSchema.safeParse({
+      role: rol,
       email: formData.get("email"),
       password: formData.get("password"),
       repetirPassword: formData.get("repetirPassword"),
+      dni: formData.get("dni"),
+      cuit: formData.get("cuit"),
     });
 
     if (!resultado.success) {
@@ -70,13 +63,13 @@ export function FormularioRegistro({ rol, volver }: Props) {
     }
 
     setErrores({});
-    const { email, password } = resultado.data;
-    const respuesta = await registrar({ email, password, role: rol });
+    const { repetirPassword, ...datosRegistro } = resultado.data;
+    const respuesta = await registrar(datosRegistro);
     if (!respuesta) return;
     if (respuesta.destino) {
       router.replace(esRutaInterna(volver) ? volver : respuesta.destino);
     } else {
-      setEmailRegistrado(email);
+      setEmailRegistrado(resultado.data.email);
     }
   }
 
@@ -93,6 +86,8 @@ export function FormularioRegistro({ rol, volver }: Props) {
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <FieldGroup className="gap-5">
         <CampoEmail error={errores.email?.[0]} />
+        {rol === "postulante" && <CampoDni error={errores.dni?.[0]} />}
+        {rol === "empresa" && <CampoCuit error={errores.cuit?.[0]} />}
         <CampoContrasena
           id="password"
           name="password"

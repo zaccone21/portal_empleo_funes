@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { createClient } from "@/lib/supabase/server";
 import { roleSchema, type Role } from "@/lib/validation/role";
+import type { DatosRegistro } from "@/lib/validation/auth";
 
 export type CurrentUser = {
   id: string;
@@ -74,34 +75,42 @@ export async function ingresarConContrasena(email: string, password: string): Pr
 
 export type ResultadoRegistro =
   | { ok: true; sesionIniciada: boolean }
-  | { ok: false; motivo: "envio_fallido" | "contrasena_debil" };
+  | { ok: false; motivo: "envio_fallido" | "contrasena_debil" | "dni_duplicado" | "cuit_duplicado" };
 
 /**
- * Creates an account. The role travels in user_metadata ("rol") and the
- * database trigger turns anything but "empresa" into "postulante" (D-011).
+ * Creates an account. The role travels in user_metadata ("rol") alongside DNI or CUIT,
+ * and the database trigger inserts them.
  * `sesionIniciada` is true only when email confirmation is off in Supabase
  * (useful in development): the user is logged in right away.
  * An existing email counts as success, so nobody learns which accounts exist
  * (with confirmation on, Supabase already answers as if it were new).
  */
 export async function registrar(
-  email: string,
-  password: string,
-  rol: Exclude<Role, "admin">,
+  datos: DatosRegistro,
   urlConfirmacion: string,
 ): Promise<ResultadoRegistro> {
   const supabase = await createClient();
+  const metadata: Record<string, string> = { rol: datos.role };
+  if (datos.role === "postulante") metadata.dni = datos.dni;
+  if (datos.role === "empresa") metadata.cuit = datos.cuit;
+
   const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { rol }, emailRedirectTo: urlConfirmacion },
+    email: datos.email,
+    password: datos.password,
+    options: { data: metadata, emailRedirectTo: urlConfirmacion },
   });
 
   if (error) {
     if (error.code === "user_already_exists" || error.code === "email_exists") return { ok: true, sesionIniciada: false };
     if (error.code === "weak_password") return { ok: false, motivo: "contrasena_debil" };
+    // The trigger will fail if DNI/CUIT is not unique, throwing a Database error.
+    // We map generic database errors to a failed sign-up for now.
     if (error.code && ERRORES_DE_ENVIO.has(error.code)) return { ok: false, motivo: "envio_fallido" };
-    throw new Error("Sign-up failed unexpectedly.");
+    // Catch-all for trigger exceptions that surface through GoTrue
+    if (error.message?.includes("Database error saving new user")) {
+      return { ok: false, motivo: "envio_fallido" };
+    }
+    throw new Error(`Sign-up failed unexpectedly: ${error.message}`);
   }
 
   return { ok: true, sesionIniciada: data.session !== null };

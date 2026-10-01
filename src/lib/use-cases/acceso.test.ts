@@ -13,6 +13,7 @@ const dal = vi.hoisted(() => ({
 vi.mock("@/lib/dal/auth", () => dal);
 
 import { abrirEnlace, elegirNuevaContrasena, ingresar, pedirRecuperacion, registrarse, verSesion } from "./acceso";
+import type { DatosRegistro } from "@/lib/validation/auth";
 
 beforeEach(() => {
   for (const fn of Object.values(dal)) fn.mockReset();
@@ -49,19 +50,18 @@ describe("ingresar", () => {
 });
 
 describe("registrarse", () => {
-  const datos = { email: "persona@ejemplo.com", password: "12345678", role: "postulante" as const };
+  const datosPostulante: DatosRegistro = { email: "persona@ejemplo.com", password: "12345678", role: "postulante", dni: "38123456" };
+  const datosEmpresa: DatosRegistro = { email: "empresa@ejemplo.com", password: "12345678", role: "empresa", cuit: "30-12345678-9" };
 
   test("with email confirmation on, there is no destination: the screen asks to check the email", async () => {
     dal.registrar.mockResolvedValue({ ok: true, sesionIniciada: false });
 
-    await expect(registrarse(datos, "http://localhost/acceso/confirmar")).resolves.toEqual({
+    await expect(registrarse(datosPostulante, "http://localhost/acceso/confirmar")).resolves.toEqual({
       ok: true,
       datos: { destino: null },
     });
     expect(dal.registrar).toHaveBeenCalledWith(
-      "persona@ejemplo.com",
-      "12345678",
-      "postulante",
+      datosPostulante,
       "http://localhost/acceso/confirmar",
     );
   });
@@ -69,7 +69,7 @@ describe("registrarse", () => {
   test("when Supabase logs the person in right away, goes to the role's home (D-034)", async () => {
     dal.registrar.mockResolvedValue({ ok: true, sesionIniciada: true });
 
-    await expect(registrarse({ ...datos, role: "empresa" }, "u")).resolves.toEqual({
+    await expect(registrarse(datosEmpresa, "u")).resolves.toEqual({
       ok: true,
       datos: { destino: "/empresa" },
     });
@@ -78,7 +78,7 @@ describe("registrarse", () => {
   test("an email Supabase could not send is 'unavailable', with a message to try later", async () => {
     dal.registrar.mockResolvedValue({ ok: false, motivo: "envio_fallido" });
 
-    const resultado = await registrarse(datos, "u");
+    const resultado = await registrarse(datosPostulante, "u");
 
     expect(resultado.ok === false && resultado.falla).toBe("unavailable");
   });

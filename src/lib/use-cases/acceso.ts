@@ -11,7 +11,7 @@ import {
   type EnlaceDelEmail,
 } from "@/lib/dal/auth";
 import { INICIO_POR_ROL } from "@/lib/rutas";
-import type { RolRegistrable, UsuarioSesion } from "@/lib/validation/auth";
+import type { UsuarioSesion, DatosRegistro } from "@/lib/validation/auth";
 
 import { exito, falla, type Resultado } from "./resultado";
 
@@ -43,12 +43,18 @@ export async function ingresar(datos: { email: string; password: string }): Prom
  * home when Supabase logged the person in right away (email confirmation off).
  */
 export async function registrarse(
-  datos: { email: string; password: string; role: RolRegistrable },
+  datos: DatosRegistro,
   urlConfirmacion: string,
 ): Promise<Resultado<{ destino: string | null }>> {
-  const resultado = await registrar(datos.email, datos.password, datos.role, urlConfirmacion);
+  const resultado = await registrar(datos, urlConfirmacion);
 
   if (!resultado.ok) {
+    if (resultado.motivo === "dni_duplicado") {
+      return falla("conflict", "Ya existe una cuenta registrada con este DNI.");
+    }
+    if (resultado.motivo === "cuit_duplicado") {
+      return falla("conflict", "Ya existe una cuenta registrada con este CUIT.");
+    }
     if (resultado.motivo === "contrasena_debil") {
       return falla("invalid", "Elegí una contraseña más difícil de adivinar.");
     }

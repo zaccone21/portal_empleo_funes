@@ -8,7 +8,7 @@ import type { Role } from "@/lib/validation/role";
 
 /** Home of each role after logging in. */
 export const INICIO_POR_ROL: Record<Role, string> = {
-  postulante: "/ofertas",
+  postulante: "/",
   empresa: "/empresa",
   admin: "/admin",
 };
