@@ -169,7 +169,7 @@ Moved to `.agents/rules/comandos-y-git.md` (Antigravity reads at most 24 KB per 
 
 ## 10. UI and accessibility
 
-Moved to `.agents/rules/ui-y-accesibilidad.md` (Antigravity reads at most 24 KB per rules file). It is as mandatory as the rest of this file.
+Moved to `.agents/rules/ui-y-accesibilidad.md` (Antigravity reads at most 24 KB per rules file). It is as mandatory as the rest of this file. Es **obligatorio** consultar y seguir siempre la skill `shadcn` (oficial de shadcn/ui) cada vez que se modifique o se cree cualquier elemento de frontend.
 
 ## 11. Workflow — no vibe coding
 

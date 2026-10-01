@@ -56,6 +56,7 @@ Fecha: 2026-09-28 · Origen: D-026
 Qué: el tamaño máximo del CV es 5 MB (`CV_TAMANO_MAXIMO_BYTES` en `src/lib/validation/cv.ts`), que es la propuesta de Q-005, todavía abierta. Subir un CV nuevo reemplaza al anterior, porque RF1.2.3 habla de 1 archivo por postulante. Solo se puede subir un PDF: crear el CV online (Q-004) no está.
 Por qué quedó: para construir P04 sin esperar que se cierren Q-004 y Q-005.
 Cómo se salda: cuando se decidan Q-004 y Q-005, ajustar la constante (y el límite del bucket) y confirmar si el anterior se borra o se conserva.
+*Parcialmente saldada 2026-10-01: Q-005 cerrada con 5 MB como límite definitivo. No requiere cambios en código ni bucket. Queda abierta solo Q-004 (crear CV online vs. solo subida).*
 
 ### DT-005 — Datos de la empresa e inicio de la empresa provisorios
 Fecha: 2026-09-28 · Origen: D-027

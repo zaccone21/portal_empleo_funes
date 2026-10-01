@@ -470,8 +470,9 @@ Motivo: que el cambio de herramienta no pierda reglas, decisiones ni la forma de
 ### Q-004 — "Cargar/Crear CV" (P04)
 `pantallas.md` y el diagrama mencionan **crear** un CV online además de subirlo, pero RF1.2.3 solo pide subir 1 PDF. ¿El MVP es solo subida? *Por ahora solo subida.*
 
-### Q-005 — Límite de tamaño del CV
+### Q-005 — Límite de tamaño del CV ✅
 ¿Cuál es el tamaño máximo del PDF? (Propuesta: 5 MB.) ¿Reemplazar el CV borra el anterior?
+*Cerrada 2026-10-01: 5 MB es el límite definitivo. Con el bucket de 1 GB de Supabase entran ~2000 CVs con el tamaño promedio real (~500 KB). Subir un CV nuevo reemplaza al anterior (upsert); RF1.2.3 habla de 1 archivo por postulante. No requiere cambios: el código y el bucket ya usan 5 MB.*
 
 ### Q-006 — Lista de etiquetas/rubros
 ¿Quién mantiene la lista predefinida (RF1.2.2)? ¿Un seed fijo en una migración, o un CRUD para el admin? ¿Cuál es la lista inicial?

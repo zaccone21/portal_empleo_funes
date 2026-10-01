@@ -6,6 +6,12 @@ trigger: always_on
 
 ## 10. UI and accessibility
 
+- **Uso obligatorio de la skill `shadcn`**: Siempre que se modifique o se cree cualquier componente, formulario, vista o pantalla de frontend, es obligatorio consultar y aplicar las pautas de la skill oficial de `shadcn` (`skills/shadcn/SKILL.md` y sus reglas bajo `rules/`). En particular:
+  - Principios de composición antes de escribir estilos o markup custom.
+  - Estructura de formularios (`FieldGroup`, `Field`, `FieldLabel`, etc.) y atributos de validación (`data-invalid`, `aria-invalid`).
+  - Base UI: uso estricto de la prop `render` (no `asChild`, ver `rules/base-vs-radix.md`).
+  - Reglas de estilo: tokens semánticos, `size-*` en vez de `w-* h-*`, flex con `gap-*` en vez de `space-*`.
+  - Iconos en botones con `data-icon` sin clases de tamaño manuales.
 - Read `docs/DESIGN.md` before building a screen. It holds the visual defaults: palette tokens and contrast, typography, sizes, which component to use for what, form and copy rules, and an accessibility checklist.
 - Design mobile-first (RNF3). Touch targets must be ≥ 44×44 px, and inputs use font size ≥ 16 px to avoid iOS zoom. Keep one primary action per screen and one-way flows.
 - Target WCAG 2.2 AA:
