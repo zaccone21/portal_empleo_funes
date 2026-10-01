@@ -56,27 +56,28 @@ describe("ingresoSchema", () => {
 });
 
 describe("registroSchema", () => {
-  const valido = { email: "persona@ejemplo.com", password: "12345678", role: "postulante" };
+  const postulanteValido = { email: "persona@ejemplo.com", password: "12345678", role: "postulante", dni: "38123456" };
+  const empresaValida = { email: "empresa@ejemplo.com", password: "12345678", role: "empresa", cuit: "30-12345678-9" };
 
   test("accepts applicant and company", () => {
-    expect(registroSchema.safeParse(valido).success).toBe(true);
-    expect(registroSchema.safeParse({ ...valido, role: "empresa" }).success).toBe(true);
+    expect(registroSchema.safeParse(postulanteValido).success).toBe(true);
+    expect(registroSchema.safeParse(empresaValida).success).toBe(true);
   });
 
   test("rejects the admin role", () => {
-    const errores = erroresDe(registroSchema.safeParse({ ...valido, role: "admin" }));
+    const errores = erroresDe(registroSchema.safeParse({ ...postulanteValido, role: "admin" }));
 
     expect(errores.role).toBeDefined();
   });
 
   test("requires at least 8 characters", () => {
-    const errores = erroresDe(registroSchema.safeParse({ ...valido, password: "1234567" }));
+    const errores = erroresDe(registroSchema.safeParse({ ...postulanteValido, password: "1234567" }));
 
     expect(errores.password?.[0]).toMatch(/al menos 8/);
   });
 
   test("rejects more than 72 characters", () => {
-    const errores = erroresDe(registroSchema.safeParse({ ...valido, password: "a".repeat(73) }));
+    const errores = erroresDe(registroSchema.safeParse({ ...postulanteValido, password: "a".repeat(73) }));
 
     expect(errores.password?.[0]).toMatch(/hasta 72/);
   });
@@ -92,6 +93,8 @@ describe("formularioRegistroSchema", () => {
   test("puts the mismatch error on the repeated password field", () => {
     const errores = erroresDe(
       formularioRegistroSchema.safeParse({
+        role: "postulante",
+        dni: "38123456",
         email: "persona@ejemplo.com",
         password: "12345678",
         repetirPassword: "87654321",
@@ -101,14 +104,14 @@ describe("formularioRegistroSchema", () => {
     expect(errores.repetirPassword).toEqual(["Las contraseñas no coinciden"]);
   });
 
-  test("does not require a role (the screen adds it)", () => {
+  test("requires a role to be present in the data", () => {
     const resultado = formularioRegistroSchema.safeParse({
       email: "persona@ejemplo.com",
       password: "12345678",
       repetirPassword: "12345678",
     });
 
-    expect(resultado.success).toBe(true);
+    expect(resultado.success).toBe(false);
   });
 });
 

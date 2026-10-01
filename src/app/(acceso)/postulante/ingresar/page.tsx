@@ -8,9 +8,7 @@ export const metadata: Metadata = { title: "Ingresar" };
 
 /**
  * P02: applicant login. ?volver= brings the person back to the screen that
- * asked them to log in (for example the offer they wanted to apply to). The
- * links below also cover people who landed here by mistake: the offers can be
- * seen without an account, and companies have their own login.
+ * asked them to log in (for example the offer they wanted to apply to).
  */
 export default async function PostulanteIngresarPage({ searchParams }: PageProps<"/postulante/ingresar">) {
   const { volver } = await searchParams;
@@ -24,8 +22,6 @@ export default async function PostulanteIngresarPage({ searchParams }: PageProps
           enlaces={[
             { href: "/postulante/registrarse", texto: "¿No tenés cuenta? Registrate" },
             { href: "/postulante/recuperar-contrasena", texto: "Olvidé mi contraseña" },
-            { href: "/ofertas", texto: "Ver las ofertas sin ingresar" },
-            { href: "/empresa/ingresar", texto: "¿Sos una empresa? Ingresá acá" },
           ]}
         />
       }

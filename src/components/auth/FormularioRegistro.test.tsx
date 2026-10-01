@@ -22,8 +22,17 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-function completar(email: string, password: string, repetirPassword: string) {
+function completarPostulante(email: string, password: string, repetirPassword: string, dni = "38123456") {
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText("DNI"), { target: { value: dni } });
+  fireEvent.change(screen.getByLabelText("Contraseña"), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText("Repetí la contraseña"), { target: { value: repetirPassword } });
+  fireEvent.click(screen.getByRole("button", { name: "Crear cuenta" }));
+}
+
+function completarEmpresa(email: string, password: string, repetirPassword: string, cuit = "30-12345678-9") {
+  fireEvent.change(screen.getByLabelText("Email"), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText("CUIT de la empresa"), { target: { value: cuit } });
   fireEvent.change(screen.getByLabelText("Contraseña"), { target: { value: password } });
   fireEvent.change(screen.getByLabelText("Repetí la contraseña"), { target: { value: repetirPassword } });
   fireEvent.click(screen.getByRole("button", { name: "Crear cuenta" }));
@@ -32,7 +41,7 @@ function completar(email: string, password: string, repetirPassword: string) {
 test("asks for at least 8 characters", () => {
   render(<FormularioRegistro rol="postulante" />);
 
-  completar("persona@ejemplo.com", "corta", "corta");
+  completarPostulante("persona@ejemplo.com", "corta", "corta");
 
   expect(screen.getByText(/al menos 8 caracteres$/)).toBeDefined();
   expect(mocks.registrar).not.toHaveBeenCalled();
@@ -41,22 +50,23 @@ test("asks for at least 8 characters", () => {
 test("shows the mismatch under the repeated password", () => {
   render(<FormularioRegistro rol="postulante" />);
 
-  completar("persona@ejemplo.com", "12345678", "87654321");
+  completarPostulante("persona@ejemplo.com", "12345678", "87654321");
 
   expect(screen.getByText("Las contraseñas no coinciden")).toBeDefined();
   expect(mocks.registrar).not.toHaveBeenCalled();
 });
 
-test("sends email, password and the role of the page, without the repeated password", () => {
+test("sends email, password, role and cuit for companies", () => {
   mocks.registrar.mockResolvedValue(null);
   render(<FormularioRegistro rol="empresa" />);
 
-  completar("empresa@ejemplo.com", "12345678", "12345678");
+  completarEmpresa("empresa@ejemplo.com", "12345678", "12345678");
 
   expect(mocks.registrar).toHaveBeenCalledWith({
     email: "empresa@ejemplo.com",
     password: "12345678",
     role: "empresa",
+    cuit: "30-12345678-9",
   });
 });
 
@@ -64,7 +74,7 @@ test("replaces the form with 'Revisá tu correo' and the email when the account 
   mocks.registrar.mockResolvedValue({ destino: null });
   render(<FormularioRegistro rol="postulante" />);
 
-  completar("persona@ejemplo.com", "12345678", "12345678");
+  completarPostulante("persona@ejemplo.com", "12345678", "12345678");
 
   expect(await screen.findByRole("heading", { name: "Revisá tu correo" })).toBeDefined();
   expect(screen.getByText("persona@ejemplo.com")).toBeDefined();
@@ -75,7 +85,7 @@ test("when Supabase logs the person in right away, goes back to where they were 
   mocks.registrar.mockResolvedValue({ destino: "/ofertas" });
   render(<FormularioRegistro rol="postulante" volver="/ofertas?oferta=o-1" />);
 
-  completar("persona@ejemplo.com", "12345678", "12345678");
+  completarPostulante("persona@ejemplo.com", "12345678", "12345678");
 
   await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/ofertas?oferta=o-1"));
 });
@@ -84,7 +94,7 @@ test("without a return path, or with one to another site, goes to the role's hom
   mocks.registrar.mockResolvedValue({ destino: "/empresa" });
   render(<FormularioRegistro rol="empresa" volver="//otro-sitio.com" />);
 
-  completar("empresa@ejemplo.com", "12345678", "12345678");
+  completarEmpresa("empresa@ejemplo.com", "12345678", "12345678");
 
   await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/empresa"));
 });
