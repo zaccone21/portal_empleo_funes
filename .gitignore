@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 
 # next.js
 /.next/
@@ -32,6 +36,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +44,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local-only documents: they stay on this machine and never go to the repo
+# (anything inside docs/local/, plus files with credentials)
+/docs/local/
+/docs/gmail_sender.txt
+# raw interview transcript and old process drafts (DT-012)
+/docs/Transcript.md
+/docs/proceso_*.md
+# the user's personal notes for the AI agent (DT-012, D-036)
+/.agents/rules/preferencias-del-usuario.md
+/.agents/rules/traspaso-desde-claude.md
