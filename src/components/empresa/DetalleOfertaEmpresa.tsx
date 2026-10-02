@@ -1,9 +1,11 @@
 import { CircleXIcon, InfoIcon } from "lucide-react";
+import Link from "next/link";
 
 import { PanelDetalle } from "@/components/marca/PanelDetalle";
 import { DatosOferta } from "@/components/ofertas/DatosOferta";
 import { EstadoOferta } from "@/components/ofertas/EstadoOferta";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { formatearDia } from "@/lib/fechas";
 import type { EstadoOferta as Estado, OfertaEmpresa } from "@/lib/validation/ofertas";
 
@@ -35,12 +37,16 @@ type Props = {
  * 3. If the company asked to close it, that the offer stays published until
  *    the Office closes it (RF1.3.6).
  * 4. The offer as it was sent.
- * The only action is "Pedir el cierre", on published offers without a
- * previous request. Editing a rejected offer or cancelling a close request is
- * not offered while Q-002 and Q-003 are open.
+ * 5. A button to duplicate rejected offers (User Request).
  */
 export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) {
   const puedePedirCierre = oferta.estado === "publicada" && !oferta.cierreSolicitado;
+
+  const pie = puedePedirCierre ? (
+    <BotonSolicitarCierre ofertaId={oferta.id} onSolicitado={onActualizada} />
+  ) : oferta.estado === "rechazada" ? (
+    <Button render={<Link href={`/empresa/ofertas/nueva?duplicar=${oferta.id}`} />}>Modificar y volver a enviar</Button>
+  ) : undefined;
 
   return (
     <PanelDetalle
@@ -50,7 +56,7 @@ export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) 
       volverTexto="Volver a mis ofertas"
       titulo={oferta.titulo}
       subtitulo={`Enviada el ${formatearDia(oferta.creadaEl)}`}
-      pie={puedePedirCierre ? <BotonSolicitarCierre ofertaId={oferta.id} onSolicitado={onActualizada} /> : undefined}
+      pie={pie}
     >
       <section className="flex flex-col items-start gap-2">
         <h3 className="sr-only">Estado</h3>

@@ -35,12 +35,15 @@ export function aPerfilEmpresa(fila: z.infer<typeof filaEmpresaSchema>): PerfilE
   };
 }
 
-export async function leerPerfilEmpresa(empresaId: string): Promise<PerfilEmpresa | null> {
+export async function leerPerfilEmpresa(empresaId: string): Promise<{ perfil: PerfilEmpresa | null; cuit: string | null }> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("empresas").select(COLUMNAS_EMPRESA).eq("id", empresaId).maybeSingle();
 
   if (error) throw new Error("Could not load the company.");
-  return data ? aPerfilEmpresa(filaEmpresaSchema.parse(data)) : null;
+  if (!data) return { perfil: null, cuit: null };
+  
+  const fila = filaEmpresaSchema.parse(data);
+  return { perfil: aPerfilEmpresa(fila), cuit: fila.cuit };
 }
 
 export type ResultadoGuardarEmpresa = { ok: true; perfil: PerfilEmpresa } | { ok: false; motivo: "cuit_repetido" };

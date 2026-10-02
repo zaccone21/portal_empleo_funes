@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ShieldCheckIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,12 +17,11 @@ import { FormularioPerfilEmpresa } from "./FormularioPerfilEmpresa";
  * "Datos de la empresa" (P10). Loads the saved data with usePerfilEmpresa and
  * shows the form filled in (or empty the first time).
  *
- * After a successful save the form is mounted again (`version`) with what the
- * server saved, so normalized values show as stored (for example the CUIT
- * with dashes), and a toast confirms it.
+ * After a successful save, it redirects to the company home.
  */
 export function PerfilEmpresa() {
-  const { perfil, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
+  const router = useRouter();
+  const { perfil, cuitRegistrado, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
     usePerfilEmpresa();
   const [version, setVersion] = useState(0);
 
@@ -29,7 +29,7 @@ export function PerfilEmpresa() {
     const guardado = await guardar(datos);
     if (guardado) {
       toast.success("Guardaste los datos de la empresa.");
-      setVersion((n) => n + 1);
+      router.push("/empresa");
     }
     return guardado;
   }
@@ -64,6 +64,7 @@ export function PerfilEmpresa() {
       <FormularioPerfilEmpresa
         key={version}
         perfil={perfil ?? null}
+        cuitRegistrado={cuitRegistrado}
         onGuardar={handleGuardar}
         guardando={guardando}
         error={errorGuardado}

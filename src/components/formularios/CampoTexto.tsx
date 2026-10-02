@@ -17,7 +17,7 @@ type Props = {
   defaultValue?: string;
   autoComplete?: string;
   inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
-  maxLength?: number;
+  obligatorio?: boolean;
 };
 
 /**
@@ -37,6 +37,7 @@ export function CampoTexto({
   autoComplete,
   inputMode,
   maxLength,
+  obligatorio = false,
 }: Props) {
   const idDescripcion = `${id}-descripcion`;
   const idError = `${id}-error`;
@@ -48,6 +49,7 @@ export function CampoTexto({
     name: id,
     defaultValue,
     maxLength,
+    required: obligatorio ? true : undefined,
     "aria-invalid": error ? true : undefined,
     "aria-describedby": describedBy,
   };
@@ -56,6 +58,7 @@ export function CampoTexto({
     <Field data-invalid={error ? true : undefined}>
       <FieldLabel htmlFor={id} className="text-base">
         {label}
+        {obligatorio && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
       {descripcion && <FieldDescription id={idDescripcion}>{descripcion}</FieldDescription>}
       {multilinea ? (

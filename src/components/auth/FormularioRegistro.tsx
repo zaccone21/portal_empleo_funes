@@ -85,9 +85,9 @@ export function FormularioRegistro({ rol, volver }: Props) {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <FieldGroup className="gap-5">
-        <CampoEmail error={errores.email?.[0]} />
-        {rol === "postulante" && <CampoDni error={errores.dni?.[0]} />}
-        {rol === "empresa" && <CampoCuit error={errores.cuit?.[0]} />}
+        <CampoEmail error={errores.email?.[0]} obligatorio />
+        {rol === "postulante" && <CampoDni error={errores.dni?.[0]} obligatorio />}
+        {rol === "empresa" && <CampoCuit error={errores.cuit?.[0]} obligatorio />}
         <CampoContrasena
           id="password"
           name="password"
@@ -95,6 +95,7 @@ export function FormularioRegistro({ rol, volver }: Props) {
           autoComplete="new-password"
           descripcion={`Tiene que tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`}
           error={errores.password?.[0]}
+          obligatorio
         />
         <CampoContrasena
           id="repetirPassword"
@@ -102,6 +103,7 @@ export function FormularioRegistro({ rol, volver }: Props) {
           label="Repetí la contraseña"
           autoComplete="new-password"
           error={errores.repetirPassword?.[0]}
+          obligatorio
         />
       </FieldGroup>
       <ErrorDelServidor error={error} />

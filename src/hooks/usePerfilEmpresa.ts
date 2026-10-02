@@ -20,6 +20,7 @@ import { respuestaPerfilEmpresaSchema, type PerfilEmpresa } from "@/lib/validati
  */
 export function usePerfilEmpresa() {
   const [perfil, setPerfil] = useState<PerfilEmpresa | null | undefined>(undefined);
+  const [cuitRegistrado, setCuitRegistrado] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sinAcceso, setSinAcceso] = useState(false);
   const [intento, setIntento] = useState(0);
@@ -31,7 +32,10 @@ export function usePerfilEmpresa() {
 
     getJson("/api/empresa/perfil", respuestaPerfilEmpresaSchema)
       .then((respuesta) => {
-        if (vigente) setPerfil(respuesta.perfil);
+        if (vigente) {
+          setPerfil(respuesta.perfil);
+          setCuitRegistrado(respuesta.cuit ?? null);
+        }
       })
       .catch((e: unknown) => {
         if (!vigente) return;
@@ -49,6 +53,7 @@ export function usePerfilEmpresa() {
 
   function recargar() {
     setPerfil(undefined);
+    setCuitRegistrado(null);
     setError(null);
     setSinAcceso(false);
     setIntento((n) => n + 1);
@@ -64,6 +69,7 @@ export function usePerfilEmpresa() {
         responseSchema: respuestaPerfilEmpresaSchema,
       });
       setPerfil(respuesta.perfil);
+      setCuitRegistrado(respuesta.cuit ?? null);
       return true;
     } catch (e) {
       setErrorGuardado(mensajeDeError(e));
@@ -75,6 +81,7 @@ export function usePerfilEmpresa() {
 
   return {
     perfil,
+    cuitRegistrado,
     loading: perfil === undefined && error === null && !sinAcceso,
     error,
     sinAcceso,

@@ -33,6 +33,8 @@ El modelo completo, tabla por tabla, está en `docs/modelo_datos.md`.
 | `20260929120300_crea_ofertas.sql` | Crea `estado_oferta`, `ofertas` y `oferta_rubros` con RLS, permisos por columna, el trigger `antes_de_actualizar_oferta` y la función `crear_oferta` | D-007, D-008, D-032 | 2026-09-29 | — |
 | `20260929120400_crea_postulaciones.sql` | Crea `estado_postulacion`, `origen_postulacion` y `postulaciones` con RLS y permisos por columna | D-023, D-024, D-030, D-032 | 2026-09-29 | — |
 | `20260929120500_crea_bucket_cvs.sql` | Crea el bucket privado `cvs` (PDF, 5 MB) y sus políticas | RNF1, D-026, D-032 | 2026-09-29 | — |
-| `20260929130000_ofertas_visibles_para_postulados.sql` | Política nueva en `ofertas`: el postulante sigue viendo las ofertas a las que se postuló aunque se cierren ("Mis postulaciones", RF1.2.4) | D-035 | — | — |
+| `20260929130000_ofertas_visibles_para_postulados.sql` | Política nueva en `ofertas`: el postulante sigue viendo las ofertas a las que se postuló aunque se cierren ("Mis postulaciones", RF1.2.4) | D-035 | 2026-10-01 | — |
+| `20261001200000_crear_perfil_con_dni_y_cuit.sql` | Actualiza la función `crear_perfil` para leer DNI y CUIT del `user_metadata` e insertarlos al registrarse (Refactor user-flow) | RF1.2.1, RF1.3.2 | 2026-10-01 | — |
+| `20261001211500_romper_loop_rls_postulaciones.sql` | Rompe la recursión infinita de RLS entre `ofertas` y `postulaciones` usando una función interna para revisar si la oferta está publicada | Bugfix | 2026-10-01 | — |
 
 Tests de RLS (pgTAP) en `supabase/tests/`: `perfiles_rls`, `postulantes_empresas_rls`, `rubros_rls`, `ofertas_rls` y `postulaciones_rls`. Prueban que cada rol ve y cambia solo lo suyo. Necesitan la CLI de Supabase (`supabase test db`) y todavía no se corrieron.

@@ -12,11 +12,7 @@ import { INGRESO_POR_ROL } from "@/lib/rutas";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/validation/role";
 
-/** Registration screen of each area, where one exists (the Office has none, RF1.1.4). */
-const REGISTRO: Partial<Record<Role, string>> = {
-  postulante: "/postulante/registrarse",
-  empresa: "/empresa/registrarse",
-};
+
 
 /**
  * The account corner of the top bar (D-028).
@@ -64,20 +60,8 @@ export function BotonCuenta({ area }: { area: Role }) {
     );
   }
 
-  const registro = REGISTRO[area];
   return (
     <div className="hidden items-center gap-2 lg:flex">
-      {registro && (
-        <Link
-          href={registro}
-          className={cn(
-            buttonVariants({ variant: "ghost" }),
-            "text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground",
-          )}
-        >
-          Crear cuenta
-        </Link>
-      )}
       <Link
         href={`${INGRESO_POR_ROL[area]}?volver=${encodeURIComponent(ruta)}`}
         className={cn(buttonVariants(), "bg-brand-mint text-brand-deep hover:bg-brand-mint/90")}

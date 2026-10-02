@@ -57,7 +57,7 @@ export async function crearPostulacion(postulanteId: string, ofertaId: string): 
   const supabase = await createClient();
   const { error } = await supabase.from("postulaciones").insert({ postulante_id: postulanteId, oferta_id: ofertaId });
 
-  if (error && error.code !== "23505") throw new Error("Could not save the application.");
+  if (error && error.code !== "23505") throw new Error(`Could not save the application. Supabase error: ${error.message} (Code: ${error.code})`);
 }
 
 export type PostulacionDeOferta = {
