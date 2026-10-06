@@ -28,8 +28,8 @@ beforeEach(() => {
 afterEach(cleanup);
 
 function completar(email: string, password: string) {
-  fireEvent.change(screen.getByLabelText("Email"), { target: { value: email } });
-  fireEvent.change(screen.getByLabelText("Contraseña"), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText(/^Email/i), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText(/^Contraseña/i), { target: { value: password } });
   fireEvent.click(screen.getByRole("button", { name: "Ingresar" }));
 }
 

@@ -4,13 +4,11 @@ import type { CurrentUser } from "@/lib/dal/auth";
 import { crearUrlFirmadaCv } from "@/lib/dal/cv";
 import {
   actualizarEstadoOferta,
-  contarOfertas,
   leerOfertaParaOficina,
   listarOfertasParaOficina,
 } from "@/lib/dal/ofertas";
 import {
   actualizarEstadoPostulacion,
-  contarPostulaciones,
   leerRutaCvDePostulacion,
   listarPostulacionesDeOferta,
   type PostulacionDeOferta,
@@ -34,13 +32,33 @@ export async function verResumen(usuario: CurrentUser): Promise<Resultado<Resume
   const negado = sinPermiso(usuario, "admin");
   if (negado) return negado;
 
-  const [ofertasPendientes, pedidosDeCierre, ofertasPublicadas, postulacionesSinRevisar] = await Promise.all([
-    contarOfertas("pendiente"),
-    contarOfertas("publicada", true),
-    contarOfertas("publicada"),
-    contarPostulaciones("postulado"),
-  ]);
-  return exito({ ofertasPendientes, pedidosDeCierre, ofertasPublicadas, postulacionesSinRevisar });
+  const todasLasOfertas = await listarOfertasParaOficina();
+  
+  const pendientes = todasLasOfertas
+    .filter((o) => o.estado === "pendiente")
+    .map((o) => ({ id: o.id, titulo: o.titulo, empresa: o.empresa?.razonSocial || "Empresa", creadaEl: o.creadaEl }))
+    .slice(0, 10);
+
+  const cierres = todasLasOfertas
+    .filter((o) => o.estado === "publicada" && o.cierreSolicitado)
+    .map((o) => ({ id: o.id, titulo: o.titulo, empresa: o.empresa?.razonSocial || "Empresa", creadaEl: o.creadaEl }))
+    .slice(0, 10);
+
+  const { listarUltimasPostulaciones } = await import("@/lib/dal/postulaciones");
+  const postulaciones = await listarUltimasPostulaciones(10);
+  const ultimasPost = postulaciones.map((p) => ({
+    id: p.id,
+    ofertaId: p.ofertaId,
+    ofertaTitulo: p.ofertaTitulo,
+    postulanteNombre: (p.postulanteNombre ? p.postulanteNombre + " " : "") + (p.postulanteApellido || "") || "Postulante",
+    creadaEl: p.creadaEl,
+  }));
+
+  return exito({
+    ofertasPendientes: pendientes,
+    pedidosDeCierre: cierres,
+    ultimasPostulaciones: ultimasPost,
+  });
 }
 
 export async function verOfertas(usuario: CurrentUser): Promise<Resultado<OfertaOficina[]>> {
@@ -147,4 +165,18 @@ export async function abrirCv(usuario: CurrentUser, postulacionId: string): Prom
   const ruta = await leerRutaCvDePostulacion(postulacionId);
   if (!ruta) return falla("not_found", "Esta persona todavía no subió su CV.");
   return exito({ url: await crearUrlFirmadaCv(ruta) });
+}
+
+import { buscarPostulantes as dalBuscarPostulantes, type ResultadoBusquedaPostulante } from "@/lib/dal/postulantes";
+
+export async function buscarPostulantes(
+  usuario: CurrentUser,
+  filtros: { q?: string; rubros?: string[] }
+): Promise<Resultado<ResultadoBusquedaPostulante[]>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+  
+  const postulantes = await dalBuscarPostulantes(filtros);
+  
+  return exito(postulantes);
 }

@@ -32,8 +32,8 @@ beforeEach(() => {
 afterEach(cleanup);
 
 function completar(password: string, repetirPassword: string) {
-  fireEvent.change(screen.getByLabelText("Contraseña nueva"), { target: { value: password } });
-  fireEvent.change(screen.getByLabelText("Repetí la contraseña nueva"), {
+  fireEvent.change(screen.getByLabelText(/^Contraseña nueva/i), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText(/^Repetí la contraseña nueva/i), {
     target: { value: repetirPassword },
   });
   fireEvent.click(screen.getByRole("button", { name: "Guardar contraseña" }));

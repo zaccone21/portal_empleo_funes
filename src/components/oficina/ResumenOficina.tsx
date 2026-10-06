@@ -1,123 +1,137 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRightIcon, BriefcaseBusinessIcon, CircleAlertIcon, ClockIcon, InboxIcon, type LucideIcon } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { ArrowRightIcon } from "lucide-react";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { PedirIngreso } from "@/components/estados/PedirIngreso";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useResumenOficina } from "@/hooks/useOficina";
 import { MENSAJE_ERROR_GENERICO } from "@/lib/http";
-import { cn } from "@/lib/utils";
-
-type Indicador = {
-  titulo: string;
-  valor: number;
-  accion: string;
-  href: string;
-  icono: LucideIcon;
-  /** Needs the Office's attention when it is above zero: painted in the brand green. */
-  urgente: boolean;
-};
 
 /**
- * The Office's panel (P14, RF1.5.1). Each indicator is also the shortcut to
- * act on it: "3 ofertas para revisar" takes the operator straight to the
- * pending tab. The ones that need work (offers to review, close requests)
- * stand out while they are above zero.
- * PROVISIONAL (DT-006): only indicators that come straight from the states;
- * the final set and "postulante activo" are still open (Q-012).
+ * The Office's panel (P14, RF1.5.1). Shows lists of items that need the
+ * Office's attention: pending offers, close requests, and recent applications.
  */
 export function ResumenOficina() {
   const { resumen, loading, error, sinAcceso, recargar } = useResumenOficina();
 
   if (loading) {
     return (
-      <div aria-busy="true" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <span className="sr-only" role="status">
-          Cargando el panel…
-        </span>
-        {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-40 rounded-tl-2xl rounded-br-2xl bg-card" />
+      <div aria-busy="true" className="grid gap-6 lg:grid-cols-3">
+        <span className="sr-only" role="status">Cargando el panel...</span>
+        {Array.from({ length: 3 }, (_, i) => (
+          <Skeleton key={i} className="h-80 rounded-xl bg-card" />
         ))}
       </div>
     );
   }
 
   if (sinAcceso) {
-    return (
-      <PedirIngreso
-        rol="admin"
-        titulo="Ingresá con tu cuenta de la Oficina"
-        descripcion="Este panel es para el personal de la Oficina de Empleo."
-      />
-    );
+    return <PedirIngreso rol="admin" titulo="Ingresá a tu cuenta" descripcion="Necesitás ingresar para ver el panel." />;
   }
 
   if (error || !resumen) {
-    return <ErrorAlCargar que="el panel" mensaje={error ?? MENSAJE_ERROR_GENERICO} onReintentar={recargar} />;
+    return <ErrorAlCargar que="el resumen" mensaje={error || MENSAJE_ERROR_GENERICO} onReintentar={recargar} />;
   }
 
-  const indicadores: Indicador[] = [
-    {
-      titulo: resumen.ofertasPendientes === 1 ? "oferta para revisar" : "ofertas para revisar",
-      valor: resumen.ofertasPendientes,
-      accion: "Revisar ofertas",
-      href: "/admin/ofertas?estado=pendiente",
-      icono: ClockIcon,
-      urgente: resumen.ofertasPendientes > 0,
-    },
-    {
-      titulo: resumen.pedidosDeCierre === 1 ? "pedido de cierre" : "pedidos de cierre",
-      valor: resumen.pedidosDeCierre,
-      accion: "Ver pedidos",
-      href: "/admin/ofertas?estado=publicada",
-      icono: CircleAlertIcon,
-      urgente: resumen.pedidosDeCierre > 0,
-    },
-    {
-      titulo: resumen.postulacionesSinRevisar === 1 ? "postulación sin revisar" : "postulaciones sin revisar",
-      valor: resumen.postulacionesSinRevisar,
-      accion: "Ver ofertas publicadas",
-      href: "/admin/ofertas?estado=publicada",
-      icono: InboxIcon,
-      urgente: false,
-    },
-    {
-      titulo: resumen.ofertasPublicadas === 1 ? "oferta publicada" : "ofertas publicadas",
-      valor: resumen.ofertasPublicadas,
-      accion: "Ver publicadas",
-      href: "/admin/ofertas?estado=publicada",
-      icono: BriefcaseBusinessIcon,
-      urgente: false,
-    },
-  ];
-
   return (
-    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {indicadores.map(({ titulo, valor, accion, href, icono: Icono, urgente }) => (
-        <li key={titulo}>
-          <Link
-            href={href}
-            className={cn(
-              "flex h-full flex-col gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md p-5 ring-1 outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-              urgente
-                ? "bg-brand-deep text-primary-foreground ring-transparent"
-                : "bg-card text-card-foreground ring-foreground/5 hover:ring-foreground/20",
-            )}
-          >
-            <Icono aria-hidden="true" className={cn("size-6", urgente ? "text-brand-mint" : "text-primary")} />
-            <p className="flex flex-col">
-              <span className="font-heading text-4xl font-semibold tabular-nums">{valor}</span>
-              <span className="text-base">{titulo}</span>
-            </p>
-            <span className={cn("mt-auto flex items-center gap-1 text-base font-medium", urgente ? "text-brand-mint" : "text-primary")}>
-              {accion}
-              <ArrowRightIcon aria-hidden="true" className="size-4" />
-            </span>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <div className="grid gap-6 lg:grid-cols-3">
+      {/* Ofertas Pendientes */}
+      <Card className="flex flex-col">
+        <CardHeader>
+          <CardTitle className="text-xl">Ofertas pendientes</CardTitle>
+          <CardDescription>Para revisar y publicar</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col gap-4">
+          {resumen.ofertasPendientes.length === 0 ? (
+            <p className="text-muted-foreground text-sm flex-1">No hay ofertas pendientes.</p>
+          ) : (
+            <div className="flex flex-col gap-3 flex-1">
+              {resumen.ofertasPendientes.map((oferta) => (
+                <div key={oferta.id} className="flex flex-col border-b pb-3 last:border-0 last:pb-0">
+                  <span className="font-medium text-sm">{oferta.titulo}</span>
+                  <span className="text-sm text-muted-foreground">{oferta.empresa}</span>
+                  {oferta.creadaEl && (
+                    <span className="text-xs text-muted-foreground mt-1">
+                      {format(new Date(oferta.creadaEl), "d 'de' MMM, HH:mm", { locale: es })}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          <Button variant="outline" className="w-full mt-4 justify-between" nativeButton={false} render={<Link href="/admin/ofertas?estado=pendiente" />}>
+            Ver todas <ArrowRightIcon className="size-4 opacity-50" />
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Pedidos de Cierre */}
+      <Card className="flex flex-col">
+        <CardHeader>
+          <CardTitle className="text-xl">Pedidos de cierre</CardTitle>
+          <CardDescription>Empresas solicitando cerrar vacantes</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col gap-4">
+          {resumen.pedidosDeCierre.length === 0 ? (
+            <p className="text-muted-foreground text-sm flex-1">No hay pedidos de cierre.</p>
+          ) : (
+            <div className="flex flex-col gap-3 flex-1">
+              {resumen.pedidosDeCierre.map((oferta) => (
+                <div key={oferta.id} className="flex flex-col border-b pb-3 last:border-0 last:pb-0">
+                  <span className="font-medium text-sm">{oferta.titulo}</span>
+                  <span className="text-sm text-muted-foreground">{oferta.empresa}</span>
+                  {oferta.creadaEl && (
+                    <span className="text-xs text-muted-foreground mt-1">
+                      Publicada el {format(new Date(oferta.creadaEl), "d 'de' MMM", { locale: es })}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          <Button variant="outline" className="w-full mt-4 justify-between" nativeButton={false} render={<Link href="/admin/ofertas?estado=publicada" />}>
+            Ver publicadas <ArrowRightIcon className="size-4 opacity-50" />
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Últimas Postulaciones */}
+      <Card className="flex flex-col">
+        <CardHeader>
+          <CardTitle className="text-xl">Últimas postulaciones</CardTitle>
+          <CardDescription>Actividad reciente</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col gap-4">
+          {resumen.ultimasPostulaciones.length === 0 ? (
+            <p className="text-muted-foreground text-sm flex-1">No hay postulaciones recientes.</p>
+          ) : (
+            <div className="flex flex-col gap-3 flex-1">
+              {resumen.ultimasPostulaciones.map((postulacion) => (
+                <div key={postulacion.id} className="flex flex-col border-b pb-3 last:border-0 last:pb-0">
+                  <span className="font-medium text-sm">{postulacion.postulanteNombre}</span>
+                  <span className="text-sm text-muted-foreground">se postuló a {postulacion.ofertaTitulo}</span>
+                  {postulacion.creadaEl && (
+                    <span className="text-xs text-muted-foreground mt-1">
+                      {format(new Date(postulacion.creadaEl), "d 'de' MMM, HH:mm", { locale: es })}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          <Button variant="outline" className="w-full mt-4 justify-between" nativeButton={false} render={<Link href="/admin/postulantes" />}>
+            Buscar postulantes <ArrowRightIcon className="size-4 opacity-50" />
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
+
+

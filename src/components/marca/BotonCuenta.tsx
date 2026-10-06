@@ -6,26 +6,15 @@ import { LogOutIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSalir } from "@/hooks/useSalir";
 import { useSesion } from "@/hooks/useSesion";
 import { INGRESO_POR_ROL } from "@/lib/rutas";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/validation/role";
 
+import { ITEM_PERFIL_POR_ROL } from "./itemsNavegacion";
 
-
-/**
- * The account corner of the top bar (D-028).
- *
- * - Logged in: the email (desktop only) and a visible "Salir" button, also on
- *   phones. It is a plain button and not a hidden menu, because an icon menu
- *   is easy to miss for people with little digital experience. After logging
- *   out it goes to the login of the role that left, with a toast.
- * - Nobody logged in (desktop only; on phones the bottom bar has it):
- *   "Ingresar", which brings the person back to this same screen afterwards
- *   (?volver=), and the registration of the area.
- * - While the session loads it keeps the space, so the bar does not jump.
- */
 export function BotonCuenta({ area }: { area: Role }) {
   const { usuario } = useSesion();
   const { salir, loading } = useSalir();
@@ -44,18 +33,39 @@ export function BotonCuenta({ area }: { area: Role }) {
       }
     }
 
+    const itemPerfil = ITEM_PERFIL_POR_ROL[usuario.rol];
+    const Icono = itemPerfil.icono;
+
     return (
       <div className="flex items-center gap-3">
-        <span className="hidden max-w-56 truncate text-sm text-primary-foreground/75 lg:block">{usuario.email}</span>
-        <Button
-          variant="ghost"
-          onClick={handleSalir}
-          disabled={loading}
-          className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-        >
-          <LogOutIcon data-icon="inline-start" aria-hidden="true" />
-          Salir
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                className="gap-2 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              />
+            }
+          >
+            <span className="text-sm font-medium">{itemPerfil.texto}</span>
+            <Icono className="size-5" aria-hidden="true" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <div className="border-b px-3 py-2 text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">{itemPerfil.texto}</p>
+              <p className="truncate text-muted-foreground">{usuario.email}</p>
+            </div>
+            <DropdownMenuItem render={<Link href={itemPerfil.href} className="w-full cursor-pointer" />}>
+              <Icono className="mr-2 size-4" />
+              <span>{itemPerfil.texto}</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSalir} disabled={loading} className="cursor-pointer text-destructive focus:text-destructive">
+              <LogOutIcon className="mr-2 size-4" />
+              <span>Salir</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }

@@ -13,6 +13,10 @@ const dal = vi.hoisted(() => ({
   listarPostulacionesPropias: vi.fn(),
   leerCv: vi.fn(),
   guardarCv: vi.fn(),
+  crearUrlFirmadaCv: vi.fn(),
+  leerPerfilPostulante: vi.fn(),
+  guardarPerfilPostulante: vi.fn(),
+  perfilCompletoPostulante: vi.fn(),
 }));
 vi.mock("@/lib/dal/ofertas", () => ({
   leerOferta: dal.leerOferta,
@@ -23,9 +27,25 @@ vi.mock("@/lib/dal/postulaciones", () => ({
   idsDeOfertasPostuladas: dal.idsDeOfertasPostuladas,
   listarPostulacionesPropias: dal.listarPostulacionesPropias,
 }));
-vi.mock("@/lib/dal/cv", () => ({ leerCv: dal.leerCv, guardarCv: dal.guardarCv }));
+vi.mock("@/lib/dal/cv", () => ({
+  leerCv: dal.leerCv,
+  guardarCv: dal.guardarCv,
+  crearUrlFirmadaCv: dal.crearUrlFirmadaCv,
+}));
+vi.mock("@/lib/dal/postulantes", () => ({
+  leerPerfilPostulante: dal.leerPerfilPostulante,
+  guardarPerfilPostulante: dal.guardarPerfilPostulante,
+  perfilCompletoPostulante: dal.perfilCompletoPostulante,
+}));
 
-import { postularme, subirMiCv, verMisPostulaciones, verOfertasPublicadas } from "./postulante";
+import {
+  abrirMiCv,
+  obtenerPerfilPostulante,
+  postularme,
+  subirMiCv,
+  verMisPostulaciones,
+  verOfertasPublicadas,
+} from "./postulante";
 
 const postulante: CurrentUser = { id: "postulante-1", rol: "postulante", email: "persona@ejemplo.com" };
 const empresa: CurrentUser = { id: "empresa-1", rol: "empresa", email: "empresa@ejemplo.com" };
@@ -101,8 +121,19 @@ describe("postularme (RF1.4.3, RF1.4.4)", () => {
     expect(dal.crearPostulacion).not.toHaveBeenCalled();
   });
 
+  test("without a complete profile it asks to complete it (409)", async () => {
+    dal.leerOferta.mockResolvedValue(oferta({}));
+    dal.perfilCompletoPostulante.mockResolvedValue(false);
+
+    const resultado = await postularme(postulante, "oferta-1");
+
+    expect(resultado.ok === false && resultado.falla).toBe("conflict");
+    expect(dal.crearPostulacion).not.toHaveBeenCalled();
+  });
+
   test("without a CV it asks to upload one (409)", async () => {
     dal.leerOferta.mockResolvedValue(oferta({}));
+    dal.perfilCompletoPostulante.mockResolvedValue(true);
     dal.leerCv.mockResolvedValue(null);
 
     const resultado = await postularme(postulante, "oferta-1");
@@ -111,8 +142,9 @@ describe("postularme (RF1.4.3, RF1.4.4)", () => {
     expect(dal.crearPostulacion).not.toHaveBeenCalled();
   });
 
-  test("with a CV it saves the application for the session's applicant", async () => {
+  test("with a complete profile and CV it saves the application for the session's applicant", async () => {
     dal.leerOferta.mockResolvedValue(oferta({}));
+    dal.perfilCompletoPostulante.mockResolvedValue(true);
     dal.leerCv.mockResolvedValue(cv);
 
     const resultado = await postularme(postulante, "oferta-1");
@@ -140,4 +172,68 @@ test("only applicants upload a CV", async () => {
 
   expect(resultado.ok === false && resultado.falla).toBe("forbidden");
   expect(dal.guardarCv).not.toHaveBeenCalled();
+});
+
+describe("obtenerPerfilPostulante", () => {
+  test("returns applicant profile including session email", async () => {
+    dal.leerPerfilPostulante.mockResolvedValue({
+      nombre: "Juan",
+      apellido: "Pérez",
+      telefono: "3411234567",
+      dni: "12345678",
+      rubros: [{ slug: "comercio", nombre: "Comercio" }],
+      tieneCv: true,
+    });
+
+    const resultado = await obtenerPerfilPostulante(postulante);
+
+    expect(resultado).toEqual({
+      ok: true,
+      datos: {
+        nombre: "Juan",
+        apellido: "Pérez",
+        telefono: "3411234567",
+        dni: "12345678",
+        rubros: [{ slug: "comercio", nombre: "Comercio" }],
+        tieneCv: true,
+        email: "persona@ejemplo.com",
+      },
+    });
+  });
+
+  test("forbidden for non-applicants", async () => {
+    const resultado = await obtenerPerfilPostulante(empresa);
+
+    expect(resultado.ok === false && resultado.falla).toBe("forbidden");
+  });
+});
+
+describe("abrirMiCv", () => {
+  test("returns signed URL for the applicant's CV", async () => {
+    dal.leerCv.mockResolvedValue(cv);
+    dal.crearUrlFirmadaCv.mockResolvedValue("https://ejemplo.supabase.co/firmada.pdf");
+
+    const resultado = await abrirMiCv(postulante);
+
+    expect(resultado).toEqual({
+      ok: true,
+      datos: { url: "https://ejemplo.supabase.co/firmada.pdf" },
+    });
+    expect(dal.crearUrlFirmadaCv).toHaveBeenCalledWith("postulante-1/cv.pdf");
+  });
+
+  test("returns not_found if applicant has no CV", async () => {
+    dal.leerCv.mockResolvedValue(null);
+
+    const resultado = await abrirMiCv(postulante);
+
+    expect(resultado.ok === false && resultado.falla).toBe("not_found");
+    expect(dal.crearUrlFirmadaCv).not.toHaveBeenCalled();
+  });
+
+  test("forbidden for non-applicants", async () => {
+    const resultado = await abrirMiCv(empresa);
+
+    expect(resultado.ok === false && resultado.falla).toBe("forbidden");
+  });
 });

@@ -14,7 +14,9 @@ function completar(cuit: string) {
     Email: "contacto@ejemplo.com",
   };
   for (const [etiqueta, valor] of Object.entries(campos)) {
-    fireEvent.change(screen.getByLabelText(etiqueta), { target: { value: valor } });
+    // Escapar caracteres especiales y crear expresión regular
+    const regex = new RegExp(etiqueta.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    fireEvent.change(screen.getByLabelText(regex), { target: { value: valor } });
   }
   fireEvent.click(screen.getByRole("button", { name: "Guardar datos" }));
 }
@@ -56,5 +58,5 @@ test("starts with the saved data", () => {
     />,
   );
 
-  expect(screen.getByLabelText("CUIT").getAttribute("value")).toBe("30-71234567-1");
+  expect(screen.getByLabelText(/CUIT/i).getAttribute("value")).toBe("30-71234567-1");
 });

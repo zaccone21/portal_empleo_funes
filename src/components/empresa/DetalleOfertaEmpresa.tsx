@@ -45,7 +45,7 @@ export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) 
   const pie = puedePedirCierre ? (
     <BotonSolicitarCierre ofertaId={oferta.id} onSolicitado={onActualizada} />
   ) : oferta.estado === "rechazada" ? (
-    <Button render={<Link href={`/empresa/ofertas/nueva?duplicar=${oferta.id}`} />}>Modificar y volver a enviar</Button>
+    <Button nativeButton={false} render={<Link href={`/empresa/ofertas/nueva?duplicar=${oferta.id}`} />}>Modificar y volver a enviar</Button>
   ) : undefined;
 
   return (

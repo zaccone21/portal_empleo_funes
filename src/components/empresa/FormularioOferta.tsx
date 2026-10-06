@@ -189,7 +189,7 @@ export function FormularioOferta({ ofertaPrevia }: { ofertaPrevia?: DatosNuevaOf
       <div className="flex flex-col gap-4">
         <ErrorDelServidor error={error} />
         {error === "Tenés que completar los datos de tu empresa antes de publicar una oferta." && (
-          <Button variant="outline" render={<a href="/empresa/perfil" target="_blank" rel="noopener noreferrer" />}>
+          <Button variant="outline" nativeButton={false} render={<a href="/empresa/perfil" target="_blank" rel="noopener noreferrer" />}>
             Completar mis datos en una pestaña nueva
           </Button>
         )}

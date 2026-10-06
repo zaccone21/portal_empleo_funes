@@ -140,3 +140,42 @@ export async function contarPostulaciones(estado: EstadoPostulacion): Promise<nu
   if (error) throw new Error("Could not count the applications.");
   return count ?? 0;
 }
+
+export type PostulacionReciente = {
+  id: string;
+  ofertaId: string;
+  ofertaTitulo: string;
+  postulanteNombre: string | null;
+  postulanteApellido: string | null;
+  estado: EstadoPostulacion;
+  creadaEl: string;
+};
+
+export async function listarUltimasPostulaciones(limite = 5): Promise<PostulacionReciente[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("postulaciones")
+    .select(`
+      id, estado, creada_el,
+      ofertas ( id, titulo ),
+      postulantes ( nombre, apellido )
+    `)
+    .order("creada_el", { ascending: false })
+    .limit(limite);
+
+  if (error) throw new Error("Could not load latest applications: " + error.message);
+
+  return data.map((row) => {
+    const oferta = row.ofertas as unknown as { id: string; titulo: string };
+    const postulante = row.postulantes as unknown as { nombre: string | null; apellido: string | null };
+    return {
+      id: row.id,
+      ofertaId: oferta.id,
+      ofertaTitulo: oferta.titulo,
+      postulanteNombre: postulante.nombre,
+      postulanteApellido: postulante.apellido,
+      estado: row.estado as EstadoPostulacion,
+      creadaEl: row.creada_el,
+    };
+  });
+}

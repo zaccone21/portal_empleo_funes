@@ -30,7 +30,7 @@ export function AvisoCvFaltante() {
       <AlertDescription className="text-base">Es un PDF y lleva un minuto.</AlertDescription>
       {/* Outside AlertDescription, which underlines every link inside it. */}
       <Link
-        href="/postulante/cv"
+        href="/postulante/perfil#cv"
         className={cn(buttonVariants({ variant: "outline" }), "col-start-2 mt-2 justify-self-start")}
       >
         Subir mi CV

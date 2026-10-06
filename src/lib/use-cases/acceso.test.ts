@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+﻿import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
@@ -50,7 +50,7 @@ describe("ingresar", () => {
 });
 
 describe("registrarse", () => {
-  const datosPostulante: DatosRegistro = { email: "persona@ejemplo.com", password: "12345678", role: "postulante", dni: "38123456" };
+  const datosPostulante: DatosRegistro = { email: "persona@ejemplo.com", password: "12345678", role: "postulante", dni: "38123456", nombre: "Juan", apellido: "Perez" };
   const datosEmpresa: DatosRegistro = { email: "empresa@ejemplo.com", password: "12345678", role: "empresa", cuit: "30-12345678-9" };
 
   test("with email confirmation on, there is no destination: the screen asks to check the email", async () => {

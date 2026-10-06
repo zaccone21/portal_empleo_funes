@@ -17,6 +17,8 @@ type Props = {
   defaultValue?: string;
   autoComplete?: string;
   inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
+  maxLength?: number;
+  type?: string;
   obligatorio?: boolean;
 };
 
@@ -37,6 +39,7 @@ export function CampoTexto({
   autoComplete,
   inputMode,
   maxLength,
+  type,
   obligatorio = false,
 }: Props) {
   const idDescripcion = `${id}-descripcion`;
@@ -49,6 +52,7 @@ export function CampoTexto({
     name: id,
     defaultValue,
     maxLength,
+    ...(type ? { type } : {}),
     required: obligatorio ? true : undefined,
     "aria-invalid": error ? true : undefined,
     "aria-describedby": describedBy,

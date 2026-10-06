@@ -56,7 +56,7 @@ describe("ingresoSchema", () => {
 });
 
 describe("registroSchema", () => {
-  const postulanteValido = { email: "persona@ejemplo.com", password: "12345678", role: "postulante", dni: "38123456" };
+  const postulanteValido = { email: "persona@ejemplo.com", password: "12345678", role: "postulante", dni: "38123456", nombre: "Juan", apellido: "Perez" };
   const empresaValida = { email: "empresa@ejemplo.com", password: "12345678", role: "empresa", cuit: "30-12345678-9" };
 
   test("accepts applicant and company", () => {
@@ -98,6 +98,8 @@ describe("formularioRegistroSchema", () => {
         email: "persona@ejemplo.com",
         password: "12345678",
         repetirPassword: "87654321",
+        nombre: "Juan",
+        apellido: "Perez",
       }),
     );
 
