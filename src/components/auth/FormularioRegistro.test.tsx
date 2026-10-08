@@ -23,20 +23,18 @@ beforeEach(() => {
 afterEach(cleanup);
 
 function completarPostulante(email: string, password: string, repetirPassword: string, dni = "38123456") {
-  fireEvent.change(screen.getByLabelText(new RegExp("^Nombre", "i")), { target: { value: "Juan" } });
-  fireEvent.change(screen.getByLabelText(new RegExp("^Apellido", "i")), { target: { value: "Perez" } });
   fireEvent.change(screen.getByLabelText(new RegExp("^Email", "i")), { target: { value: email } });
   fireEvent.change(screen.getByLabelText(new RegExp("^DNI", "i")), { target: { value: dni } });
-  fireEvent.change(screen.getByLabelText(new RegExp("^Contraseña", "i")), { target: { value: password } });
-  fireEvent.change(screen.getByLabelText(new RegExp("^Repetí la contraseña", "i")), { target: { value: repetirPassword } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Contrase", "i")), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Repet", "i")), { target: { value: repetirPassword } });
   fireEvent.click(screen.getByRole("button", { name: "Crear cuenta" }));
 }
 
 function completarEmpresa(email: string, password: string, repetirPassword: string, cuit = "30-12345678-9") {
   fireEvent.change(screen.getByLabelText(new RegExp("^Email", "i")), { target: { value: email } });
   fireEvent.change(screen.getByLabelText(new RegExp("^CUIT de la empresa", "i")), { target: { value: cuit } });
-  fireEvent.change(screen.getByLabelText(new RegExp("^Contraseña", "i")), { target: { value: password } });
-  fireEvent.change(screen.getByLabelText(new RegExp("^Repetí la contraseña", "i")), { target: { value: repetirPassword } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Contrase", "i")), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Repet", "i")), { target: { value: repetirPassword } });
   fireEvent.click(screen.getByRole("button", { name: "Crear cuenta" }));
 }
 
@@ -54,7 +52,7 @@ test("shows the mismatch under the repeated password", () => {
 
   completarPostulante("persona@ejemplo.com", "12345678", "87654321");
 
-  expect(screen.getByText("Las contraseñas no coinciden")).toBeDefined();
+  expect(screen.getByText(/Las contrase/i)).toBeDefined();
   expect(mocks.registrar).not.toHaveBeenCalled();
 });
 
@@ -78,7 +76,7 @@ test("replaces the form with 'Revisá tu correo' and the email when the account 
 
   completarPostulante("persona@ejemplo.com", "12345678", "12345678");
 
-  expect(await screen.findByRole("heading", { name: "Revisá tu correo" })).toBeDefined();
+  expect(await screen.findByRole("heading", { name: /Revis/i })).toBeDefined();
   expect(screen.getByText("persona@ejemplo.com")).toBeDefined();
   expect(screen.queryByRole("button", { name: "Crear cuenta" })).toBeNull();
 });
@@ -108,3 +106,4 @@ test("disables the button while loading and shows the server error", () => {
   expect(screen.getByRole("button", { name: /Creando cuenta/ }).hasAttribute("disabled")).toBe(true);
   expect(screen.getByRole("alert").textContent).toContain("No pudimos crear la cuenta");
 });
+

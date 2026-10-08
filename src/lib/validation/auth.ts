@@ -111,8 +111,6 @@ export const registroPostulanteSchema = z.object({
   email: emailSchema,
   password: passwordNuevaSchema,
   dni: dniSchema,
-  nombre: nombreSchema,
-  apellido: apellidoSchema,
 });
 
 export const registroEmpresaSchema = z.object({

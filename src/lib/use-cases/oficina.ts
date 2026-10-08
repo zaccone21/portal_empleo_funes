@@ -32,18 +32,6 @@ export async function verResumen(usuario: CurrentUser): Promise<Resultado<Resume
   const negado = sinPermiso(usuario, "admin");
   if (negado) return negado;
 
-  const todasLasOfertas = await listarOfertasParaOficina();
-  
-  const pendientes = todasLasOfertas
-    .filter((o) => o.estado === "pendiente")
-    .map((o) => ({ id: o.id, titulo: o.titulo, empresa: o.empresa?.razonSocial || "Empresa", creadaEl: o.creadaEl }))
-    .slice(0, 10);
-
-  const cierres = todasLasOfertas
-    .filter((o) => o.estado === "publicada" && o.cierreSolicitado)
-    .map((o) => ({ id: o.id, titulo: o.titulo, empresa: o.empresa?.razonSocial || "Empresa", creadaEl: o.creadaEl }))
-    .slice(0, 10);
-
   const { listarUltimasPostulaciones } = await import("@/lib/dal/postulaciones");
   const postulaciones = await listarUltimasPostulaciones(10);
   const ultimasPost = postulaciones.map((p) => ({
@@ -54,11 +42,30 @@ export async function verResumen(usuario: CurrentUser): Promise<Resultado<Resume
     creadaEl: p.creadaEl,
   }));
 
+  const conteos = await getConteosAdmin(usuario);
+
   return exito({
-    ofertasPendientes: pendientes,
-    pedidosDeCierre: cierres,
+    conteos,
     ultimasPostulaciones: ultimasPost,
   });
+}
+
+/** Obtiene los contadores para el menú lateral de la Oficina de Empleo. */
+export async function getConteosAdmin(usuario: CurrentUser) {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return { ofertasPendientes: 0, postulacionesNuevas: 0, cierresSolicitados: 0, porDerivar: 0 };
+
+  const { contarOfertas } = await import("@/lib/dal/ofertas");
+  const { contarPostulaciones } = await import("@/lib/dal/postulaciones");
+
+  const [ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar] = await Promise.all([
+    contarOfertas("pendiente"),
+    contarPostulaciones("postulado"),
+    contarOfertas("publicada", true),
+    contarPostulaciones("preseleccionado"),
+  ]);
+
+  return { ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar };
 }
 
 export async function verOfertas(usuario: CurrentUser): Promise<Resultado<OfertaOficina[]>> {
@@ -67,6 +74,16 @@ export async function verOfertas(usuario: CurrentUser): Promise<Resultado<Oferta
 
   const ofertas = await listarOfertasParaOficina();
   return exito(ofertas.map(aOfertaOficina));
+}
+
+export async function verOferta(usuario: CurrentUser, id: string): Promise<Resultado<OfertaOficina>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const oferta = await leerOfertaParaOficina(id);
+  if (!oferta) return falla("not_found", NO_ENCONTRADA);
+  
+  return exito(aOfertaOficina(oferta));
 }
 
 /** The offer after a decision, as the Office sees it. */
@@ -179,4 +196,41 @@ export async function buscarPostulantes(
   const postulantes = await dalBuscarPostulantes(filtros);
   
   return exito(postulantes);
+}
+
+import { listarEmpresas, type EmpresaLista } from "@/lib/dal/empresas";
+
+export async function buscarEmpresas(
+  usuario: CurrentUser,
+  filtros: { q?: string }
+): Promise<Resultado<EmpresaLista[]>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+  
+  const empresas = await listarEmpresas(filtros);
+  return exito(empresas);
+}
+
+import { leerPerfilPostulanteAdmin } from "@/lib/dal/postulantes";
+
+export async function verPostulante(usuario: CurrentUser, id: string): Promise<Resultado<ResultadoBusquedaPostulante>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const postulante = await leerPerfilPostulanteAdmin(id);
+  if (!postulante) return falla("not_found", "No encontramos a ese postulante.");
+
+  return exito(postulante);
+}
+
+import { leerPerfilEmpresa } from "@/lib/dal/empresas";
+
+export async function verEmpresa(usuario: CurrentUser, id: string) {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const res = await leerPerfilEmpresa(id);
+  if (!res.perfil) return falla("not_found", "No encontramos a esta empresa.");
+
+  return exito({ perfil: res.perfil, cuit: res.cuit, id });
 }
