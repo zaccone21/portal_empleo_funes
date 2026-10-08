@@ -18,8 +18,6 @@ import { BotonEnviar } from "./BotonEnviar";
 import { CampoContrasena } from "./CampoContrasena";
 import { CampoEmail } from "./CampoEmail";
 import { CampoDni } from "./CampoDni";
-import { CampoNombre } from "./CampoNombre";
-import { CampoApellido } from "./CampoApellido";
 import { CampoCuit } from "./CampoCuit";
 import { ErrorDelServidor } from "./ErrorDelServidor";
 
@@ -30,7 +28,7 @@ type Props = {
   volver?: string;
 };
 
-type Errores = Partial<Record<"email" | "password" | "repetirPassword" | "dni" | "cuit" | "nombre" | "apellido", string[]>>;
+type Errores = Partial<Record<"email" | "password" | "repetirPassword" | "dni" | "cuit", string[]>>;
 
 /**
  * Registration form for applicants (P02) and companies (P08).
@@ -56,8 +54,6 @@ export function FormularioRegistro({ rol, volver }: Props) {
       password: formData.get("password"),
       repetirPassword: formData.get("repetirPassword"),
       dni: formData.get("dni"),
-      nombre: formData.get("nombre"),
-      apellido: formData.get("apellido"),
       cuit: formData.get("cuit"),
     });
 
@@ -73,8 +69,6 @@ export function FormularioRegistro({ rol, volver }: Props) {
           email: resultado.data.email,
           password: resultado.data.password,
           dni: resultado.data.dni,
-          nombre: resultado.data.nombre,
-          apellido: resultado.data.apellido,
         }
       : {
           role: "empresa" as const,
@@ -104,16 +98,6 @@ export function FormularioRegistro({ rol, volver }: Props) {
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <FieldGroup className="gap-5">
         <CampoEmail error={errores.email?.[0]} obligatorio />
-        {rol === "postulante" && (
-          <div className="flex flex-col sm:flex-row gap-5">
-            <div className="flex-1">
-              <CampoNombre error={errores.nombre?.[0]} obligatorio />
-            </div>
-            <div className="flex-1">
-              <CampoApellido error={errores.apellido?.[0]} obligatorio />
-            </div>
-          </div>
-        )}
         {rol === "postulante" && <CampoDni error={errores.dni?.[0]} obligatorio />}
         {rol === "empresa" && <CampoCuit error={errores.cuit?.[0]} obligatorio />}
         <CampoContrasena

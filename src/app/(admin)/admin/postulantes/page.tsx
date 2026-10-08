@@ -1,25 +1,22 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
-import { Seccion } from "@/components/marca/Seccion";
-import { BusquedaPostulantes } from "@/components/oficina/BusquedaPostulantes";
-import { leerFiltrosPostulantes } from "@/lib/busqueda-postulantes";
+import { RegistroPostulantes } from "@/features/postulantes/ui/RegistroPostulantes";
+import { getCurrentUser } from "@/lib/dal/auth";
+import { buscarPostulantes } from "@/lib/use-cases/oficina";
 
-export const metadata: Metadata = { title: "Búsqueda de postulantes" };
+export const metadata: Metadata = { title: "Registro de postulantes" };
 
-/**
- * P16: the Office's applicant search (RF1.5.7). The URL carries the text
- * (?q=) and the chosen trades (?rubro=, once per trade), so a search can be
- * shared and the back button undoes it.
- */
-export default async function AdminPostulantesPage({ searchParams }: PageProps<"/admin/postulantes">) {
-  const filtros = leerFiltrosPostulantes(await searchParams);
+export default async function AdminPostulantesPage(props: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const searchParams = await props.searchParams;
+  const usuario = await getCurrentUser();
+  if (!usuario) return null;
 
-  return (
-    <Seccion
-      titulo="Búsqueda de postulantes"
-      bajada="Encontrá a las personas registradas por nombre, DNI o rubro, y escribiles o llamalas de un toque."
-    >
-      <BusquedaPostulantes filtros={filtros} />
-    </Seccion>
-  );
+  const q = typeof searchParams.q === "string" ? searchParams.q : undefined;
+  
+  // We fetch using the server-side use case
+  const resultado = await buscarPostulantes(usuario, { q });
+  if (!resultado.ok) return notFound();
+
+  return <RegistroPostulantes postulantes={resultado.datos} />;
 }

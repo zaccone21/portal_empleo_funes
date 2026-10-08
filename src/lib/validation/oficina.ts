@@ -14,18 +14,12 @@ import { textoObligatorio } from "./texto";
 
 /** Indicators of the Office panel (P14). PROVISIONAL (DT-006): the final ones are open (Q-012). */
 export const resumenOficinaSchema = z.object({
-  ofertasPendientes: z.array(z.object({
-    id: z.string(),
-    titulo: z.string(),
-    empresa: z.string(),
-    creadaEl: z.string(),
-  })),
-  pedidosDeCierre: z.array(z.object({
-    id: z.string(),
-    titulo: z.string(),
-    empresa: z.string(),
-    creadaEl: z.string(),
-  })),
+  conteos: z.object({
+    ofertasPendientes: z.number().int().nonnegative(),
+    postulacionesNuevas: z.number().int().nonnegative(),
+    cierresSolicitados: z.number().int().nonnegative(),
+    porDerivar: z.number().int().nonnegative(),
+  }),
   ultimasPostulaciones: z.array(z.object({
     id: z.string(),
     ofertaId: z.string(),

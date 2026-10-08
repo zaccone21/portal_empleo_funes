@@ -39,7 +39,10 @@ export async function leerPerfilEmpresa(empresaId: string): Promise<{ perfil: Pe
   const supabase = await createClient();
   const { data, error } = await supabase.from("empresas").select(COLUMNAS_EMPRESA).eq("id", empresaId).maybeSingle();
 
-  if (error) throw new Error("Could not load the company.");
+  if (error) {
+    if (error.code === "22P02") return { perfil: null, cuit: null };
+    throw new Error("Could not load the company.");
+  }
   if (!data) return { perfil: null, cuit: null };
   
   const fila = filaEmpresaSchema.parse(data);
@@ -71,4 +74,58 @@ export async function guardarPerfilEmpresa(empresaId: string, perfil: PerfilEmpr
   const guardado = aPerfilEmpresa(filaEmpresaSchema.parse(data));
   if (!guardado) throw new Error("The saved company is incomplete.");
   return { ok: true, perfil: guardado };
+}
+
+export type EmpresaLista = {
+  id: string;
+  razonSocial: string | null;
+  cuit: string | null;
+  contactoNombre: string | null;
+  contactoEmail: string | null;
+  contactoTelefono: string | null;
+  creadaEl: string;
+};
+
+export async function listarEmpresas(filtros: { q?: string } = {}): Promise<EmpresaLista[]> {
+  const supabase = await createClient();
+  
+  let query = supabase
+    .from("empresas")
+    .select("id, razon_social, cuit, contacto_nombre, contacto_email, contacto_telefono, perfiles!inner(creado_el)");
+
+  if (filtros.q) {
+    query = query.or(`razon_social.ilike.%${filtros.q}%,cuit.ilike.%${filtros.q}%,contacto_email.ilike.%${filtros.q}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("Supabase error in listarEmpresas:", error);
+    throw new Error("No se pudieron cargar las empresas");
+  }
+
+  type EmpresaQueryRow = {
+    id: string;
+    razon_social: string | null;
+    cuit: string | null;
+    contacto_nombre: string | null;
+    contacto_email: string | null;
+    contacto_telefono: string | null;
+    perfiles: Record<string, unknown> | Record<string, unknown>[] | null;
+  };
+
+  const empresas = (data as unknown as EmpresaQueryRow[]).map((d) => {
+    const p = Array.isArray(d.perfiles) ? d.perfiles[0] : d.perfiles;
+    return {
+      id: d.id,
+      razonSocial: d.razon_social,
+      cuit: d.cuit,
+      contactoNombre: d.contacto_nombre,
+      contactoEmail: d.contacto_email,
+      contactoTelefono: d.contacto_telefono,
+      creadaEl: (p?.creado_el as string) || new Date().toISOString(),
+    };
+  });
+
+  // Ordenar mǭs recientes primero
+  return empresas.sort((a, b) => b.creadaEl.localeCompare(a.creadaEl));
 }

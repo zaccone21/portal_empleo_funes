@@ -40,84 +40,84 @@ export function ResumenOficina() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      {/* Ofertas Pendientes */}
-      <Card className="flex flex-col">
-        <CardHeader>
-          <CardTitle className="text-xl">Ofertas pendientes</CardTitle>
-          <CardDescription>Para revisar y publicar</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col gap-4">
-          {resumen.ofertasPendientes.length === 0 ? (
-            <p className="text-muted-foreground text-sm flex-1">No hay ofertas pendientes.</p>
-          ) : (
-            <div className="flex flex-col gap-3 flex-1">
-              {resumen.ofertasPendientes.map((oferta) => (
-                <div key={oferta.id} className="flex flex-col border-b pb-3 last:border-0 last:pb-0">
-                  <span className="font-medium text-sm">{oferta.titulo}</span>
-                  <span className="text-sm text-muted-foreground">{oferta.empresa}</span>
-                  {oferta.creadaEl && (
-                    <span className="text-xs text-muted-foreground mt-1">
-                      {format(new Date(oferta.creadaEl), "d 'de' MMM, HH:mm", { locale: es })}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          <Button variant="outline" className="w-full mt-4 justify-between" nativeButton={false} render={<Link href="/admin/ofertas?estado=pendiente" />}>
-            Ver todas <ArrowRightIcon className="size-4 opacity-50" />
-          </Button>
-        </CardContent>
-      </Card>
+    <div className="flex flex-col gap-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Tarjeta 1: Ofertas Pendientes */}
+        <Link href="/admin/ofertas?estado=pendiente" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
+          <Card className="flex flex-col h-full hover:shadow-md transition-all border-l-4 border-l-warning bg-warning/5 hover:bg-warning/10">
+            <CardHeader className="pb-2">
+              <CardDescription className="font-semibold text-warning uppercase tracking-wider text-xs">Ofertas por revisar</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold tracking-tighter text-warning group-hover:scale-105 transition-transform origin-left">
+                {resumen.conteos.ofertasPendientes}
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
 
-      {/* Pedidos de Cierre */}
-      <Card className="flex flex-col">
-        <CardHeader>
-          <CardTitle className="text-xl">Pedidos de cierre</CardTitle>
-          <CardDescription>Empresas solicitando cerrar vacantes</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col gap-4">
-          {resumen.pedidosDeCierre.length === 0 ? (
-            <p className="text-muted-foreground text-sm flex-1">No hay pedidos de cierre.</p>
-          ) : (
-            <div className="flex flex-col gap-3 flex-1">
-              {resumen.pedidosDeCierre.map((oferta) => (
-                <div key={oferta.id} className="flex flex-col border-b pb-3 last:border-0 last:pb-0">
-                  <span className="font-medium text-sm">{oferta.titulo}</span>
-                  <span className="text-sm text-muted-foreground">{oferta.empresa}</span>
-                  {oferta.creadaEl && (
-                    <span className="text-xs text-muted-foreground mt-1">
-                      Publicada el {format(new Date(oferta.creadaEl), "d 'de' MMM", { locale: es })}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          <Button variant="outline" className="w-full mt-4 justify-between" nativeButton={false} render={<Link href="/admin/ofertas?estado=publicada" />}>
-            Ver publicadas <ArrowRightIcon className="size-4 opacity-50" />
-          </Button>
-        </CardContent>
-      </Card>
+        {/* Tarjeta 2: Cierres solicitados */}
+        <Link href="/admin/ofertas?estado=publicada" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
+          <Card className="flex flex-col h-full hover:shadow-md transition-all border-l-4 border-l-destructive bg-destructive/5 hover:bg-destructive/10">
+            <CardHeader className="pb-2">
+              <CardDescription className="font-semibold text-destructive uppercase tracking-wider text-xs">Cierres solicitados</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold tracking-tighter text-destructive group-hover:scale-105 transition-transform origin-left">
+                {resumen.conteos.cierresSolicitados}
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* Tarjeta 3: Postulaciones nuevas */}
+        <Link href="/admin/ofertas" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
+          <Card className="flex flex-col h-full hover:shadow-md transition-all border-l-4 border-l-primary bg-primary/5 hover:bg-primary/10">
+            <CardHeader className="pb-2">
+              <CardDescription className="font-semibold text-primary uppercase tracking-wider text-xs">Postulaciones nuevas</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold tracking-tighter text-primary group-hover:scale-105 transition-transform origin-left">
+                {resumen.conteos.postulacionesNuevas}
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* Tarjeta 4: Por derivar */}
+        <Link href="/admin/ofertas" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
+          <Card className="flex flex-col h-full hover:shadow-md transition-all border-l-4 border-l-brand-sun bg-brand-sun/10 hover:bg-brand-sun/20">
+            <CardHeader className="pb-2">
+              <CardDescription className="font-semibold text-brand-deep uppercase tracking-wider text-xs">Por derivar</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold tracking-tighter text-brand-deep group-hover:scale-105 transition-transform origin-left">
+                {resumen.conteos.porDerivar}
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
 
       {/* Últimas Postulaciones */}
-      <Card className="flex flex-col">
+      <Card className="flex flex-col w-full">
         <CardHeader>
           <CardTitle className="text-xl">Últimas postulaciones</CardTitle>
           <CardDescription>Actividad reciente</CardDescription>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col gap-4">
+        <CardContent>
           {resumen.ultimasPostulaciones.length === 0 ? (
-            <p className="text-muted-foreground text-sm flex-1">No hay postulaciones recientes.</p>
+            <p className="text-muted-foreground text-sm">No hay postulaciones recientes.</p>
           ) : (
-            <div className="flex flex-col gap-3 flex-1">
+            <div className="flex flex-col gap-3">
               {resumen.ultimasPostulaciones.map((postulacion) => (
-                <div key={postulacion.id} className="flex flex-col border-b pb-3 last:border-0 last:pb-0">
-                  <span className="font-medium text-sm">{postulacion.postulanteNombre}</span>
-                  <span className="text-sm text-muted-foreground">se postuló a {postulacion.ofertaTitulo}</span>
+                <div key={postulacion.id} className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 last:border-0 last:pb-0">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm">{postulacion.postulanteNombre}</span>
+                    <span className="text-sm text-muted-foreground">se postuló a {postulacion.ofertaTitulo}</span>
+                  </div>
                   {postulacion.creadaEl && (
-                    <span className="text-xs text-muted-foreground mt-1">
+                    <span className="text-xs text-muted-foreground mt-1 sm:mt-0 whitespace-nowrap">
                       {format(new Date(postulacion.creadaEl), "d 'de' MMM, HH:mm", { locale: es })}
                     </span>
                   )}
@@ -125,9 +125,11 @@ export function ResumenOficina() {
               ))}
             </div>
           )}
-          <Button variant="outline" className="w-full mt-4 justify-between" nativeButton={false} render={<Link href="/admin/postulantes" />}>
-            Buscar postulantes <ArrowRightIcon className="size-4 opacity-50" />
-          </Button>
+          <div className="mt-6 flex justify-end">
+            <Button variant="outline" className="w-full sm:w-auto justify-between" nativeButton={false} render={<Link href="/admin/postulantes" />}>
+              Ver registro completo <ArrowRightIcon className="ml-2 size-4" />
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

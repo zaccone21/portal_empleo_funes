@@ -125,7 +125,10 @@ export async function leerOferta(id: string): Promise<Oferta | null> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("ofertas").select(COLUMNAS_OFERTA).eq("id", id).maybeSingle();
 
-  if (error) throw new Error("Could not load the offer.");
+  if (error) {
+    if (error.code === "22P02") return null;
+    throw new Error("Could not load the offer.");
+  }
   return data ? aOferta(filaOfertaSchema.parse(data)) : null;
 }
 
@@ -182,7 +185,10 @@ export async function listarOfertasParaOficina(): Promise<OfertaConEmpresa[]> {
     .select(COLUMNAS_OFICINA)
     .order("creada_el", { ascending: false });
 
-  if (error) throw new Error("Could not load the offers.");
+  if (error) {
+    console.error("Supabase error in listarOfertasParaOficina:", error.message, error.details, error.hint, error.code);
+    throw new Error("Could not load the offers.");
+  }
   return z.array(filaOficinaSchema).parse(data).map(aOfertaConEmpresa);
 }
 
@@ -190,7 +196,11 @@ export async function leerOfertaParaOficina(id: string): Promise<OfertaConEmpres
   const supabase = await createClient();
   const { data, error } = await supabase.from("ofertas").select(COLUMNAS_OFICINA).eq("id", id).maybeSingle();
 
-  if (error) throw new Error("Could not load the offer.");
+  if (error) {
+    if (error.code === "22P02") return null;
+    console.error("Supabase error in leerOfertaParaOficina:", error.message, error.details, error.hint, error.code);
+    throw new Error("Could not load the offer.");
+  }
   return data ? aOfertaConEmpresa(filaOficinaSchema.parse(data)) : null;
 }
 

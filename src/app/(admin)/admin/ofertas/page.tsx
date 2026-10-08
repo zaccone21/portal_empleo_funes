@@ -1,26 +1,20 @@
 import type { Metadata } from "next";
 
-import { Seccion } from "@/components/marca/Seccion";
-import { GestionOfertas } from "@/components/oficina/GestionOfertas";
-import { estadoOfertaSchema } from "@/lib/validation/ofertas";
+import { RegistroOfertas } from "@/features/ofertas/ui/RegistroOfertas";
+import { getCurrentUser } from "@/lib/dal/auth";
+import { verOfertas } from "@/lib/use-cases/oficina";
 
 export const metadata: Metadata = { title: "Gestión de ofertas" };
 
 /**
- * P15: the Office's offer management (RF1.5.2–RF1.5.6). The URL carries the
- * status tab (?estado=, "pendiente" by default or when unknown) and the
- * selected offer (?oferta=<id>).
+ * P15: the Office's offer management (RF1.5.2–RF1.5.6).
  */
-export default async function AdminOfertasPage({ searchParams }: PageProps<"/admin/ofertas">) {
-  const { estado, oferta } = await searchParams;
-  const estadoValido = estadoOfertaSchema.safeParse(estado);
+export default async function AdminOfertasPage() {
+  const usuario = await getCurrentUser();
+  if (!usuario) return null; // El layout ya redirige
 
-  return (
-    <Seccion titulo="Gestión de ofertas" bajada="Revisá las ofertas nuevas, cerrá las que piden cierre y seguí a los postulantes.">
-      <GestionOfertas
-        estado={estadoValido.success ? estadoValido.data : "pendiente"}
-        seleccionadaId={typeof oferta === "string" ? oferta : undefined}
-      />
-    </Seccion>
-  );
+  const resultado = await verOfertas(usuario);
+  if (!resultado.ok) return null;
+
+  return <RegistroOfertas ofertas={resultado.datos} />;
 }

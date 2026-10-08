@@ -235,3 +235,41 @@ export async function buscarPostulantes(
 
   return resultados;
 }
+
+export async function leerPerfilPostulanteAdmin(postulanteId: string): Promise<ResultadoBusquedaPostulante | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.from("postulantes").select(`
+    id,
+    nombre,
+    apellido,
+    telefono,
+    dni,
+    cv_subido_el,
+    perfiles ( email ),
+    postulante_rubros (
+      rubros (
+        slug,
+        nombre
+      )
+    )
+  `).eq("id", postulanteId).maybeSingle();
+
+  if (error || !data) return null;
+
+  const row = filaBusquedaSchema.parse(data);
+  const rubros = (row.postulante_rubros ?? [])
+    .map((item) => item.rubros?.slug)
+    .filter((slug): slug is string => Boolean(slug));
+
+  return {
+    id: row.id,
+    nombre: row.nombre,
+    apellido: row.apellido,
+    telefono: row.telefono ?? null,
+    dni: row.dni ?? null,
+    email: row.perfiles?.email ?? null,
+    cvSubidoEl: row.cv_subido_el,
+    rubros,
+  };
+}

@@ -185,3 +185,10 @@ QuÃ©: Se borrÃ³ la pantalla independiente `/postulante/cv` (`src/app/(postulante
 Por quÃ©: El usuario solicitÃ³ unificar la gestiÃ³n del CV dentro de la pantalla "Mi perfil" (`/postulante/perfil/page.tsx`) para que no aparezca en la barra de navegaciÃ³n sino como un complemento del perfil.
 QuÃ© lo reemplaza: El componente `<MiCv>` ahora se renderiza directamente al final de la pÃ¡gina `/postulante/perfil/page.tsx`. Los atajos que redirigÃ­an a la carga del CV (`AvisoPostulacion.tsx`, `AvisoCvFaltante.tsx`, `BotonPostularme.test.tsx` y `VistaPerfilPostulante.tsx`) ahora apuntan a `/postulante/perfil#cv` o `/postulante/perfil?oferta=<id>#cv`.
 PÃ©rdida de cobertura: Ninguna. El comportamiento se mantiene y los tests de `BotonPostularme` fueron actualizados. Se puede probar entrando a Mi Perfil y viendo la secciÃ³n Curriculum Vitae al final, o simulando una postulaciÃ³n sin CV para ver la redirecciÃ³n.
+
+### DT-014 — Eliminación de pantalla y lógica vieja de búsqueda de postulantes
+Fecha: 2026-10-07
+Qué: Se eliminaron los componentes de la vista vieja de postulantes (BusquedaPostulantes.tsx, FiltrosPostulantes.tsx, ListaPostulantes.tsx, ResumenPostulantes.tsx), su hook de cliente (useBusquedaPostulantes.ts), su lógica de búsqueda (lib/busqueda-postulantes.ts) y sus tests asociados (BusquedaPostulantes.test.tsx, usqueda-postulantes.test.ts).
+Por qué: El admin hizo la transición a un estándar SaaS (Fase 5) utilizando DataTable (con los componentes nuevos RegistroPostulantes.tsx y ColumnasPostulantes.tsx) y una ruta de detalle individual (/[id]), por lo que estos componentes de la interfaz de pantalla dividida quedaron huérfanos.
+Qué lo reemplaza: dmin/postulantes/page.tsx usando RegistroPostulantes (Server Component que llama a uscarPostulantes).
+Pérdida de cobertura: Se perdieron las pruebas unitarias que apuntaban a los componentes viejos. Esto se salda testeando de manera unificada (idealmente con e2e) el nuevo RegistroPostulantes.
