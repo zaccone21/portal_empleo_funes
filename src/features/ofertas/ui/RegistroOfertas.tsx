@@ -95,9 +95,9 @@ export function RegistroOfertas({ ofertas }: Props) {
                 >
                   <TabsList className="w-full sm:w-auto overflow-x-auto justify-start h-10 bg-muted/50 p-1">
                     <TabsTrigger value="todas" className="rounded-sm">Todas</TabsTrigger>
-                    <TabsTrigger value="pendiente" className="rounded-sm text-warning-foreground data-[state=active]:bg-warning/10 data-[state=active]:text-warning-foreground">Pendientes</TabsTrigger>
-                    <TabsTrigger value="publicada" className="rounded-sm text-success-foreground data-[state=active]:bg-success/10 data-[state=active]:text-success-foreground">Publicadas</TabsTrigger>
-                    <TabsTrigger value="rechazada" className="rounded-sm text-destructive-foreground data-[state=active]:bg-destructive/10 data-[state=active]:text-destructive-foreground">Rechazadas</TabsTrigger>
+                    <TabsTrigger value="pendiente" className="rounded-sm text-warning data-[state=active]:bg-warning/10 data-[state=active]:text-warning">Pendientes</TabsTrigger>
+                    <TabsTrigger value="publicada" className="rounded-sm text-success data-[state=active]:bg-success/10 data-[state=active]:text-success">Publicadas</TabsTrigger>
+                    <TabsTrigger value="rechazada" className="rounded-sm text-destructive data-[state=active]:bg-destructive/10 data-[state=active]:text-destructive">Rechazadas</TabsTrigger>
                     <TabsTrigger value="cerrada" className="rounded-sm">Cerradas</TabsTrigger>
                   </TabsList>
                 </Tabs>

@@ -47,7 +47,7 @@ export const MENU_ADMIN: NavGroup[] = [
       },
       {
         titulo: "Postulaciones nuevas",
-        url: "/admin/ofertas",
+        url: "/admin/ofertas?vista=nuevas",
         icono: Inbox,
         idConteo: "postulacionesNuevas",
       },
@@ -59,7 +59,7 @@ export const MENU_ADMIN: NavGroup[] = [
       },
       {
         titulo: "Por comunicar / derivar",
-        url: "/admin/ofertas",
+        url: "/admin/ofertas?vista=por-comunicar",
         icono: FileText,
         idConteo: "porDerivar",
       },
