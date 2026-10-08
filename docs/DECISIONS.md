@@ -470,8 +470,9 @@ Motivo: que el cambio de herramienta no pierda reglas, decisiones ni la forma de
 ### Q-004 — "Cargar/Crear CV" (P04)
 `pantallas.md` y el diagrama mencionan **crear** un CV online además de subirlo, pero RF1.2.3 solo pide subir 1 PDF. ¿El MVP es solo subida? *Por ahora solo subida.*
 
-### Q-005 — Límite de tamaño del CV
+### Q-005 — Límite de tamaño del CV ✅
 ¿Cuál es el tamaño máximo del PDF? (Propuesta: 5 MB.) ¿Reemplazar el CV borra el anterior?
+*Cerrada 2026-10-01: 5 MB es el límite definitivo. Con el bucket de 1 GB de Supabase entran ~2000 CVs con el tamaño promedio real (~500 KB). Subir un CV nuevo reemplaza al anterior (upsert); RF1.2.3 habla de 1 archivo por postulante. No requiere cambios: el código y el bucket ya usan 5 MB.*
 
 ### Q-006 — Lista de etiquetas/rubros
 ¿Quién mantiene la lista predefinida (RF1.2.2)? ¿Un seed fijo en una migración, o un CRUD para el admin? ¿Cuál es la lista inicial?
@@ -505,3 +506,13 @@ El relevamiento describe la derivación al CIT a la 3.ª postulación no exitosa
 
 ### Q-015 — Idioma de los nombres en la base de datos
 *Resuelta por D-031.* ¿Las tablas, columnas y valores de enum van en español (`ofertas`, `postulaciones`, `postulante`) o en inglés (`job_offers`, `applications`, `applicant`)? El usuario dijo que "seguramente" en español, pero no está decidido. La migración de `profiles` (`user_role`, `applicant | company | admin`) usa inglés y **no está aplicada**; se ajusta cuando se decida. *Por ahora no se aplica ninguna migración.*
+
+
+### Interfaz y Navegación (D-039 - D-041)
+- **D-039**: El panel de la Oficina (Dashboard P13) muestra 3 listas accionables (ofertas pendientes más antiguas, pedidos de cierre, y últimas postulaciones recibidas) además de los 4 indicadores numéricos (2026-10-02).
+- **D-040**: En Desktop, la navegación tiene un botón de usuario a la derecha de la barra superior que abre un Dropdown con "Mi perfil" (o equivalente) y "Cerrar sesión". En Mobile, el botón no se muestra arriba y el perfil sigue existiendo como ítem en la barra inferior (2026-10-02).
+- **D-041**: El perfil de la empresa (P08) separa la vista de lectura y la de edición (2026-10-02).
+
+### Reglas de Negocio Postulante (D-037 - D-038)
+- **D-037**: Para postularse se requiere perfil completo (nombre, apellido, teléfono, DNI) + CV.
+- **D-038**: Los rubros u oficios que puede seleccionar el postulante no tienen límite máximo (2026-10-02).

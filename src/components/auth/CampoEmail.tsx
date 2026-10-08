@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 type Props = {
   /** Message to show under the field; the field is marked invalid while it is set. */
   error?: string;
+  obligatorio?: boolean;
 };
 
 /**
@@ -14,11 +15,12 @@ type Props = {
  * The error is linked with aria-describedby so screen readers read it with
  * the field.
  */
-export function CampoEmail({ error }: Props) {
+export function CampoEmail({ error, obligatorio = false }: Props) {
   return (
     <Field data-invalid={error ? true : undefined}>
       <FieldLabel htmlFor="email" className="text-base">
         Email
+        {obligatorio && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
       <Input
         id="email"
@@ -28,6 +30,7 @@ export function CampoEmail({ error }: Props) {
         autoComplete="email"
         autoCapitalize="none"
         spellCheck={false}
+        required={obligatorio ? true : undefined}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? "email-error" : undefined}
       />

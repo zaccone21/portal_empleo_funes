@@ -8,8 +8,7 @@ export const metadata: Metadata = { title: "Ingresar como empresa" };
 
 /**
  * P08: company login. ?volver= brings the person back to the screen that
- * asked them to log in. The last link helps job seekers who landed here by
- * mistake.
+ * asked them to log in.
  */
 export default async function EmpresaIngresarPage({ searchParams }: PageProps<"/empresa/ingresar">) {
   const { volver } = await searchParams;
@@ -23,7 +22,6 @@ export default async function EmpresaIngresarPage({ searchParams }: PageProps<"/
           enlaces={[
             { href: "/empresa/registrarse", texto: "¿Tu empresa no tiene cuenta? Registrala" },
             { href: "/empresa/recuperar-contrasena", texto: "Olvidé mi contraseña" },
-            { href: "/postulante/ingresar", texto: "¿Buscás trabajo? Ingresá acá" },
           ]}
         />
       }

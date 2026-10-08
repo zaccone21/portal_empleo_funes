@@ -79,12 +79,51 @@ export const ingresoSchema = z.object({
   password: passwordIngresoSchema,
 });
 
-/** Body of POST /api/auth/registro. The role comes from the screen (P02 or P08), not from a field the user fills in. */
-export const registroSchema = z.object({
+export const dniSchema = z
+  .string({ error: "Ingresá tu DNI" })
+  .trim()
+  .min(1, "Ingresá tu DNI")
+  .regex(/^[0-9]{7,8}$/, "El DNI tiene que tener 7 u 8 números, sin puntos");
+
+export const cuitSchema = z
+  .string({ error: "Ingresá el CUIT de tu empresa" })
+  .trim()
+  .min(1, "Ingresá el CUIT de tu empresa")
+  .regex(/^[0-9]{2}-?[0-9]{8}-?[0-9]$/, "CUIT inválido (ej: 30-12345678-9)")
+  .transform((val) => {
+    const nums = val.replace(/\D/g, "");
+    return `${nums.slice(0, 2)}-${nums.slice(2, 10)}-${nums.slice(10, 11)}`;
+  });
+
+export const nombreSchema = z
+  .string({ error: "Ingresá tu nombre" })
+  .trim()
+  .min(1, "Ingresá tu nombre");
+
+export const apellidoSchema = z
+  .string({ error: "Ingresá tu apellido" })
+  .trim()
+  .min(1, "Ingresá tu apellido");
+
+/** Body of POST /api/auth/registro. Discriminates between applicant (needs DNI) and company (needs CUIT). */
+export const registroPostulanteSchema = z.object({
+  role: z.literal("postulante"),
   email: emailSchema,
   password: passwordNuevaSchema,
-  role: rolRegistrableSchema,
+  dni: dniSchema,
 });
+
+export const registroEmpresaSchema = z.object({
+  role: z.literal("empresa"),
+  email: emailSchema,
+  password: passwordNuevaSchema,
+  cuit: cuitSchema,
+});
+
+export const registroSchema = z.discriminatedUnion("role", [
+  registroPostulanteSchema,
+  registroEmpresaSchema,
+]);
 
 /** Body of POST /api/auth/recuperar-contrasena. */
 export const recuperarContrasenaSchema = z.object({
@@ -113,10 +152,12 @@ const errorNoCoinciden = {
   error: "Las contraseñas no coinciden",
 };
 
-/** Registration form (P02, P08): the API fields minus the role, plus the repeated password. */
-export const formularioRegistroSchema = registroSchema
-  .omit({ role: true })
-  .extend({ repetirPassword: repetirPasswordSchema })
+/** Registration form (P02, P08): the API fields, plus the repeated password. */
+export const formularioRegistroSchema = z
+  .intersection(
+    registroSchema,
+    z.object({ repetirPassword: repetirPasswordSchema })
+  )
   .refine(coincidenLasContrasenas, errorNoCoinciden);
 
 /** New password form: the API field plus the repeated password. */

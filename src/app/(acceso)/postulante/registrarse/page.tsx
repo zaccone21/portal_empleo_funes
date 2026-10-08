@@ -20,7 +20,10 @@ export default async function PostulanteRegistrarsePage({ searchParams }: PagePr
       descripcion="Con tu cuenta vas a poder postularte a ofertas de trabajo en Funes."
       pie={
         <EnlacesAcceso
-          enlaces={[{ href: destino ? `/postulante/ingresar?volver=${encodeURIComponent(destino)}` : "/postulante/ingresar", texto: "¿Ya tenés cuenta? Ingresá" }]}
+          enlaces={[
+            { href: destino ? `/postulante/ingresar?volver=${encodeURIComponent(destino)}` : "/postulante/ingresar", texto: "¿Ya tenés cuenta? Ingresá" },
+            { href: "/empresa/registrarse", texto: "¿Sos una empresa? Registrate acá" },
+          ]}
         />
       }
     >

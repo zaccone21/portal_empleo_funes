@@ -29,7 +29,7 @@ export function EncabezadoPortal({ area }: { area: Role }) {
 
   return (
     <header className="bg-brand-deep text-primary-foreground">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-2 lg:px-10 lg:py-3">
+      <div className="flex w-full items-center justify-between gap-4 px-4 py-2 lg:px-6 lg:py-3">
         <MarcaPortal />
         <div className="flex items-center gap-4">
           {items.length > 0 && (

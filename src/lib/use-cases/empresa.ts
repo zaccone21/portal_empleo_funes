@@ -15,11 +15,12 @@ import { exito, falla, sinPermiso, type Resultado } from "./resultado";
  * checks the same again, RNF2).
  */
 
-export async function verPerfilEmpresa(usuario: CurrentUser): Promise<Resultado<{ perfil: PerfilEmpresa | null }>> {
+export async function verPerfilEmpresa(usuario: CurrentUser): Promise<Resultado<{ perfil: PerfilEmpresa | null; cuit: string | null }>> {
   const negado = sinPermiso(usuario, "empresa");
   if (negado) return negado;
 
-  return exito({ perfil: await leerPerfilEmpresa(usuario.id) });
+  const resultado = await leerPerfilEmpresa(usuario.id);
+  return exito(resultado);
 }
 
 export async function guardarPerfil(
@@ -56,6 +57,11 @@ export async function publicarOferta(
 ): Promise<Resultado<{ oferta: OfertaEmpresa }>> {
   const negado = sinPermiso(usuario, "empresa");
   if (negado) return negado;
+
+  const { perfil } = await leerPerfilEmpresa(usuario.id);
+  if (!perfil) {
+    return falla("conflict", "Tenés que completar los datos de tu empresa antes de publicar una oferta.");
+  }
 
   const id = await crearOferta({ ...datos, sueldo: datos.sueldo || null });
   const oferta = await leerOferta(id);

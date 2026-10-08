@@ -71,5 +71,8 @@ export const perfilEmpresaSchema = z.object({
 
 export type PerfilEmpresa = z.infer<typeof perfilEmpresaSchema>;
 
-/** Answer of GET and PUT /api/empresa/perfil: `perfil` is null until the company fills it in. */
-export const respuestaPerfilEmpresaSchema = z.object({ perfil: perfilEmpresaSchema.nullable() });
+/** Answer of GET and PUT /api/empresa/perfil: `perfil` is null until the company fills it in. `cuitRegistrado` is sent to pre-fill it. */
+export const respuestaPerfilEmpresaSchema = z.object({
+  perfil: perfilEmpresaSchema.nullable(),
+  cuit: z.string().nullable().optional(),
+});

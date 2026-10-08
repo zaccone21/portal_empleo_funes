@@ -22,8 +22,8 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 | Cualquier persona | P01 Inicio | `/` | Lista, con la base real |
 | Cualquier persona | P05 y P06 Catálogo de ofertas | `/ofertas` | Lista, con la base real |
 | Postulante | P02 Ingresar, registrarse y recuperar la contraseña | `/postulante/…` y `/nueva-contrasena` | Lista, con la base real |
-| Postulante | P03 Mi perfil | `/postulante/perfil` | Bloqueada |
-| Postulante | P04 Mi CV | `/postulante/cv` | Lista, con la base real |
+| Postulante | P03 Mi perfil y CV | `/postulante/perfil` | En curso (se unificó con CV) |
+| Postulante | P04 Mi CV | — | Integrada en P03 |
 | Postulante | P07 Mis postulaciones | `/postulante/postulaciones` | Lista, con la base real |
 | Empresa | P08 Ingresar, registrarse y recuperar la contraseña | `/empresa/…` | Lista, con la base real |
 | Empresa | P09 Inicio de la empresa | `/empresa` | Lista, con la base real |
@@ -33,7 +33,7 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 | Oficina de Empleo | P13 Ingresar | `/admin/ingresar` | Lista, con la base real |
 | Oficina de Empleo | P14 Panel | `/admin` | Lista, con la base real (indicadores provisorios) |
 | Oficina de Empleo | P15 Gestión de ofertas | `/admin/ofertas` | Lista, con la base real |
-| Oficina de Empleo | P16 Buscador de postulantes | `/admin/postulantes` | Bloqueada |
+| Oficina de Empleo | P16 Buscador de postulantes | `/admin/postulantes` | Lista, con la base real |
 | Todos | Menú según quién ingresó, con "Salir" | en todas | Lista, con la base real |
 
 ---
@@ -98,20 +98,20 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 - *Ref.: D-020, D-034.*
 
 ### P03 — Mi perfil
-- **Qué hace:** datos personales, contacto y los oficios o rubros de la persona (RF1.2.1, RF1.2.2).
-- **Estado:** se puede construir. D-032 definió los datos: nombre, apellido, teléfono y DNI, más varios rubros de la misma lista que las ofertas.
+- **Qué hace:** datos personales, contacto, rubros de la persona (RF1.2.1, RF1.2.2) y gestión del Curriculum Vitae (P04 integrado).
+- **Estado:** en curso. Se rediseñó la vista para mostrar campos obligatorios vacíos y se le integró la carga del CV debajo. Faltan definir algunos atributos finales.
 - **Qué falta decidir:** la lista definitiva de rubros y quién la mantiene; mientras tanto se usa la provisoria.
 - **Cómo completarlo:** se arma igual que "Datos de la empresa": un formulario con validación, más las casillas de rubros de P11 (sin tope). *Ref.: D-032, Q-006.*
 
-### P04 — Mi CV
-- **Dónde:** `/postulante/cv`.
+### P04 — Mi CV (Integrada en P03)
+- **Dónde:** `/postulante/perfil#cv` (antes en `/postulante/cv`).
 - **Qué hace:**
   - Subir el CV en PDF. Se revisa en el momento que sea un PDF de verdad y que no pese más de 5 MB.
   - Ver cuál está cargado.
   - Reemplazarlo por uno nuevo.
 
-  El postulante no puede abrirlo: solo lo ve la Oficina.
-- **Estado:** lista, con la base real. El PDF se guarda en el almacenamiento privado de Supabase (bucket `cvs`, una carpeta por persona), y la Oficina lo abre con un link que vence en un minuto (P15).
+  El postulante no puede abrirlo directamente para vista previa compleja, solo gestionar su reemplazo o descarga a través de un endpoint.
+- **Estado:** lista e integrada a P03. El PDF se guarda en el almacenamiento privado de Supabase (bucket `cvs`, una carpeta por persona), y la Oficina lo abre con un link que vence en un minuto (P15).
 - **Qué falta:**
   - Confirmar el tamaño máximo.
   - Decidir si el CV anterior se borra al reemplazarlo.
@@ -212,8 +212,8 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 ### P16 — Buscador de postulantes
 - **Dónde:** `/admin/postulantes`.
 - **Qué hace:** buscar en el padrón por oficios o rubros (RF1.5.7) y asociar a una persona con una oferta, como si se hubiera postulado (RF1.5.8).
-- **Estado:** se puede construir después del backend real. D-032 definió los datos del perfil y que la postulación guarda si la cargó la Oficina (el postulante la ve igual en "Mis postulaciones").
-- **Qué falta decidir:** la lista definitiva de rubros; mientras tanto se usa la provisoria.
+- **Estado:** lista, con la base real. El rediseño se completó para ofrecer una vista densa (tipo SaaS administrativo) en escritorio y tarjetas en celular.
+- **Qué falta decidir:** la lista definitiva de rubros; mientras tanto se usa la provisoria. (También falta la funcionalidad "asociar a una persona con una oferta", que no formó parte del rediseño UI).
 
   *Ref.: D-032, Q-006.*
 
@@ -276,7 +276,7 @@ Para dejarle las cosas a mano a cada persona:
 | 3. Empresa | P09, P10, P11 y P12 | Hecha |
 | 4. Menú con sesión | "Salir", el menú según el rol, la barra inferior en el celular y los accesos directos | Hecha |
 | 5. Oficina de Empleo | P14 (con indicadores provisorios) y P15; además, el inicio (P01) y el catálogo con filtros | Hecha |
-| 6. Lo bloqueado | P03, P16 y los indicadores de P09 y P14 | P03 y P16 ya se pueden construir (D-032, con la lista provisoria de rubros); los indicadores esperan Q-012 |
+| 6. Lo bloqueado | P03 y los indicadores de P09 y P14 | P16 ya está hecha. P03 se puede construir (D-032, con la lista provisoria de rubros); los indicadores esperan Q-012 |
 | 7. Backend real | Reemplazar los datos simulados por la base de datos | Hecha (2026-09-29, D-035) |
 
 ## Backend real, por partes

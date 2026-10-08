@@ -15,6 +15,7 @@ const dal = vi.hoisted(() => ({
   leerRutaCvDePostulacion: vi.fn(),
   listarPostulacionesDeOferta: vi.fn(),
   crearUrlFirmadaCv: vi.fn(),
+  buscarPostulantes: vi.fn(),
 }));
 vi.mock("@/lib/dal/ofertas", () => ({
   actualizarEstadoOferta: dal.actualizarEstadoOferta,
@@ -28,10 +29,14 @@ vi.mock("@/lib/dal/postulaciones", () => ({
   leerRutaCvDePostulacion: dal.leerRutaCvDePostulacion,
   listarPostulacionesDeOferta: dal.listarPostulacionesDeOferta,
 }));
+vi.mock("@/lib/dal/postulantes", () => ({
+  buscarPostulantes: dal.buscarPostulantes,
+}));
 vi.mock("@/lib/dal/cv", () => ({ crearUrlFirmadaCv: dal.crearUrlFirmadaCv }));
 
 import {
   abrirCv,
+  buscarPostulantes,
   cambiarEstadoPostulacion,
   cerrarOferta,
   publicarOfertaPendiente,
@@ -160,5 +165,35 @@ describe("abrirCv (RF1.5.5, RNF1)", () => {
 
     expect(resultado.ok === false && resultado.falla).toBe("forbidden");
     expect(dal.leerRutaCvDePostulacion).not.toHaveBeenCalled();
+  });
+});
+
+describe("buscarPostulantes", () => {
+  test("allows admin to search applicants with filters", async () => {
+    const mockPostulantes = [
+      {
+        id: "postulante-1",
+        nombre: "Juan",
+        apellido: "Pérez",
+        telefono: "12345678",
+        dni: "12345678",
+        email: "juan@ejemplo.com",
+        rubros: ["gastronomia"],
+        cvSubidoEl: "2026-09-29T12:00:00.000Z",
+      },
+    ];
+    dal.buscarPostulantes.mockResolvedValue(mockPostulantes);
+
+    const resultado = await buscarPostulantes(oficina, { q: "Juan", rubros: ["gastronomia"] });
+
+    expect(dal.buscarPostulantes).toHaveBeenCalledWith({ q: "Juan", rubros: ["gastronomia"] });
+    expect(resultado).toEqual({ ok: true, datos: mockPostulantes });
+  });
+
+  test("denies access to non-admin roles", async () => {
+    const resultado = await buscarPostulantes(empresa, { q: "Juan" });
+
+    expect(resultado.ok === false && resultado.falla).toBe("forbidden");
+    expect(dal.buscarPostulantes).not.toHaveBeenCalled();
   });
 });

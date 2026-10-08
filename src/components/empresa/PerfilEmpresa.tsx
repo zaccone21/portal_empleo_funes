@@ -11,25 +11,24 @@ import { usePerfilEmpresa } from "@/hooks/usePerfilEmpresa";
 import type { PerfilEmpresa as Perfil } from "@/lib/validation/empresa";
 
 import { FormularioPerfilEmpresa } from "./FormularioPerfilEmpresa";
+import { VistaPerfilEmpresa } from "./VistaPerfilEmpresa";
 
 /**
- * "Datos de la empresa" (P10). Loads the saved data with usePerfilEmpresa and
- * shows the form filled in (or empty the first time).
- *
- * After a successful save the form is mounted again (`version`) with what the
- * server saved, so normalized values show as stored (for example the CUIT
- * with dashes), and a toast confirms it.
+ * "Datos de la empresa" (P08). Loads the saved data with usePerfilEmpresa.
+ * Shows a read-only view if data exists, or the form if it is empty or editing.
  */
 export function PerfilEmpresa() {
-  const { perfil, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
+  const { perfil, cuitRegistrado, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
     usePerfilEmpresa();
+  const [editando, setEditando] = useState(false);
   const [version, setVersion] = useState(0);
 
   async function handleGuardar(datos: Perfil) {
     const guardado = await guardar(datos);
     if (guardado) {
       toast.success("Guardaste los datos de la empresa.");
-      setVersion((n) => n + 1);
+      setEditando(false);
+      setVersion((v) => v + 1);
     }
     return guardado;
   }
@@ -59,15 +58,24 @@ export function PerfilEmpresa() {
     return <ErrorAlCargar que="los datos de la empresa" mensaje={error} onReintentar={recargar} />;
   }
 
+  const mostrarFormulario = editando || !perfil;
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:items-start">
-      <FormularioPerfilEmpresa
-        key={version}
-        perfil={perfil ?? null}
-        onGuardar={handleGuardar}
-        guardando={guardando}
-        error={errorGuardado}
-      />
+      {mostrarFormulario ? (
+        <FormularioPerfilEmpresa
+          key={version}
+          perfil={perfil ?? null}
+          cuitRegistrado={cuitRegistrado}
+          // FormularioPerfilEmpresa's onGuardar expects (datos: PerfilEmpresa) => Promise<boolean>
+          onGuardar={handleGuardar}
+          guardando={guardando}
+          error={errorGuardado}
+        />
+      ) : (
+        <VistaPerfilEmpresa perfil={perfil} onEditar={() => setEditando(true)} />
+      )}
+      
       <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 lg:sticky lg:top-4">
         <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
         <div className="flex flex-col gap-1">

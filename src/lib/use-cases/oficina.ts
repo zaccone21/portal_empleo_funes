@@ -4,13 +4,11 @@ import type { CurrentUser } from "@/lib/dal/auth";
 import { crearUrlFirmadaCv } from "@/lib/dal/cv";
 import {
   actualizarEstadoOferta,
-  contarOfertas,
   leerOfertaParaOficina,
   listarOfertasParaOficina,
 } from "@/lib/dal/ofertas";
 import {
   actualizarEstadoPostulacion,
-  contarPostulaciones,
   leerRutaCvDePostulacion,
   listarPostulacionesDeOferta,
   type PostulacionDeOferta,
@@ -34,13 +32,40 @@ export async function verResumen(usuario: CurrentUser): Promise<Resultado<Resume
   const negado = sinPermiso(usuario, "admin");
   if (negado) return negado;
 
-  const [ofertasPendientes, pedidosDeCierre, ofertasPublicadas, postulacionesSinRevisar] = await Promise.all([
+  const { listarUltimasPostulaciones } = await import("@/lib/dal/postulaciones");
+  const postulaciones = await listarUltimasPostulaciones(10);
+  const ultimasPost = postulaciones.map((p) => ({
+    id: p.id,
+    ofertaId: p.ofertaId,
+    ofertaTitulo: p.ofertaTitulo,
+    postulanteNombre: (p.postulanteNombre ? p.postulanteNombre + " " : "") + (p.postulanteApellido || "") || "Postulante",
+    creadaEl: p.creadaEl,
+  }));
+
+  const conteos = await getConteosAdmin(usuario);
+
+  return exito({
+    conteos,
+    ultimasPostulaciones: ultimasPost,
+  });
+}
+
+/** Obtiene los contadores para el menú lateral de la Oficina de Empleo. */
+export async function getConteosAdmin(usuario: CurrentUser) {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return { ofertasPendientes: 0, postulacionesNuevas: 0, cierresSolicitados: 0, porDerivar: 0 };
+
+  const { contarOfertas } = await import("@/lib/dal/ofertas");
+  const { contarPostulaciones } = await import("@/lib/dal/postulaciones");
+
+  const [ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar] = await Promise.all([
     contarOfertas("pendiente"),
-    contarOfertas("publicada", true),
-    contarOfertas("publicada"),
     contarPostulaciones("postulado"),
+    contarOfertas("publicada", true),
+    contarPostulaciones("preseleccionado"),
   ]);
-  return exito({ ofertasPendientes, pedidosDeCierre, ofertasPublicadas, postulacionesSinRevisar });
+
+  return { ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar };
 }
 
 export async function verOfertas(usuario: CurrentUser): Promise<Resultado<OfertaOficina[]>> {
@@ -49,6 +74,16 @@ export async function verOfertas(usuario: CurrentUser): Promise<Resultado<Oferta
 
   const ofertas = await listarOfertasParaOficina();
   return exito(ofertas.map(aOfertaOficina));
+}
+
+export async function verOferta(usuario: CurrentUser, id: string): Promise<Resultado<OfertaOficina>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const oferta = await leerOfertaParaOficina(id);
+  if (!oferta) return falla("not_found", NO_ENCONTRADA);
+  
+  return exito(aOfertaOficina(oferta));
 }
 
 /** The offer after a decision, as the Office sees it. */
@@ -147,4 +182,55 @@ export async function abrirCv(usuario: CurrentUser, postulacionId: string): Prom
   const ruta = await leerRutaCvDePostulacion(postulacionId);
   if (!ruta) return falla("not_found", "Esta persona todavía no subió su CV.");
   return exito({ url: await crearUrlFirmadaCv(ruta) });
+}
+
+import { buscarPostulantes as dalBuscarPostulantes, type ResultadoBusquedaPostulante } from "@/lib/dal/postulantes";
+
+export async function buscarPostulantes(
+  usuario: CurrentUser,
+  filtros: { q?: string; rubros?: string[] }
+): Promise<Resultado<ResultadoBusquedaPostulante[]>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+  
+  const postulantes = await dalBuscarPostulantes(filtros);
+  
+  return exito(postulantes);
+}
+
+import { listarEmpresas, type EmpresaLista } from "@/lib/dal/empresas";
+
+export async function buscarEmpresas(
+  usuario: CurrentUser,
+  filtros: { q?: string }
+): Promise<Resultado<EmpresaLista[]>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+  
+  const empresas = await listarEmpresas(filtros);
+  return exito(empresas);
+}
+
+import { leerPerfilPostulanteAdmin } from "@/lib/dal/postulantes";
+
+export async function verPostulante(usuario: CurrentUser, id: string): Promise<Resultado<ResultadoBusquedaPostulante>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const postulante = await leerPerfilPostulanteAdmin(id);
+  if (!postulante) return falla("not_found", "No encontramos a ese postulante.");
+
+  return exito(postulante);
+}
+
+import { leerPerfilEmpresa } from "@/lib/dal/empresas";
+
+export async function verEmpresa(usuario: CurrentUser, id: string) {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const res = await leerPerfilEmpresa(id);
+  if (!res.perfil) return falla("not_found", "No encontramos a esta empresa.");
+
+  return exito({ perfil: res.perfil, cuit: res.cuit, id });
 }

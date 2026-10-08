@@ -27,7 +27,8 @@ afterEach(cleanup);
 
 function completar(campos: Record<string, string>) {
   for (const [etiqueta, valor] of Object.entries(campos)) {
-    fireEvent.change(screen.getByLabelText(etiqueta), { target: { value: valor } });
+    const regex = new RegExp(etiqueta.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    fireEvent.change(screen.getByLabelText(regex), { target: { value: valor } });
   }
   fireEvent.click(screen.getByRole("button", { name: "Enviar oferta" }));
 }

@@ -46,8 +46,22 @@ Por qué quedó: la base de datos todavía no está modelada, y el usuario pidi�
 Cómo se salda:
 - Reemplazar el cuerpo de todas las rutas simuladas por Route Handler → caso de uso → DAL (D-018), con `getCurrentUser()` y 401 sin sesión, respetando los contratos de D-020, D-024, D-026, D-027 y D-028. En `/api/auth/*`, usar Supabase Auth.
 - Crear los usuarios de prueba en el proyecto de desarrollo de Supabase para los e2e (`e2e/ayudas.ts`).
-- Guardar el CV en el bucket privado bajo `{user_id}/` (RNF1).
 - Agregar RLS y sus tests.
+
+### DT-013 — "Paso 0" omitido (Policies de RLS para Admin)
+Fecha: 2026-10-02
+Qué: El plan de rediseño original pedía crear una migración de base de datos ("Paso 0") para agregar políticas de RLS `SELECT` que permitieran a la Oficina de Empleo ver los perfiles, rubros y datos personales de todos los postulantes.
+Por qué no se hizo: Al revisar las migraciones existentes (`20260929120100`, `20260929120200`, `20260929120400`), se descubrió que ya existían políticas de lectura basadas en `private.es_admin()` para `postulantes`, `postulante_rubros`, `postulaciones` y `perfiles`. El "Paso 0" era redundante, por lo que se salteó intencionalmente.
+Cómo se salda: Nada. Se registra aquí como evidencia de un descubrimiento del modelo de datos actual.
+
+### DT-014 — Fallos en tests de Vitest de los Formularios (Testing Library, labels y Base UI)
+Fecha: 2026-10-02
+Qué: Los tests de `FormularioPerfilEmpresa`, `FormularioRegistro`, `FormularioRecuperarContrasena` y `FormularioOferta` dejaron de pasar en `vitest` porque `TestingLibraryElementError: Unable to find a label with the text...`
+Por qué quedó así: Al agregar `maxLength` y `type` a `CampoTexto`, el componente `<Input>` (de Base UI) dejó de ser localizable por su label *exacto* en ciertos tests, sumado a problemas de codificación de caracteres en los archivos de test (p.ej. `Razón social` escrito como `Razn social`). Se intentó parchear `FormularioPerfilEmpresa.test.tsx` y `FormularioRegistro.test.tsx` con expresiones regulares (`new RegExp`), pero por limitaciones en cómo se aplicaron o por la forma en que Testing Library matchea los spans internos (`*` de campo obligatorio), los errores persistieron. Además, se introdujeron dependencias de `cookies()` en tests de `use-cases` que no estaban bien mockeadas en `empresa.test.ts` y `postulante.test.ts`. 
+Cómo se salda: 
+1. Limpiar los archivos de tests de errores de codificación (`Razn social` -> `Razón social`).
+2. Actualizar las querys a Testing Library (p.ej. usar `getByRole('textbox', { name: /CUIT/i })` en vez de `getByLabelText`).
+3. En `postulante.test.ts` y `empresa.test.ts`, refinar los mocks del DAL (`perfilCompletoPostulante` y `leerPerfilEmpresa`) para evitar llamadas a `cookies()` en todos los escenarios.
 - Borrar `src/mocks/` y `src/app/playground/ofertas/page.tsx` (previa consulta).
 - Revisar los e2e (`postulacion.spec.ts`, `empresa.spec.ts`, `sesion.spec.ts`, `catalogo.spec.ts`, `oficina.spec.ts`): hoy asumen la memoria compartida del servidor simulado y los datos de ejemplo (por ejemplo, las ofertas `ejemplo-1` y `ejemplo-2`, o que haya una sola oferta de jardinería).
 
@@ -56,6 +70,7 @@ Fecha: 2026-09-28 · Origen: D-026
 Qué: el tamaño máximo del CV es 5 MB (`CV_TAMANO_MAXIMO_BYTES` en `src/lib/validation/cv.ts`), que es la propuesta de Q-005, todavía abierta. Subir un CV nuevo reemplaza al anterior, porque RF1.2.3 habla de 1 archivo por postulante. Solo se puede subir un PDF: crear el CV online (Q-004) no está.
 Por qué quedó: para construir P04 sin esperar que se cierren Q-004 y Q-005.
 Cómo se salda: cuando se decidan Q-004 y Q-005, ajustar la constante (y el límite del bucket) y confirmar si el anterior se borra o se conserva.
+*Parcialmente saldada 2026-10-01: Q-005 cerrada con 5 MB como límite definitivo. No requiere cambios en código ni bucket. Queda abierta solo Q-004 (crear CV online vs. solo subida).*
 
 ### DT-005 — Datos de la empresa e inicio de la empresa provisorios
 Fecha: 2026-09-28 · Origen: D-027
@@ -78,7 +93,7 @@ Cómo se salda:
 - Cuando se decida Q-012, cambiar los indicadores de `GET /api/admin/resumen` y de `ResumenOficina`.
 - Cuando exista P03, sumar los datos del postulante (D-032) a `PostulacionOficina` y a `PostulantesDeOferta`, sin exponerlos a la empresa.
 - Si más adelante hace falta auditoría o transiciones fijas, es una decisión nueva que reemplaza esa parte de D-032.
-- Construir P16 cuando se cierren sus preguntas, y sumar "Postulantes" al menú (`itemsNavegacion.ts`).
+- **Saldado parcialmente (2026-10-06):** P16 se construyó y se sumó "Postulantes" al menú.
 
 ### DT-007 — El estado de la postulación está en la tabla que lee el postulante
 Fecha: 2026-09-29 · Origen: D-032
@@ -155,3 +170,25 @@ Qué se pierde:
 Por qué quedó: el usuario pidió dejar en local los documentos que no hacen falta en el repositorio.
 Cómo se salda: si el equipo necesita alguno, sacarlo de `.gitignore` y volver a agregarlo (o moverlo a una carpeta compartida fuera del repo). Si Antigravity no carga las notas ignoradas, llevar las preferencias a `~/.gemini/config/rules/`, que es global y no está en el repositorio.
 
+
+### DT-013 — Problemas de codificación en tests y uso estricto del render prop en botones Base UI
+Fecha: 2026-10-02
+Qué: 
+- Algunos archivos de tests (como `FormularioNuevaContrasena.test.tsx`, `FormularioIngreso.test.tsx`, etc.) tenían caracteres corruptos por problemas de encoding al escribirse o modificarse en el sistema, lo que rompía las aserciones de Testing Library (`screen.getByLabelText("Contraseña")`). Se reescribieron los strings y expresiones regulares para esquivarlos o se corrigió su codificación con scripts de node `fs`.
+- Se reemplazó el uso inválido de `asChild` por `render` en el DropdownMenu de `BotonCuenta.tsx` y otros componentes que emplean `@base-ui`, puesto que Base UI no usa `asChild`. 
+Por qué quedó: Por el traspaso de configuraciones y diferencias de entorno/LLM; además, la skill de `shadcn` especifica Base UI pero componentes estándar a veces traían la sintaxis Radix `asChild` que rompía.
+Cómo se salda: Revisar de forma proactiva la sintaxis `render` en cualquier componente shadcn que dependa de `@base-ui` al instanciarse. Mantener precaución al editar archivos `.test.tsx` a través de CLI/PowerShell para evitar corrupciones de caracteres con ñ o tildes.
+
+### Pantalla Mi CV movida a Mi Perfil
+Fecha: 2026-10-06
+Qué: Se borró la pantalla independiente `/postulante/cv` (`src/app/(postulante)/postulante/cv/page.tsx`).
+Por qué: El usuario solicitó unificar la gestión del CV dentro de la pantalla "Mi perfil" (`/postulante/perfil/page.tsx`) para que no aparezca en la barra de navegación sino como un complemento del perfil.
+Qué lo reemplaza: El componente `<MiCv>` ahora se renderiza directamente al final de la página `/postulante/perfil/page.tsx`. Los atajos que redirigían a la carga del CV (`AvisoPostulacion.tsx`, `AvisoCvFaltante.tsx`, `BotonPostularme.test.tsx` y `VistaPerfilPostulante.tsx`) ahora apuntan a `/postulante/perfil#cv` o `/postulante/perfil?oferta=<id>#cv`.
+Pérdida de cobertura: Ninguna. El comportamiento se mantiene y los tests de `BotonPostularme` fueron actualizados. Se puede probar entrando a Mi Perfil y viendo la sección Curriculum Vitae al final, o simulando una postulación sin CV para ver la redirección.
+
+### DT-014 � Eliminaci�n de pantalla y l�gica vieja de b�squeda de postulantes
+Fecha: 2026-10-07
+Qu�: Se eliminaron los componentes de la vista vieja de postulantes (BusquedaPostulantes.tsx, FiltrosPostulantes.tsx, ListaPostulantes.tsx, ResumenPostulantes.tsx), su hook de cliente (useBusquedaPostulantes.ts), su l�gica de b�squeda (lib/busqueda-postulantes.ts) y sus tests asociados (BusquedaPostulantes.test.tsx, usqueda-postulantes.test.ts).
+Por qu�: El admin hizo la transici�n a un est�ndar SaaS (Fase 5) utilizando DataTable (con los componentes nuevos RegistroPostulantes.tsx y ColumnasPostulantes.tsx) y una ruta de detalle individual (/[id]), por lo que estos componentes de la interfaz de pantalla dividida quedaron hu�rfanos.
+Qu� lo reemplaza: dmin/postulantes/page.tsx usando RegistroPostulantes (Server Component que llama a uscarPostulantes).
+P�rdida de cobertura: Se perdieron las pruebas unitarias que apuntaban a los componentes viejos. Esto se salda testeando de manera unificada (idealmente con e2e) el nuevo RegistroPostulantes.

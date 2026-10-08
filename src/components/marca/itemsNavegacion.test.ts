@@ -18,7 +18,7 @@ describe("itemsNavegacion", () => {
       "Inicio",
       "Mis ofertas",
       "Publicar",
-      "Empresa",
+      "Mi empresa",
     ]);
   });
 

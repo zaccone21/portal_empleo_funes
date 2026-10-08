@@ -16,6 +16,7 @@ type Props = {
   autoComplete: "current-password" | "new-password";
   descripcion?: string;
   error?: string;
+  obligatorio?: boolean;
 };
 
 /**
@@ -28,7 +29,7 @@ type Props = {
  * never submits the form. The input is uncontrolled; only the visibility is
  * state.
  */
-export function CampoContrasena({ id, name, label, autoComplete, descripcion, error }: Props) {
+export function CampoContrasena({ id, name, label, autoComplete, descripcion, error, obligatorio = false }: Props) {
   const [visible, setVisible] = useState(false);
 
   const idDescripcion = `${id}-descripcion`;
@@ -41,6 +42,7 @@ export function CampoContrasena({ id, name, label, autoComplete, descripcion, er
     <Field data-invalid={error ? true : undefined}>
       <FieldLabel htmlFor={id} className="text-base">
         {label}
+        {obligatorio && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
       <div className="relative">
         <Input
@@ -48,6 +50,7 @@ export function CampoContrasena({ id, name, label, autoComplete, descripcion, er
           name={name}
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
+          required={obligatorio ? true : undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className="pr-12"

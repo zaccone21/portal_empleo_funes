@@ -71,7 +71,7 @@ export function AvisoPostulacion({ resultado, ofertaId }: { resultado: Resultado
             <AlertDescription className="text-base">{resultado.mensaje}</AlertDescription>
           </Alert>
           <Link
-            href={`/postulante/cv?oferta=${encodeURIComponent(ofertaId)}`}
+            href={`/postulante/perfil?oferta=${encodeURIComponent(ofertaId)}#cv`}
             className={cn(buttonVariants({ size: "lg" }), "w-full")}
           >
             Subir mi CV

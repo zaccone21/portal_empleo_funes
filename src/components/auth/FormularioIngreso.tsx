@@ -75,13 +75,14 @@ export function FormularioIngreso({ volver }: Props) {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <FieldGroup className="gap-5">
-        <CampoEmail error={errores.email?.[0]} />
+        <CampoEmail error={errores.email?.[0]} obligatorio />
         <CampoContrasena
           id="password"
           name="password"
           label="Contraseña"
           autoComplete="current-password"
           error={errores.password?.[0]}
+          obligatorio
         />
       </FieldGroup>
       <ErrorDelServidor error={error} />

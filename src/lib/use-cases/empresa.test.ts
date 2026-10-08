@@ -72,6 +72,7 @@ test("the company sees its offers, and the rejection reason only on rejected one
 test("a new offer starts pending, and an empty pay field is saved as no pay", async () => {
   dal.crearOferta.mockResolvedValue("oferta-nueva");
   dal.leerOferta.mockResolvedValue(oferta({ id: "oferta-nueva" }));
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {} });
 
   const resultado = await publicarOferta(empresa, {
     titulo: "Cadete",
@@ -85,6 +86,22 @@ test("a new offer starts pending, and an empty pay field is saved as no pay", as
 
   expect(dal.crearOferta).toHaveBeenCalledWith(expect.objectContaining({ sueldo: null, rubros: ["transporte"] }));
   expect(resultado.ok && resultado.datos.oferta.estado).toBe("pendiente");
+});
+
+test("cannot publish without a profile", async () => {
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: null });
+
+  const resultado = await publicarOferta(empresa, {
+    titulo: "Cadete",
+    descripcion: "Entregas",
+    requisitos: "Moto",
+    lugar: "Centro",
+    jornada: "Tardes",
+    sueldo: "",
+    rubros: ["transporte"],
+  });
+
+  expect(resultado.ok === false && resultado.falla).toBe("conflict");
 });
 
 test("another company's CUIT is a conflict with a message for the person", async () => {

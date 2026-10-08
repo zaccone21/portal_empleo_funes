@@ -60,7 +60,7 @@ export function FormularioRecuperarContrasena() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <FieldGroup className="gap-5">
-        <CampoEmail error={errores.email?.[0]} />
+        <CampoEmail error={errores.email?.[0]} obligatorio />
       </FieldGroup>
       <ErrorDelServidor error={error} />
       <BotonEnviar loading={loading} texto="Enviar enlace" textoCargando="Enviando…" />

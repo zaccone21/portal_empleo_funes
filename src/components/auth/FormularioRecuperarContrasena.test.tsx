@@ -20,7 +20,7 @@ beforeEach(() => {
 afterEach(cleanup);
 
 function enviar(email: string) {
-  fireEvent.change(screen.getByLabelText("Email"), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: email } });
   fireEvent.click(screen.getByRole("button", { name: "Enviar enlace" }));
 }
 
