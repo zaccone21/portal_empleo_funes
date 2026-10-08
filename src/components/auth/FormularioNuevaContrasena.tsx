@@ -66,6 +66,7 @@ export function FormularioNuevaContrasena() {
           autoComplete="new-password"
           descripcion={`Tiene que tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`}
           error={errores.password?.[0]}
+          obligatorio
         />
         <CampoContrasena
           id="repetirPassword"
@@ -73,6 +74,7 @@ export function FormularioNuevaContrasena() {
           label="Repetí la contraseña nueva"
           autoComplete="new-password"
           error={errores.repetirPassword?.[0]}
+          obligatorio
         />
       </FieldGroup>
       <ErrorDelServidor error={error} />

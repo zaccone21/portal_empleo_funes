@@ -14,13 +14,25 @@ import { textoObligatorio } from "./texto";
 
 /** Indicators of the Office panel (P14). PROVISIONAL (DT-006): the final ones are open (Q-012). */
 export const resumenOficinaSchema = z.object({
-  /** Offers waiting for review (RF1.5.1's own example). */
-  ofertasPendientes: z.number().int().nonnegative(),
-  /** Published offers whose company asked to close them (RF1.5.4). */
-  pedidosDeCierre: z.number().int().nonnegative(),
-  ofertasPublicadas: z.number().int().nonnegative(),
-  /** Applications still in "Postulado", that nobody at the Office moved yet. */
-  postulacionesSinRevisar: z.number().int().nonnegative(),
+  ofertasPendientes: z.array(z.object({
+    id: z.string(),
+    titulo: z.string(),
+    empresa: z.string(),
+    creadaEl: z.string(),
+  })),
+  pedidosDeCierre: z.array(z.object({
+    id: z.string(),
+    titulo: z.string(),
+    empresa: z.string(),
+    creadaEl: z.string(),
+  })),
+  ultimasPostulaciones: z.array(z.object({
+    id: z.string(),
+    ofertaId: z.string(),
+    ofertaTitulo: z.string(),
+    postulanteNombre: z.string(),
+    creadaEl: z.string(),
+  })),
 });
 
 export type ResumenOficina = z.infer<typeof resumenOficinaSchema>;

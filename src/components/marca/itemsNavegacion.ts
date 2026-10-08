@@ -1,13 +1,14 @@
 import {
   BriefcaseBusinessIcon,
   Building2Icon,
-  FileTextIcon,
   HouseIcon,
   LayoutDashboardIcon,
   ListChecksIcon,
   LogInIcon,
   PlusIcon,
+  UserIcon,
   UserPlusIcon,
+  UsersIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -26,24 +27,26 @@ export type ItemNavegacion = {
 /**
  * Main menu of each role (D-028), the same on desktop (top bar) and on phones
  * (bottom bar). Short words, so four items fit on a 360px phone.
- * The Office's applicant search (P16) is blocked by open questions, so it is
- * not in the menu yet (docs/plan_frontend.md).
  */
+export const ITEM_PERFIL_POR_ROL: Record<Role, ItemNavegacion> = {
+  postulante: { href: "/postulante/perfil", texto: "Mi perfil", icono: UserIcon },
+  empresa: { href: "/empresa/perfil", texto: "Mi empresa", icono: Building2Icon },
+  admin: { href: "/admin", texto: "Panel", icono: LayoutDashboardIcon },
+};
+
 export const ITEMS_POR_ROL: Record<Role, ItemNavegacion[]> = {
   postulante: [
     { href: "/ofertas", texto: "Ofertas", icono: BriefcaseBusinessIcon },
     { href: "/postulante/postulaciones", texto: "Postulaciones", icono: ListChecksIcon },
-    { href: "/postulante/cv", texto: "Mi CV", icono: FileTextIcon },
   ],
   empresa: [
     { href: "/empresa", texto: "Inicio", icono: HouseIcon },
     { href: "/empresa/ofertas", texto: "Mis ofertas", icono: ListChecksIcon },
     { href: "/empresa/ofertas/nueva", texto: "Publicar", icono: PlusIcon, destacado: true },
-    { href: "/empresa/perfil", texto: "Empresa", icono: Building2Icon },
   ],
   admin: [
-    { href: "/admin", texto: "Panel", icono: LayoutDashboardIcon },
     { href: "/admin/ofertas", texto: "Ofertas", icono: BriefcaseBusinessIcon },
+    { href: "/admin/postulantes", texto: "Postulantes", icono: UsersIcon },
   ],
 };
 
@@ -74,12 +77,19 @@ export function itemsNavegacion(
   conAcceso: boolean,
 ): ItemNavegacion[] {
   if (usuario === undefined) return [];
-  if (usuario) return ITEMS_POR_ROL[usuario.rol];
+  if (usuario) {
+    const items = [...ITEMS_POR_ROL[usuario.rol]];
+    if (conAcceso) {
+      items.push(ITEM_PERFIL_POR_ROL[usuario.rol]);
+    }
+    return items;
+  }
 
   const publicos = ITEMS_PUBLICOS[area];
   if (!conAcceso) return publicos;
 
   const ingresar: ItemNavegacion = { href: INGRESO_POR_ROL[area], texto: "Ingresar", icono: LogInIcon };
   const registro = REGISTRO[area];
+
   return [...publicos, ingresar, ...(registro ? [registro] : [])];
 }

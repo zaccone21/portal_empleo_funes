@@ -95,12 +95,24 @@ export const cuitSchema = z
     return `${nums.slice(0, 2)}-${nums.slice(2, 10)}-${nums.slice(10, 11)}`;
   });
 
+export const nombreSchema = z
+  .string({ error: "Ingresá tu nombre" })
+  .trim()
+  .min(1, "Ingresá tu nombre");
+
+export const apellidoSchema = z
+  .string({ error: "Ingresá tu apellido" })
+  .trim()
+  .min(1, "Ingresá tu apellido");
+
 /** Body of POST /api/auth/registro. Discriminates between applicant (needs DNI) and company (needs CUIT). */
 export const registroPostulanteSchema = z.object({
   role: z.literal("postulante"),
   email: emailSchema,
   password: passwordNuevaSchema,
   dni: dniSchema,
+  nombre: nombreSchema,
+  apellido: apellidoSchema,
 });
 
 export const registroEmpresaSchema = z.object({

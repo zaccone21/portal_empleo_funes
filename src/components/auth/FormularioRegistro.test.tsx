@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+﻿import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
 import { FormularioRegistro } from "./FormularioRegistro";
@@ -23,18 +23,20 @@ beforeEach(() => {
 afterEach(cleanup);
 
 function completarPostulante(email: string, password: string, repetirPassword: string, dni = "38123456") {
-  fireEvent.change(screen.getByLabelText("Email"), { target: { value: email } });
-  fireEvent.change(screen.getByLabelText("DNI"), { target: { value: dni } });
-  fireEvent.change(screen.getByLabelText("Contraseña"), { target: { value: password } });
-  fireEvent.change(screen.getByLabelText("Repetí la contraseña"), { target: { value: repetirPassword } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Nombre", "i")), { target: { value: "Juan" } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Apellido", "i")), { target: { value: "Perez" } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Email", "i")), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^DNI", "i")), { target: { value: dni } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Contraseña", "i")), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Repetí la contraseña", "i")), { target: { value: repetirPassword } });
   fireEvent.click(screen.getByRole("button", { name: "Crear cuenta" }));
 }
 
 function completarEmpresa(email: string, password: string, repetirPassword: string, cuit = "30-12345678-9") {
-  fireEvent.change(screen.getByLabelText("Email"), { target: { value: email } });
-  fireEvent.change(screen.getByLabelText("CUIT de la empresa"), { target: { value: cuit } });
-  fireEvent.change(screen.getByLabelText("Contraseña"), { target: { value: password } });
-  fireEvent.change(screen.getByLabelText("Repetí la contraseña"), { target: { value: repetirPassword } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Email", "i")), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^CUIT de la empresa", "i")), { target: { value: cuit } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Contraseña", "i")), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText(new RegExp("^Repetí la contraseña", "i")), { target: { value: repetirPassword } });
   fireEvent.click(screen.getByRole("button", { name: "Crear cuenta" }));
 }
 

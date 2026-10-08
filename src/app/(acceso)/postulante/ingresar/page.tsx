@@ -22,6 +22,7 @@ export default async function PostulanteIngresarPage({ searchParams }: PageProps
           enlaces={[
             { href: "/postulante/registrarse", texto: "¿No tenés cuenta? Registrate" },
             { href: "/postulante/recuperar-contrasena", texto: "Olvidé mi contraseña" },
+            { href: "/empresa/ingresar", texto: "¿Sos una empresa? Ingresá acá" },
           ]}
         />
       }

@@ -91,7 +91,11 @@ export async function registrar(
 ): Promise<ResultadoRegistro> {
   const supabase = await createClient();
   const metadata: Record<string, string> = { rol: datos.role };
-  if (datos.role === "postulante") metadata.dni = datos.dni;
+  if (datos.role === "postulante") {
+    metadata.dni = datos.dni;
+    metadata.nombre = datos.nombre;
+    metadata.apellido = datos.apellido;
+  }
   if (datos.role === "empresa") metadata.cuit = datos.cuit;
 
   const { data, error } = await supabase.auth.signUp({

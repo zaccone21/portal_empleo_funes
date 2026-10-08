@@ -60,7 +60,7 @@ test("without a CV, links to the upload (RF1.4.4)", () => {
 
   expect(screen.getByText("Subí tu CV.")).toBeDefined();
   expect(screen.getByRole("link", { name: "Subir mi CV" }).getAttribute("href")).toBe(
-    "/postulante/cv?oferta=o-9",
+    "/postulante/perfil?oferta=o-9#cv",
   );
 });
 

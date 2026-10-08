@@ -12,6 +12,8 @@ import { perfilEmpresaSchema, type PerfilEmpresa } from "@/lib/validation/empres
 type Props = {
   /** Saved data to start from, or null the first time. */
   perfil: PerfilEmpresa | null;
+  /** Saved CUIT when the profile is incomplete */
+  cuitRegistrado?: string | null;
   /** Saves the data; resolves to true when it worked. */
   onGuardar: (datos: PerfilEmpresa) => Promise<boolean>;
   guardando: boolean;
@@ -30,7 +32,7 @@ type Errores = Partial<Record<keyof PerfilEmpresa, string[]>>;
  * `onGuardar`. Errors go under each field; the server's message, above the
  * button.
  */
-export function FormularioPerfilEmpresa({ perfil, onGuardar, guardando, error }: Props) {
+export function FormularioPerfilEmpresa({ perfil, cuitRegistrado, onGuardar, guardando, error }: Props) {
   const [errores, setErrores] = useState<Errores>({});
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -70,15 +72,17 @@ export function FormularioPerfilEmpresa({ perfil, onGuardar, guardando, error }:
             error={errores.razonSocial?.[0]}
             autoComplete="organization"
             maxLength={120}
+            obligatorio
           />
           <CampoTexto
             id="cuit"
             label="CUIT"
             descripcion="11 números, con o sin guiones."
-            defaultValue={perfil?.cuit}
+            defaultValue={perfil?.cuit || cuitRegistrado || ""}
             error={errores.cuit?.[0]}
             inputMode="numeric"
             maxLength={13}
+            obligatorio
           />
           <CampoTexto
             id="descripcion"
@@ -101,6 +105,7 @@ export function FormularioPerfilEmpresa({ perfil, onGuardar, guardando, error }:
             error={errores.contactoNombre?.[0]}
             autoComplete="name"
             maxLength={120}
+            obligatorio
           />
           <CampoTexto
             id="contactoTelefono"
@@ -111,6 +116,7 @@ export function FormularioPerfilEmpresa({ perfil, onGuardar, guardando, error }:
             autoComplete="tel"
             inputMode="tel"
             maxLength={20}
+            obligatorio
           />
           <CampoTexto
             id="contactoEmail"
@@ -120,6 +126,7 @@ export function FormularioPerfilEmpresa({ perfil, onGuardar, guardando, error }:
             autoComplete="email"
             inputMode="email"
             maxLength={120}
+            obligatorio
           />
         </FieldGroup>
       </FieldSet>
