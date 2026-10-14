@@ -71,7 +71,7 @@ export function ResumenOficina() {
         </Link>
 
         {/* Tarjeta 3: Postulaciones nuevas */}
-        <Link href="/admin/ofertas" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
+        <Link href="/admin/ofertas?vista=nuevas" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
           <Card className="flex flex-col h-full hover:shadow-md transition-all border-l-4 border-l-primary bg-primary/5 hover:bg-primary/10">
             <CardHeader className="pb-2">
               <CardDescription className="font-semibold text-primary uppercase tracking-wider text-xs">Postulaciones nuevas</CardDescription>
@@ -85,7 +85,7 @@ export function ResumenOficina() {
         </Link>
 
         {/* Tarjeta 4: Por derivar */}
-        <Link href="/admin/ofertas" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
+        <Link href="/admin/ofertas?vista=por-comunicar" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
           <Card className="flex flex-col h-full hover:shadow-md transition-all border-l-4 border-l-brand-sun bg-brand-sun/10 hover:bg-brand-sun/20">
             <CardHeader className="pb-2">
               <CardDescription className="font-semibold text-brand-deep uppercase tracking-wider text-xs">Por derivar</CardDescription>
