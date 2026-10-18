@@ -73,23 +73,22 @@ Abrí `npm run dev` → `http://localhost:3000`. La portada es `/` (`/inicio` ta
 6. Salí (botón **Salir**).
 
 ### La Oficina publica
-1. `/admin/ingresar` con la cuenta de la Oficina → Panel (`/admin`): "1 oferta para revisar".
-2. Tocalo → `/admin/ofertas?estado=pendiente` → abrí la oferta → **Publicar** y confirmá.
-3. La oferta pasa a Publicadas y **ya aparece en `/` y en `/ofertas`**.
-4. Para ver el rechazo: con otra oferta pendiente, **Rechazar** con un motivo. La empresa lo ve en "Mis ofertas".
+1. `/admin/ingresar` con la cuenta de la Oficina → Dashboard (`/admin`): "Ofertas por revisar: 1".
+2. Tocalo → `/admin/ofertas/por-revisar` → tocá la oferta → en el panel, **Aprobar**.
+3. La oferta pasa a Publicada y **ya aparece en `/` y en `/ofertas`**.
+4. Para ver el rechazo: con otra oferta pendiente, **Rechazar**, escribí el motivo y confirmá. La empresa lo ve en "Mis ofertas".
 
 ### Rama postulante: hasta que se postula
 1. En `/` o en `/ofertas`, abrí la oferta publicada → **Postularme**.
 2. Sin sesión te ofrece **Ingresar** o **Crear cuenta**. Las dos vuelven a la oferta después.
-3. Si no subiste CV, te lo pide → **Subir mi CV** (`/postulante/cv`). Subí un PDF de hasta 5 MB y volvé a la oferta.
+3. Si no subiste CV, te lo pide → **Subir mi CV** (`/postulante/perfil#cv`). Subí un PDF de hasta 5 MB y volvé a la oferta.
 4. **Postularme** → "Te postulaste a esta oferta".
 5. **Postulaciones** (`/postulante/postulaciones`): aparece la oferta con la fecha, sin estado (RF1.2.4).
 
 ### La Oficina ve a quien se postuló
-`/admin/ofertas?estado=publicada` → la oferta → **Postulantes**:
-- el email de la persona;
-- **Ver CV**: se abre el PDF con un link que vence en un minuto;
-- el estado (Postulado, Pre-seleccionado, Derivado, No apto).
+`/admin/postulaciones/por-evaluar` ("Postulaciones nuevas") → tocá la postulación → **Evaluación**:
+- la oferta a la izquierda; a la derecha, la persona con sus datos, sus rubros y el CV en un visor (link firmado que vence en un minuto);
+- **Preseleccionar** o **Marcar no apto**. Las preseleccionadas pasan a **Por comunicar / derivar**, donde se marcan como **derivadas** después de hablar con la empresa.
 
 ### Dónde verlo en Supabase
 - Table Editor: `ofertas`, `oferta_rubros`, `postulaciones`, `postulantes` (el CV en las columnas `cv_*`), `empresas`, `perfiles`.

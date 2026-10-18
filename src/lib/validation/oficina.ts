@@ -5,31 +5,10 @@ import { estadoPostulacionSchema } from "./postulaciones";
 import { textoObligatorio } from "./texto";
 
 /*
- * What the Employment Office sees and sends (P14, P15; D-030). The Office is
- * the intermediary, so it is the only role that sees both sides: the
- * company's contact data and the applicants of each offer.
- * PROVISIONAL (DT-006): the applicant is shown by email until the profile
- * fields are decided (Q-009).
+ * What the Employment Office sees and sends (P14, P15; D-030, D-037). The
+ * Office is the intermediary, so it is the only role that sees both sides:
+ * the company's contact data and the applicants of each offer.
  */
-
-/** Indicators of the Office panel (P14). PROVISIONAL (DT-006): the final ones are open (Q-012). */
-export const resumenOficinaSchema = z.object({
-  conteos: z.object({
-    ofertasPendientes: z.number().int().nonnegative(),
-    postulacionesNuevas: z.number().int().nonnegative(),
-    cierresSolicitados: z.number().int().nonnegative(),
-    porDerivar: z.number().int().nonnegative(),
-  }),
-  ultimasPostulaciones: z.array(z.object({
-    id: z.string(),
-    ofertaId: z.string(),
-    ofertaTitulo: z.string(),
-    postulanteNombre: z.string(),
-    creadaEl: z.string(),
-  })),
-});
-
-export type ResumenOficina = z.infer<typeof resumenOficinaSchema>;
 
 /** The company's contact data, as the Office needs it to talk to them. Null if the company never filled it in. */
 const empresaDeOfertaSchema = z
@@ -49,14 +28,11 @@ const empresaDeOfertaSchema = z
  */
 export const ofertaOficinaSchema = ofertaEmpresaSchema.extend({
   publicadaEl: z.iso.datetime({ offset: true }).nullable(),
+  empresaId: z.string(),
   emailEmpresa: z.string(),
   empresa: empresaDeOfertaSchema,
   cantidadPostulaciones: z.number().int().nonnegative(),
 });
-
-export const listaOfertasOficinaSchema = z.array(ofertaOficinaSchema);
-
-export const respuestaOfertaOficinaSchema = z.object({ oferta: ofertaOficinaSchema });
 
 export type OfertaOficina = z.infer<typeof ofertaOficinaSchema>;
 
@@ -66,24 +42,38 @@ export const rechazoSchema = z.object({
 });
 
 /**
- * One application inside an offer (RF1.5.5, RF1.5.6): who, when, their CV (if
- * any) and the status the Office gave it.
+ * An application seen across all offers (queues and registers of the Office, D-037):
+ * who applied, to what offer, the offer's company contact and the applicant's data.
+ * Only the Office gets this; companies never see applicants (RF1.5.5).
  */
-export const postulacionOficinaSchema = z.object({
-  id: z.string().min(1),
-  estado: estadoPostulacionSchema,
-  postuladoEl: z.iso.datetime({ offset: true }),
-  postulante: z.object({
-    email: z.string(),
-    cv: z.object({ nombre: z.string(), tamanoBytes: z.number() }).nullable(),
-  }),
-});
-
-export const listaPostulacionesOficinaSchema = z.array(postulacionOficinaSchema);
-
-export const respuestaPostulacionOficinaSchema = z.object({ postulacion: postulacionOficinaSchema });
-
-export type PostulacionOficina = z.infer<typeof postulacionOficinaSchema>;
-
-/** Body of PATCH /api/admin/postulaciones/<id>. */
-export const cambioEstadoPostulacionSchema = z.object({ estado: estadoPostulacionSchema });
+export type PostulacionAdmin = {
+  id: string;
+  estado: z.infer<typeof estadoPostulacionSchema>;
+  postuladoEl: string;
+  oferta: {
+    id: string;
+    titulo: string;
+    lugar: string;
+    jornada: string;
+    descripcion: string;
+    sueldo: string | null;
+    rubros: string[];
+    empresa: {
+      razonSocial: string | null;
+      cuit: string | null;
+      contactoNombre: string | null;
+      contactoTelefono: string | null;
+      contactoEmail: string | null;
+    } | null;
+  };
+  postulante: {
+    id: string;
+    nombre: string | null;
+    apellido: string | null;
+    dni: string | null;
+    telefono: string | null;
+    email: string | null;
+    cvNombre: string | null;
+    rubros: string[];
+  };
+};

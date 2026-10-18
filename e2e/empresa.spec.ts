@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { crearOfertaPendiente, ingresarComo, retirarOferta, sesionApi } from "./ayudas";
+import { crearOfertaPendiente, ingresarComo, rechazarComoOficina, retirarOferta } from "./ayudas";
 
 // Company screens on the testing database, logged in as the test company.
 
@@ -33,12 +33,7 @@ test("a company publishes an offer and finds it pending in 'Mis ofertas'", async
 
 test("a rejected offer shows the Office's reason (RF1.3.5)", async ({ page, playwright }) => {
   const oferta = await crearOfertaPendiente(playwright);
-  const oficina = await sesionApi(playwright, "oficina");
-  const rechazo = await oficina.post(`/api/admin/ofertas/${oferta.id}/rechazo`, {
-    data: { motivo: "Falta el horario (prueba)." },
-  });
-  expect(rechazo.ok(), "reject the test offer").toBe(true);
-  await oficina.dispose();
+  await rechazarComoOficina(playwright, oferta.id, "Falta el horario (prueba).");
 
   await page.goto(`/empresa/ofertas?oferta=${oferta.id}`);
   const detalle = page.getByRole("article", { name: oferta.titulo });

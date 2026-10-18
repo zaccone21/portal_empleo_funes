@@ -36,5 +36,6 @@ El modelo completo, tabla por tabla, está en `docs/modelo_datos.md`.
 | `20260929130000_ofertas_visibles_para_postulados.sql` | Política nueva en `ofertas`: el postulante sigue viendo las ofertas a las que se postuló aunque se cierren ("Mis postulaciones", RF1.2.4) | D-035 | 2026-10-01 | — |
 | `20261001200000_crear_perfil_con_dni_y_cuit.sql` | Actualiza la función `crear_perfil` para leer DNI y CUIT del `user_metadata` e insertarlos al registrarse (Refactor user-flow) | RF1.2.1, RF1.3.2 | 2026-10-01 | — |
 | `20261001211500_romper_loop_rls_postulaciones.sql` | Rompe la recursión infinita de RLS entre `ofertas` y `postulaciones` usando una función interna para revisar si la oferta está publicada | Bugfix | 2026-10-01 | — |
+| `20261006183000_crear_perfil_con_nombre_apellido.sql` | Actualiza `crear_perfil` para leer también nombre y apellido del `user_metadata` al registrarse. *Se registró tarde (2026-10-18): falta confirmar si está aplicada y en qué fecha* | RF1.2.1, RF1.3.2 | ¿? | — |
 
 Tests de RLS (pgTAP) en `supabase/tests/`: `perfiles_rls`, `postulantes_empresas_rls`, `rubros_rls`, `ofertas_rls` y `postulaciones_rls`. Prueban que cada rol ve y cambia solo lo suyo. Necesitan la CLI de Supabase (`supabase test db`) y todavía no se corrieron.

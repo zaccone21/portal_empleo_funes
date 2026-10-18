@@ -516,3 +516,7 @@ El relevamiento describe la derivación al CIT a la 3.ª postulación no exitosa
 ### Reglas de Negocio Postulante (D-037 - D-038)
 - **D-037**: Para postularse se requiere perfil completo (nombre, apellido, teléfono, DNI) + CV.
 - **D-038**: Los rubros u oficios que puede seleccionar el postulante no tienen límite máximo (2026-10-02).
+
+### Mesa de trabajo Oficina de Empleo (D-042)
+- **D-042**: Rediseño integral "Mesa de trabajo" del panel de la Oficina de Empleo (pantallas 01 a 10 a 1360 px). Sidebar colapsable a 56 px con escudo municipal, tira de estados con estilo menta, toolbar con búsqueda en URL y atajo '/', contenedor split 1fr 500px, altura de fila de 40 px con atajos ↑/↓/Enter/Esc, pantalla de evaluación split 1fr 1fr con visor de CV y atajos J/K, tokens semánticos suaves en globals.css y mutaciones por Server Actions (2026-10-15).
+

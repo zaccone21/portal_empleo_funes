@@ -186,9 +186,32 @@ Por qué: El usuario solicitó unificar la gestión del CV dentro de la pantalla
 Qué lo reemplaza: El componente `<MiCv>` ahora se renderiza directamente al final de la página `/postulante/perfil/page.tsx`. Los atajos que redirigían a la carga del CV (`AvisoPostulacion.tsx`, `AvisoCvFaltante.tsx`, `BotonPostularme.test.tsx` y `VistaPerfilPostulante.tsx`) ahora apuntan a `/postulante/perfil#cv` o `/postulante/perfil?oferta=<id>#cv`.
 Pérdida de cobertura: Ninguna. El comportamiento se mantiene y los tests de `BotonPostularme` fueron actualizados. Se puede probar entrando a Mi Perfil y viendo la sección Curriculum Vitae al final, o simulando una postulación sin CV para ver la redirección.
 
-### DT-014 � Eliminaci�n de pantalla y l�gica vieja de b�squeda de postulantes
+### DT-014 — Eliminación de pantalla y lógica vieja de búsqueda de postulantes
 Fecha: 2026-10-07
-Qu�: Se eliminaron los componentes de la vista vieja de postulantes (BusquedaPostulantes.tsx, FiltrosPostulantes.tsx, ListaPostulantes.tsx, ResumenPostulantes.tsx), su hook de cliente (useBusquedaPostulantes.ts), su l�gica de b�squeda (lib/busqueda-postulantes.ts) y sus tests asociados (BusquedaPostulantes.test.tsx, usqueda-postulantes.test.ts).
-Por qu�: El admin hizo la transici�n a un est�ndar SaaS (Fase 5) utilizando DataTable (con los componentes nuevos RegistroPostulantes.tsx y ColumnasPostulantes.tsx) y una ruta de detalle individual (/[id]), por lo que estos componentes de la interfaz de pantalla dividida quedaron hu�rfanos.
-Qu� lo reemplaza: dmin/postulantes/page.tsx usando RegistroPostulantes (Server Component que llama a uscarPostulantes).
-P�rdida de cobertura: Se perdieron las pruebas unitarias que apuntaban a los componentes viejos. Esto se salda testeando de manera unificada (idealmente con e2e) el nuevo RegistroPostulantes.
+Qué: Se eliminaron los componentes de la vista vieja de postulantes (BusquedaPostulantes.tsx, FiltrosPostulantes.tsx, ListaPostulantes.tsx, ResumenPostulantes.tsx), su hook de cliente (useBusquedaPostulantes.ts), su lógica de búsqueda (lib/busqueda-postulantes.ts) y sus tests asociados (BusquedaPostulantes.test.tsx, busqueda-postulantes.test.ts).
+Por qué: El admin hizo la transición a un estándar SaaS (Fase 5) utilizando DataTable (con los componentes nuevos RegistroPostulantes.tsx y ColumnasPostulantes.tsx) y una ruta de detalle individual (/[id]), por lo que estos componentes de la interfaz de pantalla dividida quedaron huérfanos.
+Qué lo reemplaza: admin/postulantes/page.tsx usando RegistroPostulantes (Server Component que llama a buscarPostulantes).
+Pérdida de cobertura: Se perdieron las pruebas unitarias que apuntaban a los componentes viejos. Esto se salda testeando de manera unificada (idealmente con e2e) el nuevo RegistroPostulantes.
+*Nota 2026-10-18: `RegistroPostulantes` también quedó sin uso y se borró (DT-015). Este archivo tenía líneas en Windows-1252 y caracteres de control que rompían los textos; se pasó entero a UTF-8.*
+
+### DT-015 — Limpieza de código sin uso tras el rediseño de la Oficina (Etapa 0)
+Fecha: 2026-10-18 · Origen: pedido del usuario ("todo lo que estrictamente no aporte nada al proyecto, pero no borres nada por una causa temporal; no tomes e2e como fuente de verdad"), `docs/diagnostico-flujo.md`
+Qué se borró (37 archivos y código muerto dentro de otros):
+- **UI vieja de la Oficina:** `src/components/oficina/` entera (`AccionesOferta`, `DetalleOfertaOficina`, `EstadoPostulacion`, `GestionOfertas`, `PestanasEstado`, `PostulantesDeOferta`, `ResumenOficina`, `TarjetaOfertaOficina` y los tests `AccionesOferta.test.tsx` y `PostulantesDeOferta.test.tsx`) y su hook `src/hooks/useOficina.ts`.
+- **Restos del primer rediseño del admin:** `src/features/{empresas,ofertas,postulantes}/ui/*` (7 archivos), `src/components/admin/admin-breadcrumb.tsx`, `filter-bar.tsx`, `rubro-tile.tsx`, `table-skeleton.tsx` y `data-table/data-table.tsx` (tenía un cambio del usuario sin commitear, sobre un componente que ya nadie usaba).
+- **Campos de nombre y apellido del registro:** `src/components/formularios/CampoNombre.tsx`, `CampoApellido.tsx` y `nombreSchema`/`apellidoSchema` de `lib/validation/auth.ts`. Salieron del registro en el commit `1497d11`; el nombre y el apellido se cargan en Mi perfil (D-037).
+- **Copias sueltas de las plantillas de Supabase:** `src/lib/client.ts`, `src/lib/server.ts` y `src/lib/middleware.ts` (esta redirigía a `/auth/login`, que no existe). Las que se usan son las de `src/lib/supabase/`.
+- **Rutas de la API de la Oficina que no usaba la app:** `api/admin/resumen`, `api/admin/ofertas` (GET), `api/admin/ofertas/[id]/{publicacion,rechazo,cierre,postulaciones}`, `api/admin/postulaciones/[id]` (PATCH) y su `/cv`, y `api/admin/postulantes` (GET). La Oficina hace todo eso con Server Actions (`src/lib/actions/oficina.ts`, D-042). Queda solo `api/admin/postulantes/[id]/cv`, que abre el CV.
+- **Código muerto que solo usaban esas rutas:** los casos de uso `verResumen`, `verPostulantes`, `cambiarEstadoPostulacion`, `abrirCv` y `verEmpresa`; del DAL, `listarPostulacionesDeOferta`, `leerRutaCvDePostulacion` y `listarUltimasPostulaciones` (esta usaba `as unknown as`, prohibido por AGENTS §12); de la validación, `resumenOficinaSchema`, `postulacionOficinaSchema` y `cambioEstadoPostulacionSchema`; y las fechas `formatearFechaCorta`, `antiguedad` y `fechaConHora`.
+
+Qué se conservó a propósito: `src/lib/supabase/admin.ts` y `client.ts`, que hoy nadie importa pero son la infraestructura prevista (AGENTS §7; el plan de la consigna usa el cliente admin para mostrarle a la empresa sus candidatos derivados).
+
+Qué lo reemplaza:
+- La Oficina: las pantallas de `src/app/(admin)/admin/` con `components/admin/*`, Server Components que leen con `lib/admin/datos.ts` y deciden con Server Actions.
+- Los e2e ya no usan la API de la Oficina: `e2e/ayudas.ts` publica, rechaza y cierra **por la pantalla**, con una sesión de la Oficina en un navegador aparte (`publicarComoOficina`, `rechazarComoOficina`).
+
+Pérdida de cobertura: ninguna sobre código vivo. Los tests de los casos de uso borrados se reemplazaron por tests equivalentes de los que los reemplazan (`resolverPostulacion`, `abrirCvPostulante`, `getConteosAdmin`) en `use-cases/oficina.test.ts`. Los e2e actualizados **no se corrieron todavía** (ver `docs/diagnostico-flujo.md`).
+
+Deuda que queda abierta:
+- **Dos caminos para la misma arquitectura:** postulante y empresa siguen el camino hook → Route Handler → caso de uso (D-017, D-018). La Oficina usa Server Components que llaman al caso de uso y Server Actions (D-042), aunque AGENTS §5 y §6 dicen que las Server Actions se usan solo si el usuario las pide. Se ordena en la Etapa 1 (documentación): o AGENTS acepta las dos formas, o se unifica.
+- **`lib/admin/datos.ts` tapa errores:** si un caso de uso falla, muestra una lista vacía (`resultado.ok ? datos : []`) en vez de mostrar el error (AGENTS §12).

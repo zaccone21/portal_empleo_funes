@@ -1,21 +1,15 @@
 "use client";
 
-import { LogOut, User } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
+/**
+ * Footer of the sidebar: who is logged in and the sign-out action. When the
+ * sidebar is collapsed only the icon button stays, with a tooltip.
+ */
 export function NavUser({ email }: { email: string }) {
-  const { isMobile } = useSidebar();
   const enrutador = useRouter();
 
   async function cerrarSesion() {
@@ -25,54 +19,25 @@ export function NavUser({ email }: { email: string }) {
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <SidebarMenuButton
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-              />
-            }
+    <div className="mt-auto flex flex-col gap-1 border-t border-border px-2 pt-2.5 text-[11.5px] text-muted-foreground group-data-[collapsible=icon]:border-t-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:pt-0">
+      <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+        <span>Operador</span>
+        <span className="truncate" title={email}>
+          {email}
+        </span>
+      </div>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            tooltip="Cerrar sesión"
+            onClick={cerrarSesion}
+            className="h-auto gap-[9px] rounded-[7px] px-2 py-[7px] text-[12.5px] font-semibold text-foreground group-data-[collapsible=icon]:px-2"
           >
-            <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
-                <User className="size-4" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">Operador</span>
-              <span className="truncate text-xs text-muted-foreground">{email}</span>
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--anchor-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
-                    <User className="size-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Operador</span>
-                  <span className="truncate text-xs text-muted-foreground">{email}</span>
-                </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={cerrarSesion}>
-              <LogOut className="mr-2 size-4 text-muted-foreground" />
-              Cerrar sesión
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+            <LogOut className="size-4 opacity-60" aria-hidden="true" />
+            <span>Cerrar sesión</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </div>
   );
 }

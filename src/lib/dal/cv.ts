@@ -64,9 +64,11 @@ export async function guardarCv(postulanteId: string, archivo: File): Promise<Cv
 }
 
 /** A short-lived link to open a stored CV (only the Office's policy allows it, D-030). */
-export async function crearUrlFirmadaCv(ruta: string): Promise<string> {
+export async function crearUrlFirmadaCv(ruta: string, descargar = false): Promise<string> {
   const supabase = await createClient();
-  const { data, error } = await supabase.storage.from(BUCKET_CVS).createSignedUrl(ruta, DURACION_URL_FIRMADA);
+  const { data, error } = await supabase.storage.from(BUCKET_CVS).createSignedUrl(ruta, DURACION_URL_FIRMADA, {
+    download: descargar,
+  });
 
   if (error) throw new Error("Could not create the CV link.");
   return data.signedUrl;

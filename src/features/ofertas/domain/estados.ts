@@ -1,17 +1,17 @@
-import type { EstadoOferta } from "@/lib/validation/ofertas";
+﻿import type { EstadoOferta } from "@/lib/validation/ofertas";
 
 /** Acciones posibles sobre una oferta desde la Oficina de Empleo */
 export type AccionOferta = "aprobar" | "rechazar" | "cerrar" | "ver";
 
 export const ESTADOS_OFERTA: Record<EstadoOferta, {
   etiqueta: string;
-  tono: "neutral" | "warning" | "success" | "danger";
+  tono: "neutral" | "attention" | "success" | "danger";
   descripcion: string;
   acciones: AccionOferta[];
 }> = {
   pendiente: {
     etiqueta: "Pendiente",
-    tono: "warning",
+    tono: "attention",
     descripcion: "Esperando revisión de la Oficina",
     acciones: ["aprobar", "rechazar", "ver"],
   },

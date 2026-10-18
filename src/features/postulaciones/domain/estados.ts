@@ -1,11 +1,11 @@
-import type { EstadoPostulacion } from "@/lib/validation/postulaciones";
+﻿import type { EstadoPostulacion } from "@/lib/validation/postulaciones";
 
 /** Acciones posibles sobre una postulación desde la Oficina de Empleo */
 export type AccionPostulacion = "preseleccionar" | "derivar" | "descartar" | "ver";
 
 export const ESTADOS_POSTULACION: Record<EstadoPostulacion, {
   etiqueta: string;
-  tono: "neutral" | "warning" | "success" | "danger";
+  tono: "neutral" | "attention" | "success" | "danger";
   descripcion: string;
   acciones: AccionPostulacion[];
 }> = {
@@ -17,7 +17,7 @@ export const ESTADOS_POSTULACION: Record<EstadoPostulacion, {
   },
   preseleccionado: {
     etiqueta: "Pre-seleccionado",
-    tono: "warning",
+    tono: "success",
     descripcion: "Perfil compatible, en proceso de contacto/evaluación",
     acciones: ["derivar", "descartar", "ver"],
   },
