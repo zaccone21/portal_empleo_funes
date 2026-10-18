@@ -32,7 +32,7 @@ type Props = {
 };
 
 /**
- * Detail of an offer for the Office (RF1.5.2-RF1.5.6; D-037): status, actions
+ * Detail of an offer for the Office (RF1.5.2-RF1.5.6; D-042): status, actions
  * by status, "Resumen" and "Postulaciones" tabs, and the company card with its
  * contact buttons. Used in the side panel and on the full page.
  */

@@ -9,7 +9,7 @@ import { verOferta, verPostulacionesAdmin } from "@/lib/use-cases/oficina";
 
 export const metadata: Metadata = { title: "Oferta" };
 
-/** Full page of one offer: the same detail as the side panel (D-037). */
+/** Full page of one offer: the same detail as the side panel (D-042). */
 export default async function AdminOfertaPage(props: { params: Promise<{ id: string }>; searchParams: Promise<ParamsBusqueda> }) {
   const { id } = await props.params;
   const params = await props.searchParams;

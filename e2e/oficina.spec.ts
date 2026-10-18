@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { PDF_DE_PRUEBA, crearOfertaPendiente, crearOfertaPublicada, ingresarComo, retirarOferta, sesionApi } from "./ayudas";
 
-// The Employment Office (P14, P15; D-037, D-042) on the testing database,
+// The Employment Office (P14, P15; D-042) on the testing database,
 // logged in as the test Office account. Each test prepares its own offer and
 // uses the full page of the offer (/admin/ofertas/<id>), which shows the same
 // detail as the side panel at every screen width.

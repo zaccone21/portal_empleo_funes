@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 /**
- * Split container (D-037): the table on the left and the detail panel on the
+ * Split container (D-042): the table on the left and the detail panel on the
  * right (500 px) with a 1 px border. Without a panel the table takes it all.
  * It fills the height left by the header, strip and toolbar.
  */

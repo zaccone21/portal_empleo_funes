@@ -21,7 +21,7 @@ type Props = {
 };
 
 /**
- * The only status badge of the Office (D-037): a pill with a dot of the text
+ * The only status badge of the Office (D-042): a pill with a dot of the text
  * color. The label and tone come from the domain rules
  * (features/<feature>/domain/estados.ts), never from the screen.
  */

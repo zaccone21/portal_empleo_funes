@@ -5,7 +5,7 @@ import { esIdValido, noEncontrado, responder, sinSesion } from "@/lib/respuestas
 import { abrirCvPostulante } from "@/lib/use-cases/oficina";
 
 /**
- * GET /api/admin/postulantes/[id]/cv (RNF1, D-037): redirects to a signed link
+ * GET /api/admin/postulantes/[id]/cv (RNF1, D-042): redirects to a signed link
  * to the applicant's CV in the private bucket, optionally setting download headers.
  */
 export async function GET(request: Request, ctx: { params: Promise<{ id: string }> }) {

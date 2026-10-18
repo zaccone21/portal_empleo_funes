@@ -23,7 +23,7 @@ export function BotonCerrarPanel() {
 }
 
 /**
- * Where the detail panel lives (D-037): a 500 px column next to the table from
+ * Where the detail panel lives (D-042): a 500 px column next to the table from
  * 1280 px up, and a side Sheet below (min(500px, 100vw)). Closing it (✕, Esc,
  * click outside) removes ?sel from the URL.
  */

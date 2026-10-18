@@ -14,7 +14,7 @@ const CLASES: Record<Variante, string> = {
 type Props = Omit<ComponentProps<typeof Button>, "variant" | "size"> & { variante?: Variante };
 
 /**
- * Button of the Office screens (D-037): radius 8, 12.5 px / 600, padding 7×13.
+ * Button of the Office screens (D-042): radius 8, 12.5 px / 600, padding 7×13.
  * Primary is solid green; the destructive one is an outline with a red text.
  * Compose it with the `render` prop to make a link (Base UI, no asChild).
  */

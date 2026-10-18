@@ -34,7 +34,7 @@ const TITULOS: Record<ModoOfertas, { migas: string[]; titulo: string }> = {
 };
 
 /**
- * One screen for the three offer views (02, 03, 04; D-037): header, status
+ * One screen for the three offer views (02, 03, 04; D-042): header, status
  * strip (register only), toolbar and the split with table and detail panel.
  * Everything it shows comes from the URL, so each state can be shared.
  */

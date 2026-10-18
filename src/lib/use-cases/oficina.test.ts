@@ -169,7 +169,7 @@ test("an offer is closed only if its company asked for it (RF1.5.4)", async () =
   expect(dal.actualizarEstadoOferta).not.toHaveBeenCalled();
 });
 
-describe("resolverPostulacion (RF1.5.6, D-037)", () => {
+describe("resolverPostulacion (RF1.5.6, D-042)", () => {
   test("an application that does not exist is 'not found'", async () => {
     dal.leerPostulacionAdmin.mockResolvedValue(null);
 

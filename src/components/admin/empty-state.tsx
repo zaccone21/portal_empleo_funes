@@ -8,7 +8,7 @@ type Props = {
   children?: ReactNode;
 };
 
-/** Sober empty state for a table or queue: gray icon, message and next step (D-037). */
+/** Sober empty state for a table or queue: gray icon, message and next step (D-042). */
 export function EmptyState({ titulo, descripcion, children }: Props) {
   return (
     <div className="flex flex-col items-center justify-center gap-1 px-6 py-14 text-center">

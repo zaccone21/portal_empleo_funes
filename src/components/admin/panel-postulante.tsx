@@ -27,7 +27,7 @@ type Props = {
 };
 
 /**
- * Detail panel of an applicant (screen 09, D-037): contact buttons, trades,
+ * Detail panel of an applicant (screen 09, D-042): contact buttons, trades,
  * CV viewer links and application history.
  */
 export function PanelPostulante({ postulante, postulaciones, tab, hrefTab, paginaCompleta }: Props) {

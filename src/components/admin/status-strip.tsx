@@ -16,7 +16,7 @@ type Props = {
 };
 
 /**
- * Status strip (D-037): equal cells with the count of each state; each cell is
+ * Status strip (D-042): equal cells with the count of each state; each cell is
  * a link that filters by URL. The active cell has a mint background and a 3 px
  * green line below. It scrolls sideways on phones.
  */

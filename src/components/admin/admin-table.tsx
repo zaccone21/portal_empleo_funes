@@ -51,7 +51,7 @@ function eventoDeEscritura(e: globalThis.KeyboardEvent): boolean {
 }
 
 /**
- * Table of the Office registers and queues (D-037). 40 px rows, mint selected
+ * Table of the Office registers and queues (D-042). 40 px rows, mint selected
  * row bound to ?sel=<id>, optional bulk selection and a pager. Keyboard:
  * ↑/↓ move the selection, Enter opens the focused row, Esc closes the panel
  * and "/" focuses the search box.

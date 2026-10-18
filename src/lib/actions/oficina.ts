@@ -14,7 +14,7 @@ import { rechazoSchema } from "@/lib/validation/oficina";
 import { estadoPostulacionSchema } from "@/lib/validation/postulaciones";
 
 /*
- * Server Actions of the Office screens (D-037). Same rules as a Route Handler
+ * Server Actions of the Office screens (D-042). Same rules as a Route Handler
  * (AGENTS §6): validate with Zod, get the session user, call ONE use case, and
  * answer with a short Spanish message the screen shows in a toast. The role and
  * the transition checks live in the use case, never here.
@@ -47,7 +47,7 @@ export async function aprobarOfertaAccion(id: string): Promise<RespuestaAccion> 
   return { ok: true, mensaje: `Aprobaste “${resultado.datos.oferta.titulo}”.` };
 }
 
-/** Approves several pending offers; each one is reported on its own (D-037). */
+/** Approves several pending offers; each one is reported on its own (D-042). */
 export async function aprobarOfertasLoteAccion(ids: string[]): Promise<RespuestaLote> {
   const parsed = z.array(idSchema).min(1).max(100).safeParse(ids);
   if (!parsed.success) return { ok: false, mensaje: DATOS_INVALIDOS.mensaje };

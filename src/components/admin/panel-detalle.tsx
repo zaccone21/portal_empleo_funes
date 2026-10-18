@@ -7,7 +7,7 @@ import { BotonAdmin } from "@/components/admin/boton-admin";
 import { cn } from "@/lib/utils";
 import { enlaceLlamada, enlaceWhatsApp, formatearTelefonoAR } from "@/lib/telefonos";
 
-/** Frame of the detail panel: header, tabs and a body with its own scroll (D-037). */
+/** Frame of the detail panel: header, tabs and a body with its own scroll (D-042). */
 export function PanelDetalle({ children }: { children: ReactNode }) {
   return <div className="flex min-h-0 flex-1 flex-col text-[13px]">{children}</div>;
 }
@@ -80,7 +80,7 @@ export function PanelCuerpo({ children }: { children: ReactNode }) {
   return <div className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto px-5 py-4">{children}</div>;
 }
 
-/** Label/value list: every datum has a text label (D-037). */
+/** Label/value list: every datum has a text label (D-042). */
 export function DatosLista({ items }: { items: Array<{ rotulo: string; valor: ReactNode }> }) {
   return (
     <dl className="grid grid-cols-[104px_1fr] gap-x-3 gap-y-2">

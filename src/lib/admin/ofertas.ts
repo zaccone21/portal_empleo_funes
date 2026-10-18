@@ -4,7 +4,7 @@ import type { OfertaOficina } from "@/lib/validation/oficina";
 import type { EstadoOferta } from "@/lib/validation/ofertas";
 
 /*
- * Filtering and ordering of offers for the Office screens (D-037). Pure
+ * Filtering and ordering of offers for the Office screens (D-042). Pure
  * functions, so they are easy to test. The screens read their state from the URL.
  */
 

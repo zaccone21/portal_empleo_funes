@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-/** A missing value: a single dash in the secondary color (D-037). */
+/** A missing value: a single dash in the secondary color (D-042). */
 export function Ausente() {
   return <span className="text-muted-foreground">—</span>;
 }

@@ -164,7 +164,7 @@ function aPostulacionAdmin(fila: z.infer<typeof filaPostulacionAdminSchema>): Po
   };
 }
 
-/** Every application with its offer, company contact and applicant, oldest first (Office queues and registers, D-037). */
+/** Every application with its offer, company contact and applicant, oldest first (Office queues and registers, D-042). */
 export async function listarPostulacionesAdmin(): Promise<PostulacionAdmin[]> {
   const supabase = await createClient();
   const { data, error } = await supabase

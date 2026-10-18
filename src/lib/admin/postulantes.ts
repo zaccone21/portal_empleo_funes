@@ -2,7 +2,7 @@ import { leerParam, type ParamsBusqueda } from "@/lib/admin/url";
 import type { ResultadoBusquedaPostulante } from "@/lib/dal/postulantes";
 
 /*
- * Views of the applicants register (screen 09, D-037). Search by name, surname
+ * Views of the applicants register (screen 09, D-042). Search by name, surname
  * or ID number and the trades filter run in the data layer; the rest is here.
  */
 

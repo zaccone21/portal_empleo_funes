@@ -27,7 +27,7 @@ export type NavGroup = {
 };
 
 /**
- * Navigation of the Employment Office (D-037). Every item has its own route:
+ * Navigation of the Employment Office (D-042). Every item has its own route:
  * the queues are routes, not query variants of the registers.
  */
 export const MENU_ADMIN: NavGroup[] = [

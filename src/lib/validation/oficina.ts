@@ -5,7 +5,7 @@ import { estadoPostulacionSchema } from "./postulaciones";
 import { textoObligatorio } from "./texto";
 
 /*
- * What the Employment Office sees and sends (P14, P15; D-030, D-037). The
+ * What the Employment Office sees and sends (P14, P15; D-030, D-042). The
  * Office is the intermediary, so it is the only role that sees both sides:
  * the company's contact data and the applicants of each offer.
  */
@@ -42,7 +42,7 @@ export const rechazoSchema = z.object({
 });
 
 /**
- * An application seen across all offers (queues and registers of the Office, D-037):
+ * An application seen across all offers (queues and registers of the Office, D-042):
  * who applied, to what offer, the offer's company contact and the applicant's data.
  * Only the Office gets this; companies never see applicants (RF1.5.5).
  */

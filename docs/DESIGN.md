@@ -135,23 +135,22 @@ La portada sirve para **empezar a buscar trabajo sin leer nada más**. Orden, de
 - Al abrir una oferta, el filtro se conserva (`/ofertas?rubro=jardineria&oferta=…`). El "Volver" del celular vuelve a la lista filtrada.
 - Cada tarjeta muestra el rubro con su ícono (`IconoRubro`), para reconocerlo de un vistazo.
 
-### Oficina de Empleo (P14 y P15, D-030)
+### Oficina de Empleo: "Mesa de trabajo" (P13 a P16, D-042, D-049)
 
-> **Desactualizada (2026-10-18):** esta sección describe la UI anterior a la "Mesa de trabajo" (D-037, D-042, §11 del 2026-10-15). La vigente está en el catálogo (§10) y en los mocks de `docs/admin-view-mocks/`. Se reescribe en la Etapa 1 del plan de cierre. Regla nueva ya aplicada: **en las tablas sin panel (postulaciones), tocar la fila abre su página**, igual que el link "Ver" o "Evaluar".
+*Reescrita el 2026-10-18; reemplaza la versión de D-030 (panel de 4 números y pestañas por estado). La referencia visual son los mocks de `docs/admin-view-mocks/`.*
 
-La Oficina trabaja con una cola de tareas: la pantalla le dice **qué necesita atención y la lleva directo a resolverlo**.
-- **Panel (P14)**: 4 números grandes, cada uno es un link a la lista que lo resuelve: ofertas para revisar, pedidos de cierre, postulaciones sin revisar y ofertas publicadas. **Los que requieren acción van en verde oscuro** cuando son más de cero; los informativos van en blanco. Texto en singular o plural según el número ("1 pedido de cierre").
-- **Gestión de ofertas (P15)**: pestañas por estado (Pendientes, Publicadas, Rechazadas, Cerradas) con la cantidad de cada una. Son links (`?estado=`), no pestañas de JavaScript: el "atrás" y el link del panel funcionan.
-- **Orden de la cola**: las pendientes, las más viejas primero (se atiende por orden de llegada). En publicadas, primero las que pidieron el cierre, marcadas con "Pidió el cierre".
-- **Lista y detalle en la misma página** (D-025), igual que el catálogo. El detalle muestra, en este orden:
-  1. el estado y qué hacer con él;
-  2. la empresa, con teléfono (`tel:`) y email (`mailto:`) como links, para llamar o escribir de un toque;
-  3. la oferta tal como la escribió la empresa;
-  4. en publicadas y cerradas, los postulantes.
-- **Decisiones fijas abajo**, y solo si hay algo para decidir (pendiente, o publicada con pedido de cierre). Si no hay nada, no se muestra la barra: una barra vacía tapa contenido.
-- **Publicar y cerrar** piden una confirmación corta (`AlertDialog`), porque se ven enseguida en el catálogo.
-- **Rechazar abre el campo "Motivo del rechazo" ahí mismo**, en la barra de abajo, no en un modal. El motivo es obligatorio porque la empresa lo lee (RF1.3.5): el error lo dice ("Escribí el motivo: la empresa lo va a leer").
-- **Postulantes**: email (link `mailto:`), fecha, estado con palabra e ícono, "Ver CV" (abre el PDF en otra pestaña) y el selector de estado nativo. Al cambiar el estado se guarda enseguida y un toast confirma: "Guardado: Pre-seleccionado."
+La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tareas pendientes y registros para consultar. Está pensada para la computadora de la Oficina; en el celular se puede usar, pero no es su caso principal.
+- **Menú lateral** (232 px, se pliega a 56 px de íconos): "Resumen" (Dashboard), "Tareas pendientes" (Ofertas por revisar, Postulaciones nuevas, Cierres solicitados, Por comunicar / derivar) y "Gestión" (Ofertas, Postulaciones, Postulantes, Empresas). Las tareas muestran su cantidad en una pastilla de atención **solo si hay alguna**.
+- **Dashboard (P14):** una tarjeta por cola, que lleva a resolverla; "Para resolver hoy" con las tareas más viejas primero; accesos a los registros. Los indicadores con datos reales se suman según D-051.
+- **Colas** (ofertas por revisar, postulaciones nuevas, cierres, por comunicar): la más vieja primero (se atiende por orden de llegada), sin tira de estados, con la pista de teclado abajo.
+- **Registros** (ofertas, postulaciones, postulantes, empresas): tira de estados con la cantidad de cada uno (filtra por la URL), búsqueda (`/` la enfoca) y filtros. Todo el estado de la pantalla va en la URL, así funcionan el "atrás" y compartir el link.
+- **Tabla:** filas de 40 px. Donde hay panel, tocar la fila la elige (`?sel=`) y abre el **panel de detalle** al lado (500 px desde 1280 px; por debajo, como hoja lateral), con "Abrir página completa". **Donde no hay panel, tocar la fila abre su página** (por ejemplo, la evaluación). Teclado: ↑/↓ para moverse, Enter abre, Esc cierra.
+- **Decisiones sobre una oferta:** "Aprobar" es un clic y un toast lo confirma; "Rechazar" abre una confirmación con el motivo obligatorio, porque la empresa lo lee (RF1.3.5); "Cerrar oferta" pide confirmación. En la cola de revisión se pueden aprobar varias juntas. Si otra operadora decidió primero, el toast lo dice.
+- **Evaluación de una postulación (P15):** dos columnas: la oferta a la izquierda; a la derecha, la persona (datos, contacto de un toque, rubros) y su CV en un visor. Abajo, "Preseleccionar" o "Marcar no apto", y anterior/siguiente para recorrer la cola (J/K).
+- **Por comunicar / derivar:** cada fila trae el contacto de la empresa (WhatsApp, teléfono, email) y "Marcar como derivado" una vez que se habló con ella.
+- **Contacto de un toque:** teléfono (`tel:`), WhatsApp y email (`mailto:`) son botones, nunca texto suelto.
+- **Celular:** las tablas se desplazan de costado dentro de su caja, con la primera columna fija; la página no se desborda.
+- **Pendiente (Etapa 4 del plan de cierre):** preentrevista y "Derivar" en la evaluación (RF1.6.1, RF1.6.2), seguimiento con la cantidad de rechazos en la ficha del postulante (P18) y derivaciones a cursos (P19). Siguen estas mismas reglas.
 
 ## 5. Componentes: cuándo usar cada uno
 
@@ -284,7 +283,7 @@ La Oficina trabaja con una cola de tareas: la pantalla le dice **qué necesita a
 | `OfertasEmpresa` / `TarjetaOfertaEmpresa` / `DetalleOfertaEmpresa` | `src/components/empresa/` | Mis ofertas: lista + detalle con estado, motivo del rechazo y pedido de cierre |
 | `BotonSolicitarCierre` | `src/components/empresa/` | "Pedir el cierre" con confirmación (`AlertDialog`, el único tipo de modal del portal) |
 
-### Oficina de Empleo (P14 a P16, "Mesa de trabajo", D-037, D-042)
+### Oficina de Empleo (P14 a P16, "Mesa de trabajo", D-042)
 
 Todo en `src/components/admin/`. La UI anterior (`components/oficina/`) se borró el 2026-10-18 (DT-015).
 
@@ -343,6 +342,6 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
 - **2026-09-29 — Varios rubros por oferta.** En P11, casillas en tarjeta con el ícono de cada rubro, de 1 a 3; al llegar a 3 las demás se apagan y un aviso arriba dice cómo cambiar una. En tarjetas y detalle, los rubros van en una sola línea separados por "·". Por qué: una oferta puede cruzar rubros (D-032); prevenir el error es mejor que mostrarlo, y en el celular una línea no alarga la tarjeta. (§5, D-032)
 - **2026-09-29 — El sueldo, cuando está, en la misma lista que lugar y horario.** Una línea más con ícono de billete; si la empresa no lo cargó, la línea no aparece (nada de "A convenir" inventado). Por qué: es de lo primero que mira quien busca trabajo, y el campo es opcional (D-032). (§4 ter)
 - **2026-09-29 — "Crear cuenta" también vuelve a la oferta.** Desde "Postularme" sin sesión, tanto "Ingresar" como "Crear cuenta" llevan `?volver=` y, al terminar, devuelven a la oferta. Si Supabase deja entrar directo (confirmación de email apagada), no se muestra "Revisá tu correo". Por qué: que postularse sea un solo camino para quien entra por primera vez (D-034). (§5)
-- **2026-10-15 — Interfaz "Mesa de trabajo" para el panel de administración de la Oficina de Empleo.** Rediseño integral al píxel de la vista de administración según especificaciones y mockups 01 a 10 (D-037). Sidebar colapsable a 56 px con escudo municipal institucional a 30 px, tira de estados con estilo menta y conteos en tiempo real, contenedor split 1fr 500px para tablas y panel de inspección lateral (con hoja de CV y reproductor PDF en evaluación), atajos de teclado (/ para búsqueda, ↑/↓/Enter/Esc para tablas, J/K en evaluación), altura de fila de 40 px estricta, tokens semánticos suaves (attention, success-soft, danger-soft, neutral-soft) en coherencia con el verde primario municipal (#074A1F), y mutaciones con Server Actions y confirmaciones toast. (§4 ter, D-037)
+- **2026-10-15 — Interfaz "Mesa de trabajo" para el panel de administración de la Oficina de Empleo.** Rediseño integral al píxel de la vista de administración según especificaciones y mockups 01 a 10 (D-042). Sidebar colapsable a 56 px con escudo municipal institucional a 30 px, tira de estados con estilo menta y conteos en tiempo real, contenedor split 1fr 500px para tablas y panel de inspección lateral (con hoja de CV y reproductor PDF en evaluación), atajos de teclado (/ para búsqueda, ↑/↓/Enter/Esc para tablas, J/K en evaluación), altura de fila de 40 px estricta, tokens semánticos suaves (attention, success-soft, danger-soft, neutral-soft) en coherencia con el verde primario municipal (#074A1F), y mutaciones con Server Actions y confirmaciones toast. (§4 ter, D-042)
 - **2026-10-18 — En las tablas de la Oficina sin panel, la fila abre su página.** En "Postulaciones" y "Postulaciones nuevas", tocar la fila (o Enter) abre la evaluación, igual que "Ver"/"Evaluar". Antes la fila solo quedaba marcada y no pasaba nada. En "Por comunicar" no: sus filas tienen botones con diálogo. (§4 ter, §10, `AdminTable.hrefFila`)
 - **2026-10-18 — "Mi perfil" sin sesión pide ingresar una sola vez.** El bloque del CV (`SeccionCv`) se muestra solo con sesión de postulante; sin ella, el aviso de los datos personales alcanza. Antes salían dos avisos seguidos con los mismos botones.

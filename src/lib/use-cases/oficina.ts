@@ -28,7 +28,7 @@ import { aOfertaOficina } from "./dto-ofertas";
 import { exito, falla, sinPermiso, type Resultado } from "./resultado";
 
 /*
- * The Employment Office (P14-P16; RF1.5.1-RF1.5.7; D-030, D-037). Every action
+ * The Employment Office (P14-P16; RF1.5.1-RF1.5.7; D-030, D-042). Every action
  * is for the admin role. The Office is the only role that sees both sides: the
  * company's contact data and the applicants.
  */
@@ -151,7 +151,7 @@ export async function verPostulante(usuario: CurrentUser, id: string): Promise<R
   return exito(postulante);
 }
 
-/** All applications with their offer and applicant, oldest first: the Office queues and registers (D-037). */
+/** All applications with their offer and applicant, oldest first: the Office queues and registers (D-042). */
 export async function verPostulacionesAdmin(usuario: CurrentUser): Promise<Resultado<PostulacionAdmin[]>> {
   const negado = sinPermiso(usuario, "admin");
   if (negado) return negado;
@@ -173,7 +173,7 @@ export async function verPostulacionAdmin(usuario: CurrentUser, id: string): Pro
  * Moves an application to a new status following the allowed transitions
  * (postulado → preseleccionado | no_apto, preseleccionado → derivado | no_apto).
  * 409 when another operator already decided or the move is not allowed, so the
- * screen can say so instead of showing a generic error (D-037).
+ * screen can say so instead of showing a generic error (D-042).
  */
 export async function resolverPostulacion(
   usuario: CurrentUser,

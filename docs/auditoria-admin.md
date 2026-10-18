@@ -1,3 +1,5 @@
+> **Documento histórico (2026-10-18).** Sirvió para el rediseño de la Oficina (D-042) y ya no describe el código actual. No son reglas vigentes: las reglas están en `AGENTS.md` y `.agents/rules/`, las decisiones en `docs/DECISIONS.md` y el diseño en `docs/DESIGN.md`.
+
 # Auditoría y Mapeo - Admin del Portal de Empleo
 
 ## 1. Stack y Configuración

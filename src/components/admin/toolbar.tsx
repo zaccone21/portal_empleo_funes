@@ -120,7 +120,7 @@ function FiltroMultiple({ filtro }: { filtro: Extract<FiltroToolbar, { tipo: "mu
 }
 
 /**
- * Toolbar of a register or queue (D-037): search box (280 px), one control per
+ * Toolbar of a register or queue (D-042): search box (280 px), one control per
  * filter and "Limpiar", which only shows when something is filtered.
  */
 export function Toolbar({ placeholder, filtros = [] }: Props) {

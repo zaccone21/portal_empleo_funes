@@ -14,7 +14,7 @@ type Props = {
 };
 
 /**
- * Page header of the Office (D-037): breadcrumb, 20 px title and an optional
+ * Page header of the Office (D-042): breadcrumb, 20 px title and an optional
  * right-hand note. No background, border or pattern. It also holds the sidebar
  * toggle, so the menu can be opened on phones and collapsed on desktop.
  */

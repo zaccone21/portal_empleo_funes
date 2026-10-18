@@ -20,23 +20,26 @@ Web portal for the Employment Office (Oficina de Empleo) of the Municipality of 
 - **company** (empresa): registers, submits job offers, sees their review status, requests closing them.
 - **admin** (Oficina de Empleo operators): pre-created accounts; moderate offers, evaluate applications, search the applicant pool by tags.
 
-Core business rule: the Office is a **mandatory intermediary**. Companies never see, search, or contact applicants. Applicants never see the internal status of their applications. Many users have low digital literacy and use cheap phones.
+Core business rule: the Office is a **mandatory intermediary**. Companies never search the applicant pool and only see the applicants the Office **referred** (`derivado`) to their own offers, to decide "hire / not hire" (D-044). Applicants never see the internal status of their applications. Many users have low digital literacy and use cheap phones.
+
+The final delivery is on **2026-11-02**; its brief (`docs/Beex_Funes_Tech_Lab_Proyecto_Final.md`) defines the scope (D-043).
 
 ## 2. Sources of truth
 
 Read the relevant docs before planning. Priority, highest first:
 
-1. `docs/Requerimientos.md`: functional (RF) and non-functional (RNF) requirements. This defines the scope.
-2. `docs/pantallas.md`: screens P01–P16. Use these IDs.
-3. `docs/DECISIONS.md`: decisions already made and **open questions**.
-4. `docs/Relevamiento.md`, `docs/MinutaDeRelevamiento.md`: business context only. They are not requirements.
-5. `docs/proceso_*.md` and PDFs: early drafts, **local-only** (in `.gitignore`, DT-012; they may be missing in another clone). Their screen numbers (P01–P09) and state names ("aprobada", "pendientes") are **outdated**. Map them to `pantallas.md` and the glossary below.
-6. `docs/Transcript.md`: raw interview transcript, **local-only** (in `.gitignore`, DT-012). Lowest priority.
+1. `docs/Beex_Funes_Tech_Lab_Proyecto_Final.md`: the final brief (D-043). It wins over older requirements; copied into `docs/Requerimientos.md` as RF1.6.x and RNF5.
+2. `docs/Requerimientos.md`: functional (RF) and non-functional (RNF) requirements. This defines the scope.
+3. `docs/pantallas.md`: screens P01–P19. Use these IDs.
+4. `docs/DECISIONS.md`: decisions already made and **open questions**.
+5. `docs/Relevamiento.md`, `docs/MinutaDeRelevamiento.md`: business context only. They are not requirements.
+6. `docs/proceso_*.md` and PDFs: early drafts, **local-only** (in `.gitignore`, DT-012; they may be missing in another clone). Their screen numbers (P01–P09) and state names ("aprobada", "pendientes") are **outdated**. Map them to `pantallas.md` and the glossary below.
+7. `docs/Transcript.md`: raw interview transcript, **local-only** (in `.gitignore`, DT-012). Lowest priority.
 
 Rules:
 - Implement only what traces to an RF/RNF or to a decision in `docs/DECISIONS.md`. Cite the IDs (e.g. `RF1.4.4`, `P06`) in every plan.
 - If something is missing, ambiguous, contradictory, or listed as an open question: **stop and ask**. Do not guess. After the user answers, propose the entry for `docs/DECISIONS.md`.
-- Out of MVP unless a decision says otherwise: notifications (email/WhatsApp), CIT referral after 3 rejections, 60-day follow-up, shortlist ("terna") export, institutional KPI reports, offer drafts (RF1.3.3 forbids drafts).
+- Out of MVP unless a decision says otherwise (D-052): notifications (email/WhatsApp; email is an optional bonus, D-051), automatic CIT referral after 3 rejections, 60-day follow-up, shortlist ("terna") export, offer drafts (RF1.3.3 forbids drafts), editing a sent offer (it is duplicated instead, D-048).
 
 ## 3. Language
 
@@ -62,6 +65,13 @@ The DB names are in Spanish (D-031). The full data model is in `docs/modelo_dato
 | Motivo de rechazo | `motivo_rechazo` |
 | Solicitud de cierre | `cierre_solicitado` (boolean) |
 | Perfil de usuario (rol) | table `perfiles` |
+| Preentrevista (optional, D-045) | columns `preentrevista_el`, `preentrevista_notas` in `postulaciones` |
+| Decisión de la empresa (D-044) | columns `decision_empresa` (`contratado \| no_contratado`), `motivo_no_contratacion` in `postulaciones` |
+| Rechazo (D-046) | an application with `decision_empresa = no_contratado`; counted, not stored |
+| Derivación a curso (D-047) | table `derivaciones_curso` |
+| Experiencia laboral (RF1.6.7) | column `experiencia` in `postulantes` |
+
+*The last five rows come with the stage 2 migration; check `docs/migraciones.md` first.*
 
 - Roles: `postulante | empresa | admin`.
 - Job offer status: `pendiente | publicada | rechazada | cerrada` → UI: Pendiente, Publicada, Rechazada, Cerrada.
@@ -77,7 +87,7 @@ The installed versions are the only truth. Check `package.json` and the bundled 
   - Request interception is `proxy.ts`, **not** `middleware.ts`.
   - `params`, `searchParams`, `cookies()` and `headers()` are async. Await them.
   - No Pages Router, `getServerSideProps`, `getStaticProps`, `next/router` or `next/head`.
-  - Forms send their data with `fetch` to a Route Handler under `/api/...` and navigate afterwards with `useRouter` from `next/navigation` (reference README). Server Actions are not the default; use one only if the user asks for it.
+  - Forms send their data with `fetch` to a Route Handler under `/api/...` and navigate afterwards with `useRouter` from `next/navigation` (reference README). Server Actions are not the default; use one only if the user asks for it. **Exception (D-049):** the Office screens (`/admin`) read in Server Components and decide with the Server Actions of `src/lib/actions/oficina.ts`.
 - **React 19.2**, TypeScript `strict`.
 - **Tailwind CSS v4**, CSS-first. Theme tokens live in `src/app/globals.css`. There is no `tailwind.config.js`; do not create one.
 - **shadcn/ui, style `base-vega`, built on `@base-ui/react` — NOT Radix.**
@@ -111,6 +121,7 @@ All app code lives under `src/`, and the `@/` alias maps to `src/`. Paths writte
 
 - Server Components by default. Add `"use client"` only to the smallest interactive leaf that needs it.
 - **Layers (D-018)**: hook → Route Handler → use case → DAL → Supabase. Each layer calls only the next one. Pages and Client Components never call use cases or the DAL; they use hooks that call `/api/...` (D-017).
+  - **Office exception (D-049):** `src/app/(admin)/` reads in Server Components via `src/lib/admin/datos.ts` (use cases) and mutates with Server Actions (`src/lib/actions/oficina.ts`) that follow the Route Handler rules below. Client Components never call use cases or the DAL.
   - **Route Handler**: validates the input with Zod, gets the user with `getCurrentUser()` (no user → 401), calls one use case, and maps its result to the HTTP status. No business rules. `getCurrentUser()` is the only DAL function it may call.
   - **Use case**: receives the current user and the validated input. It checks the role and the ownership of the resource, applies the business rules, and builds the DTO. It returns either the data or an expected error (`forbidden` → 403, `not_found` → 404, `conflict` → 409, `invalid` → 400) with a short Spanish message the UI can show; unexpected failures are thrown (→ 500). It never imports `next/*`, builds HTTP responses, or uses the Supabase client. Every Route Handler goes through a use case, even a simple one.
   - **DAL**: together with `lib/supabase/`, the only code that uses the Supabase client or reads `process.env`. It uses the session client from `lib/supabase/server.ts`, so RLS applies to every query. It selects only the columns the use case needs and returns typed objects, never Supabase response objects or raw errors. It fetches and saves; it never decides.
@@ -139,11 +150,11 @@ Read `node_modules/next/dist/docs/01-app/02-guides/data-security.md` and `authen
 - **CV files** (RNF1, RF1.2.3):
   - PDF only. Check MIME type **and** the `%PDF-` magic bytes, and enforce the size limit from `docs/DECISIONS.md`.
   - Store in a **private** bucket under `{user_id}/`. Applicants can manage only their own file.
-  - Only admins get access, through short-lived signed URLs generated on the server. There are no public URLs.
+  - Only admins get access, through short-lived signed URLs generated on the server, plus the owning company for applicants referred to its offers (D-044). There are no public URLs.
 - **Data exposure**:
-  - Applicant DTOs never include application status (RF1.2.4).
-  - Company DTOs never include applicant data.
-  - Rejected offers show `rejection_reason` only to the owning company (RF1.3.5).
+  - Applicant DTOs never include application status, the pre-interview or the company's decision (RF1.2.4).
+  - Company DTOs include applicant data **only** for applications in status `derivado` to the company's own offers, and only name, surname, phone, email, trades and a short-lived signed CV URL (D-044). Never the DNI, the pre-interview, other statuses or the pool.
+  - Rejected offers show `motivo_rechazo` only to the owning company (RF1.3.5).
 - **Personal data** (Argentine Law 25.326):
   - Collect the minimum.
   - Never log PII (names, emails, phone numbers, document numbers, CV content).
@@ -171,175 +182,7 @@ Moved to `.agents/rules/comandos-y-git.md` (Antigravity reads at most 24 KB per 
 
 Moved to `.agents/rules/ui-y-accesibilidad.md` (Antigravity reads at most 24 KB per rules file). It is as mandatory as the rest of this file. Es **obligatorio** consultar y seguir siempre la skill `shadcn` (oficial de shadcn/ui) cada vez que se modifique o se cree cualquier elemento de frontend.
 
-### Design System Compliance
-
-**Before creating, modifying, or substantially restructuring ANY UI, the agent MUST read and follow `DESIGN.md`.**
-
-This is mandatory for:
-
-* Pages and screens
-* Layouts and sections
-* Components
-* Modals, dialogs, and drawers
-* Forms and inputs
-* Tables and lists
-* Cards
-* Navigation, headers, and sidebars
-* Empty, loading, and error states
-* Buttons and interactive controls
-* Responsive layouts
-* Any other user-facing visual element
-
-`DESIGN.md` is the source of truth for the product's visual language and design patterns.
-
-**Do not implement UI before consulting `DESIGN.md`.**
-
-### Existing Patterns Before New Patterns
-
-Before inventing a new visual treatment, the agent MUST:
-
-1. Read `DESIGN.md`.
-2. Inspect the existing implementation for similar screens or components.
-3. Identify the closest existing design pattern.
-4. Reuse existing components, tokens, spacing, typography, layouts, and interaction patterns whenever applicable.
-5. Only introduce a new visual pattern when no existing pattern adequately satisfies the requirement.
-
-Do not design every screen independently.
-
-The application must feel like **one coherent product**, not a collection of independently generated pages.
-
-### No Generic AI UI
-
-Do not apply generic AI-generated UI conventions when they are not supported by `DESIGN.md` or the existing product.
-
-In particular, do not arbitrarily introduce:
-
-* Large solid-color backgrounds
-* Low-contrast text
-* Gray text on colored backgrounds when readability suffers
-* Random accent colors
-* Excessive gradients
-* Excessive rounded containers
-* Excessive cards
-* Excessive pills or badges
-* Arbitrary shadows
-* Decorative elements without a clear UX purpose
-* Generic dashboard layouts
-* Visually disconnected sections
-* Default-looking HTML/CSS layouts
-* Unrelated visual styles between pages
-
-Do not optimize for novelty.
-
-**Consistency, hierarchy, readability, and usability take priority over visual novelty.**
-
-### Color and Contrast
-
-Never select foreground and background colors independently.
-
-All text must remain clearly readable against its background.
-
-Before considering a UI implementation complete, verify:
-
-* Heading contrast
-* Body text contrast
-* Secondary text readability
-* Button and interactive-state contrast
-* Disabled-state clarity
-* Focus-state visibility
-* Color consistency with the design system
-
-If `DESIGN.md` defines color tokens, use those tokens.
-
-Do not invent arbitrary colors when an existing design token or pattern exists.
-
-If a color combination looks visually weak or difficult to read, change it. Do not keep it merely because it technically renders.
-
-### Visual Hierarchy
-
-Every screen must have an intentional hierarchy.
-
-The agent must consider:
-
-* Primary vs secondary actions
-* Heading hierarchy
-* Content grouping
-* Spacing and density
-* Alignment
-* Visual weight
-* Information priority
-* Interaction affordances
-
-Do not make every element visually prominent.
-
-Do not use large typography, saturated backgrounds, heavy borders, shadows, or oversized containers merely to make a screen appear "designed."
-
-### Reuse Before Duplication
-
-Prefer existing:
-
-* Components
-* shadcn primitives
-* Design tokens
-* Typography styles
-* Spacing conventions
-* Layout patterns
-* Form patterns
-* Feedback patterns
-* Responsive patterns
-
-over creating new one-off implementations.
-
-If an existing component can be adapted without violating its established purpose, adapt it instead of creating a visually similar duplicate.
-
-### Visual Verification
-
-After implementing a significant UI change, the agent MUST inspect the resulting UI in the browser.
-
-Source-code inspection alone is not sufficient for visual work.
-
-Verify at minimum:
-
-* Desktop presentation
-* Mobile presentation at approximately 390px width
-* Text/background contrast
-* Visual hierarchy
-* Spacing and alignment
-* Component consistency
-* Responsive behavior
-* Console errors
-
-If the rendered result does not visually match `DESIGN.md` or the surrounding application, fix it before considering the task complete.
-
-### Design Drift
-
-Do not gradually introduce new visual conventions through individual tasks.
-
-If the existing design system does not define an appropriate pattern for a requested UI:
-
-1. Inspect similar existing implementations.
-2. Follow the closest established pattern.
-3. If no suitable pattern exists, stop and ask before introducing a fundamentally new visual pattern.
-
-Do not silently establish a new design language.
-
-### UI Definition of Done
-
-A UI task is NOT complete merely because the page renders or the functionality works.
-
-Before reporting completion, confirm that:
-
-* `DESIGN.md` was consulted.
-* Existing patterns were inspected.
-* Existing components were reused where appropriate.
-* Design tokens were respected.
-* Text/background contrast is acceptable.
-* Typography follows the established hierarchy.
-* Spacing and alignment are consistent.
-* The screen visually belongs to the same product as the rest of the application.
-* The UI was visually inspected in the browser.
-* No generic or arbitrary visual treatment was introduced.
-
+Its design-system rules (Design System Compliance to UI Definition of Done) moved there too, unchanged (2026-10-18).
 
 ## 11. Workflow — no vibe coding
 

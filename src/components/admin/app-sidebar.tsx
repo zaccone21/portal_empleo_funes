@@ -26,7 +26,7 @@ type Props = {
 };
 
 /**
- * Sidebar of the Office (D-037): 232 px, collapsible to a 56 px icon rail,
+ * Sidebar of the Office (D-042): 232 px, collapsible to a 56 px icon rail,
  * group labels, one active item and attention counters that only show when
  * the value is greater than 0.
  */

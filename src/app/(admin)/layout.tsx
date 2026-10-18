@@ -8,7 +8,7 @@ import { getCurrentUser } from "@/lib/dal/auth";
 import { getConteosAdmin } from "@/lib/use-cases/oficina";
 
 /**
- * Shell of the Employment Office's screens (D-030, D-037): a 232 px sidebar
+ * Shell of the Employment Office's screens (D-030, D-042): a 232 px sidebar
  * (56 px when collapsed, state kept in a cookie) and the content column.
  * Each screen owns its header and fills the remaining height.
  */

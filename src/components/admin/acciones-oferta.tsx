@@ -26,7 +26,7 @@ type Props = {
 };
 
 /**
- * Actions of an offer inside the panel (RF1.5.3, RF1.5.4; D-037). Approving is
+ * Actions of an offer inside the panel (RF1.5.3, RF1.5.4; D-042). Approving is
  * one click with a toast; rejecting (with the reason the company will read) and
  * closing ask for confirmation. The server decides if the move is still valid:
  * when another operator got there first, the toast says so.
