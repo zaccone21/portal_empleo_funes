@@ -72,6 +72,7 @@ export function PerfilPostulante() {
         email: perfil.email ?? "",
         rubros: perfil.rubros.map((r: { slug: import("@/lib/validation/rubros").Rubro }) => r.slug),
         tieneCv: perfil.tieneCv,
+        experiencia: perfil.experiencia ?? "",
       }
     : null;
 
@@ -94,7 +95,8 @@ export function PerfilPostulante() {
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold">¿Quién ve estos datos?</h2>
           <p className="text-base text-muted-foreground">
-            Solo la Oficina de Empleo. Las empresas <strong>nunca</strong> ven tu información personal, ni cómo te llamás ni tu DNI.
+            La Oficina de Empleo. Si la Oficina te propone para un trabajo, esa empresa ve tu nombre, tu
+            teléfono, tu email, tus rubros y tu CV. Tu DNI <strong>nunca</strong>.
           </p>
         </div>
       </aside>

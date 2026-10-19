@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Postulantes · Oficina de Empleo" };
 
 export default async function AdminPostulantesPage(props: { searchParams: Promise<ParamsBusqueda> }) {
   const params = await props.searchParams;
-  const { postulantes, postulacionesDeSel } = await datosPostulantes(params);
+  const { postulantes, postulacionesDeSel, ofertasParaAsociarSel } = await datosPostulantes(params);
 
   return (
     <VistaPostulantes
@@ -16,6 +16,7 @@ export default async function AdminPostulantesPage(props: { searchParams: Promis
       postulantes={postulantes}
       params={params}
       postulacionesDeSel={postulacionesDeSel}
+      ofertasParaAsociarSel={ofertasParaAsociarSel}
     />
   );
 }

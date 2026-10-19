@@ -36,3 +36,53 @@ export function fechaCorta(iso: string): string {
 export function fechaLarga(iso: string): string {
   return new Intl.DateTimeFormat("es-AR", { timeZone: ZONA, day: "numeric", month: "long" }).format(new Date(iso));
 }
+
+/** Today in Argentine time (yyyy-mm-dd), the default day of a course referral (D-047). */
+export function hoyArgentino(ahora: Date = new Date()): string {
+  return diaArgentino(ahora);
+}
+
+/** "20 de octubre de 2026" for a calendar day (yyyy-mm-dd) that has no time, like a course referral. */
+export function fechaDia(ymd: string): string {
+  return new Intl.DateTimeFormat("es-AR", { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" }).format(
+    new Date(`${ymd}T00:00:00Z`),
+  );
+}
+
+/** "1 de octubre, 10:30": a day with its time, for the pre-interview (D-045). */
+export function fechaHora(iso: string): string {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ZONA,
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(iso));
+}
+
+/**
+ * The value of an `<input type="datetime-local">` (yyyy-mm-ddThh:mm) for an
+ * instant, in Argentine time, so the server and the browser render the same.
+ */
+export function aValorFechaHora(iso: string): string {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: ZONA,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })
+    .format(new Date(iso))
+    .replace(" ", "T");
+}
+
+/**
+ * The instant of a `datetime-local` value typed in Argentine time, as ISO 8601
+ * with offset. Argentina keeps UTC-3 all year (no daylight saving since 2009).
+ */
+export function desdeValorFechaHora(valor: string): string {
+  return `${valor}:00-03:00`;
+}

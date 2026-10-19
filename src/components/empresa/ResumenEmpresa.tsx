@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Building2Icon, PlusIcon } from "lucide-react";
+import { Building2Icon, PlusIcon, UsersIcon } from "lucide-react";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { PedirIngreso } from "@/components/estados/PedirIngreso";
@@ -10,6 +10,7 @@ import { EstadoOferta } from "@/components/ofertas/EstadoOferta";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCandidatosDerivados } from "@/hooks/useCandidatosDerivados";
 import { useOfertasEmpresa } from "@/hooks/useOfertasEmpresa";
 import { usePerfilEmpresa } from "@/hooks/usePerfilEmpresa";
 import { cn } from "@/lib/utils";
@@ -33,20 +34,21 @@ function contarPorEstado(ofertas: OfertaEmpresa[]): Record<Estado, number> {
  *
  * What it shows:
  * - a reminder to fill in the company data while there is none (P10);
+ * - how many referred applicants are waiting for its answer, with a shortcut
+ *   to the offer of the oldest one (D-051, D-054);
  * - the main action, publishing an offer;
  * - how many offers are in each status, and the three latest ones.
- * PROVISIONAL (DT-005): the exact indicators are still open (Q-012); offers
- * by status are the one summary that only uses data the company already has.
- * It never shows anything about applicants: the Office is the intermediary.
+ * Applicants appear only when the Office refers them (D-044).
  *
- * It loads the offers and the profile; if either fails, the error screen
- * retries both.
+ * It loads the offers, the profile and the referred applicants; if any fails,
+ * the error screen retries all of them.
  */
 export function ResumenEmpresa() {
   const ofertas = useOfertasEmpresa();
   const perfil = usePerfilEmpresa();
+  const candidatos = useCandidatosDerivados();
 
-  if (ofertas.loading || perfil.loading) {
+  if (ofertas.loading || perfil.loading || candidatos.loading) {
     return (
       <div aria-busy="true" className="grid gap-6 lg:grid-cols-2">
         <span className="sr-only" role="status">
@@ -58,7 +60,7 @@ export function ResumenEmpresa() {
     );
   }
 
-  if (ofertas.sinAcceso || perfil.sinAcceso) {
+  if (ofertas.sinAcceso || perfil.sinAcceso || candidatos.sinAcceso) {
     return (
       <PedirIngreso
         rol="empresa"
@@ -68,7 +70,7 @@ export function ResumenEmpresa() {
     );
   }
 
-  const error = ofertas.error ?? perfil.error;
+  const error = ofertas.error ?? perfil.error ?? candidatos.error;
   if (error) {
     return (
       <ErrorAlCargar
@@ -77,6 +79,7 @@ export function ResumenEmpresa() {
         onReintentar={() => {
           ofertas.recargar();
           perfil.recargar();
+          candidatos.recargar();
         }}
       />
     );
@@ -84,9 +87,32 @@ export function ResumenEmpresa() {
 
   const lista = ofertas.ofertas ?? [];
   const conteo = contarPorEstado(lista);
+  // The list comes oldest referral first, so the first one without an answer is the most overdue.
+  const sinRespuesta = (candidatos.candidatos ?? []).filter((c) => c.decision === null);
 
   return (
     <div className="flex flex-col gap-8">
+      {sinRespuesta.length > 0 && (
+        <Alert>
+          <UsersIcon aria-hidden="true" />
+          <AlertTitle className="text-base">
+            {sinRespuesta.length === 1
+              ? "1 persona espera tu respuesta"
+              : `${sinRespuesta.length} personas esperan tu respuesta`}
+          </AlertTitle>
+          <AlertDescription className="text-base">
+            La Oficina de Empleo te propuso candidatos. Contanos si los contrataste.
+          </AlertDescription>
+          {/* Outside AlertDescription, which underlines every link inside it. */}
+          <Link
+            href={`/empresa/ofertas?oferta=${encodeURIComponent(sinRespuesta[0].oferta.id)}`}
+            className={cn(buttonVariants(), "col-start-2 mt-2 justify-self-start")}
+          >
+            Ver candidatos
+          </Link>
+        </Alert>
+      )}
+
       {perfil.perfil === null && (
         <Alert>
           <Building2Icon aria-hidden="true" />
@@ -163,9 +189,8 @@ export function ResumenEmpresa() {
       )}
 
       <p className="max-w-2xl text-base text-muted-foreground">
-        La Oficina de Empleo es la que se comunica con los candidatos. Por eso acá no vas a ver
-        datos de postulantes: cuando haya personas para tu búsqueda, la Oficina se contacta con
-        ustedes.
+        La Oficina de Empleo es la que busca a los candidatos. Cuando encuentre personas para una
+        de tus ofertas, te las propone en esa oferta, con su contacto y su CV.
       </p>
     </div>
   );

@@ -9,6 +9,7 @@ import {
   contarVistasPostulantes,
   filtrarPostulantes,
   type FilaPostulante,
+  type OfertaParaAsociar,
 } from "@/lib/admin/postulantes";
 import { leerParam, paginar, urlCon, type ParamsBusqueda } from "@/lib/admin/url";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
@@ -19,13 +20,15 @@ type Props = {
   postulantes: FilaPostulante[];
   params: ParamsBusqueda;
   postulacionesDeSel: PostulacionAdmin[];
+  ofertasParaAsociarSel: OfertaParaAsociar[];
 };
 
 /**
- * Screen 09 (Postulantes): status strip, search by name/DNI/email,
- * filters by trade and CV status, split table + detail panel with tabs.
+ * Screen 09 (Postulantes): status strip, search by name/DNI/email, filters by
+ * several trades (RF1.5.7) and CV status, split table + detail panel with tabs,
+ * where the selected person can be linked to a published offer (RF1.5.8).
  */
-export function VistaPostulantes({ ruta, postulantes, params, postulacionesDeSel }: Props) {
+export function VistaPostulantes({ ruta, postulantes, params, postulacionesDeSel, ofertasParaAsociarSel }: Props) {
   const filtrados = filtrarPostulantes(postulantes, params);
   const pagina = paginar(filtrados, Number(leerParam(params, "pagina")));
   const conteo = contarVistasPostulantes(postulantes);
@@ -36,9 +39,9 @@ export function VistaPostulantes({ ruta, postulantes, params, postulacionesDeSel
 
   const filtros: FiltroToolbar[] = [
     {
-      tipo: "select",
+      tipo: "multi",
       param: "rubro",
-      etiqueta: "Rubro",
+      etiqueta: "Rubros",
       opciones: RUBROS.map((r) => ({ valor: r, etiqueta: NOMBRE_RUBRO[r as Rubro] })),
     },
     {
@@ -84,6 +87,7 @@ export function VistaPostulantes({ ruta, postulantes, params, postulacionesDeSel
                 postulaciones={postulacionesDeSel}
                 tab={tab}
                 hrefTab={(t) => urlCon(ruta, params, { tab: t === "resumen" ? undefined : t })}
+                ofertasParaAsociar={ofertasParaAsociarSel}
               />
             </PanelLateral>
           )

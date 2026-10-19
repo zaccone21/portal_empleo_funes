@@ -42,6 +42,12 @@ export default async function AdminPostulacionDetallePage(props: {
     posicionEnCola = { actual: indiceEnCola + 1, total: colaPorEvaluar.length };
   }
 
+  // D-054: referrals of the same offer still waiting for the company, for the non-blocking warning.
+  const sinRespuestaEnOferta = todas.filter(
+    (p) =>
+      p.id !== id && p.oferta.id === postulacion.oferta.id && p.estado === "derivado" && p.decisionEmpresa === null,
+  ).length;
+
   // Pre-generate CV signed URL if the applicant uploaded one
   let urlCv: string | undefined;
   if (postulacion.postulante.cvNombre) {
@@ -56,6 +62,7 @@ export default async function AdminPostulacionDetallePage(props: {
       anteriorId={anteriorId}
       siguienteId={siguienteId}
       posicionEnCola={posicionEnCola}
+      sinRespuestaEnOferta={sinRespuestaEnOferta}
     />
   );
 }

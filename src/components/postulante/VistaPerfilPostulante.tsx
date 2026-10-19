@@ -13,6 +13,7 @@ type Props = {
     email?: string;
     rubros: Rubro[];
     tieneCv: boolean;
+    experiencia: string;
   };
   onEditar: () => void;
 };
@@ -107,6 +108,20 @@ export function VistaPerfilPostulante({ perfil, onEditar }: Props) {
             <span className="text-sm">No elegiste rubros todavía.</span>
             <Button variant="link" onClick={onEditar} className="h-auto p-0 text-sm font-medium text-primary">
               Elegir rubros
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-sm font-medium text-muted-foreground">Experiencia laboral</h3>
+        {perfil.experiencia ? (
+          <p className="text-base whitespace-pre-line text-foreground">{perfil.experiencia}</p>
+        ) : (
+          <div className="flex items-center gap-3 rounded-lg border border-dashed border-border/60 bg-muted/20 p-4 text-muted-foreground">
+            <span className="text-sm">Todavía no contaste dónde trabajaste.</span>
+            <Button variant="link" onClick={onEditar} className="h-auto p-0 text-sm font-medium text-primary">
+              Agregar experiencia
             </Button>
           </div>
         )}

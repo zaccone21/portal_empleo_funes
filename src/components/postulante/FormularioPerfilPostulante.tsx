@@ -26,6 +26,7 @@ type Props = {
     dni: string;
     telefono: string;
     rubros: Rubro[];
+    experiencia: string;
   } | null;
   onGuardar: (datos: PerfilPostulante) => Promise<boolean>;
   guardando: boolean;
@@ -49,6 +50,7 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
     const resultado = perfilPostulanteSchema.safeParse({
       telefono: formData.get("telefono"),
       rubros: formData.getAll("rubros"),
+      experiencia: formData.get("experiencia") ?? "",
     });
 
     if (!resultado.success) {
@@ -141,6 +143,21 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
         {errores.rubros && (
           <FieldError className="mt-2 text-sm font-medium text-destructive">{errores.rubros[0]}</FieldError>
         )}
+      </FieldSet>
+
+      <FieldSet>
+        <FieldLegend className="mb-4 font-heading font-semibold data-[variant=legend]:text-xl">Experiencia laboral</FieldLegend>
+        <FieldGroup className="gap-6">
+          <CampoTexto
+            id="experiencia"
+            label="¿Dónde trabajaste y qué hacías? (opcional)"
+            descripcion="Por ejemplo: 2 años como ayudante de cocina en un restaurante del centro."
+            defaultValue={perfil?.experiencia}
+            error={errores.experiencia?.[0]}
+            multilinea
+            maxLength={2000}
+          />
+        </FieldGroup>
       </FieldSet>
 
       <div className="flex flex-col gap-3">

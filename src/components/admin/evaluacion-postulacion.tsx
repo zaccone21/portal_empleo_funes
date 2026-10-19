@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { BotonesEvaluacion } from "@/components/admin/acciones-postulacion";
+import { BotonDerivar, BotonesEvaluacion } from "@/components/admin/acciones-postulacion";
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { Ausente, nombreCompleto } from "@/components/admin/celdas";
+import { FormularioPreentrevista } from "@/components/admin/formulario-preentrevista";
 import { PageHeader } from "@/components/admin/page-header";
+import { ResultadoEmpresa } from "@/components/admin/resultado-empresa";
 import { BadgePostulacion } from "@/components/admin/status-badge";
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
 import { fechaLarga } from "@/lib/admin/fechas";
@@ -21,13 +23,18 @@ type Props = {
   anteriorId?: string;
   siguienteId?: string;
   posicionEnCola?: { actual: number; total: number };
+  /** Other applications of the same offer referred to the company and still without its answer (D-054). */
+  sinRespuestaEnOferta?: number;
 };
 
 /**
  * Screen 06: split 1fr 1fr evaluation screen.
- * Left: Offer detail with company data.
- * Right: White CV sheet with contact buttons and document preview.
- * Footer: Keyboard shortcuts (J/K/P/N) and evaluation actions.
+ * Left: Offer detail with company data and one-tap contact.
+ * Right: White CV sheet with contact buttons, the optional pre-interview
+ * (RF1.6.1), the result with the company once referred, and the document preview.
+ * Footer: Keyboard shortcuts (J/K/P/N) and evaluation actions; a pre-selected
+ * application is referred from here (RF1.6.2), with a warning that does not
+ * block when the company has not answered for others of the same offer (D-054).
  */
 export function EvaluacionPostulacion({
   postulacion,
@@ -35,10 +42,13 @@ export function EvaluacionPostulacion({
   anteriorId,
   siguienteId,
   posicionEnCola,
+  sinRespuestaEnOferta = 0,
 }: Props) {
   const router = useRouter();
   const nombre = nombreCompleto(postulacion.postulante) ?? "Sin nombre cargado";
   const whatsapp = enlaceWhatsApp(postulacion.postulante.telefono);
+  const empresa = postulacion.oferta.empresa;
+  const whatsappEmpresa = enlaceWhatsApp(empresa?.contactoTelefono);
   const destinoSiguiente = siguienteId
     ? `/admin/postulaciones/${siguienteId}`
     : "/admin/postulaciones/por-evaluar";
@@ -77,6 +87,26 @@ export function EvaluacionPostulacion({
               {postulacion.oferta.empresa?.razonSocial ?? "Empresa confidencial"}
               {postulacion.oferta.empresa?.cuit && ` · CUIT ${postulacion.oferta.empresa.cuit}`}
             </div>
+            {empresa && (empresa.contactoTelefono || empresa.contactoEmail) && (
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {empresa.contactoNombre && (
+                  <span className="text-[12px] text-muted-foreground">Contacto: {empresa.contactoNombre}</span>
+                )}
+                {empresa.contactoTelefono && (
+                  <BotonAdmin render={<a href={enlaceLlamada(empresa.contactoTelefono)} />}>
+                    Llamar · {formatearTelefonoAR(empresa.contactoTelefono)}
+                  </BotonAdmin>
+                )}
+                {whatsappEmpresa && (
+                  <BotonAdmin render={<a href={whatsappEmpresa} target="_blank" rel="noopener noreferrer" />}>
+                    WhatsApp
+                  </BotonAdmin>
+                )}
+                {empresa.contactoEmail && (
+                  <BotonAdmin render={<a href={`mailto:${empresa.contactoEmail}`} />}>Email</BotonAdmin>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-[12.5px]">
@@ -186,6 +216,15 @@ export function EvaluacionPostulacion({
             </div>
           )}
 
+          {postulacion.derivadaEl && (
+            <section className="flex flex-col gap-2 rounded-[10px] border border-border bg-surface p-3">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase">Resultado con la empresa</span>
+              <ResultadoEmpresa postulacion={postulacion} />
+            </section>
+          )}
+
+          <FormularioPreentrevista postulacionId={postulacion.id} preentrevista={postulacion.preentrevista} />
+
           {/* CV Document preview or message */}
           <div className="flex flex-1 flex-col gap-2 min-h-[350px]">
             <span className="text-[11px] font-medium text-muted-foreground uppercase">Documento adjunto</span>
@@ -257,16 +296,20 @@ export function EvaluacionPostulacion({
           {postulacion.estado === "postulado" ? (
             <BotonesEvaluacion id={postulacion.id} destinoSiguiente={destinoSiguiente} />
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-end gap-3">
               <span className="text-[12px] text-muted-foreground">Estado actual:</span>
               <BadgePostulacion estado={postulacion.estado} />
               {postulacion.estado === "preseleccionado" && (
-                <BotonAdmin
-                  variante="primario"
-                  render={<Link href="/admin/por-comunicar" />}
-                >
-                  Ir a derivaciones →
-                </BotonAdmin>
+                <>
+                  {sinRespuestaEnOferta > 0 && (
+                    <span className="text-[12px] font-medium text-attention-foreground">
+                      {sinRespuestaEnOferta === 1
+                        ? "La empresa todavía no respondió por 1 persona de esta oferta."
+                        : `La empresa todavía no respondió por ${sinRespuestaEnOferta} personas de esta oferta.`}
+                    </span>
+                  )}
+                  <BotonDerivar id={postulacion.id} />
+                </>
               )}
             </div>
           )}

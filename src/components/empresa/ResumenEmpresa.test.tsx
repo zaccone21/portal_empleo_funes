@@ -1,6 +1,7 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
+import type { CandidatoDerivado } from "@/lib/validation/candidatos";
 import type { PerfilEmpresa } from "@/lib/validation/empresa";
 import type { OfertaEmpresa } from "@/lib/validation/ofertas";
 
@@ -9,6 +10,7 @@ import { ResumenEmpresa } from "./ResumenEmpresa";
 const mocks = vi.hoisted(() => ({
   ofertas: [] as OfertaEmpresa[],
   perfil: null as PerfilEmpresa | null,
+  candidatos: [] as CandidatoDerivado[],
 }));
 
 vi.mock("@/hooks/useOfertasEmpresa", () => ({
@@ -23,10 +25,21 @@ vi.mock("@/hooks/useOfertasEmpresa", () => ({
 vi.mock("@/hooks/usePerfilEmpresa", () => ({
   usePerfilEmpresa: () => ({ perfil: mocks.perfil, loading: false, error: null, recargar: vi.fn() }),
 }));
+vi.mock("@/hooks/useCandidatosDerivados", () => ({
+  useCandidatosDerivados: () => ({
+    candidatos: mocks.candidatos,
+    loading: false,
+    error: null,
+    sinAcceso: false,
+    recargar: vi.fn(),
+    reemplazar: vi.fn(),
+  }),
+}));
 
 beforeEach(() => {
   mocks.ofertas = [];
   mocks.perfil = null;
+  mocks.candidatos = [];
 });
 
 afterEach(cleanup);
@@ -62,6 +75,27 @@ test("reminds to fill in the company data while there is none", () => {
 
   expect(screen.getByText("Completá los datos de la empresa")).toBeDefined();
   expect(screen.getByRole("link", { name: "Completar datos" }).getAttribute("href")).toBe("/empresa/perfil");
+});
+
+test("says how many referred applicants wait for an answer and links to the oldest one's offer", () => {
+  const candidato = (id: string, ofertaId: string, decision: CandidatoDerivado["decision"]): CandidatoDerivado => ({
+    postulacionId: id,
+    oferta: { id: ofertaId, titulo: "Oferta (ejemplo)" },
+    derivadoEl: "2026-10-10T12:00:00.000Z",
+    nombre: null,
+    apellido: null,
+    telefono: null,
+    email: null,
+    rubros: [],
+    tieneCv: false,
+    decision,
+    motivoNoContratacion: null,
+  });
+  mocks.candidatos = [candidato("p-1", "o-1", "contratado"), candidato("p-2", "o-2", null), candidato("p-3", "o-3", null)];
+  render(<ResumenEmpresa />);
+
+  expect(screen.getByText("2 personas esperan tu respuesta")).toBeDefined();
+  expect(screen.getByRole("link", { name: "Ver candidatos" }).getAttribute("href")).toBe("/empresa/ofertas?oferta=o-2");
 });
 
 test("always offers to publish an offer", () => {

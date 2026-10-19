@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 
 import { ESTADOS_OFERTA } from "@/features/ofertas/domain/estados";
-import { ESTADOS_POSTULACION } from "@/features/postulaciones/domain/estados";
+import { DECISIONES_EMPRESA, ESTADOS_POSTULACION } from "@/features/postulaciones/domain/estados";
+import type { DecisionEmpresa } from "@/lib/validation/candidatos";
 import type { EstadoOferta } from "@/lib/validation/ofertas";
 import type { EstadoPostulacion } from "@/lib/validation/postulaciones";
 
@@ -70,5 +71,11 @@ export function BadgeEstadoOferta({
 /** Badge of an application status. */
 export function BadgePostulacion({ estado, className }: { estado: EstadoPostulacion; className?: string }) {
   const { etiqueta, tono } = ESTADOS_POSTULACION[estado];
+  return <StatusBadge etiqueta={etiqueta} tono={tono} className={className} />;
+}
+
+/** Badge of the company's answer about a referred application; null means it has not answered (D-054). */
+export function BadgeDecisionEmpresa({ decision, className }: { decision: DecisionEmpresa | null; className?: string }) {
+  const { etiqueta, tono } = DECISIONES_EMPRESA[decision ?? "sin_respuesta"];
   return <StatusBadge etiqueta={etiqueta} tono={tono} className={className} />;
 }

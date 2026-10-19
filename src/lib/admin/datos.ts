@@ -6,7 +6,7 @@ import { getCurrentUser, type CurrentUser } from "@/lib/dal/auth";
 import { buscarEmpresas, buscarPostulantes, verOfertas, verPostulacionesAdmin } from "@/lib/use-cases/oficina";
 import { leerParam, type ParamsBusqueda } from "@/lib/admin/url";
 import type { FilaEmpresa } from "@/lib/admin/empresas";
-import type { FilaPostulante } from "@/lib/admin/postulantes";
+import { ofertasParaAsociar, type FilaPostulante, type OfertaParaAsociar } from "@/lib/admin/postulantes";
 import type { OfertaOficina, PostulacionAdmin } from "@/lib/validation/oficina";
 
 /** The logged-in operator, or a redirect to the Office login (the layout already checks, this is the typed guard). */
@@ -33,19 +33,26 @@ export async function datosOfertas(params: ParamsBusqueda): Promise<{
   return { ofertas };
 }
 
-/** Everything the applicants screen needs: applicants with application counts and history of the selected one. */
+/**
+ * Everything the applicants screen needs: applicants with application counts,
+ * and the history of the selected one with the published offers it can be
+ * linked to (RF1.5.8).
+ */
 export async function datosPostulantes(params: ParamsBusqueda): Promise<{
   postulantes: FilaPostulante[];
   postulacionesDeSel: PostulacionAdmin[];
+  ofertasParaAsociarSel: OfertaParaAsociar[];
 }> {
   const usuario = await operadorActual();
-  const [resPostulantes, resPostulaciones] = await Promise.all([
+  const [resPostulantes, resPostulaciones, resOfertas] = await Promise.all([
     buscarPostulantes(usuario, {}),
     verPostulacionesAdmin(usuario),
+    verOfertas(usuario),
   ]);
 
   const rawPostulantes = resPostulantes.ok ? resPostulantes.datos : [];
   const postulaciones = resPostulaciones.ok ? resPostulaciones.datos : [];
+  const ofertas = resOfertas.ok ? resOfertas.datos : [];
 
   const conteosPorPostulante = new Map<string, number>();
   for (const post of postulaciones) {
@@ -59,8 +66,9 @@ export async function datosPostulantes(params: ParamsBusqueda): Promise<{
 
   const sel = leerParam(params, "sel");
   const postulacionesDeSel = sel ? postulaciones.filter((p) => p.postulante.id === sel) : [];
+  const ofertasParaAsociarSel = sel ? ofertasParaAsociar(ofertas, postulacionesDeSel) : [];
 
-  return { postulantes, postulacionesDeSel };
+  return { postulantes, postulacionesDeSel, ofertasParaAsociarSel };
 }
 
 /** Everything the companies screen needs: companies with offer counts and offers of the selected one. */
