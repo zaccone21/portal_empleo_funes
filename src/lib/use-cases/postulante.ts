@@ -32,11 +32,16 @@ export async function obtenerPerfilPostulante(
   });
 }
 
+/** Saves P03. An empty experience field erases it; leaving it out keeps it (RF1.6.7). */
 export async function actualizarPerfilPostulante(usuario: CurrentUser, perfil: PerfilPostulante): Promise<Resultado<undefined>> {
   const negado = sinPermiso(usuario, "postulante");
   if (negado) return negado;
 
-  await guardarPerfilPostulante(usuario.id, perfil);
+  const { experiencia, ...resto } = perfil;
+  await guardarPerfilPostulante(usuario.id, {
+    ...resto,
+    ...(experiencia !== undefined ? { experiencia: experiencia || null } : {}),
+  });
   return exito(undefined);
 }
 

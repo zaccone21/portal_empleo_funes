@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { fechaSchema } from "@/lib/dal/fecha";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { CvPropio } from "@/lib/validation/cv";
 
@@ -69,6 +70,21 @@ export async function crearUrlFirmadaCv(ruta: string, descargar = false): Promis
   const { data, error } = await supabase.storage.from(BUCKET_CVS).createSignedUrl(ruta, DURACION_URL_FIRMADA, {
     download: descargar,
   });
+
+  if (error) throw new Error("Could not create the CV link.");
+  return data.signedUrl;
+}
+
+/**
+ * The same short-lived link for a company and an applicant referred to its
+ * offer (D-044). The bucket has no policy for companies, so it uses the admin
+ * client (DT-019); the company use case already checked the referral.
+ */
+export async function crearUrlFirmadaCvParaEmpresa(postulanteId: string): Promise<string> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.storage
+    .from(BUCKET_CVS)
+    .createSignedUrl(`${postulanteId}/cv.pdf`, DURACION_URL_FIRMADA);
 
   if (error) throw new Error("Could not create the CV link.");
   return data.signedUrl;

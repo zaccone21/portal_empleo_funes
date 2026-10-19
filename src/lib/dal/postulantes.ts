@@ -7,13 +7,14 @@ import type { PerfilPostulante } from "@/lib/validation/postulante-perfil";
 import { rubroSchema } from "@/lib/validation/rubros";
 
 /** Columns of `postulantes` behind PerfilPostulante (P03). */
-const COLUMNAS_POSTULANTE = "nombre, apellido, telefono, dni, cv_ruta, cv_nombre, cv_tamano_bytes, cv_subido_el";
+const COLUMNAS_POSTULANTE = "nombre, apellido, telefono, dni, experiencia, cv_ruta, cv_nombre, cv_tamano_bytes, cv_subido_el";
 
 const filaPostulanteSchema = z.object({
   nombre: z.string().nullable(),
   apellido: z.string().nullable(),
   telefono: z.string().nullable(),
   dni: z.string().nullable(),
+  experiencia: z.string().nullable(),
   cv_ruta: z.string().nullable(),
   cv_nombre: z.string().nullable(),
   cv_tamano_bytes: z.number().nullable(),
@@ -32,6 +33,7 @@ export type ResultadoLeerPerfilPostulante = {
   apellido: string | null;
   telefono: string | null;
   dni: string | null;
+  experiencia: string | null;
   rubros: { slug: string; nombre: string }[];
   tieneCv: boolean;
 };
@@ -70,6 +72,7 @@ export async function leerPerfilPostulante(postulanteId: string): Promise<Result
     apellido: fila.apellido,
     telefono: fila.telefono,
     dni: fila.dni,
+    experiencia: fila.experiencia,
     rubros,
     tieneCv: fila.cv_ruta !== null,
   };
@@ -77,7 +80,13 @@ export async function leerPerfilPostulante(postulanteId: string): Promise<Result
 
 export type ResultadoGuardarPostulante = { ok: true };
 
-export async function guardarPerfilPostulante(postulanteId: string, perfil: PerfilPostulante): Promise<ResultadoGuardarPostulante> {
+/** What P03 saves. `experiencia` undefined leaves it as it is; null erases it. */
+export type DatosGuardarPerfilPostulante = Omit<PerfilPostulante, "experiencia"> & { experiencia?: string | null };
+
+export async function guardarPerfilPostulante(
+  postulanteId: string,
+  perfil: DatosGuardarPerfilPostulante,
+): Promise<ResultadoGuardarPostulante> {
   const supabase = await createClient();
 
   // 1. Update personal data
@@ -85,6 +94,7 @@ export async function guardarPerfilPostulante(postulanteId: string, perfil: Perf
     .from("postulantes")
     .update({
       telefono: perfil.telefono,
+      ...(perfil.experiencia !== undefined ? { experiencia: perfil.experiencia } : {}),
     })
     .eq("id", postulanteId);
 
@@ -154,6 +164,8 @@ export type ResultadoBusquedaPostulante = {
   email: string | null;
   rubros: string[];
   cvSubidoEl: string | null;
+  /** Work experience (RF1.6.7); only the Office sees it. */
+  experiencia: string | null;
 };
 
 const filaBusquedaSchema = z.object({
@@ -162,6 +174,7 @@ const filaBusquedaSchema = z.object({
   apellido: z.string().nullable(),
   telefono: z.string().nullable().optional(),
   dni: z.string().nullable().optional(),
+  experiencia: z.string().nullable(),
   cv_subido_el: z.string().nullable(),
   perfiles: z.object({ email: z.string().nullable() }).nullable().optional(),
   postulante_rubros: z.array(
@@ -189,6 +202,7 @@ export async function buscarPostulantes(
     apellido,
     telefono,
     dni,
+    experiencia,
     cv_subido_el,
     perfiles ( email ),
     postulante_rubros (
@@ -225,6 +239,7 @@ export async function buscarPostulantes(
       dni: row.dni ?? null,
       email: row.perfiles?.email ?? null,
       cvSubidoEl: row.cv_subido_el,
+      experiencia: row.experiencia,
       rubros,
     };
   });
@@ -245,6 +260,7 @@ export async function leerPerfilPostulanteAdmin(postulanteId: string): Promise<R
     apellido,
     telefono,
     dni,
+    experiencia,
     cv_subido_el,
     perfiles ( email ),
     postulante_rubros (
@@ -270,6 +286,16 @@ export async function leerPerfilPostulanteAdmin(postulanteId: string): Promise<R
     dni: row.dni ?? null,
     email: row.perfiles?.email ?? null,
     cvSubidoEl: row.cv_subido_el,
+    experiencia: row.experiencia,
     rubros,
   };
+}
+
+/** How many applicants have an account (P14, D-051). Office accounts have no row here (docs/modelo_datos.md). */
+export async function contarPostulantes(): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase.from("postulantes").select("id", { count: "exact", head: true });
+
+  if (error) throw new Error("Could not count the applicants.");
+  return count ?? 0;
 }

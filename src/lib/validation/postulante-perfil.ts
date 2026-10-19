@@ -14,6 +14,8 @@ export const perfilPostulanteSchema = z.object({
       "El teléfono tiene que tener al menos 8 dígitos",
     ),
   rubros: z.array(rubroSchema).min(1, "Elegí al menos un rubro"),
+  /** Work experience (RF1.6.7), optional. Left out, it is not changed; empty, it is erased. */
+  experiencia: z.string().trim().max(2000, "Puede tener hasta 2000 caracteres").optional(),
 });
 
 export type PerfilPostulante = z.infer<typeof perfilPostulanteSchema>;
@@ -27,4 +29,5 @@ export const perfilPostulanteRespuestaSchema = z.object({
   email: z.string().nullable().optional(),
   rubros: z.array(z.object({ slug: rubroSchema, nombre: z.string() })),
   tieneCv: z.boolean(),
+  experiencia: z.string().nullable(),
 });
