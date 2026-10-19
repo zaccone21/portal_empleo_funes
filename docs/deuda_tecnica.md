@@ -222,3 +222,12 @@ Por qué: El admin hizo la transición a un estándar SaaS (Fase 5) utilizando D
 Qué lo reemplaza: admin/postulantes/page.tsx usando RegistroPostulantes (Server Component que llama a buscarPostulantes).
 Pérdida de cobertura: Se perdieron las pruebas unitarias que apuntaban a los componentes viejos. Esto se salda testeando de manera unificada (idealmente con e2e) el nuevo RegistroPostulantes.
 *Nota 2026-10-18: `RegistroPostulantes` también quedó sin uso y se borró (DT-015). Este archivo tenía líneas en Windows-1252 y caracteres de control que rompían los textos; se pasó entero a UTF-8.*
+
+### DT-019 — La empresa ve a sus derivados con el cliente admin, sin RLS propia
+Fecha: 2026-10-18 · Origen: D-044, migración `20261018200000`
+Qué:
+- La empresa no tiene políticas RLS sobre `postulaciones` ni `postulantes`, ni sobre el bucket `cvs`. Para mostrarle sus candidatos derivados (P17), informar su decisión y abrir el CV, el caso de uso (`src/lib/use-cases/empresa.ts`) verifica el rol, que la oferta sea suya y que la postulación esté derivada, y el DAL usa el cliente admin (`src/lib/supabase/admin.ts`), que saltea RLS: `src/lib/dal/candidatos.ts` y `crearUrlFirmadaCvParaEmpresa` en `src/lib/dal/cv.ts`. Como segunda línea, la lista de candidatos filtra por empresa en la misma consulta.
+- Si el caso de uso se equivoca en ese control, la base no lo frena: es la única barrera para esas lecturas y escrituras (AGENTS §7 pide dos).
+- La decisión "una sola vez" la controla el caso de uso, y el `update` del DAL solo toca filas sin decisión (así dos respuestas a la vez no ganan las dos). La base no lo impide por sí sola.
+Por qué quedó: una política para la empresa tendría que exponer solo algunas columnas de `postulantes` y de `postulaciones` (no el DNI, la preentrevista ni el estado interno), y RLS filtra filas, no columnas (ver DT-007). Hacerlo bien lleva vistas o funciones propias, y no entra en el plazo de la entrega.
+Cómo se salda: una función `security definer` por operación (por ejemplo `candidatos_derivados(oferta_id)` y `decidir_candidato(postulacion_id, decision, motivo)`) que controle en la base que la oferta es de la empresa con sesión y devuelva o cambie solo las columnas permitidas; el DAL las llama con `rpc` y deja de usar el cliente admin. Sumar su test pgTAP.

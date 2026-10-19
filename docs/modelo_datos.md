@@ -2,12 +2,13 @@
 
 Qué guarda la base del portal, cómo se relacionan las tablas y quién puede ver o cambiar cada cosa. Lo decidieron el usuario y el agente el 2026-09-29 (D-031, D-032).
 
-**Estado:** aplicado en el proyecto de **testing** de Supabase (registro en `docs/migraciones.md`; la migración `20260929130000` está pendiente). El portal ya lee y guarda en esta base (D-035); no hay datos simulados. La primera migración (`profiles`, en inglés) no se modificó: una migración posterior la renombra (D-033).
+**Estado:** aplicado en el proyecto de **testing** de Supabase, incluida la migración del seguimiento `20261018200000` (registro en `docs/migraciones.md`). El portal ya lee y guarda en esta base (D-035); no hay datos simulados. La primera migración (`profiles`, en inglés) no se modificó: una migración posterior la renombra (D-033).
 
 ## Resumen
 
-- **8 tablas:** `perfiles`, `postulantes`, `empresas`, `rubros`, `postulante_rubros`, `ofertas`, `oferta_rubros` y `postulaciones`.
-- **4 tipos de valores fijos (enums):** rol, estado de la oferta, estado de la postulación y origen de la postulación.
+- **9 tablas:** `perfiles`, `postulantes`, `empresas`, `rubros`, `postulante_rubros`, `ofertas`, `oferta_rubros`, `postulaciones` y `derivaciones_curso`.
+- **5 tipos de valores fijos (enums):** rol, estado de la oferta, estado de la postulación, origen de la postulación y decisión de la empresa.
+- **Sin totales guardados:** rechazos, contrataciones, derivaciones y decisiones pendientes se cuentan sobre `postulaciones` cuando se piden (D-046, D-054).
 - **1 bucket privado:** `cvs`, con un PDF por postulante.
 - Todo en español (D-031). Cada tabla tiene RLS desde la migración que la crea (RNF2).
 
@@ -23,6 +24,7 @@ erDiagram
     rubros ||--o{ oferta_rubros : "clasifica"
     postulantes ||--o{ postulaciones : "se postula"
     ofertas ||--o{ postulaciones : "recibe"
+    postulantes ||--o{ derivaciones_curso : "es derivado a"
 
     perfiles {
         uuid id PK "es el id de auth.users"
@@ -40,6 +42,7 @@ erDiagram
         text cv_nombre
         integer cv_tamano_bytes
         timestamptz cv_subido_el
+        text experiencia
     }
     empresas {
         uuid id PK, FK "es el id de perfiles"
@@ -85,6 +88,18 @@ erDiagram
         origen_postulacion origen
         estado_postulacion estado
         timestamptz creada_el
+        timestamptz preentrevista_el
+        text preentrevista_notas
+        timestamptz derivada_el
+        decision_empresa decision_empresa
+        text motivo_no_contratacion
+    }
+    derivaciones_curso {
+        uuid id PK
+        uuid postulante_id FK
+        text curso
+        date derivada_el
+        text notas
     }
 ```
 
@@ -105,6 +120,7 @@ erDiagram
 | `estado_oferta` | `pendiente`, `publicada`, `rechazada`, `cerrada` | Pendiente, Publicada, Rechazada, Cerrada |
 | `estado_postulacion` | `postulado`, `preseleccionado`, `derivado`, `no_apto` | Postulado, Pre-seleccionado, Derivado, No apto |
 | `origen_postulacion` | `postulante`, `oficina` | — (lo usa la Oficina) |
+| `decision_empresa` | `contratado`, `no_contratado` | Contrata, No contrata (D-044) |
 
 ## Tablas
 
@@ -136,10 +152,11 @@ Los datos personales (P03, RF1.2.1) y el CV (P04, RF1.2.3). La fila la crea el t
 | `cv_nombre` | `text` | sí | Hasta 255 (nuevo) | El nombre original del archivo, que muestra P04 |
 | `cv_tamano_bytes` | `integer` | sí | Mayor que 0 | Lo muestran P04 y la Oficina |
 | `cv_subido_el` | `timestamptz` | sí | — | Lo muestra P04 |
+| `experiencia` | `text` | sí | Hasta 2000 (nuevo) | La información laboral que carga en P03 (RF1.6.7) |
 
 - Las cuatro columnas `cv_*` tienen valor todas juntas o ninguna (`check (num_nulls(...) in (0, 4))`). "Tiene CV" (RF1.4.4) es `cv_ruta is not null`.
 - La ruta es siempre `{id}/cv.pdf`: subir otro CV reemplaza el anterior (DT-004). El `check` impide que alguien apunte su fila al archivo de otra persona.
-- Quién puede qué: el postulante lee y edita su fila; la Oficina lee todas. Las empresas no ven nada (intermediación obligatoria).
+- Quién puede qué: el postulante lee y edita su fila; la Oficina lee todas. Las empresas no tienen acceso por RLS: ven nombre, contacto, rubros y CV de los candidatos derivados a sus ofertas a través del caso de uso y el cliente admin (D-044, DT-019).
 
 ### `empresas`: datos de la empresa
 
@@ -236,14 +253,37 @@ Una fila por postulante y oferta (P06, P07, P15, P16; RF1.2.4, RF1.4.3, RF1.5.5,
 | `origen` | `origen_postulacion` | no | Por defecto `postulante` | `oficina` si la asoció la Oficina desde P16 (Q-007). El postulante igual la ve en P07 |
 | `estado` | `estado_postulacion` | no | Por defecto `postulado` | La evaluación de la Oficina (RF1.5.6). **El postulante nunca lo ve** (RF1.2.4, ver DT-007) |
 | `creada_el` | `timestamptz` | no | Por defecto, ahora | La fecha que ve el postulante en P07 |
+| `preentrevista_el` | `timestamptz` | sí | — | Fecha de la preentrevista, opcional (D-045, RF1.6.1) |
+| `preentrevista_notas` | `text` | sí | Hasta 2000 (nuevo); solo con fecha | Notas de la preentrevista; solo la Oficina |
+| `derivada_el` | `timestamptz` | sí | La pone el trigger al pasar a `derivado`; nadie la escribe | Ordena la cola de decisiones pendientes y el historial (D-054) |
+| `decision_empresa` | `decision_empresa` | sí | Solo si fue derivada | Contrata o No contrata (D-044, RF1.6.4). Vacía = pendiente |
+| `motivo_no_contratacion` | `text` | sí | Hasta 500 (nuevo); obligatorio si es `no_contratado`, vacío si no | Por qué no la contrató (RF1.6.4, RF1.6.5) |
 
-- `unique (postulante_id, oferta_id)`: no hay dos postulaciones iguales. Postularse de nuevo no es un error para la persona (D-024): el caso de uso responde como si fuera la primera vez.
+- `unique (postulante_id, oferta_id)`: no hay dos postulaciones iguales. Postularse de nuevo no es un error para la persona (D-024): el caso de uso responde como si fuera la primera vez. Su índice sirve también para buscar por postulante (seguimiento y cantidad de rechazos).
 - Índice `(oferta_id)` para la lista de postulantes de cada oferta en P15.
+- Índice parcial `(derivada_el)` sobre las derivadas sin decisión: la cola "sin respuesta de la empresa" de la Oficina, de la más vieja a la más nueva (D-054).
+- **Se cuenta, no se guarda** (D-046, D-054): rechazo = `decision_empresa = 'no_contratado'`; contratación = `contratado`; pendiente = `estado = 'derivado'` y sin decisión; pasó la preselección = estado `preseleccionado` o `derivado` (un "No apto" puede venir de cualquiera de los dos pasos, así que no se cuenta). Por empresa, lo mismo filtrando por sus ofertas.
+- Las postulaciones derivadas antes de la migración `20261018200000` tomaron `creada_el` como `derivada_el` (no se sabía la fecha real).
 - Nadie borra postulaciones (D-023).
 - Quién puede qué:
   - Postulante: lee las suyas; crea con origen `postulante`, solo a una oferta publicada.
-  - Oficina: lee todas; crea con origen `oficina` (P16); cambia el estado entre cualquiera de los 4 (D-030).
-  - Empresa: nada (intermediación obligatoria, D-023).
+  - Oficina: lee todas; crea con origen `oficina` (P16); cambia el estado entre cualquiera de los 4 (D-030); carga la preentrevista; corrige la decisión de la empresa cuando se lo piden (D-044).
+  - Empresa: nada por RLS. Ve sus derivados e informa la decisión, una sola vez, a través del caso de uso y el cliente admin (D-044, DT-019).
+
+### `derivaciones_curso`: a qué curso se derivó a cada postulante
+
+La Oficina registra a mano que derivó a una persona a un curso de capacitación (P18, P19; RF1.6.6; D-047). Es independiente de las postulaciones; no hay catálogo de cursos.
+
+| Columna | Tipo | ¿Vacía? | Reglas | Para qué |
+|---|---|---|---|---|
+| `id` | `uuid` | no | PK | — |
+| `postulante_id` | `uuid` | no | Referencia `postulantes(id)`; si se borra el postulante, se borra | A quién |
+| `curso` | `text` | no | Hasta 120 (nuevo) | Nombre del curso, como texto |
+| `derivada_el` | `date` | no | Por defecto, hoy | Cuándo se lo derivó |
+| `notas` | `text` | sí | Hasta 1000 (nuevo) | Por qué, o lo que haga falta recordar |
+
+- Índice `(postulante_id)` para la ficha del postulante.
+- Quién puede qué: solo la Oficina lee y crea. Nadie la edita ni la borra.
 
 ## Quién puede qué (resumen de RLS)
 
@@ -257,7 +297,8 @@ Una fila por postulante y oferta (P06, P07, P15, P16; RF1.2.4, RF1.4.3, RF1.5.5,
 | `postulante_rubros` | lee, agrega y quita los suyos | — | lee todos | — |
 | `ofertas` | lee publicadas | lee las suyas, crea, pide cierre | lee todas, publica, rechaza, cierra | lee publicadas |
 | `oferta_rubros` | lee si ve la oferta | lee las suyas, las crea con la oferta | lee todos | lee si ve la oferta |
-| `postulaciones` | lee las suyas, crea a una publicada | — | lee todas, crea desde P16, cambia el estado | — |
+| `postulaciones` | lee las suyas, crea a una publicada | — (ve sus derivados por el caso de uso, D-044) | lee todas, crea desde P16, cambia el estado, carga preentrevista, corrige la decisión | — |
+| `derivaciones_curso` | — | — | lee todas, crea | — |
 
 RLS filtra **filas**, no columnas: quien puede leer una fila puede leer todas sus columnas. Por eso el estado de la postulación queda anotado como deuda (DT-007).
 
@@ -270,6 +311,7 @@ RLS filtra **filas**, no columnas: quien puede leer una fila puede leer todas su
 - **Sincronizar el email** (trigger al cambiar el email en `auth.users`): actualiza `perfiles.email`.
 - **`crear_oferta(titulo, descripcion, requisitos, lugar, jornada, sueldo, rubros)`**: guarda la oferta y sus rubros en una sola transacción y controla que sean de 1 a 3. La empresa sale de la sesión, nunca de un parámetro. Corre con los permisos de quien la llama (`security invoker`), así RLS se aplica igual que en un insert común. El DAL la llama con `rpc` y recibe el id de la oferta nueva.
 - **`antes_de_actualizar_oferta`** (trigger antes de cambiar una oferta): RLS no puede comparar la fila vieja con la nueva, así que este trigger lo hace. Solo la Oficina cambia el estado o el motivo, y al publicar pone `publicada_el` con la hora de la base.
+- **`antes_de_actualizar_postulacion`** (trigger antes de cambiar una postulación): al pasar a `derivado` pone `derivada_el` con la hora de la base. Si el estado cambia después, queda la fecha de la última derivación.
 - **Dar de alta a una operadora** (a mano, RF1.1.4): se crea la cuenta y después, en el editor SQL:
   1. `update perfiles set rol = 'admin' where id = '<id>';`
   2. `delete from postulantes where id = '<id>';` para que no aparezca en el buscador de postulantes (P16).
@@ -297,14 +339,20 @@ La regla de negocio está en el caso de uso (D-018). La base repite las que prot
 | Postularse exige CV (RF1.4.4) | Sí (409) | RLS |
 | No duplicar postulaciones (D-024) | Responde como éxito | `unique` |
 | Cualquier cambio entre los 4 estados de la postulación (D-030) | Sí | — |
+| La empresa decide solo sobre sus derivados, una sola vez (D-044) | Sí (403, 409) | `check` (solo con `derivada_el`) |
+| No contratar exige motivo (RF1.6.4) | Sí (400) | `check` |
+| Las notas de la preentrevista llevan fecha (D-045) | Sí (400) | `check` |
+| Solo la Oficina registra derivaciones a cursos (D-047) | Sí (403) | RLS |
 | Qué campos ve cada rol (DTO) | Sí | RLS por filas (ver DT-007) |
 | DNI y CUIT no repetidos | Mensaje que deriva a la Oficina, sin confirmar de quién es | `unique` |
 | Mínimo de rubros del postulante | Se define al construir P03 | — |
 
 ## Qué queda afuera (y por qué)
 
-- **Registro de quién hizo qué:** solo se guarda el estado actual, sin operadora ni fecha de cada cambio (D-032, DT-006).
-- **Derivaciones a la empresa, ternas, CIT y seguimiento a 60 días:** fuera del MVP (AGENTS §2, Q-013). "Derivado" es solo un estado de la postulación. La cantidad de rechazos se puede contar con `estado = 'no_apto'` cuando haga falta.
+- **Registro de quién hizo qué:** solo se guarda el estado actual, sin operadora ni fecha de cada cambio (D-032, D-052, DT-006). La única fecha de un paso intermedio es `derivada_el` (D-054).
+- **Totales guardados** (`cant_rechazos`, `cant_contrataciones`, …): no hay. Serían copias de lo que ya dicen las postulaciones y se podrían desincronizar; con el volumen del municipio, contar es inmediato. Si una pantalla se pone lenta, se mide y se resuelve con una vista (D-054).
+- **Topes por empresa** (de candidatos visibles o de ofertas abiertas): no hay. Las decisiones pendientes son una cola de trabajo de la Oficina (D-054).
+- **Ternas, CIT y seguimiento a 60 días:** fuera de la entrega (D-052, Q-013). La cantidad de rechazos se cuenta con `decision_empresa = 'no_contratado'` (D-046); el "No apto" de la Oficina no es un rechazo de empresa y se muestra aparte.
 - **Carga asistida por operadoras** (postulantes sin cuenta): fuera del MVP (Q-011). Si entra, `postulantes` necesita un id propio y la cuenta pasa a ser opcional: es una migración.
 - **Rubro de la empresa:** RF1.3.2 no lo pide.
 - **Barrio y fecha de nacimiento del postulante:** no se piden (Q-009).
@@ -332,7 +380,10 @@ Cómo se arman los datos que ya usan las pantallas (`src/lib/validation/`). El c
 | `OfertaEmpresa` | `ofertas` de la empresa + sus `rubros`; `motivoRechazo` solo si está rechazada |
 | `OfertaOficina` | `ofertas` + `empresas` (contacto) + `perfiles.email` de la empresa + cantidad de `postulaciones` |
 | `PostulacionPropia` | `postulaciones` del postulante (`creada_el` → `postuladoEl`) + título y lugar de la oferta; **sin estado** |
-| `PostulacionOficina` | `postulaciones` + `perfiles.email` y el CV de `postulantes` (nombre y teléfono cuando exista P03) |
+| `PostulacionAdmin` | `postulaciones` (con preentrevista, `derivada_el`, decisión y motivo) + la oferta con el contacto de su empresa + el postulante con su email y rubros |
+| `CandidatoDerivado` | `postulaciones` derivadas a una oferta de la empresa + nombre, apellido, teléfono, email y rubros del postulante + si tiene CV; **sin DNI, preentrevista ni estado** (D-044). Lo lee `lib/dal/candidatos.ts` con el cliente admin (DT-019) |
+| Seguimiento (P18) | `PostulacionAdmin` del postulante + `derivaciones_curso` + `ResumenSeguimiento`, contado en el caso de uso (D-046) |
+| `IndicadoresOficina` | Conteos sobre `postulantes`, `ofertas`, `postulaciones` y `derivaciones_curso` (D-051, D-054) |
 | `CvPropio` | `postulantes.cv_nombre`, `cv_tamano_bytes`, `cv_subido_el` |
 | `PerfilEmpresa` | `empresas` |
 | `ResumenOficina` | Conteos sobre `ofertas` y `postulaciones` (provisorio, Q-012) |

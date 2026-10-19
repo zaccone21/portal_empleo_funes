@@ -19,20 +19,20 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 | Cualquier persona | P01 Inicio | `/` | Lista |
 | Cualquier persona | P05 y P06 Ofertas y su detalle | `/ofertas` | Lista |
 | Postulante | P02 Ingresar, crear cuenta, recuperar contraseña | `/postulante/…` | Lista |
-| Postulante | P03 Mi perfil (con el CV, P04) | `/postulante/perfil` | Lista, falta un agregado: la experiencia laboral |
+| Postulante | P03 Mi perfil (con el CV, P04) | `/postulante/perfil` | Hecha, falta revisarla en el navegador con sesión de postulante |
 | Postulante | P07 Mis postulaciones | `/postulante/postulaciones` | Lista |
 | Empresa | P08 Ingresar, registrarse, recuperar contraseña | `/empresa/…` | Lista |
-| Empresa | P09 Inicio de la empresa | `/empresa` | Lista, falta un agregado: candidatos por decidir |
+| Empresa | P09 Inicio de la empresa | `/empresa` | Hecha, falta revisarla en el navegador con sesión de empresa |
 | Empresa | P10 Datos de la empresa | `/empresa/perfil` | Lista |
-| Empresa | P11 Publicar una oferta | `/empresa/ofertas/nueva` | Lista, falta un agregado: abrirse precargada al duplicar |
-| Empresa | P12 Mis ofertas | `/empresa/ofertas` | Lista, falta un agregado: "Duplicar" |
-| Empresa | **P17 Candidatos derivados** | (dentro de "Mis ofertas") | Por hacer |
+| Empresa | P11 Publicar una oferta | `/empresa/ofertas/nueva` | Hecha (precarga rechazadas y cerradas), falta revisarla con sesión de empresa |
+| Empresa | P12 Mis ofertas | `/empresa/ofertas` | Hecha ("Duplicar" en cerradas), falta revisarla con sesión de empresa |
+| Empresa | **P17 Candidatos derivados** | (dentro de "Mis ofertas") | Hecha, falta revisarla con sesión de empresa |
 | Oficina de Empleo | P13 Ingresar | `/admin/ingresar` | Lista |
-| Oficina de Empleo | P14 Dashboard | `/admin` | Lista, falta un agregado: indicadores de la consigna |
-| Oficina de Empleo | P15 Ofertas y postulaciones (colas, registros y evaluación) | `/admin/ofertas…`, `/admin/postulaciones…`, `/admin/por-comunicar` | Lista, falta un agregado: preentrevista |
-| Oficina de Empleo | P16 Postulantes | `/admin/postulantes` | Lista, falta un agregado: filtrar por varios rubros y asociar a una oferta |
-| Oficina de Empleo | **P18 Seguimiento del postulante** | `/admin/postulantes/[id]` | Por hacer |
-| Oficina de Empleo | **P19 Derivaciones a cursos** | dentro de `/admin/postulantes/[id]` | Por hacer |
+| Oficina de Empleo | P14 Dashboard | `/admin` | Lista (indicadores y "Sin respuesta", revisada el 2026-10-18) |
+| Oficina de Empleo | P15 Ofertas y postulaciones (colas, registros y evaluación) | `/admin/ofertas…`, `/admin/postulaciones…`, `/admin/por-comunicar` | Lista (preentrevista y derivar desde la evaluación, revisada el 2026-10-18) |
+| Oficina de Empleo | P16 Postulantes | `/admin/postulantes` | Lista (varios rubros y asociar a una oferta, revisada el 2026-10-18) |
+| Oficina de Empleo | **P18 Seguimiento del postulante** | `/admin/postulantes/[id]` | Lista (revisada el 2026-10-18) |
+| Oficina de Empleo | **P19 Derivaciones a cursos** | dentro de `/admin/postulantes/[id]` | Lista (revisada sin registrar un curso real) |
 | Todos | Menú según quién ingresó, "Salir" | en todas | Lista |
 
 ---
@@ -138,7 +138,7 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 | A. Diagnóstico | Probar lo que hay, de punta a punta | Hecha (2026-10-18) |
 | 0. Pulir | Arreglos del diagnóstico y borrar código sin uso | Hecha (2026-10-18). Faltan correr los e2e |
 | 1. Papeles | Requerimientos, pantallas, decisiones, reglas y este plan alineados con la consigna | Hecha (2026-10-18) |
-| 2. Base de datos | Una migración: preentrevista, decisión de la empresa, experiencia laboral y derivaciones a cursos | Por hacer |
-| 3. Lógica | Casos de uso y rutas de P17, P18 y P19, preentrevista, duplicar y asociar a una oferta | Por hacer |
-| 4. Pantallas | Lo de "Falta" de este documento | Por hacer |
-| 5. Entrega | Vercel, cuentas y datos de demostración, README, ensayo de la demo | Por hacer |
+| 2. Base de datos | Una migración (`20261018200000`): preentrevista, fecha de derivación, decisión de la empresa, experiencia laboral y derivaciones a cursos. Sin totales guardados ni topes (D-054) | Hecha (aplicada en testing el 2026-10-18) |
+| 3. Lógica | Casos de uso y rutas de P17, P18 y P19, preentrevista, duplicar y asociar a una oferta; conteos en el DAL y la cola "sin respuesta de la empresa" en P14 (D-054) | Hecha (2026-10-18), con tests unitarios. Falta: D-055 (no se pide el cierre con candidatos sin respuesta) |
+| 4. Pantallas | Lo de "Falta" de este documento | Hecha (2026-10-18). La Oficina se revisó en el navegador; empresa y postulante, solo con tests: falta verlas con su sesión y a 390 px |
+| 5. Entrega | Vercel, cuentas y datos de demostración, README, ensayo de la demo | En curso: README hecho (2026-10-18). Falta Vercel, cuentas y datos de demostración, plantillas de email (DT-011), correr los e2e y ensayar |

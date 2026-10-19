@@ -150,7 +150,17 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 - **Por comunicar / derivar:** cada fila trae el contacto de la empresa (WhatsApp, teléfono, email) y "Marcar como derivado" una vez que se habló con ella.
 - **Contacto de un toque:** teléfono (`tel:`), WhatsApp y email (`mailto:`) son botones, nunca texto suelto.
 - **Celular:** las tablas se desplazan de costado dentro de su caja, con la primera columna fija; la página no se desborda.
-- **Pendiente (Etapa 4 del plan de cierre):** preentrevista y "Derivar" en la evaluación (RF1.6.1, RF1.6.2), seguimiento con la cantidad de rechazos en la ficha del postulante (P18) y derivaciones a cursos (P19). Siguen estas mismas reglas.
+- **Evaluación (P15), además:** el contacto de la empresa junto a la oferta; la preentrevista opcional (fecha y hora en hora argentina, y notas) en la columna de la persona; una vez derivada, "Resultado con la empresa" (Contratado, No contratado con su motivo, o Sin respuesta y hace cuánto). Con la postulación preseleccionada, "Marcar como derivado" está en la misma pantalla; si la empresa no respondió por otras personas de esa oferta, un aviso lo dice, sin bloquear (D-054).
+- **Panel (P14), además:** una quinta tarjeta "Sin respuesta de la empresa", esas derivaciones también en "Para resolver hoy" (por fecha de derivación), y una fila de indicadores reales en números, sin gráficos (D-051).
+- **Ficha del postulante (P18, P19):** en la página completa, "Seguimiento" con los conteos (los rechazos son solo los "No contrata" de las empresas; el "No apto" va aparte) y, con 3 rechazos o más, un aviso que lleva a la pestaña "Cursos". "Cursos" tiene el formulario (curso, fecha, notas) y el historial. Cada postulación muestra su preentrevista y el resultado con la empresa.
+- **Padrón (P16):** el filtro de rubros es múltiple (alcanza con uno). En el panel y en la ficha, "Asociar a una oferta" con el selector nativo y solo las ofertas publicadas a las que la persona no se postuló.
+
+### Empresa: candidatos derivados (P17, D-044)
+
+- Van **dentro del detalle de cada oferta** publicada o cerrada, en "Candidatos que te propuso la Oficina". No hay pantalla aparte.
+- Una tarjeta "hoja" por persona: nombre, rubros, cuándo la propuso la Oficina, contacto de un toque (llamar, WhatsApp, email) y "Ver CV".
+- La respuesta se da una sola vez: "Sí, la contraté" o "No la contraté". Para "No", el motivo se escribe ahí mismo, en la tarjeta (§5). Las dos se confirman con un `AlertDialog` que dice que no se puede cambiar después.
+- Arriba de la lista, una frase dice a cuántas personas les falta respuesta. En el inicio (P09), un aviso "N personas esperan tu respuesta" lleva a la oferta de la más antigua. No hay topes: se pide el feedback (D-054).
 
 ## 5. Componentes: cuándo usar cada uno
 
@@ -160,6 +170,7 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 | Acción secundaria | `Button variant="outline"` o link | |
 | Botón de ícono (mostrar contraseña, cerrar) | `Button variant="ghost" size="icon"` | Siempre con `aria-label` en español |
 | Navegar a otra pantalla | `<Link>` de `next/link` | Nunca `<a href>` para rutas internas |
+| Link con forma de botón (Duplicar, Llamar, Ver CV) | `<Link>` o `<a>` con `className={buttonVariants(...)}` | No `Button render={<Link />}`: Base UI le pone `role="button"` y el lector de pantalla no lo anuncia como link |
 | Lista con detalle (catálogo de ofertas, ofertas de la empresa, gestión de la Oficina) | Lista + panel de detalle en la misma página, con la selección en la URL (`?oferta=<id>`) | **No usar `Dialog` para contenido largo ni formularios**: en celulares de gama baja un modal es frágil (D-025). En desktop van lado a lado; en mobile el detalle reemplaza a la lista y tiene "Volver" |
 | Confirmar una acción que no se deshace | `AlertDialog` | Por ejemplo, solicitar el cierre de una oferta. Texto corto y dos botones |
 | Pedir un texto antes de una decisión (motivo del rechazo) | El campo aparece ahí mismo, en la barra de acciones | No es un modal: el teclado del celular y el modal se llevan mal (D-025) |
@@ -282,6 +293,7 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 | `FormularioOferta` | `src/components/empresa/` | Publicar una oferta: todos los campos obligatorios salvo el sueldo, de 1 a 3 rubros con casillas, y sin borrador |
 | `OfertasEmpresa` / `TarjetaOfertaEmpresa` / `DetalleOfertaEmpresa` | `src/components/empresa/` | Mis ofertas: lista + detalle con estado, motivo del rechazo y pedido de cierre |
 | `BotonSolicitarCierre` | `src/components/empresa/` | "Pedir el cierre" con confirmación (`AlertDialog`, el único tipo de modal del portal) |
+| `CandidatosDerivados` / `TarjetaCandidato` / `DecisionCandidato` | `src/components/empresa/` | P17: los candidatos que derivó la Oficina, con contacto, CV y la respuesta "contraté / no contraté" (motivo ahí mismo, confirmación con `AlertDialog`) |
 
 ### Oficina de Empleo (P14 a P16, "Mesa de trabajo", D-042)
 
@@ -300,6 +312,8 @@ Todo en `src/components/admin/`. La UI anterior (`components/oficina/`) se borr�
 | `AccionesOferta`, `AccionesPostulacion` | Aprobar / rechazar con motivo / cerrar una oferta; preseleccionar / no apto / derivar una postulación (Server Actions, toast con el resultado) |
 | `EvaluacionPostulacion` | Pantalla 06: oferta a la izquierda y postulante con su CV en un visor a la derecha (J/K para pasar de una a otra) |
 | `ConfirmDialog` | Confirmación corta (`AlertDialog`), con motivo obligatorio cuando corresponde |
+| `FormularioPreentrevista`, `ResultadoEmpresa` | Preentrevista opcional de una postulación; qué pasó después de derivarla (decisión de la empresa o sin respuesta) |
+| `FormularioDerivacionCurso`, `AsociarOferta` | Derivar a un curso desde la ficha (P19); asociar a una persona con una oferta publicada (P16) |
 | `StatusBadge`, `EmptyState`, `BotonAdmin`, `celdas` | Estado con punto de color, estado vacío sobrio, botón de 12,5 px y celdas comunes |
 
 ### CV (P04)
@@ -344,4 +358,7 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
 - **2026-09-29 — "Crear cuenta" también vuelve a la oferta.** Desde "Postularme" sin sesión, tanto "Ingresar" como "Crear cuenta" llevan `?volver=` y, al terminar, devuelven a la oferta. Si Supabase deja entrar directo (confirmación de email apagada), no se muestra "Revisá tu correo". Por qué: que postularse sea un solo camino para quien entra por primera vez (D-034). (§5)
 - **2026-10-15 — Interfaz "Mesa de trabajo" para el panel de administración de la Oficina de Empleo.** Rediseño integral al píxel de la vista de administración según especificaciones y mockups 01 a 10 (D-042). Sidebar colapsable a 56 px con escudo municipal institucional a 30 px, tira de estados con estilo menta y conteos en tiempo real, contenedor split 1fr 500px para tablas y panel de inspección lateral (con hoja de CV y reproductor PDF en evaluación), atajos de teclado (/ para búsqueda, ↑/↓/Enter/Esc para tablas, J/K en evaluación), altura de fila de 40 px estricta, tokens semánticos suaves (attention, success-soft, danger-soft, neutral-soft) en coherencia con el verde primario municipal (#074A1F), y mutaciones con Server Actions y confirmaciones toast. (§4 ter, D-042)
 - **2026-10-18 — En las tablas de la Oficina sin panel, la fila abre su página.** En "Postulaciones" y "Postulaciones nuevas", tocar la fila (o Enter) abre la evaluación, igual que "Ver"/"Evaluar". Antes la fila solo quedaba marcada y no pasaba nada. En "Por comunicar" no: sus filas tienen botones con diálogo. (§4 ter, §10, `AdminTable.hrefFila`)
+- **2026-10-18 — Candidatos derivados dentro de la oferta, sin topes.** La empresa ve y responde por cada persona en el detalle de su oferta; "No la contraté" pide el motivo ahí mismo y las dos respuestas se confirman porque no se cambian. En lugar de limitar candidatos, se muestra cuántas respuestas faltan, también en el inicio. Por qué: D-044 y D-054 (el debate con el usuario: un tope cortaba al candidato que podía servir). (§4 ter, §5)
+- **2026-10-18 — Seguimiento y cursos en la ficha de la Oficina.** Conteos del seguimiento, aviso con 3 rechazos que lleva a "Cursos", preentrevista y resultado con la empresa en la evaluación, tarjeta y tareas "Sin respuesta de la empresa" e indicadores en números en el panel. Por qué: RF1.6.1 a RF1.6.6, D-051 y D-054; el aviso de 3 rechazos es la idea del usuario y solo informa. (§4 ter)
+- **2026-10-18 — Los links con forma de botón conservan el rol de link.** `buttonVariants` sobre `<Link>` o `<a>`, no `Button render`. Por qué: Base UI los anunciaba como botones. (§5)
 - **2026-10-18 — "Mi perfil" sin sesión pide ingresar una sola vez.** El bloque del CV (`SeccionCv`) se muestra solo con sesión de postulante; sin ella, el aviso de los datos personales alcanza. Antes salían dos avisos seguidos con los mismos botones.

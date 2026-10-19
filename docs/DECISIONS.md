@@ -577,6 +577,24 @@ Fecha: 2026-10-18 · Resuelve: Q-006 (para el MVP)
 Decisión: los 11 rubros cargados en `rubros` (`src/lib/validation/rubros.ts`) son la lista definitiva de la entrega. Cambiarla después es una migración nueva (D-033) más el cambio de la constante (DT-009).
 Motivo: el usuario lo confirmó; no hay otra lista de la Municipalidad.
 
+### D-054 — Trazabilidad sin totales guardados y sin topes a la empresa
+Fecha: 2026-10-18 · Amplía: D-044 y D-046
+Decisión:
+- **Se cuenta, no se guarda.** Rechazos, contrataciones, veces que pasó la preselección, derivados por empresa y decisiones pendientes se calculan sobre `postulaciones` cuando se piden. No hay columnas de totales (`cant_rechazos`, etc.) ni tabla de historial.
+- **Una sola fecha nueva:** `postulaciones.derivada_el`, que pone la base cuando la Oficina deriva. Ordena la cola de pendientes y el historial del postulante.
+- **Sin topes ni bloqueos a la empresa:** no se limita cuántos candidatos ve ni cuántas ofertas tiene abiertas. Las derivaciones sin decisión son una **cola de trabajo de la Oficina** en su panel (P14), de la más vieja a la más nueva, y al derivar a una oferta con candidatos sin respuesta la Oficina ve un aviso que no bloquea.
+- Rechazo sigue siendo solo el "No contrata" de la empresa (D-046). El "No apto" de la Oficina se muestra aparte en el seguimiento.
+- Descartado: una fecha de "visto por la empresa", porque no hay una definición clara de qué cuenta como verla.
+Motivo: debate con el usuario. Un total guardado es una copia que se desincroniza, y contar es inmediato con el volumen del municipio; si una pantalla se pone lenta, se mide y se resuelve con una vista. Un tope de candidatos corta al que podía ser el elegido, y bloquear ofertas nuevas no sirve si la empresa busca siempre el mismo puesto. La Oficina insiste con la empresa desde el panel.
+
+### D-055 — No se pide el cierre con candidatos sin respuesta
+Fecha: 2026-10-18 · Resuelve: Q-016 · Amplía: D-054
+Decisión:
+- La empresa **no puede** pedir el cierre de una oferta mientras tenga candidatos derivados sin "Contrata / No contrata".
+- El caso de uso de la solicitud de cierre responde 409 con un mensaje que dice a cuántas personas les falta respuesta; la pantalla lo muestra y lleva a responder.
+Motivo: el usuario lo decidió ("claramente no puede"). Es el momento natural para pedir el feedback: al cerrar, la búsqueda terminó y la empresa ya sabe qué pasó con cada persona.
+*Pendiente de implementar: es lo primero de la próxima sesión.*
+
 ---
 
 ## Abiertas
@@ -640,3 +658,7 @@ El relevamiento describe la derivación al CIT a la 3.ª postulación no exitosa
 
 ### Q-015 — Idioma de los nombres en la base de datos
 *Resuelta por D-031.* ¿Las tablas, columnas y valores de enum van en español (`ofertas`, `postulaciones`, `postulante`) o en inglés (`job_offers`, `applications`, `applicant`)? El usuario dijo que "seguramente" en español, pero no está decidido. La migración de `profiles` (`user_role`, `applicant | company | admin`) usa inglés y **no está aplicada**; se ajusta cuando se decida. *Por ahora no se aplica ninguna migración.*
+
+### Q-016 — Cerrar una oferta con candidatos sin decisión
+¿La empresa puede pedir el cierre de una oferta que tiene candidatos derivados sin "Contrata / No contrata"? Propuesta: no; primero informa las decisiones pendientes, porque es el momento natural para pedir ese feedback (D-054). No cambia el esquema: es una regla del caso de uso de la solicitud de cierre.
+*Resuelta por D-055 (2026-10-18): no puede.*
