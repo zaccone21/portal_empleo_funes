@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeftIcon, Building2Icon, MailIcon, PhoneIcon } from "lucide-react";
+import { ArrowLeftIcon, Building2Icon, MailIcon, PhoneIcon, CheckCircle2Icon, XCircleIcon, ClockIcon } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/dal/auth";
 import { verEmpresa } from "@/lib/use-cases/oficina";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants, Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Detalle de empresa" };
@@ -23,6 +23,7 @@ export default async function AdminEmpresaDetallePage(props: Params) {
   if (!resultado.ok) return notFound();
 
   const p = resultado.datos.perfil;
+  const estado = resultado.datos.estado || "pendiente";
 
   return (
     <div className="flex flex-col h-full bg-muted/20 pb-12">
@@ -42,13 +43,36 @@ export default async function AdminEmpresaDetallePage(props: Params) {
               <ArrowLeftIcon data-icon="inline-start" aria-hidden="true" />
               Volver a la búsqueda
             </Link>
-            <h2
-              id="detalle-titulo"
-              className="text-2xl leading-tight font-semibold sm:text-3xl flex items-center gap-3"
-            >
-              <Building2Icon className="size-8 opacity-80" />
-              {p.razonSocial || "Empresa"}
-            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2
+                id="detalle-titulo"
+                className="text-2xl leading-tight font-semibold sm:text-3xl flex items-center gap-3"
+              >
+                <Building2Icon className="size-8 opacity-80" />
+                {p.razonSocial || "Empresa"}
+              </h2>
+              
+              <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium bg-primary-foreground/10 text-primary-foreground border border-primary-foreground/20 self-start sm:self-auto">
+                {estado === "aprobada" && (
+                  <>
+                    <CheckCircle2Icon className="size-4 text-emerald-400" />
+                    <span>Aprobada</span>
+                  </>
+                )}
+                {estado === "rechazada" && (
+                  <>
+                    <XCircleIcon className="size-4 text-rose-400" />
+                    <span>Rechazada</span>
+                  </>
+                )}
+                {estado === "pendiente" && (
+                  <>
+                    <ClockIcon className="size-4 text-amber-300" />
+                    <span>Pendiente de aprobación</span>
+                  </>
+                )}
+              </div>
+            </div>
             {p.cuit && <p className="text-base text-primary-foreground/80 tabular-nums">CUIT {p.cuit}</p>}
           </header>
           
@@ -87,6 +111,23 @@ export default async function AdminEmpresaDetallePage(props: Params) {
               <p className="text-base whitespace-pre-line text-foreground/90">
                 {p.descripcion || "La empresa no completó una descripción."}
               </p>
+            </section>
+
+            <section className="flex flex-col gap-4 rounded-xl border p-5 bg-card mt-2">
+              <h3 className="text-lg font-semibold text-brand-deep">Acciones de aprobación (Oficina de Empleo)</h3>
+              <p className="text-sm text-muted-foreground">
+                Aprobá o rechazá el registro de esta empresa para permitirle o restringirle la publicación de ofertas laborales en el portal.
+              </p>
+              <div className="flex flex-wrap gap-3 mt-1">
+                <Button variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
+                  <CheckCircle2Icon className="size-4" />
+                  Aprobar Empresa
+                </Button>
+                <Button variant="destructive" className="gap-2">
+                  <XCircleIcon className="size-4" />
+                  Rechazar Empresa
+                </Button>
+              </div>
             </section>
           </div>
         </article>
