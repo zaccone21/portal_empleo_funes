@@ -13,6 +13,11 @@ export const perfilPostulanteSchema = z.object({
       (tel) => tel.replace(/\D/g, "").length >= 8,
       "El teléfono tiene que tener al menos 8 dígitos",
     ),
+  direccion: z
+    .string()
+    .trim()
+    .min(1, "Ingresá una dirección")
+    .max(100, "La dirección no puede superar los 100 caracteres"),
   rubros: z.array(rubroSchema).min(1, "Elegí al menos un rubro"),
 });
 
@@ -23,6 +28,7 @@ export const perfilPostulanteRespuestaSchema = z.object({
   nombre: z.string().nullable(),
   apellido: z.string().nullable(),
   telefono: z.string().nullable(),
+  direccion: z.string().nullable().optional(),
   dni: z.string().nullable(),
   email: z.string().nullable().optional(),
   rubros: z.array(z.object({ slug: rubroSchema, nombre: z.string() })),

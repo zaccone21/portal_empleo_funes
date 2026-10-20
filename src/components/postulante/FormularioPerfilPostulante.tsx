@@ -13,8 +13,8 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldLegend,
   FieldSet,
+  FieldLegend,
 } from "@/components/ui/field";
 import { perfilPostulanteSchema, type PerfilPostulante } from "@/lib/validation/postulante-perfil";
 import { NOMBRE_RUBRO, RUBROS, type Rubro } from "@/lib/validation/rubros";
@@ -25,6 +25,7 @@ type Props = {
     apellido: string;
     dni: string;
     telefono: string;
+    direccion?: string;
     rubros: Rubro[];
   } | null;
   onGuardar: (datos: PerfilPostulante) => Promise<boolean>;
@@ -48,6 +49,7 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
     
     const resultado = perfilPostulanteSchema.safeParse({
       telefono: formData.get("telefono"),
+      direccion: formData.get("direccion"),
       rubros: formData.getAll("rubros"),
     });
 
@@ -90,6 +92,18 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
             type="tel"
             autoComplete="tel"
             maxLength={30}
+            obligatorio
+          />
+
+          <CampoTexto
+            id="direccion"
+            label="Dirección"
+            descripcion="Calle, número o zona en Funes, por ejemplo: San José 1500."
+            defaultValue={perfil?.direccion}
+            error={errores.direccion?.[0]}
+            type="text"
+            autoComplete="street-address"
+            maxLength={100}
             obligatorio
           />
         </FieldGroup>

@@ -5,7 +5,8 @@ import { NOMBRE_RUBRO, type Rubro } from "@/lib/validation/rubros";
 import { IconoRubro } from "./IconoRubro";
 
 type Props = {
-  lugar: string;
+  lugar?: string;
+  direccion?: string;
   jornada: string;
   /** The offer's trades (1 to 3); shown first when given (D-029, D-032). */
   rubros?: Rubro[];
@@ -22,7 +23,9 @@ type Props = {
  * Several trades go on one line, joined with "·" and with the first trade's
  * icon, so a card does not grow on a phone.
  */
-export function DatosOferta({ lugar, jornada, rubros, sueldo }: Props) {
+export function DatosOferta({ lugar, direccion, jornada, rubros, sueldo }: Props) {
+  const ubicacion = direccion || lugar || "Funes";
+
   return (
     <ul className="flex flex-col gap-1.5 text-base">
       {rubros && rubros.length > 0 && (
@@ -38,7 +41,7 @@ export function DatosOferta({ lugar, jornada, rubros, sueldo }: Props) {
         <MapPinIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
         <span>
           <span className="sr-only">Lugar: </span>
-          {lugar}
+          {ubicacion}
         </span>
       </li>
       <li className="flex items-start gap-2">
