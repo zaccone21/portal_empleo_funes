@@ -102,9 +102,11 @@ Tamaños:
   - La acción principal del rol va pintada en verde (el "Publicar" de la empresa).
   - Sin sesión: "Ofertas", "Ingresar" y "Crear cuenta".
 - **Lo que se fija abajo** (por ejemplo "Postularme") se apoya sobre esa barra usando `--alto-barra-inferior`. Lo definen los layouts de cada área y vale 0 desde `lg`.
-- **Arriba**, en todas las pantallas internas: la marca (logo de la Municipalidad en blanco + "Portal de Empleo") y la cuenta.
-  - En desktop, el menú va también arriba, con subrayado en la página actual.
-  - **"Salir" es un botón visible con ícono y palabra**, no un menú escondido.
+- **Arriba**, en todas las pantallas internas: la marca (logo de la Municipalidad en blanco + "Portal de Empleo") y la cuenta, alineadas con el contenido (`max-w-6xl`).
+  - En desktop, el menú completo del rol va también arriba, con subrayado menta en la página actual, y la acción principal ("Publicar") como botón menta. La barra queda fija arriba desde `lg` (D-056).
+  - **"Salir" es un botón visible con ícono y palabra**, no un menú escondido, también en el celular. Desde `xl`, a su izquierda, quién ingresó: inicial en un azulejo menta, rol y email.
+  - Sin sesión, a la derecha: "Ingresar" (vuelve a la pantalla) y "Crear cuenta" o "Registrar mi empresa" en menta.
+  - "Ayuda" (P20) está en el menú del postulante, de la empresa y de quien no ingresó; nunca en el de la Oficina.
 - **Llevar a la persona de vuelta a donde estaba.** Si una pantalla pide ingresar, el link lleva `?volver=` con esa pantalla. Si falta el CV para postularse, "Mi CV" ofrece "Volver a la oferta".
 - **Mostrar el estado que la persona iría a buscar:** "Te postulaste" en la oferta, "Subí tu CV" arriba de las ofertas.
 - **Links cruzados** para quien entró por la puerta equivocada ("¿Sos una empresa? Ingresá acá").
@@ -122,6 +124,12 @@ La portada sirve para **empezar a buscar trabajo sin leer nada más**. Orden, de
 4. **Cómo postularte**: 3 pasos numerados (es una secuencia real: cuenta, CV, postulación) y "Crear mi cuenta".
 5. **Para empresas**: bloque verde con mosaico (solo desde `sm`) y dos botones: "Registrar mi empresa" y "Ya tengo cuenta".
 6. **Pie**: logo en color y el ingreso de la Oficina de Empleo, discreto, porque lo usan pocas personas.
+
+### Ayuda (P20, D-057)
+
+- Arriba, dos tarjetas "hoja" que son links: "Busco trabajo" y "Tengo una empresa" (`?para=empresa`). La elegida va con fondo menta claro, borde verde y su ícono en verde lleno.
+- Debajo, en dos columnas desde `lg`: la **guía paso a paso** (pasos numerados con ícono en azulejo verde, unidos por una línea fina, y al final de cada paso un link a su pantalla) y las **preguntas frecuentes** en un `Accordion` dentro de una tarjeta blanca, con texto de 16 px.
+- Al final, un bloque menta "¿Te quedó alguna duda?" que manda a la Oficina en persona.
 
 ### Catálogo de ofertas (P05 y P06, D-029)
 
@@ -243,9 +251,9 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 |---|---|---|
 | `MosaicoOficios` | `src/components/marca/MosaicoOficios.tsx` | El mural de azulejos de oficios (decorativo) |
 | `MarcaPortal` | `src/components/marca/MarcaPortal.tsx` | Logo de la Municipalidad en blanco + "Portal de Empleo" en una fila; lleva al inicio |
-| `EncabezadoPortal` | `src/components/marca/EncabezadoPortal.tsx` | Barra superior: marca, menú del rol (solo desktop) y la cuenta |
+| `EncabezadoPortal` | `src/components/marca/EncabezadoPortal.tsx` | Barra superior: marca, menú completo del rol con "Ayuda" (solo desktop, fija desde `lg`) y la cuenta |
 | `BarraInferior` | `src/components/marca/BarraInferior.tsx` | Menú del celular, fijo abajo, con ícono y palabra |
-| `BotonCuenta` | `src/components/marca/BotonCuenta.tsx` | "Salir" visible con sesión; "Ingresar" y "Crear cuenta" sin sesión (desktop) |
+| `BotonCuenta` | `src/components/marca/BotonCuenta.tsx` | Con sesión: quién ingresó (desde `xl`) y "Salir" siempre visible; sin sesión: "Ingresar" y el registro del área (desktop) |
 | `itemsNavegacion` | `src/components/marca/itemsNavegacion.ts` | Qué opciones tiene el menú de cada rol, en un solo lugar |
 | `LogoMunicipalidad` | `src/components/marca/LogoMunicipalidad.tsx` | Logo de la Municipalidad, claro o en color |
 | `ProveedorSesion` | `src/components/sesion/ProveedorSesion.tsx` | Lee la sesión una vez por área; se usa con `useSesion` |
@@ -269,6 +277,16 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 | `ComoFunciona` | `src/components/inicio/` | Los 3 pasos para postularse y "Crear mi cuenta" |
 | `ParaEmpresas` | `src/components/inicio/` | Bloque verde para empresas: registrarse o ingresar |
 | `PieInicio` | `src/components/inicio/` | Logo en color y el ingreso de la Oficina de Empleo |
+
+### Ayuda (P20)
+
+| Componente | Archivo | Qué es |
+|---|---|---|
+| `SelectorPublico` | `src/components/ayuda/` | Las dos tarjetas-link que eligen la guía (postulante o empresa) |
+| `GuiaPasos` | `src/components/ayuda/` | Pasos numerados con ícono, texto y link a la pantalla de cada paso |
+| `PreguntasFrecuentes` | `src/components/ayuda/` | Acordeón de preguntas y respuestas |
+| `ContactoAyuda` | `src/components/ayuda/` | Cierre: la Oficina ayuda en persona |
+| `contenido.ts` | `src/components/ayuda/` | Todo el texto de la ayuda, con la regla de la que sale cada respuesta |
 
 ### Ofertas y postulaciones (P05, P06, P07)
 
@@ -366,3 +384,5 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
 - **2026-10-18 — "Mi perfil" sin sesión pide ingresar una sola vez.** El bloque del CV (`SeccionCv`) se muestra solo con sesión de postulante; sin ella, el aviso de los datos personales alcanza. Antes salían dos avisos seguidos con los mismos botones.
 - **2026-10-20 — Acciones de las tablas de la Oficina como botón chico.** "Resolver", "Evaluar" y "Ver" dejan de ser texto con "→" y pasan a `EnlaceAccion` (borde, chevron y fondo menta al pasar el mouse; verde lleno en la acción de cada cola). El paginado usa chevrons. `BotonAdmin` fija el color del texto al pasar el mouse: antes el botón verde quedaba con texto gris oscuro. Por qué: el usuario marcó el botón y su hover como malos; "→" al final está en "Qué evitar" (§0). (§10)
 - **2026-10-20 — La evaluación muestra la empresa completa y suma atajos.** Tarjeta de la empresa con descripción, contacto y "Ver ficha"; requisitos de la oferta; cómo viene la oferta; "Ver ficha" de la persona y "Copiar datos para la empresa". El texto copiado no viaja en el link de WhatsApp: la operadora lo pega donde quiera. Por qué: el usuario pidió los datos de la empresa en la postulación y más herramientas para la Oficina; mandar datos personales dentro de una URL a un servicio externo está prohibido (§7 de AGENTS.md). (§4 ter)
+- **2026-10-20 — Barra de navegación completa y "Salir" a la vista.** En la computadora, el menú completo del rol con "Ayuda", "Publicar" como botón menta, la barra fija arriba y alineada con el contenido; a la derecha, quién ingresó y "Salir" (sin menú desplegable). En el celular, "Salir" arriba y 4 opciones abajo. Por qué: el usuario la marcó como "malísima, con 2 botones cualquiera". Reemplaza D-040. (§4 bis, D-056)
+- **2026-10-20 — Ayuda (P20).** Tarjetas para elegir el público, guía numerada con links a cada pantalla y preguntas frecuentes en acordeón. Por qué: pedido del usuario; guías para quien tiene poca práctica digital. (§4 ter, D-057)

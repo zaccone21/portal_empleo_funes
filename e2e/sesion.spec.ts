@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { completarIngreso, credenciales, ingresarComo } from "./ayudas";
+import { completarIngreso, ingresarComo } from "./ayudas";
 
 // Session-aware navigation (D-028) with Supabase Auth and the test accounts.
 
@@ -11,10 +11,8 @@ test("a company lands on its home, sees its menu and can log out", async ({ page
   // On phones the menu is the bottom bar; on desktop, the top bar. Only one is visible.
   await expect(page.getByRole("link", { name: "Publicar", exact: true }).filter({ visible: true })).toHaveCount(1);
 
-  // The account menu shows who is logged in and holds "Salir" (D-040).
-  await page.getByRole("button", { name: "Mi empresa" }).click();
-  await expect(page.getByRole("menu").getByText(credenciales("empresa").email)).toBeVisible();
-  await page.getByRole("menuitem", { name: "Salir" }).click();
+  // "Salir" is always visible in the top bar, on phones too (D-056).
+  await page.getByRole("button", { name: "Salir" }).click();
   await expect(page).toHaveURL("/empresa/ingresar");
   await expect(page.getByText("Saliste de tu cuenta.")).toBeVisible();
 });

@@ -472,6 +472,7 @@ Decisión: el panel de la Oficina (P14) muestra, además de los indicadores, las
 *Registrada el 2026-10-18: estaba anotada al final de "Abiertas" como "Dashboard P13"; es P14.*
 
 ### D-040 — Menú de la cuenta
+*Reemplazada por D-056 (2026-10-20).*
 Fecha: 2026-10-02 · Reemplaza: en D-028, que "Salir" es un botón siempre visible.
 Decisión: en desktop, la barra superior tiene un botón con el nombre del área ("Mi perfil", "Mi empresa") que abre un menú con el perfil y "Salir". En el celular el perfil sigue en la barra de abajo.
 *Registrada el 2026-10-18: estaba anotada al final de "Abiertas", sin formato.*
@@ -594,6 +595,23 @@ Decisión:
 - El caso de uso de la solicitud de cierre responde 409 con un mensaje que dice a cuántas personas les falta respuesta; la pantalla lo muestra y lleva a responder.
 Motivo: el usuario lo decidió ("claramente no puede"). Es el momento natural para pedir el feedback: al cerrar, la búsqueda terminó y la empresa ya sabe qué pasó con cada persona.
 *Implementada el 2026-10-20 en `pedirCierre` (`src/lib/use-cases/empresa.ts`), con tests. El mensaje dice a cuántas personas les falta respuesta y dónde responder: la lista de candidatos está en el mismo detalle de la oferta.*
+
+### D-056 — Barra de navegación con el menú completo y "Salir" a la vista
+Fecha: 2026-10-20 · Reemplaza: D-040 (menú de la cuenta) · Amplía: D-028
+Decisión:
+- **Computadora:** la barra superior, alineada con el contenido, muestra el menú completo del rol: postulante "Inicio, Ofertas, Postulaciones, Mi perfil, Ayuda"; empresa "Inicio, Mis ofertas, Publicar (botón menta), Mi empresa, Ayuda". Sin sesión: "Inicio, Ofertas, Para empresas, Ayuda", con "Ingresar" y "Crear cuenta" (o "Registrar mi empresa") a la derecha. Desde `lg` queda fija arriba al hacer scroll.
+- **Cuenta:** ya no hay menú desplegable. A la derecha, quién ingresó (inicial, rol y email, desde `xl`) y "Salir" con ícono y palabra, siempre visible, también en el celular (vuelve a la regla de D-028).
+- **Celular:** la barra de abajo sigue con 4 opciones como máximo: postulante "Ofertas, Postulaciones, Mi perfil, Ayuda"; empresa "Inicio, Mis ofertas, Publicar, Mi empresa" (su ayuda está en la barra de la computadora y en `/ayuda`); sin sesión "Ofertas, Ingresar, Crear cuenta, Ayuda".
+Motivo: el usuario dijo que la barra era "malísima, con 2 botones cualquiera": en la computadora el postulante veía solo "Ofertas" y "Postulaciones", y el perfil y "Salir" quedaban escondidos en un menú. La Oficina no cambia: usa su menú lateral (D-042).
+
+### D-057 — Ayuda para postulantes y empresas (P20)
+Fecha: 2026-10-20
+Decisión:
+- Nueva pantalla pública `/ayuda` (P20) con dos públicos que se eligen con tarjetas-link (`?para=empresa`): una guía numerada paso a paso, con un link a la pantalla de cada paso, y preguntas frecuentes en acordeón. Una empresa con sesión entra directo a su guía.
+- La Oficina no tiene guía ni ve "Ayuda" en su menú.
+- Las respuestas describen lo que el portal hace hoy, con los nombres de los botones, y salen de decisiones registradas (D-023, D-037, D-044, D-048, D-055, Q-005). No se publican teléfono, dirección ni horario de la Oficina hasta que la Municipalidad los confirme.
+- El texto vive en `src/components/ayuda/contenido.ts`: si cambia una de esas reglas, se actualiza ahí.
+Motivo: pedido del usuario ("una sección de FAQ con guías para que el usuario sepa cómo operar, cualquier usuario menos admin"). Muchas personas usan el portal con poca práctica digital (RNF3).
 
 ---
 
