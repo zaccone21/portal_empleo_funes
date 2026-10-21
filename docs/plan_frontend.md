@@ -16,7 +16,8 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 
 | Usuario | Pantalla | Dirección | Estado |
 |---|---|---|---|
-| Cualquier persona | P01 Inicio | `/` | Lista |
+| Cualquier persona | P01 Inicio | `/` | Cifras, carrusel, rubros y confianza (2026-10-20). Falta aplicar la migración `20261020220000` y revisarla sin sesión |
+| Cualquier persona | **P20 Ayuda** | `/ayuda` | Hecha (2026-10-20), revisada en el navegador con sesión de empresa |
 | Cualquier persona | P05 y P06 Ofertas y su detalle | `/ofertas` | Lista |
 | Postulante | P02 Ingresar, crear cuenta, recuperar contraseña | `/postulante/…` | Lista |
 | Postulante | P03 Mi perfil (con el CV, P04) | `/postulante/perfil` | Hecha, falta revisarla en el navegador con sesión de postulante |
@@ -33,15 +34,20 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 | Oficina de Empleo | P16 Postulantes | `/admin/postulantes` | Lista (varios rubros y asociar a una oferta, revisada el 2026-10-18) |
 | Oficina de Empleo | **P18 Seguimiento del postulante** | `/admin/postulantes/[id]` | Lista (revisada el 2026-10-18) |
 | Oficina de Empleo | **P19 Derivaciones a cursos** | dentro de `/admin/postulantes/[id]` | Lista (revisada sin registrar un curso real) |
-| Todos | Menú según quién ingresó, "Salir" | en todas | Lista |
+| Oficina de Empleo | **P21 Equipo** | `/admin/equipo` | Hecha (2026-10-20), falta revisarla con sesión de la Oficina y crear una cuenta real |
+| Todos | Menú según quién ingresó, "Salir" | en todas | Rehecho el 2026-10-20 (D-056); revisado con sesión de empresa, en escritorio y a 390 px |
 
 ---
 
 ## Cualquier persona (sin cuenta)
 
 ### P01 — Inicio (`/`)
-- **Qué hace:** buscador "¿Qué trabajo buscás?", rubros como atajos, las 4 ofertas más recientes, "Cómo postularte" en 3 pasos, un bloque para empresas y el ingreso de la Oficina abajo. Una empresa o la Oficina con sesión van directo a su inicio.
-- **Falta:** nada para la entrega. *Ref.: D-029.*
+- **Qué hace:** buscador "¿Qué trabajo buscás?", rubros como atajos, "El portal en números" (totales reales con contador), las 8 ofertas más recientes en un carrusel, los 11 rubros con su cantidad de ofertas, "Un servicio de la Municipalidad de Funes", "Cómo postularte" en 3 pasos, un bloque para empresas y, abajo, la ayuda y el ingreso de la Oficina. Una empresa o la Oficina con sesión van directo a su inicio.
+- **Falta:** aplicar la migración `20261020220000_estadisticas_publicas.sql`; sin ella no aparecen las cifras. Revisarla sin sesión. *Ref.: D-029, D-059.*
+
+### P20 — Ayuda (`/ayuda`) *(nueva, 2026-10-20)*
+- **Qué hace:** elegir "Busco trabajo" o "Tengo una empresa"; guía paso a paso con link a cada pantalla y preguntas frecuentes en acordeón. La Oficina no tiene guía.
+- **Falta:** nada. *Ref.: D-057.*
 
 ### P05 y P06 — Ofertas y su detalle (`/ofertas`)
 - **Qué hace:** catálogo de ofertas publicadas con búsqueda sin tildes, filtro por rubro y orden. El detalle se abre al lado (en el celular, en lugar de la lista) con "Postularme". Los filtros quedan en la dirección.
