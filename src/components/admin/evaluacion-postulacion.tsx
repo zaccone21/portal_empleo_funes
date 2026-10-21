@@ -3,12 +3,16 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeftIcon, ChevronRightIcon, CopyIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { BotonDerivar, BotonesEvaluacion } from "@/components/admin/acciones-postulacion";
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { Ausente, nombreCompleto } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { FormularioPreentrevista } from "@/components/admin/formulario-preentrevista";
 import { PageHeader } from "@/components/admin/page-header";
+import { TarjetaEmpresa } from "@/components/admin/panel-detalle";
 import { ResultadoEmpresa } from "@/components/admin/resultado-empresa";
 import { BadgePostulacion } from "@/components/admin/status-badge";
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
@@ -25,11 +29,31 @@ type Props = {
   posicionEnCola?: { actual: number; total: number };
   /** Other applications of the same offer referred to the company and still without its answer (D-054). */
   sinRespuestaEnOferta?: number;
+  /** How this offer is going, counted on its applications: the context to decide this one. */
+  resumenOferta?: { postulaciones: number; derivadas: number; contratadas: number };
+  /** How many other applications this person has, to open their file when there are. */
+  otrasPostulaciones?: number;
 };
+
+/** Plain text with the applicant's data, for the operator to paste where they talk to the company. */
+function textoParaEmpresa(postulacion: PostulacionAdmin, nombre: string): string {
+  const { telefono, email, rubros } = postulacion.postulante;
+  return [
+    nombre,
+    telefono ? `Teléfono: ${formatearTelefonoAR(telefono)}` : null,
+    email ? `Email: ${email}` : null,
+    rubros.length > 0 ? `Oficios: ${rubros.map((r) => NOMBRE_RUBRO[r as Rubro] ?? r).join(", ")}` : null,
+    `Oferta: ${postulacion.oferta.titulo}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 
 /**
  * Screen 06: split 1fr 1fr evaluation screen.
- * Left: Offer detail with company data and one-tap contact.
+ * Left: Offer detail with how it is going (applications, referrals, hires),
+ * its requirements, and the company card with one-tap contact and a link to
+ * its file.
  * Right: White CV sheet with contact buttons, the optional pre-interview
  * (RF1.6.1), the result with the company once referred, and the document preview.
  * Footer: Keyboard shortcuts (J/K/P/N) and evaluation actions; a pre-selected
@@ -43,12 +67,12 @@ export function EvaluacionPostulacion({
   siguienteId,
   posicionEnCola,
   sinRespuestaEnOferta = 0,
+  resumenOferta,
+  otrasPostulaciones = 0,
 }: Props) {
   const router = useRouter();
   const nombre = nombreCompleto(postulacion.postulante) ?? "Sin nombre cargado";
   const whatsapp = enlaceWhatsApp(postulacion.postulante.telefono);
-  const empresa = postulacion.oferta.empresa;
-  const whatsappEmpresa = enlaceWhatsApp(empresa?.contactoTelefono);
   const destinoSiguiente = siguienteId
     ? `/admin/postulaciones/${siguienteId}`
     : "/admin/postulaciones/por-evaluar";
@@ -67,6 +91,15 @@ export function EvaluacionPostulacion({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [anteriorId, siguienteId, router]);
 
+  async function copiarDatos() {
+    try {
+      await navigator.clipboard.writeText(textoParaEmpresa(postulacion, nombre));
+      toast.success("Datos copiados. Pegalos en el mensaje a la empresa.");
+    } catch {
+      toast.error("No pudimos copiar los datos. Copialos a mano desde esta pantalla.");
+    }
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-3 min-h-0">
       <PageHeader
@@ -79,35 +112,28 @@ export function EvaluacionPostulacion({
         {/* Left column: Offer detail */}
         <section className="flex flex-col gap-4 overflow-y-auto rounded-[10px] border border-border bg-card p-5">
           <div className="flex flex-col gap-1 border-b border-border pb-3">
-            <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-              Oferta laboral
-            </span>
-            <h2 className="text-[20px] font-bold text-foreground leading-snug">{postulacion.oferta.titulo}</h2>
-            <div className="text-[13px] text-muted-foreground">
-              {postulacion.oferta.empresa?.razonSocial ?? "Empresa confidencial"}
-              {postulacion.oferta.empresa?.cuit && ` · CUIT ${postulacion.oferta.empresa.cuit}`}
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                Oferta laboral
+              </span>
+              <EnlaceAccion href={`/admin/ofertas/${postulacion.oferta.id}`}>Ver oferta</EnlaceAccion>
             </div>
-            {empresa && (empresa.contactoTelefono || empresa.contactoEmail) && (
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                {empresa.contactoNombre && (
-                  <span className="text-[12px] text-muted-foreground">Contacto: {empresa.contactoNombre}</span>
-                )}
-                {empresa.contactoTelefono && (
-                  <BotonAdmin render={<a href={enlaceLlamada(empresa.contactoTelefono)} />}>
-                    Llamar · {formatearTelefonoAR(empresa.contactoTelefono)}
-                  </BotonAdmin>
-                )}
-                {whatsappEmpresa && (
-                  <BotonAdmin render={<a href={whatsappEmpresa} target="_blank" rel="noopener noreferrer" />}>
-                    WhatsApp
-                  </BotonAdmin>
-                )}
-                {empresa.contactoEmail && (
-                  <BotonAdmin render={<a href={`mailto:${empresa.contactoEmail}`} />}>Email</BotonAdmin>
-                )}
-              </div>
+            <h2 className="text-[20px] font-bold text-foreground leading-snug">{postulacion.oferta.titulo}</h2>
+            {resumenOferta && (
+              <p className="text-[12.5px] text-muted-foreground tabular-nums">
+                {resumenOferta.postulaciones === 1 ? "1 postulación" : `${resumenOferta.postulaciones} postulaciones`}
+                {" · "}
+                {resumenOferta.derivadas === 1 ? "1 derivada" : `${resumenOferta.derivadas} derivadas`}
+                {" · "}
+                {resumenOferta.contratadas === 1 ? "1 contratada" : `${resumenOferta.contratadas} contratadas`}
+              </p>
             )}
           </div>
+
+          <TarjetaEmpresa
+            empresa={postulacion.oferta.empresa}
+            hrefFicha={`/admin/empresas/${postulacion.oferta.empresaId}`}
+          />
 
           <div className="grid grid-cols-2 gap-3 text-[12.5px]">
             <div>
@@ -149,6 +175,13 @@ export function EvaluacionPostulacion({
               {postulacion.oferta.descripcion}
             </div>
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-medium text-muted-foreground uppercase">Requisitos</span>
+            <div className="whitespace-pre-line text-[13px] leading-relaxed text-foreground">
+              {postulacion.oferta.requisitos}
+            </div>
+          </div>
         </section>
 
         {/* Right column: White CV sheet */}
@@ -162,10 +195,13 @@ export function EvaluacionPostulacion({
                 <h2 className="text-[20px] font-bold text-foreground">{nombre}</h2>
                 <span className="text-[12.5px] text-muted-foreground">
                   {postulacion.postulante.dni ? `DNI ${postulacion.postulante.dni}` : "Sin DNI registrado"}
+                  {otrasPostulaciones > 0 &&
+                    ` · ${otrasPostulaciones === 1 ? "1 postulación más" : `${otrasPostulaciones} postulaciones más`}`}
                 </span>
               </div>
-              {postulacion.postulante.cvNombre && (
-                <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center justify-end gap-1.5">
+                <EnlaceAccion href={`/admin/postulantes/${postulacion.postulante.id}`}>Ver ficha</EnlaceAccion>
+                {postulacion.postulante.cvNombre && (
                   <BotonAdmin
                     variante="primario"
                     render={
@@ -176,8 +212,8 @@ export function EvaluacionPostulacion({
                   >
                     Descargar PDF
                   </BotonAdmin>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -196,6 +232,10 @@ export function EvaluacionPostulacion({
                   Email
                 </BotonAdmin>
               )}
+              <BotonAdmin onClick={copiarDatos}>
+                <CopyIcon data-icon="inline-start" aria-hidden="true" />
+                Copiar datos para la empresa
+              </BotonAdmin>
             </div>
           </div>
 
@@ -266,12 +306,13 @@ export function EvaluacionPostulacion({
           {anteriorId ? (
             <Link
               href={`/admin/postulaciones/${anteriorId}`}
-              className="font-medium text-primary hover:underline"
+              className="inline-flex items-center gap-0.5 font-medium text-primary hover:underline"
             >
-              ← Anterior (J)
+              <ChevronLeftIcon aria-hidden="true" className="size-3.5" />
+              Anterior (J)
             </Link>
           ) : (
-            <span className="opacity-40">← Anterior</span>
+            <span className="opacity-40">Anterior</span>
           )}
 
           {posicionEnCola && (
@@ -283,12 +324,13 @@ export function EvaluacionPostulacion({
           {siguienteId ? (
             <Link
               href={`/admin/postulaciones/${siguienteId}`}
-              className="font-medium text-primary hover:underline"
+              className="inline-flex items-center gap-0.5 font-medium text-primary hover:underline"
             >
-              Siguiente (K) →
+              Siguiente (K)
+              <ChevronRightIcon aria-hidden="true" className="size-3.5" />
             </Link>
           ) : (
-            <span className="opacity-40">Siguiente →</span>
+            <span className="opacity-40">Siguiente</span>
           )}
         </div>
 

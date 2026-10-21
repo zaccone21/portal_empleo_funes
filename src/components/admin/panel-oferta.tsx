@@ -126,7 +126,7 @@ export function PanelOferta({
               <h3 className="text-[14px] font-bold">Requisitos</h3>
               <p className="mt-1 leading-[1.55] whitespace-pre-line">{oferta.requisitos}</p>
             </section>
-            <TarjetaEmpresa empresa={oferta.empresa} />
+            <TarjetaEmpresa empresa={oferta.empresa} hrefFicha={`/admin/empresas/${oferta.empresaId}`} />
           </>
         ) : (
           <ListaPostulaciones postulaciones={postulaciones ?? []} />

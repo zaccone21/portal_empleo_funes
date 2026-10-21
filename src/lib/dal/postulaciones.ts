@@ -154,9 +154,9 @@ const COLUMNAS_POSTULACION_ADMIN = `
   id, estado, creada_el,
   preentrevista_el, preentrevista_notas, derivada_el, decision_empresa, motivo_no_contratacion,
   ofertas (
-    id, titulo, lugar, jornada, descripcion, sueldo,
+    id, empresa_id, titulo, lugar, jornada, descripcion, requisitos, sueldo,
     oferta_rubros ( rubros ( slug ) ),
-    empresas ( razon_social, cuit, contacto_nombre, contacto_telefono, contacto_email )
+    empresas ( razon_social, cuit, descripcion, contacto_nombre, contacto_telefono, contacto_email )
   ),
   postulantes (
     id, nombre, apellido, dni, telefono, cv_nombre,
@@ -176,16 +176,19 @@ const filaPostulacionAdminSchema = z.object({
   motivo_no_contratacion: z.string().nullable(),
   ofertas: z.object({
     id: z.string(),
+    empresa_id: z.string(),
     titulo: z.string(),
     lugar: z.string(),
     jornada: z.string(),
     descripcion: z.string(),
+    requisitos: z.string(),
     sueldo: z.string().nullable(),
     oferta_rubros: z.array(z.object({ rubros: z.object({ slug: z.string() }).nullable() })),
     empresas: z
       .object({
         razon_social: z.string().nullable(),
         cuit: z.string().nullable(),
+        descripcion: z.string().nullable(),
         contacto_nombre: z.string().nullable(),
         contacto_telefono: z.string().nullable(),
         contacto_email: z.string().nullable(),
@@ -220,11 +223,14 @@ function aPostulacionAdmin(fila: z.infer<typeof filaPostulacionAdminSchema>): Po
       lugar: o.lugar,
       jornada: o.jornada,
       descripcion: o.descripcion,
+      requisitos: o.requisitos,
       sueldo: o.sueldo,
       rubros: o.oferta_rubros.flatMap((r) => (r.rubros ? [r.rubros.slug] : [])),
+      empresaId: o.empresa_id,
       empresa: o.empresas && {
         razonSocial: o.empresas.razon_social,
         cuit: o.empresas.cuit,
+        descripcion: o.empresas.descripcion,
         contactoNombre: o.empresas.contacto_nombre,
         contactoTelefono: o.empresas.contacto_telefono,
         contactoEmail: o.empresas.contacto_email,

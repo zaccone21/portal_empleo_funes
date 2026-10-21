@@ -48,6 +48,19 @@ export default async function AdminPostulacionDetallePage(props: {
       p.id !== id && p.oferta.id === postulacion.oferta.id && p.estado === "derivado" && p.decisionEmpresa === null,
   ).length;
 
+  // Context for the decision: how the offer is going and whether the person applied elsewhere.
+  const deLaOferta = todas.filter((p) => p.oferta.id === postulacion.oferta.id);
+  const resumenOferta = resTodas.ok
+    ? {
+        postulaciones: deLaOferta.length,
+        derivadas: deLaOferta.filter((p) => p.estado === "derivado").length,
+        contratadas: deLaOferta.filter((p) => p.decisionEmpresa === "contratado").length,
+      }
+    : undefined;
+  const otrasPostulaciones = todas.filter(
+    (p) => p.id !== id && p.postulante.id === postulacion.postulante.id,
+  ).length;
+
   // Pre-generate CV signed URL if the applicant uploaded one
   let urlCv: string | undefined;
   if (postulacion.postulante.cvNombre) {
@@ -63,6 +76,8 @@ export default async function AdminPostulacionDetallePage(props: {
       siguienteId={siguienteId}
       posicionEnCola={posicionEnCola}
       sinRespuestaEnOferta={sinRespuestaEnOferta}
+      resumenOferta={resumenOferta}
+      otrasPostulaciones={otrasPostulaciones}
     />
   );
 }

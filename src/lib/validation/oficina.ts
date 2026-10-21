@@ -119,11 +119,15 @@ export type PostulacionAdmin = {
     lugar: string;
     jornada: string;
     descripcion: string;
+    requisitos: string;
     sueldo: string | null;
     rubros: string[];
+    /** The company's account id, to open its file from the evaluation. */
+    empresaId: string;
     empresa: {
       razonSocial: string | null;
       cuit: string | null;
+      descripcion: string | null;
       contactoNombre: string | null;
       contactoTelefono: string | null;
       contactoEmail: string | null;

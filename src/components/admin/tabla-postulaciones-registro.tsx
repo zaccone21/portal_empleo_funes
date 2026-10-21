@@ -3,7 +3,7 @@
 import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { Ausente, CeldaDoble, nombreCompleto } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
-import { BadgePostulacion } from "@/components/admin/status-badge";
+import { BadgeDecisionEmpresa, BadgePostulacion } from "@/components/admin/status-badge";
 import { fechaCorta } from "@/lib/admin/fechas";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
 
@@ -43,6 +43,13 @@ export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros }:
       id: "estado",
       cabecera: "Estado",
       celda: (p) => <BadgePostulacion estado={p.estado} />,
+    },
+    {
+      id: "resultado",
+      cabecera: "Resultado con la empresa",
+      soloAncha: true,
+      // Only a referred application has a company answer (D-044); the rest have none to show.
+      celda: (p) => (p.estado === "derivado" ? <BadgeDecisionEmpresa decision={p.decisionEmpresa} /> : <Ausente />),
     },
     {
       id: "fecha",

@@ -119,8 +119,10 @@ function postulacion(datos: Partial<PostulacionAdmin>): PostulacionAdmin {
       lugar: "Centro",
       jornada: "Mañana",
       descripcion: "Tareas",
+      requisitos: "Ninguno",
       sueldo: null,
       rubros: ["otros"],
+      empresaId: "empresa-1",
       empresa: null,
     },
     postulante: {
