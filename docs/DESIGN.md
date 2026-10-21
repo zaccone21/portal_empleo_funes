@@ -24,7 +24,7 @@ La idea: **un mural de azulejos con los oficios de la ciudad** (albañilería, j
 - **Tono adulto e institucional:** es atrevida pero no infantil. Los azulejos son cuadrados (uno de cada tres con forma "hoja"); no hay círculos ni arcos. Los títulos van en Sora semibold, no bold. La navegación marca la página actual con un subrayado, no con píldoras de color.
 - **Superficies:** verde monte (`bg-brand-deep`) para los fondos de marca, con texto blanco. Blanco (`bg-background`) para el contenido que se lee o se completa.
 - **Lema grande:** en los fondos verdes va una frase corta en Sora 700, grande y apretada (`tracking-[-0.03em]`, `leading-[1.05]`). Es un `<p>`; el `h1` de la página sigue siendo el título de la pantalla.
-- **Movimiento:** un único momento al cargar, en el que los azulejos aparecen escalonados y el panel sube. Siempre con `motion-safe:`, para respetar "reducir movimiento". No hay animaciones de hover en cada tarjeta ni entradas por sección.
+- **Movimiento:** un único momento al cargar, en el que los azulejos aparecen escalonados y el panel sube. Siempre con `motion-safe:`, para respetar "reducir movimiento". No hay animaciones de hover en cada tarjeta ni entradas por sección. Única excepción: los contadores de "El portal en números" del inicio, que suben una vez al aparecer y con "reducir movimiento" muestran el número final (D-059).
 - **Qué evitar:** degradados de relleno, etiquetas en mayúsculas sobre los títulos, resaltar una palabra del título con otro color, tarjetas idénticas con la misma sombra gris, y "→" al final de los botones.
 
 Componentes: `MosaicoOficios` y `MarcaPortal` (`src/components/marca/`), y `MarcoAcceso` y `PanelAcceso` (`src/components/auth/`).
@@ -120,10 +120,13 @@ Tamaños:
 La portada sirve para **empezar a buscar trabajo sin leer nada más**. Orden, de arriba hacia abajo:
 1. **Portada verde**: el título "Tu próximo trabajo está en Funes.", una bajada corta y el buscador "¿Qué trabajo buscás?". Buscar lleva al catálogo con la búsqueda hecha (`/ofertas?q=…`). Es un formulario común (GET): funciona aunque falle el JavaScript.
 2. **Rubros como atajos**: los 7 rubros con más trabajos del día a día, como chips con ícono. Cada uno abre el catálogo filtrado (`/ofertas?rubro=…`). En el celular es una fila que se desliza de costado, para no empujar el contenido hacia abajo.
-3. **Ofertas recientes**: las 4 ofertas publicadas más nuevas, con "Ver todas las ofertas". Se eligieron las recientes y no las "más relevantes" porque la relevancia necesita un criterio que no está definido.
-4. **Cómo postularte**: 3 pasos numerados (es una secuencia real: cuenta, CV, postulación) y "Crear mi cuenta".
-5. **Para empresas**: bloque verde con mosaico (solo desde `sm`) y dos botones: "Registrar mi empresa" y "Ya tengo cuenta".
-6. **Pie**: logo en color y el ingreso de la Oficina de Empleo, discreto, porque lo usan pocas personas.
+3. **El portal en números** (D-059): tarjeta blanca con cuatro totales reales, cada uno con su ícono en azulejo menta y un número grande en Sora que sube de 0 al aparecer. Sin datos, no aparece.
+4. **Ofertas recientes**: las 8 ofertas publicadas más nuevas en un **carrusel** (deslizar, con botones de 44 px anterior/siguiente que se apagan en cada punta; en el celular asoma la tarjeta siguiente), con "Ver todas las ofertas". Se eligieron las recientes y no las "más relevantes" porque la relevancia necesita un criterio que no está definido.
+5. **Buscá por rubro**: los 11 rubros en tarjetas-link con su cantidad de ofertas; los que tienen ofertas llevan el ícono en verde lleno, los demás en menta.
+6. **Un servicio de la Municipalidad de Funes** (solo sin sesión): tarjeta blanca con el logo en color y cuatro garantías con ícono.
+7. **Cómo postularte**: 3 pasos numerados (es una secuencia real: cuenta, CV, postulación) y "Crear mi cuenta".
+8. **Para empresas**: bloque verde con mosaico (solo desde `sm`) y dos botones: "Registrar mi empresa" y "Ya tengo cuenta".
+9. **Pie**: logo en color, "Ayuda y preguntas frecuentes" y el ingreso de la Oficina de Empleo, discreto, porque lo usan pocas personas.
 
 ### Ayuda (P20, D-057)
 
@@ -274,7 +277,11 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 | Componente | Archivo | Qué es |
 |---|---|---|
 | `PortadaInicio` | `src/components/inicio/` | Título, buscador "¿Qué trabajo buscás?" y rubros como atajos al catálogo |
-| `OfertasRecientes` | `src/components/inicio/` | Las 4 ofertas publicadas más nuevas y "Ver todas las ofertas" |
+| `CifrasPortal` | `src/components/inicio/` | "El portal en números": cuatro totales reales con contador (D-059) |
+| `OfertasRecientes` | `src/components/inicio/` | Trae las ofertas una vez: las 8 más nuevas en `CarruselOfertas` y, debajo, `RubrosConOfertas` |
+| `CarruselOfertas` | `src/components/inicio/` | Lista que se desliza de costado con puntos de anclaje y botones anterior/siguiente |
+| `RubrosConOfertas` | `src/components/inicio/` | Los 11 rubros con su cantidad de ofertas, como links al catálogo filtrado |
+| `Confianza` | `src/components/inicio/` | "Un servicio de la Municipalidad de Funes": logo y cuatro garantías reales |
 | `ComoFunciona` | `src/components/inicio/` | Los 3 pasos para postularse y "Crear mi cuenta" |
 | `ParaEmpresas` | `src/components/inicio/` | Bloque verde para empresas: registrarse o ingresar |
 | `PieInicio` | `src/components/inicio/` | Logo en color y el ingreso de la Oficina de Empleo |
@@ -389,3 +396,4 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
 - **2026-10-20 — Barra de navegación completa y "Salir" a la vista.** En la computadora, el menú completo del rol con "Ayuda", "Publicar" como botón menta, la barra fija arriba y alineada con el contenido; a la derecha, quién ingresó y "Salir" (sin menú desplegable). En el celular, "Salir" arriba y 4 opciones abajo. Por qué: el usuario la marcó como "malísima, con 2 botones cualquiera". Reemplaza D-040. (§4 bis, D-056)
 - **2026-10-20 — Ayuda (P20).** Tarjetas para elegir el público, guía numerada con links a cada pantalla y preguntas frecuentes en acordeón. Por qué: pedido del usuario; guías para quien tiene poca práctica digital. (§4 ter, D-057)
 - **2026-10-20 — Equipo de la Oficina (P21).** Lista de cuentas sin botón de borrar y formulario de un solo campo; la contraseña temporal se ve una vez, en un recuadro de atención con "Copiar". Por qué: pedido del usuario (crear sin borrar, D-058); que no quede a la vista más de lo necesario. (§4 ter, §10)
+- **2026-10-20 — Inicio con cifras, carrusel, rubros y confianza.** Totales reales con contador, ofertas en carrusel, rubros con su cantidad de ofertas y un bloque institucional con garantías que el sistema cumple; sin testimonios ni números inventados. Los contadores son la única animación además de la carga (§0). Por qué: el usuario pidió una landing menos vacía, con estadísticas, sliders y cosas que den seguridad. (§0, §4 ter, §10, D-059)

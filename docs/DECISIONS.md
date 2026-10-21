@@ -624,6 +624,17 @@ Decisión:
 - Deuda aceptada: DT-020.
 Motivo: pedido del usuario ("que el admin pueda crear roles pero no borrarlos, o sea que haya un pseudo superadmin"). Se interpretó como "el rol admin es el pseudo superadmin". **Para confirmar con el usuario:** si prefiere que solo una cuenta (el superadmin) pueda crear, se marca esa cuenta en `app_metadata` y el caso de uso lo controla; no hace falta migración.
 
+### D-059 — Inicio con cifras reales, carrusel de ofertas, rubros y confianza
+Fecha: 2026-10-20 · Amplía: D-029
+Decisión:
+- **"El portal en números":** cuatro totales reales (ofertas abiertas, empresas registradas, personas buscando trabajo y contrataciones logradas), con un contador que sube al aparecer en pantalla (salvo con "reducir movimiento"). Los da la función `estadisticas_publicas()` de la migración `20261020220000`, que devuelve **solo totales** y se puede llamar sin sesión; las tablas siguen cerradas por RLS. Ruta `GET /api/estadisticas` → `verEstadisticasPublicas` → `contarEstadisticasPublicas`.
+- Si los totales no se pueden contar (por ejemplo, antes de aplicar la migración), el bloque no aparece: el inicio sigue igual sin él.
+- **Ofertas recientes como carrusel:** hasta 8, con deslizamiento y botones anterior/siguiente; en el celular se ve una tarjeta y el borde de la siguiente.
+- **"Buscá por rubro":** los 11 rubros con cuántas ofertas tiene cada uno, primero los que más tienen. Sale de la misma lista de ofertas (una sola consulta).
+- **"Un servicio de la Municipalidad de Funes":** cuatro garantías que el portal ya cumple (ofertas revisadas, CV privado, acompañamiento de la Oficina, cursos), con el logo. Solo para quien no ingresó, como "Cómo postularte".
+- **Sin testimonios inventados ni números de ejemplo:** todo lo que se muestra es real o es una regla del sistema.
+Motivo: pedido del usuario ("la landing está muy vacía; estadísticas, contadores, sliders, cosas que aporten seguridad").
+
 ---
 
 ## Abiertas

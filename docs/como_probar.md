@@ -21,6 +21,8 @@ Todo en el panel del proyecto de **testing** (supabase.com).
 ### 1.1 Aplicar la migración nueva
 SQL Editor → New query → pegá todo `supabase/migrations/20260929130000_ofertas_visibles_para_postulados.sql` → Run. Tiene que decir "Success". Avisame y la anoto en `docs/migraciones.md`.
 
+**Pendiente (2026-10-20):** `supabase/migrations/20261020220000_estadisticas_publicas.sql`, igual que la anterior. Sin ella, el inicio no muestra "El portal en números" (el resto anda igual). Para comprobarla: abrí `http://localhost:3000/api/estadisticas`, que tiene que devolver los cinco totales.
+
 ### 1.2 Configurar el acceso (Authentication)
 1. **URL Configuration:**
    - Site URL: `http://localhost:3000`.
