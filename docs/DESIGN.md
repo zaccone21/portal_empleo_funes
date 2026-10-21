@@ -315,6 +315,7 @@ Todo en `src/components/admin/`. La UI anterior (`components/oficina/`) se borr�
 | `FormularioPreentrevista`, `ResultadoEmpresa` | Preentrevista opcional de una postulación; qué pasó después de derivarla (decisión de la empresa o sin respuesta) |
 | `FormularioDerivacionCurso`, `AsociarOferta` | Derivar a un curso desde la ficha (P19); asociar a una persona con una oferta publicada (P16) |
 | `StatusBadge`, `EmptyState`, `BotonAdmin`, `celdas` | Estado con punto de color, estado vacío sobrio, botón de 12,5 px y celdas comunes |
+| `EnlaceAccion` | Link con forma de botón chico y chevron, para la columna de acción de tablas y listas ("Resolver", "Evaluar", "Ver"); verde en la acción de la cola, con borde en las demás |
 
 ### CV (P04)
 
@@ -362,3 +363,4 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
 - **2026-10-18 — Seguimiento y cursos en la ficha de la Oficina.** Conteos del seguimiento, aviso con 3 rechazos que lleva a "Cursos", preentrevista y resultado con la empresa en la evaluación, tarjeta y tareas "Sin respuesta de la empresa" e indicadores en números en el panel. Por qué: RF1.6.1 a RF1.6.6, D-051 y D-054; el aviso de 3 rechazos es la idea del usuario y solo informa. (§4 ter)
 - **2026-10-18 — Los links con forma de botón conservan el rol de link.** `buttonVariants` sobre `<Link>` o `<a>`, no `Button render`. Por qué: Base UI los anunciaba como botones. (§5)
 - **2026-10-18 — "Mi perfil" sin sesión pide ingresar una sola vez.** El bloque del CV (`SeccionCv`) se muestra solo con sesión de postulante; sin ella, el aviso de los datos personales alcanza. Antes salían dos avisos seguidos con los mismos botones.
+- **2026-10-20 — Acciones de las tablas de la Oficina como botón chico.** "Resolver", "Evaluar" y "Ver" dejan de ser texto con "→" y pasan a `EnlaceAccion` (borde, chevron y fondo menta al pasar el mouse; verde lleno en la acción de cada cola). El paginado usa chevrons. `BotonAdmin` fija el color del texto al pasar el mouse: antes el botón verde quedaba con texto gris oscuro. Por qué: el usuario marcó el botón y su hover como malos; "→" al final está en "Qué evitar" (§0). (§10)

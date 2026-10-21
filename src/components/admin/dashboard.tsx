@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Building2, Briefcase, Users, FileText } from "lucide-react";
 
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { diasDesde } from "@/lib/admin/fechas";
@@ -206,12 +207,9 @@ export function Dashboard({ conteos, indicadores, tareasPendientes, emailOperado
                           {dias === 0 ? "Hoy" : `${dias} d`}
                         </td>
                         <td className="py-2.5 pl-3 text-right align-middle">
-                          <Link
-                            href={item.enlace}
-                            className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
-                          >
-                            Resolver →
-                          </Link>
+                          <EnlaceAccion href={item.enlace} variante="primario">
+                            Resolver
+                          </EnlaceAccion>
                         </td>
                       </tr>
                     );

@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
-
 import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { Ausente, CeldaDoble } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { useUrlAdmin } from "@/hooks/useUrlAdmin";
 import { perfilEmpresaIncompleto, type FilaEmpresa } from "@/lib/admin/empresas";
@@ -60,9 +59,9 @@ export function TablaEmpresas({ empresas, conPanel, pager, hayFiltros }: Props) 
       cabecera: "",
       soloAncha: true,
       celda: (e) => (
-        <Link href={construir({ sel: e.id })} scroll={false} className="font-semibold text-primary hover:underline">
+        <EnlaceAccion href={construir({ sel: e.id })} scroll={false}>
           Ver
-        </Link>
+        </EnlaceAccion>
       ),
     },
   ];

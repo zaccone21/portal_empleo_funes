@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
-
 import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { Ausente, CeldaDoble, nombreCompleto } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { useUrlAdmin } from "@/hooks/useUrlAdmin";
 import { perfilIncompleto, tieneCv, type FilaPostulante } from "@/lib/admin/postulantes";
@@ -54,9 +53,9 @@ export function TablaPostulantes({ postulantes, conPanel, pager, hayFiltros }: P
       cabecera: "",
       soloAncha: true,
       celda: (p) => (
-        <Link href={construir({ sel: p.id })} scroll={false} className="font-semibold text-primary hover:underline">
+        <EnlaceAccion href={construir({ sel: p.id })} scroll={false}>
           Ver
-        </Link>
+        </EnlaceAccion>
       ),
     },
   ];

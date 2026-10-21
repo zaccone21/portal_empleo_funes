@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { AccionesOferta } from "@/components/admin/acciones-oferta";
 import { Ausente, nombreCompleto } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import {
   DatosLista,
   PanelCabecera,
@@ -153,9 +152,7 @@ function ListaPostulaciones({ postulaciones }: { postulaciones: PostulacionAdmin
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <BadgePostulacion estado={p.estado} />
-            <Link href={`/admin/postulaciones/${p.id}`} className="font-semibold text-primary hover:underline">
-              Ver
-            </Link>
+            <EnlaceAccion href={`/admin/postulaciones/${p.id}`}>Ver</EnlaceAccion>
           </div>
         </li>
       ))}

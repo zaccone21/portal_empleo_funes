@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
-
 import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { AprobarSeleccionadas } from "@/components/admin/acciones-oferta";
 import { Ausente, CeldaDoble } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { BadgeOferta } from "@/components/admin/status-badge";
 import { useUrlAdmin } from "@/hooks/useUrlAdmin";
 import { fechaCorta, haceCuanto } from "@/lib/admin/fechas";
@@ -90,9 +89,9 @@ export function TablaOfertas({ modo, ofertas, conPanel, pager, hayFiltros }: Pro
           cabecera: "",
           soloAncha: true,
           celda: (o) => (
-            <Link href={construir({ sel: o.id })} scroll={false} className="font-semibold text-primary hover:underline">
+            <EnlaceAccion href={construir({ sel: o.id })} scroll={false}>
               Ver
-            </Link>
+            </EnlaceAccion>
           ),
         },
       ];

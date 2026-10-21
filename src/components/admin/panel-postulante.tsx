@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AsociarOferta } from "@/components/admin/asociar-oferta";
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { Ausente, nombreCompleto } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { FormularioDerivacionCurso } from "@/components/admin/formulario-derivacion-curso";
 import {
   DatosLista,
@@ -289,9 +290,7 @@ function ListaPostulacionesPostulante({ postulaciones }: { postulaciones: Postul
             </div>
             <div className="flex shrink-0 items-center gap-3">
               <BadgePostulacion estado={p.estado} />
-              <Link href={`/admin/postulaciones/${p.id}`} className="font-semibold text-primary hover:underline">
-                Ver
-              </Link>
+              <EnlaceAccion href={`/admin/postulaciones/${p.id}`}>Ver</EnlaceAccion>
             </div>
           </div>
           {p.preentrevista && (

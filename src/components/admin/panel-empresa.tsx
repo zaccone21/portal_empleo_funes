@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { Ausente } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import {
   DatosLista,
   PanelCabecera,
@@ -107,9 +106,7 @@ export function PanelEmpresa({ empresa, ofertas, tab, hrefTab, paginaCompleta }:
                   {activas.map((o) => (
                     <li key={o.id} className="flex items-center justify-between gap-2 text-[12.5px]">
                       <span className="truncate font-medium text-foreground">{o.titulo}</span>
-                      <Link href={`/admin/ofertas/${o.id}`} className="font-semibold text-primary hover:underline">
-                        Ver
-                      </Link>
+                      <EnlaceAccion href={`/admin/ofertas/${o.id}`}>Ver</EnlaceAccion>
                     </li>
                   ))}
                 </ul>
@@ -141,9 +138,7 @@ function ListaOfertasEmpresa({ ofertas }: { ofertas: OfertaOficina[] }) {
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <BadgeEstadoOferta estado={o.estado} cierreSolicitado={o.cierreSolicitado} />
-            <Link href={`/admin/ofertas/${o.id}`} className="font-semibold text-primary hover:underline">
-              Ver
-            </Link>
+            <EnlaceAccion href={`/admin/ofertas/${o.id}`}>Ver</EnlaceAccion>
           </div>
         </li>
       ))}

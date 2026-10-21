@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
-
 import { BotonDerivar } from "@/components/admin/acciones-postulacion";
 import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { Ausente, CeldaDoble, nombreCompleto } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { fechaCorta } from "@/lib/admin/fechas";
 import { enlaceLlamada, enlaceWhatsApp, formatearTelefonoAR } from "@/lib/telefonos";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
@@ -88,12 +87,7 @@ export function TablaPorComunicar({ postulaciones, pager, hayFiltros }: Props) {
       celda: (p) => (
         <div className="flex items-center justify-end gap-2">
           <BotonDerivar id={p.id} />
-          <Link
-            href={`/admin/postulaciones/${p.id}`}
-            className="font-semibold text-primary hover:underline"
-          >
-            Ver
-          </Link>
+          <EnlaceAccion href={`/admin/postulaciones/${p.id}`}>Ver</EnlaceAccion>
         </div>
       ),
     },

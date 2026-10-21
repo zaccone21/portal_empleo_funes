@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 
@@ -42,6 +43,8 @@ type Props<T> = {
 };
 
 const CELDA = "h-10 px-[10px] py-0 text-[13px]";
+const ENLACE_PAGINA =
+  "inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 font-semibold text-primary hover:bg-accent focus-visible:outline-2 focus-visible:outline-primary";
 
 /** True when the key press comes from a field or a dialog, where our shortcuts must not act. */
 function eventoDeEscritura(e: globalThis.KeyboardEvent): boolean {
@@ -241,16 +244,18 @@ export function AdminTable<T>({
         <span>{pager.pista ?? `Mostrar ${FILAS_POR_PAGINA} por página`}</span>
         <span className="flex items-center gap-3">
           {pager.paginas > 1 && pager.pagina > 1 && (
-            <Link href={construir({ pagina: String(pager.pagina - 1) })} scroll={false} className="font-semibold text-primary hover:underline">
-              ← Anterior
+            <Link href={construir({ pagina: String(pager.pagina - 1) })} scroll={false} className={ENLACE_PAGINA}>
+              <ChevronLeftIcon aria-hidden="true" className="size-3.5" />
+              Anterior
             </Link>
           )}
           <span>
             {pager.desde}–{pager.hasta} de {pager.total}
           </span>
           {pager.pagina < pager.paginas && (
-            <Link href={construir({ pagina: String(pager.pagina + 1) })} scroll={false} className="font-semibold text-primary hover:underline">
-              Siguiente →
+            <Link href={construir({ pagina: String(pager.pagina + 1) })} scroll={false} className={ENLACE_PAGINA}>
+              Siguiente
+              <ChevronRightIcon aria-hidden="true" className="size-3.5" />
             </Link>
           )}
         </span>

@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
-
 import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { Ausente, CeldaDoble, nombreCompleto } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { BadgeCv } from "@/components/admin/tabla-postulantes";
 import { diasDesde } from "@/lib/admin/fechas";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
@@ -72,12 +71,9 @@ export function TablaPostulacionesNuevas({ postulaciones, pager, hayFiltros }: P
       cabecera: "",
       alinear: "derecha",
       celda: (p) => (
-        <Link
-          href={`/admin/postulaciones/${p.id}`}
-          className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
-        >
-          Evaluar →
-        </Link>
+        <EnlaceAccion href={`/admin/postulaciones/${p.id}`} variante="primario">
+          Evaluar
+        </EnlaceAccion>
       ),
     },
   ];

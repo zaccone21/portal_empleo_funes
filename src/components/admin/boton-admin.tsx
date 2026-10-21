@@ -5,10 +5,15 @@ import { cn } from "@/lib/utils";
 
 type Variante = "primario" | "secundario" | "destructivo";
 
+// Each variant sets its own hover text color: the outline base of Button turns
+// the text to `foreground` on hover, which left dark text on the green button.
 const CLASES: Record<Variante, string> = {
-  primario: "border-primary bg-primary text-primary-foreground shadow-none hover:bg-primary/90",
-  secundario: "border-input bg-background text-foreground shadow-none hover:bg-muted",
-  destructivo: "border-danger-soft-border bg-background text-danger-soft-foreground shadow-none hover:bg-danger-soft",
+  primario:
+    "border-primary bg-primary text-primary-foreground shadow-none hover:bg-primary/90 hover:text-primary-foreground",
+  secundario:
+    "border-input bg-background text-foreground shadow-none hover:border-primary/40 hover:bg-accent hover:text-accent-foreground",
+  destructivo:
+    "border-danger-soft-border bg-background text-danger-soft-foreground shadow-none hover:bg-danger-soft hover:text-danger-soft-foreground",
 };
 
 type Props = Omit<ComponentProps<typeof Button>, "variant" | "size"> & { variante?: Variante };
