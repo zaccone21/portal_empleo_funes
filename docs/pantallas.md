@@ -38,3 +38,4 @@ La "Mesa de trabajo" (D-042) reparte estas pantallas en colas y registros bajo `
 - **P16. Gestión de Postulantes** *(P09)* (`/admin/postulantes`): Buscador en el padrón por etiquetas para asociar manualmente a ofertas.
 - **P18. Seguimiento del postulante** *(nueva, consigna)*: Dentro de la ficha del postulante (`/admin/postulantes/[id]`): postulaciones, preentrevistas, derivaciones, resultados, cantidad de rechazos y derivaciones a cursos (RF1.6.5, D-046).
 - **P19. Derivaciones a cursos** *(nueva, consigna)*: Dentro de la ficha del postulante, junto a P18. Registrar que la Oficina derivó a una persona a un curso y ver el historial (RF1.6.6, D-047).
+- **P21. Equipo** *(nueva, 2026-10-20)* (`/admin/equipo`): Cuentas de la Oficina y "Crear una cuenta de operadora" con contraseña temporal. No se borran cuentas (D-058).

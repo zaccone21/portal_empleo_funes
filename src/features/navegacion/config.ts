@@ -7,6 +7,7 @@ import {
   FileUser,
   LayoutDashboard,
   Send,
+  UserCog,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -52,6 +53,10 @@ export const MENU_ADMIN: NavGroup[] = [
       { titulo: "Postulantes", url: "/admin/postulantes", icono: Users },
       { titulo: "Empresas", url: "/admin/empresas", icono: Building2 },
     ],
+  },
+  {
+    titulo: "Oficina",
+    items: [{ titulo: "Equipo", url: "/admin/equipo", icono: UserCog }],
   },
 ];
 

@@ -613,6 +613,17 @@ Decisión:
 - El texto vive en `src/components/ayuda/contenido.ts`: si cambia una de esas reglas, se actualiza ahí.
 Motivo: pedido del usuario ("una sección de FAQ con guías para que el usuario sepa cómo operar, cualquier usuario menos admin"). Muchas personas usan el portal con poca práctica digital (RNF3).
 
+### D-058 — La Oficina crea cuentas de operadoras y no las borra ("pseudo superadmin")
+Fecha: 2026-10-20 · Amplía: RF1.1.4 (sigue sin haber registro público para la Oficina)
+Decisión:
+- Nueva pantalla **"Equipo"** (P21, `/admin/equipo`, grupo "Oficina" del menú lateral): la lista de cuentas de la Oficina y "Crear una cuenta de operadora".
+- **Cualquier cuenta de la Oficina** puede crear otra cuenta de la Oficina. Solo se pide el email; la cuenta queda activa y el portal arma una contraseña temporal (4 grupos de 4 letras y números) que se muestra **una sola vez** para entregarla en persona.
+- **Nadie borra cuentas desde el portal**, ni la propia. No hay botón ni ruta para hacerlo; una baja se hace a mano en Supabase.
+- Solo se crean cuentas de la Oficina. Crear cuentas de postulantes o empresas sería carga asistida (Q-011), que sigue fuera de la entrega (D-052).
+- Cada operadora puede cambiar su contraseña desde "Cambiar mi contraseña" (abajo en el menú lateral), que usa la pantalla de contraseña nueva.
+- Deuda aceptada: DT-020.
+Motivo: pedido del usuario ("que el admin pueda crear roles pero no borrarlos, o sea que haya un pseudo superadmin"). Se interpretó como "el rol admin es el pseudo superadmin". **Para confirmar con el usuario:** si prefiere que solo una cuenta (el superadmin) pueda crear, se marca esa cuenta en `app_metadata` y el caso de uso lo controla; no hace falta migración.
+
 ---
 
 ## Abiertas

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/dal/auth";
+import { crearCuentaOficina } from "@/lib/use-cases/equipo";
 import {
   asociarPostulanteAOferta,
   cerrarOferta,
@@ -13,6 +14,7 @@ import {
   registrarPreentrevista,
   resolverPostulacion,
 } from "@/lib/use-cases/oficina";
+import { nuevaCuentaOficinaSchema } from "@/lib/validation/equipo";
 import { derivacionCursoSchema, preentrevistaSchema, rechazoSchema } from "@/lib/validation/oficina";
 import { estadoPostulacionSchema } from "@/lib/validation/postulaciones";
 
@@ -165,4 +167,25 @@ export async function asociarPostulanteAccion(postulanteId: string, ofertaId: st
   if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
   refrescarAdmin();
   return { ok: true, mensaje: `Quedó postulada a “${resultado.datos.oferta.titulo}”.` };
+}
+
+export type RespuestaCrearCuenta =
+  | { ok: true; email: string; contrasenaTemporal: string }
+  | { ok: false; mensaje: string };
+
+/**
+ * Creates an Office account (P21, D-058). The temporary password comes back
+ * only in this answer, so the operator can hand it over in person; it is never
+ * stored or shown again.
+ */
+export async function crearCuentaOficinaAccion(datos: unknown): Promise<RespuestaCrearCuenta> {
+  const parsed = nuevaCuentaOficinaSchema.safeParse(datos);
+  if (!parsed.success) return { ok: false, mensaje: parsed.error.issues[0]?.message ?? DATOS_INVALIDOS.mensaje };
+  const usuario = await getCurrentUser();
+  if (!usuario) return { ok: false, mensaje: SIN_SESION.mensaje };
+
+  const resultado = await crearCuentaOficina(usuario, parsed.data);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  revalidatePath("/admin/equipo");
+  return { ok: true, ...resultado.datos };
 }

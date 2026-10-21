@@ -232,3 +232,13 @@ Qué:
 - La decisión "una sola vez" la controla el caso de uso, y el `update` del DAL solo toca filas sin decisión (así dos respuestas a la vez no ganan las dos). La base no lo impide por sí sola.
 Por qué quedó: una política para la empresa tendría que exponer solo algunas columnas de `postulantes` y de `postulaciones` (no el DNI, la preentrevista ni el estado interno), y RLS filtra filas, no columnas (ver DT-007). Hacerlo bien lleva vistas o funciones propias, y no entra en el plazo de la entrega.
 Cómo se salda: una función `security definer` por operación (por ejemplo `candidatos_derivados(oferta_id)` y `decidir_candidato(postulacion_id, decision, motivo)`) que controle en la base que la oferta es de la empresa con sesión y devuelva o cambie solo las columnas permitidas; el DAL las llama con `rpc` y deja de usar el cliente admin. Sumar su test pgTAP.
+
+### DT-020 — Las cuentas de la Oficina se crean con el cliente admin y una contraseña temporal a la vista
+Fecha: 2026-10-20 · Origen: D-058
+Qué:
+- "Equipo" (P21) crea la cuenta de una operadora con el cliente admin (`src/lib/dal/equipo.ts`): `auth.admin.createUser`, después cambia `perfiles.rol` a `admin` y borra la fila de `postulantes` que crea el trigger `crear_perfil`. El único control es el caso de uso (`src/lib/use-cases/equipo.ts`), que exige el rol `admin`; la base no lo repite (AGENTS §7 pide dos barreras).
+- Son tres pasos sin transacción. Si falla el segundo o el tercero, el DAL borra el usuario recién creado; si también falla ese borrado, queda una cuenta a medias que hay que arreglar a mano en Supabase.
+- La contraseña temporal viaja en la respuesta de la Server Action y se muestra una vez en pantalla. No se obliga a cambiarla: la operadora lo hace desde "Cambiar mi contraseña".
+- No queda registro de qué operadora creó cada cuenta (como DT-006).
+Por qué quedó: el usuario pidió que la Oficina pueda crear cuentas sin borrarlas, a dos semanas de la entrega. Mandar una invitación por email depende de las plantillas con `token_hash` (DT-011), que todavía no están en el panel.
+Cómo se salda: una función `security definer` `crear_cuenta_oficina(email)` que controle en la base que quien la llama es admin y haga los pasos en una transacción; invitación por email en vez de contraseña temporal, cuando las plantillas estén pegadas; una columna `creada_por` en `perfiles`, y un test pgTAP.
