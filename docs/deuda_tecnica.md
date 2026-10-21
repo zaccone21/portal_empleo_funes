@@ -138,6 +138,7 @@ Qué:
 
 Por qué quedó: cambiar las plantillas es configuración del panel de Supabase.
 Cómo se salda: en Authentication → Emails, cambiar el link de las plantillas "Confirm signup" y "Reset password" por `{{ .SiteURL }}/acceso/confirmar?token_hash={{ .TokenHash }}&type=email` y `…&type=recovery` (ver `docs/como_probar.md`).
+*Nota 2026-10-20:* las plantillas listas para pegar, en español y con el link `token_hash`, están en `docs/plantillas-email/`. Usan `{{ .RedirectTo }}` en vez de `{{ .SiteURL }}`, para que el mismo proyecto sirva para `localhost` y Vercel (D-050). Se salda cuando el usuario las pegue en Supabase y pruebe abrir el email en otro dispositivo (`docs/como_probar.md`, paso 1.2.4).
 
 ### DT-012 — Documentos que quedan solo en la máquina del usuario
 Fecha: 2026-09-29 · Origen: pedido del usuario ("así no cargamos tanto el repo"), D-036

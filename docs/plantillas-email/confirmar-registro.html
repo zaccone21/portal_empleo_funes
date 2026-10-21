@@ -1,0 +1,23 @@
+<!--
+  Supabase → Authentication → Emails → "Confirm signup" (DT-011).
+  Asunto: Activá tu cuenta del Portal de Empleo de Funes
+  El link usa token_hash: funciona en cualquier navegador o celular.
+  {{ .RedirectTo }} es la dirección que manda el portal (localhost o Vercel),
+  así el mismo proyecto de Supabase sirve para los dos (D-050).
+-->
+<div style="margin:0;padding:24px 16px;background-color:#f4f5f2;font-family:Arial,Helvetica,sans-serif;color:#262b35;">
+  <div style="max-width:520px;margin:0 auto;background-color:#ffffff;border-radius:16px;overflow:hidden;">
+    <div style="background-color:#04311a;padding:20px 24px;">
+      <p style="margin:0;font-size:18px;font-weight:bold;color:#ffffff;">Portal de Empleo · Municipalidad de Funes</p>
+    </div>
+    <div style="padding:24px;">
+      <h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;color:#262b35;">Activá tu cuenta</h1>
+      <p style="margin:0 0 16px;font-size:16px;line-height:1.5;">Te registraste en el Portal de Empleo de Funes. Para empezar a usarlo, tocá el botón:</p>
+      <p style="margin:0 0 24px;">
+        <a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email" style="display:inline-block;padding:14px 24px;background-color:#074a1f;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none;border-radius:8px;">Activar mi cuenta</a>
+      </p>
+      <p style="margin:0 0 16px;font-size:16px;line-height:1.5;">Podés abrirlo en la computadora o en el celular. Por seguridad, el enlace vence en poco tiempo y sirve una sola vez.</p>
+      <p style="margin:0;font-size:14px;line-height:1.5;color:#636a75;">Si no te registraste vos, ignorá este email: no se va a activar ninguna cuenta.</p>
+    </div>
+  </div>
+</div>
