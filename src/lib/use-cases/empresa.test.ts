@@ -157,7 +157,36 @@ describe("pedirCierre (RF1.3.6)", () => {
     expect(resultado.ok === false && resultado.falla).toBe("conflict");
   });
 
+  test("is refused while a referred applicant has no answer, saying how many (D-055)", async () => {
+    dal.leerOferta.mockResolvedValue(oferta({ estado: "publicada" }));
+    dal.listarCandidatosDerivados.mockResolvedValue([
+      candidato({ postulacionId: "p-1", decision: null }),
+      candidato({ postulacionId: "p-2", decision: null }),
+      candidato({ postulacionId: "p-3", decision: "contratado" }),
+    ]);
+
+    const resultado = await pedirCierre(empresa, "oferta-1");
+
+    expect(dal.listarCandidatosDerivados).toHaveBeenCalledWith("empresa-1", "oferta-1");
+    expect(resultado.ok === false && resultado.falla).toBe("conflict");
+    expect(resultado.ok === false && resultado.mensaje).toContain("2 personas");
+    expect(dal.marcarCierreSolicitado).not.toHaveBeenCalled();
+  });
+
+  test("is allowed once every referred applicant has an answer (D-055)", async () => {
+    dal.leerOferta.mockResolvedValue(oferta({ estado: "publicada" }));
+    dal.listarCandidatosDerivados.mockResolvedValue([
+      candidato({ decision: "no_contratado", motivoNoContratacion: "Buscaba otra experiencia." }),
+    ]);
+
+    const resultado = await pedirCierre(empresa, "oferta-1");
+
+    expect(resultado.ok).toBe(true);
+    expect(dal.marcarCierreSolicitado).toHaveBeenCalledWith("oferta-1");
+  });
+
   test("marks the request, and asking twice does not mark it again", async () => {
+    dal.listarCandidatosDerivados.mockResolvedValue([]);
     dal.leerOferta.mockResolvedValueOnce(oferta({ estado: "publicada" }));
     const primera = await pedirCierre(empresa, "oferta-1");
 

@@ -593,7 +593,7 @@ Decisión:
 - La empresa **no puede** pedir el cierre de una oferta mientras tenga candidatos derivados sin "Contrata / No contrata".
 - El caso de uso de la solicitud de cierre responde 409 con un mensaje que dice a cuántas personas les falta respuesta; la pantalla lo muestra y lleva a responder.
 Motivo: el usuario lo decidió ("claramente no puede"). Es el momento natural para pedir el feedback: al cerrar, la búsqueda terminó y la empresa ya sabe qué pasó con cada persona.
-*Pendiente de implementar: es lo primero de la próxima sesión.*
+*Implementada el 2026-10-20 en `pedirCierre` (`src/lib/use-cases/empresa.ts`), con tests. El mensaje dice a cuántas personas les falta respuesta y dónde responder: la lista de candidatos está en el mismo detalle de la oferta.*
 
 ---
 

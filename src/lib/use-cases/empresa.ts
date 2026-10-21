@@ -77,6 +77,10 @@ export async function publicarOferta(
  * until the Office closes it (D-008). Another company's offer gets the same
  * "not found" as one that does not exist, so nothing leaks. Asking twice is
  * not an error.
+ *
+ * While a referred applicant has no "Contrata / No contrata" yet, the request
+ * is refused (D-055): closing is when the company already knows what happened
+ * with each person, so it answers first.
  */
 export async function pedirCierre(usuario: CurrentUser, ofertaId: string): Promise<Resultado<{ oferta: OfertaEmpresa }>> {
   const negado = sinPermiso(usuario, "empresa");
@@ -90,6 +94,15 @@ export async function pedirCierre(usuario: CurrentUser, ofertaId: string): Promi
     return falla("conflict", "Solo se puede pedir el cierre de una oferta publicada.");
   }
   if (!oferta.cierreSolicitado) {
+    const candidatos = await listarCandidatosDerivados(usuario.id, oferta.id);
+    const sinRespuesta = candidatos.filter((c) => c.decision === null).length;
+    if (sinRespuesta > 0) {
+      const personas = sinRespuesta === 1 ? "1 persona" : `${sinRespuesta} personas`;
+      return falla(
+        "conflict",
+        `Antes de pedir el cierre, contanos si contrataste a ${personas} que te propuso la Oficina. Respondé en "Candidatos que te propuso la Oficina", en esta misma oferta.`,
+      );
+    }
     await marcarCierreSolicitado(oferta.id);
   }
   return exito({ oferta: aOfertaEmpresa({ ...oferta, cierreSolicitado: true }) });

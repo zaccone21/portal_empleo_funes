@@ -139,6 +139,6 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 | 0. Pulir | Arreglos del diagnóstico y borrar código sin uso | Hecha (2026-10-18). Faltan correr los e2e |
 | 1. Papeles | Requerimientos, pantallas, decisiones, reglas y este plan alineados con la consigna | Hecha (2026-10-18) |
 | 2. Base de datos | Una migración (`20261018200000`): preentrevista, fecha de derivación, decisión de la empresa, experiencia laboral y derivaciones a cursos. Sin totales guardados ni topes (D-054) | Hecha (aplicada en testing el 2026-10-18) |
-| 3. Lógica | Casos de uso y rutas de P17, P18 y P19, preentrevista, duplicar y asociar a una oferta; conteos en el DAL y la cola "sin respuesta de la empresa" en P14 (D-054) | Hecha (2026-10-18), con tests unitarios. Falta: D-055 (no se pide el cierre con candidatos sin respuesta) |
+| 3. Lógica | Casos de uso y rutas de P17, P18 y P19, preentrevista, duplicar y asociar a una oferta; conteos en el DAL y la cola "sin respuesta de la empresa" en P14 (D-054) | Hecha (2026-10-18), con tests unitarios. D-055 (no se pide el cierre con candidatos sin respuesta) hecha el 2026-10-20 |
 | 4. Pantallas | Lo de "Falta" de este documento | Hecha (2026-10-18). La Oficina se revisó en el navegador; empresa y postulante, solo con tests: falta verlas con su sesión y a 390 px |
 | 5. Entrega | Vercel, cuentas y datos de demostración, README, ensayo de la demo | En curso: README hecho (2026-10-18). Falta Vercel, cuentas y datos de demostración, plantillas de email (DT-011), correr los e2e y ensayar |
