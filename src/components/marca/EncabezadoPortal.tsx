@@ -37,14 +37,14 @@ export function EncabezadoPortal({ area }: { area: Role }) {
         <MarcaPortal />
         {items.length > 0 && (
           <nav aria-label="Principal" className="hidden lg:block">
-            <ul className="flex items-center gap-1">
+            <ul className="flex items-center gap-0.5 xl:gap-1">
               {items.map(({ href, texto, icono: Icono, destacado }) => (
                 <li key={href}>
                   <Link
                     href={href}
                     aria-current={ruta === href ? "page" : undefined}
                     className={cn(
-                      "relative inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-base font-medium outline-none focus-visible:ring-3 focus-visible:ring-brand-mint/70",
+                      "relative inline-flex min-h-11 items-center gap-1.5 rounded-md px-2.5 text-base font-medium whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-brand-mint/70 xl:px-3",
                       destacado
                         ? "ml-1 bg-brand-mint text-brand-deep hover:bg-brand-mint/90"
                         : "text-primary-foreground/75 hover:bg-primary-foreground/10 hover:text-primary-foreground",

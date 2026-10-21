@@ -22,7 +22,7 @@ const NOMBRE_ROL: Record<Role, string> = {
 
 /**
  * Account corner of the top bar (D-028):
- * - with a session: who is in (initial, role and email, from `xl`, where the
+ * - with a session: who is in (initial, role and email, from `2xl`, where the
  *   full menu still leaves room) and
  *   "Salir", always visible with icon and word, on phones too;
  * - without one (desktop only; on phones the bottom bar has them):
@@ -49,7 +49,7 @@ export function BotonCuenta({ area }: { area: Role }) {
 
     return (
       <div className="flex shrink-0 items-center gap-3">
-        <div className="hidden items-center gap-2.5 xl:flex">
+        <div className="hidden items-center gap-2.5 2xl:flex">
           <span
             aria-hidden="true"
             className="flex size-9 shrink-0 items-center justify-center rounded-tl-xl rounded-tr-sm rounded-br-xl rounded-bl-sm bg-brand-mint font-heading text-base font-semibold text-brand-deep uppercase"

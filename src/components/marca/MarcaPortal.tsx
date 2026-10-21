@@ -18,7 +18,7 @@ export function MarcaPortal() {
     >
       <LogoMunicipalidad variante="claro" className="h-[32px] w-[113px] shrink-0" />
       <span aria-hidden="true" className="h-7 w-px shrink-0 bg-primary-foreground/35" />
-      <span className="font-heading text-base leading-tight font-semibold">Portal de Empleo</span>
+      <span className="font-heading text-base leading-tight font-semibold lg:whitespace-nowrap">Portal de Empleo</span>
     </Link>
   );
 }
