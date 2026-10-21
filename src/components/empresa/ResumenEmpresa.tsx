@@ -188,10 +188,16 @@ export function ResumenEmpresa() {
         </section>
       )}
 
-      <p className="max-w-2xl text-base text-muted-foreground">
-        La Oficina de Empleo es la que busca a los candidatos. Cuando encuentre personas para una
-        de tus ofertas, te las propone en esa oferta, con su contacto y su CV.
-      </p>
+      <div className="flex flex-col items-start gap-1">
+        <p className="max-w-2xl text-base text-muted-foreground">
+          La Oficina de Empleo es la que busca a los candidatos. Cuando encuentre personas para una
+          de tus ofertas, te las propone en esa oferta, con su contacto y su CV.
+        </p>
+        {/* The company's phone bar has no "Ayuda" (D-056), so its guide is reached from here. */}
+        <Link href="/ayuda?para=empresa" className={cn(buttonVariants({ variant: "link" }), "px-0")}>
+          Ver la guía para empresas
+        </Link>
+      </div>
     </div>
   );
 }

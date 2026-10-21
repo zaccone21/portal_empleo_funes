@@ -5,6 +5,7 @@
 ## **Acceso Público**
 
 - **P01. Landing Page** (`/`): Presentación del portal, opciones de registro/login separadas por rol (Postulante / Empresa / Institucional).
+- **P20. Ayuda** *(nueva, 2026-10-20)* (`/ayuda`, `/ayuda?para=empresa`): Guía paso a paso y preguntas frecuentes para postulantes y empresas; la Oficina no tiene guía (D-057).
 
 ### **Postulante**
 
