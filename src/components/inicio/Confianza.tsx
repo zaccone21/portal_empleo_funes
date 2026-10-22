@@ -1,6 +1,5 @@
+import Image from "next/image";
 import { GraduationCapIcon, HandshakeIcon, LockKeyholeIcon, ShieldCheckIcon, type LucideIcon } from "lucide-react";
-
-import { LogoMunicipalidad } from "@/components/marca/LogoMunicipalidad";
 
 /*
  * Each promise is something the portal already does, with the rule it comes
@@ -34,41 +33,48 @@ const GARANTIAS: { titulo: string; texto: string; icono: LucideIcon }[] = [
 ];
 
 /**
- * "Un servicio de la Municipalidad de Funes" on the home page (P01, D-059):
- * why a visitor can trust the portal, told with what the Office really does.
- * White card with the municipal logo in color, so it reads as institutional
- * and not as another green brand block.
+ * "Un servicio de la Municipalidad de Funes" on the home page (P01, D-059,
+ * D-066): why a visitor can trust the portal, told with what the Office really
+ * does. On the left, the municipal seal big on the deep green, so the block
+ * reads as an official endorsement at a glance; on the right, the four
+ * promises in a grid of equal cells.
+ *
+ * The seal file is 447 px, so it stays sharp up to about 220 px.
  */
 export function Confianza() {
   return (
     <section
       aria-labelledby="confianza-titulo"
-      className="flex flex-col gap-6 rounded-tl-[1.75rem] rounded-tr-lg rounded-br-[1.75rem] rounded-bl-lg bg-card p-6 ring-1 ring-foreground/5 sm:p-8"
+      className="grid overflow-hidden rounded-tl-[1.75rem] rounded-tr-lg rounded-br-[1.75rem] rounded-bl-lg bg-card ring-1 ring-foreground/5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-1">
-          <h2 id="confianza-titulo" className="text-2xl font-semibold text-balance">
+      <div className="flex flex-col items-center justify-center gap-5 bg-brand-deep p-8 text-center text-primary-foreground sm:p-10">
+        <Image
+          src="/sello-funes-verde.png"
+          alt="Sello del Gobierno de la Ciudad de Funes"
+          width={447}
+          height={447}
+          className="size-36 rounded-full ring-4 ring-primary-foreground/15 sm:size-44 lg:size-52"
+        />
+        <div className="flex flex-col gap-2">
+          <h2 id="confianza-titulo" className="text-2xl font-semibold text-balance sm:text-3xl">
             Un servicio de la Municipalidad de Funes
           </h2>
-          <p className="max-w-xl text-base text-muted-foreground">
+          <p className="mx-auto max-w-sm text-base text-primary-foreground/80">
             Detrás del portal está la Oficina de Empleo, que conoce a las empresas y a la gente de la ciudad.
           </p>
         </div>
-        <LogoMunicipalidad variante="color" className="h-8 w-auto shrink-0" />
       </div>
-      <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="grid gap-px bg-border sm:grid-cols-2">
         {GARANTIAS.map(({ titulo, texto, icono: Icono }) => (
-          <li key={titulo} className="flex gap-3 lg:flex-col">
+          <li key={titulo} className="flex flex-col gap-3 bg-card p-6 sm:p-8">
             <span
               aria-hidden="true"
-              className="flex size-12 shrink-0 items-center justify-center rounded-tl-xl rounded-tr-sm rounded-br-xl rounded-bl-sm bg-secondary text-primary"
+              className="flex size-12 shrink-0 items-center justify-center rounded-tl-xl rounded-tr-sm rounded-br-xl rounded-bl-sm bg-primary text-primary-foreground"
             >
               <Icono className="size-6" />
             </span>
-            <div className="flex flex-col gap-1">
-              <h3 className="font-heading text-lg font-semibold">{titulo}</h3>
-              <p className="text-base text-muted-foreground">{texto}</p>
-            </div>
+            <h3 className="font-heading text-lg font-semibold">{titulo}</h3>
+            <p className="text-base text-muted-foreground">{texto}</p>
           </li>
         ))}
       </ul>

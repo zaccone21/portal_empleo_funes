@@ -14,7 +14,7 @@ Público: personas con poca práctica digital, en celulares de gama baja y mucha
 
 La idea: **un mural de azulejos con los oficios de la ciudad** (albañilería, jardinería, cocina, electricidad, transporte, costura…), en los verdes de la Municipalidad y con un único acento amarillo "sol". Conecta con el corazón del portal, que es que cada persona encuentre trabajo de lo suyo (las etiquetas de oficios de RF1.2.2).
 
-- **El mosaico es el elemento memorable** y aparece en los fondos verdes: el marco de acceso, los encabezados de sección y el bloque "¿Tenés una empresa…?" del inicio. Todo lo que está alrededor es sobrio: fondos blancos, tipografía clara, sin decoración extra. Si un fondo ya tiene mosaico, no se le suma otro adorno.
+- **El mosaico es el elemento memorable** y aparece en los fondos verdes: el marco de acceso, los encabezados de sección y la portada del inicio. Todo lo que está alrededor es sobrio: fondos blancos, tipografía clara, sin decoración extra. Si un fondo ya tiene mosaico, no se le suma otro adorno.
 - **En el celular, el mosaico nunca va detrás de un texto.** En los encabezados de sección y en el bloque de empresas se oculta por debajo de `sm` (640 px), porque ahí queda detrás del título y le quita legibilidad. En el acceso aparece como franja propia, arriba del panel.
 - **Forma firma, la "hoja":** dos esquinas redondeadas en diagonal (arriba a la izquierda y abajo a la derecha) y dos casi rectas, **siempre discreta**. La usan algunos azulejos, el panel blanco del acceso y las tarjetas. Clases:
   - Paneles grandes: `rounded-tl-[1.75rem] rounded-br-[1.75rem] rounded-tr-lg rounded-bl-lg`.
@@ -24,7 +24,7 @@ La idea: **un mural de azulejos con los oficios de la ciudad** (albañilería, j
 - **Tono adulto e institucional:** es atrevida pero no infantil. Los azulejos son cuadrados (uno de cada tres con forma "hoja"); no hay círculos ni arcos. Los títulos van en Sora semibold, no bold. La navegación marca la página actual con un subrayado, no con píldoras de color.
 - **Superficies:** verde monte (`bg-brand-deep`) para los fondos de marca, con texto blanco. Blanco (`bg-background`) para el contenido que se lee o se completa.
 - **Lema grande:** en los fondos verdes va una frase corta en Sora 700, grande y apretada (`tracking-[-0.03em]`, `leading-[1.05]`). Es un `<p>`; el `h1` de la página sigue siendo el título de la pantalla.
-- **Movimiento:** un único momento al cargar, en el que los azulejos aparecen escalonados y el panel sube. Siempre con `motion-safe:`, para respetar "reducir movimiento". No hay animaciones de hover en cada tarjeta ni entradas por sección. Única excepción: los contadores de "El portal en números" del inicio, que suben una vez al aparecer y con "reducir movimiento" muestran el número final (D-059).
+- **Movimiento:** un único momento al cargar, en el que los azulejos aparecen escalonados y el panel sube. Siempre con `motion-safe:`, para respetar "reducir movimiento". No hay animaciones de hover en cada tarjeta ni entradas por sección. Única excepción: los contadores del inicio (la cifra de contrataciones de la portada y "El portal en números"), que suben una vez al aparecer y, si el número cambia, cuentan desde el anterior; con "reducir movimiento" muestran el número final (D-059, D-066).
 - **Qué evitar:** degradados de relleno, etiquetas en mayúsculas sobre los títulos, resaltar una palabra del título con otro color, tarjetas idénticas con la misma sombra gris, y "→" al final de los botones.
 
 Componentes: `MosaicoOficios` y `MarcaPortal` (`src/components/marca/`), y `MarcoAcceso` y `PanelAcceso` (`src/components/auth/`).
@@ -119,14 +119,15 @@ Tamaños:
 
 La portada sirve para **empezar a buscar trabajo sin leer nada más**. Orden, de arriba hacia abajo:
 1. **Portada verde**: el título "Tu próximo trabajo está en Funes.", una bajada corta y el buscador "¿Qué trabajo buscás?". Buscar lleva al catálogo con la búsqueda hecha (`/ofertas?q=…`). Es un formulario común (GET): funciona aunque falle el JavaScript.
-2. **Rubros como atajos**: los 7 rubros con más trabajos del día a día, como chips con ícono. Cada uno abre el catálogo filtrado (`/ofertas?rubro=…`). En el celular es una fila que se desliza de costado, para no empujar el contenido hacia abajo.
-3. **El portal en números** (D-059): tarjeta blanca con cuatro totales reales, cada uno con su ícono en azulejo menta y un número grande en Sora que sube de 0 al aparecer. Sin datos, no aparece.
+2. **Rubros como atajos** (en la portada): los 7 rubros con más trabajos del día a día, como chips con ícono. Cada uno abre el catálogo filtrado (`/ofertas?rubro=…`). En el celular es una fila que se desliza de costado, para no empujar el contenido hacia abajo.
+3. **Contrataciones** (en la portada, D-066): desde `lg`, un panel blanco "hoja" que flota sobre el mosaico a la derecha, con un ícono en azulejo menta, el número en Sora de 96 px en verde municipal y "personas consiguieron trabajo con el portal"; en el celular, una banda translúcida sobre el verde, abajo del buscador. Se actualiza sola cada minuto mientras se mira. Sin datos, no aparece.
 4. **Ofertas recientes**: las 8 ofertas publicadas más nuevas en un **carrusel** (deslizar, con botones de 44 px anterior/siguiente que se apagan en cada punta; en el celular asoma la tarjeta siguiente), con "Ver todas las ofertas". Se eligieron las recientes y no las "más relevantes" porque la relevancia necesita un criterio que no está definido.
-5. **Buscá por rubro**: los 11 rubros en tarjetas-link con su cantidad de ofertas; los que tienen ofertas llevan el ícono en verde lleno, los demás en menta.
-6. **Un servicio de la Municipalidad de Funes** (solo sin sesión): tarjeta blanca con el logo en color y cuatro garantías con ícono.
+5. **El portal en números** (D-059, D-066): banda verde monte con forma "hoja", título en blanco y cuatro celdas iguales separadas por líneas finas, cada una con su ícono en azulejo menta, el número en blanco (48 px) y su rótulo. Sin datos, no aparece.
+6. **Un servicio de la Municipalidad de Funes** (solo sin sesión, D-066): a la izquierda, sobre verde monte, el sello municipal grande (hasta 208 px) con el título y la bajada; a la derecha, las cuatro garantías en una grilla 2 × 2 de celdas blancas iguales, con el ícono en azulejo verde.
 7. **Cómo postularte**: 3 pasos numerados (es una secuencia real: cuenta, CV, postulación) y "Crear mi cuenta".
-8. **Para empresas**: bloque verde con mosaico (solo desde `sm`) y dos botones: "Registrar mi empresa" y "Ya tengo cuenta".
-9. **Pie**: logo en color, "Ayuda y preguntas frecuentes" y el ingreso de la Oficina de Empleo, discreto, porque lo usan pocas personas.
+8. **Pie**: logo en color, "Ayuda y preguntas frecuentes" y el ingreso de la Oficina de Empleo, discreto, porque lo usan pocas personas.
+
+Sin "Buscá por rubro" (repetía los atajos) ni "Para empresas" (las empresas llegan por "Ayuda"), D-066.
 
 ### Ayuda (P20, D-057)
 
@@ -188,6 +189,7 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 | Navegar a otra pantalla | `<Link>` de `next/link` | Nunca `<a href>` para rutas internas |
 | Link con forma de botón (Duplicar, Llamar, Ver CV) | `<Link>` o `<a>` con `className={buttonVariants(...)}` | No `Button render={<Link />}`: Base UI le pone `role="button"` y el lector de pantalla no lo anuncia como link |
 | Lista con detalle (catálogo de ofertas, ofertas de la empresa, gestión de la Oficina) | Lista + panel de detalle en la misma página, con la selección en la URL (`?oferta=<id>`) | **No usar `Dialog` para contenido largo ni formularios**: en celulares de gama baja un modal es frágil (D-025). En desktop van lado a lado; en mobile el detalle reemplaza a la lista y tiene "Volver" |
+| Tarjetas de una lista o carrusel | `TarjetaSeleccionable` (`h-full`) con título de dos líneas (`line-clamp-2 min-h-[2lh]`) y datos de una línea | **Todas las tarjetas del mismo tipo miden lo mismo** (D-066): en una fila o carrusel se estiran al alto de la mayor; en una columna, el título reserva dos líneas y `DatosOferta compacto` reserva cuatro |
 | Confirmar una acción que no se deshace | `AlertDialog` | Por ejemplo, solicitar el cierre de una oferta. Texto corto y dos botones |
 | Pedir un texto antes de una decisión (motivo del rechazo) | El campo aparece ahí mismo, en la barra de acciones | No es un modal: el teclado del celular y el modal se llevan mal (D-025) |
 | Elegir de una lista corta (ordenar, estado de una postulación) | `SelectorNativo` (el `<select>` del navegador con el estilo del portal) | Abre el selector propio del teléfono, que la gente ya conoce y siempre entra en la pantalla. El `Select` de shadcn queda para listas que necesiten buscar o mostrar íconos |
@@ -279,14 +281,14 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 
 | Componente | Archivo | Qué es |
 |---|---|---|
-| `PortadaInicio` | `src/components/inicio/` | Título, buscador "¿Qué trabajo buscás?" y rubros como atajos al catálogo |
-| `CifrasPortal` | `src/components/inicio/` | "El portal en números": cuatro totales reales con contador (D-059) |
-| `OfertasRecientes` | `src/components/inicio/` | Trae las ofertas una vez: las 8 más nuevas en `CarruselOfertas` y, debajo, `RubrosConOfertas` |
-| `CarruselOfertas` | `src/components/inicio/` | Lista que se desliza de costado con puntos de anclaje y botones anterior/siguiente |
-| `RubrosConOfertas` | `src/components/inicio/` | Los 11 rubros con su cantidad de ofertas, como links al catálogo filtrado |
-| `Confianza` | `src/components/inicio/` | "Un servicio de la Municipalidad de Funes": logo y cuatro garantías reales |
+| `PortadaInicio` | `src/components/inicio/` | Título, buscador "¿Qué trabajo buscás?", rubros como atajos al catálogo y `ContadorContrataciones` |
+| `ContadorContrataciones` | `src/components/inicio/` | La cifra grande de contrataciones de la portada, que se actualiza sola (D-066) |
+| `Contador` | `src/components/inicio/` | Número que cuenta al aparecer y desde el valor anterior cuando cambia; respeta "reducir movimiento" |
+| `CifrasPortal` | `src/components/inicio/` | "El portal en números": banda verde con cuatro totales reales (D-059, D-066) |
+| `OfertasRecientes` | `src/components/inicio/` | Trae las ofertas: las 8 más nuevas en `CarruselOfertas` |
+| `CarruselOfertas` | `src/components/inicio/` | Lista que se desliza de costado con puntos de anclaje y botones anterior/siguiente; tarjetas de igual alto |
+| `Confianza` | `src/components/inicio/` | "Un servicio de la Municipalidad de Funes": sello municipal y cuatro garantías reales |
 | `ComoFunciona` | `src/components/inicio/` | Los 3 pasos para postularse y "Crear mi cuenta" |
-| `ParaEmpresas` | `src/components/inicio/` | Bloque verde para empresas: registrarse o ingresar |
 | `PieInicio` | `src/components/inicio/` | Logo en color y el ingreso de la Oficina de Empleo |
 
 ### Ayuda (P20)
@@ -406,3 +408,4 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
 - **2026-10-22 — Tablas de la Oficina que se ordenan y filas más altas.** Encabezados que ordenan toda la lista (flecha en la columna activa, orden en la URL), filas de 56 px y botones de acción de 36 px; "Empresas nuevas" en Tareas pendientes con su vista. Por qué: el usuario marcó que el orden "solo se informaba", que las filas eran angostas y propensas a errores, y preguntó dónde ver las empresas nuevas. (§4 ter, §10, D-063, D-064)
 - **2026-10-22 — Logo nuevo, nítido.** El logo con el texto completo que pasó el usuario (185 × 52 px, el doble del anterior) reemplaza al de 92 × 26 px, que se veía pixelado al agrandarlo. Se muestra a 32 px de alto; en verde, con una máscara CSS sobre el mismo archivo. En el menú lateral de la Oficina se saca "Municipalidad de Funes", que el logo ya dice. Por qué: el usuario marcó el logo como "muy pixelado" y el del panel de la Oficina como "muy mal". (§4 bis)
 - **2026-10-22 — Barra superior rediseñada.** Más alta (64/72 px), logo nuevo, menú como texto con la barra menta sobre el borde inferior, "Publicar" a la derecha y la cuenta en "Mi cuenta" (inicial que abre rol, email y "Salir"). Sin sesión: "Ofertas", "Ayuda", "Ingresar" y "Crear cuenta". Por qué: el usuario marcó la barra como inaceptable y el bloque del usuario como "muy mal dispuesto"; eligió mantener el menú completo a la vista. Reemplaza, en D-056, "Salir" suelto y la identidad desde `xl`. (§4 bis, §10, D-065)
+- **2026-10-22 — Inicio con más peso y menos repetición.** Contrataciones en grande en la portada, que se actualiza sola cada minuto; "El portal en números" como banda verde con cifras grandes; el sello municipal grande en "Un servicio de la Municipalidad"; tarjetas del mismo tipo con el mismo alto; fuera "Buscá por rubro" y "Para empresas". Por qué: el usuario marcó las cifras como "tímidas", las alturas desparejas, la sección de rubros repetida, el bloque para empresas como innecesario y el bloque municipal como "muy neutro". (§0, §4 ter, §5, §10, D-066)

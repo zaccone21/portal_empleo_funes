@@ -10,7 +10,6 @@ import { useOfertasPublicadas } from "@/hooks/useOfertasPublicadas";
 import { FILTROS_VACIOS, filtrarOfertas } from "@/lib/catalogo";
 
 import { CarruselOfertas } from "./CarruselOfertas";
-import { RubrosConOfertas } from "./RubrosConOfertas";
 
 /** Cards in the slider: enough to browse, few enough for a cheap phone. */
 const CANTIDAD = 8;
@@ -22,15 +21,14 @@ const CANTIDAD_ESQUELETO = 4;
  * las ofertas" leads to the whole catalog. "Newest" is the only relevance the
  * portal can tell today (there is no other signal yet).
  *
- * Since 2026-10-20 (D-059) the offers are a slider of up to 8, and the same
- * list feeds "Buscá por rubro" below it, so the home page asks for the offers
- * only once.
+ * Since 2026-10-20 (D-059) the offers are a slider of up to 8. The trades are
+ * the hero's shortcuts; the "Buscá por rubro" section that repeated them was
+ * removed (D-066).
  */
 export function OfertasRecientes() {
   const { ofertas, loading, error, recargar } = useOfertasPublicadas();
 
   return (
-    <>
     <section aria-labelledby="ofertas-recientes" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h2 id="ofertas-recientes" className="text-2xl font-semibold">
@@ -65,7 +63,5 @@ export function OfertasRecientes() {
         <CarruselOfertas ofertas={filtrarOfertas(ofertas, FILTROS_VACIOS).slice(0, CANTIDAD)} />
       )}
     </section>
-    {ofertas && <RubrosConOfertas ofertas={ofertas} />}
-    </>
   );
 }

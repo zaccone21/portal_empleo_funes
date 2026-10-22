@@ -687,6 +687,17 @@ Decisión:
 - **Sin sesión:** "Ofertas" y "Ayuda", con "Ingresar" y "Crear cuenta" (o "Registrar mi empresa") a la derecha. Se sacan "Inicio" (es el logo) y "Para empresas": las empresas entran por "Ayuda" y por los links cruzados de los ingresos.
 Motivo: el usuario dijo que la barra parecía "hecha por un niño de 5 años" y que el bloque del usuario estaba "muy mal dispuesto"; pidió simplificarlo para todas las sesiones. Eligió mantener el menú completo a la vista (lo que había pedido en D-056) y llevar solo la cuenta a "Mi cuenta".
 
+### D-066 — Inicio: contrataciones en vivo en la portada, cifras con más peso y menos bloques
+Fecha: 2026-10-22 · Amplía: D-059
+Decisión:
+- **Portada:** a la derecha (abajo en el celular), la cifra grande de **contrataciones logradas** (las respuestas "Contrata" de las empresas, D-044). Cuenta al aparecer y **se actualiza sola**: el inicio vuelve a preguntar cada 60 segundos solo mientras la pestaña está a la vista, y una vez más al volver a ella; si sube, cuenta desde el número que había.
+- **Costo:** la respuesta de `GET /api/estadisticas` lleva `Cache-Control: public, s-maxage=60, stale-while-revalidate=60`, así la CDN de Vercel la reparte y la base cuenta como mucho una vez por minuto, sin importar cuántas visitas haya. Son solo totales, sin datos personales.
+- **"El portal en números":** banda verde monte con cifras grandes en blanco: ofertas abiertas, empresas, personas buscando trabajo y personas presentadas a empresas por la Oficina (las contrataciones pasan a la portada). Va después de las ofertas recientes.
+- **Se sacan** "Buscá por rubro" (repetía los atajos de rubro de la portada) y "Para empresas" (las empresas llegan por "Ayuda", D-057).
+- **"Un servicio de la Municipalidad de Funes":** el sello municipal grande sobre verde a la izquierda y las cuatro garantías en una grilla de celdas iguales.
+- **Misma altura:** las tarjetas de una misma lista o carrusel tienen el mismo alto: el título ocupa siempre dos líneas, cada dato una línea (con "…") y se reserva el lugar del sueldo aunque no esté.
+Motivo: pedidos del usuario: "el portal en números es muy tímido", una estadística grande de contrataciones en la portada "que aumente como un contador siempre que entra una nueva" (si el costo no es alto), "no quiero diferencias en alturas de cards", "Buscá por rubro es una sección repetida", "Para empresas no me sirve" y "Un servicio de la Municipalidad no tiene un logro visual".
+
 ---
 
 ## Abiertas

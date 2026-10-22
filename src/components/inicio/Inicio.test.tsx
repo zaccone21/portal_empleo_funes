@@ -1,28 +1,13 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { OfertaPublica } from "@/lib/validation/ofertas";
-
 const estadisticas = vi.hoisted(() => ({ valor: {} as Record<string, unknown> }));
 vi.mock("@/hooks/useEstadisticas", () => ({ useEstadisticas: () => estadisticas.valor }));
 
 import { CifrasPortal } from "./CifrasPortal";
-import { contarPorRubro, RubrosConOfertas } from "./RubrosConOfertas";
+import { ContadorContrataciones } from "./ContadorContrataciones";
 
-function oferta(id: string, rubros: OfertaPublica["rubros"]): OfertaPublica {
-  return {
-    id,
-    titulo: `Puesto ${id} (ejemplo)`,
-    descripcion: "Tareas",
-    requisitos: "Ninguno",
-    lugar: "Centro",
-    jornada: "Mañana",
-    sueldo: null,
-    rubros,
-    publicadaEl: "2026-10-20T12:00:00.000Z",
-    yaTePostulaste: false,
-  };
-}
+const TOTALES = { ofertasPublicadas: 12, empresas: 5, postulantes: 1500, derivaciones: 9, contrataciones: 3 };
 
 beforeEach(() => {
   // jsdom has no IntersectionObserver: the counters never start, which is enough here.
@@ -40,43 +25,45 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("RubrosConOfertas (D-059)", () => {
-  test("an offer with two trades counts in both", () => {
-    const cuenta = contarPorRubro([oferta("1", ["gastronomia", "transporte"]), oferta("2", ["gastronomia"])]);
-
-    expect(cuenta.gastronomia).toBe(2);
-    expect(cuenta.transporte).toBe(1);
-    expect(cuenta.limpieza).toBe(0);
-  });
-
-  test("lists every trade, the busiest first, each one opening the filtered catalog", () => {
-    render(<RubrosConOfertas ofertas={[oferta("1", ["limpieza"]), oferta("2", ["limpieza"])]} />);
-
-    const enlaces = screen.getAllByRole("link");
-    expect(enlaces).toHaveLength(11);
-    expect(enlaces[0].getAttribute("href")).toBe("/ofertas?rubro=limpieza");
-    expect(enlaces[0].textContent).toContain("2 ofertas");
-    expect(screen.getAllByText("Sin ofertas por ahora")).toHaveLength(10);
-  });
-});
-
 describe("CifrasPortal (D-059)", () => {
   test("shows the real totals, readable for screen readers", () => {
-    estadisticas.valor = {
-      estadisticas: { ofertasPublicadas: 12, empresas: 5, postulantes: 1500, derivaciones: 9, contrataciones: 3 },
-      loading: false,
-      error: null,
-    };
+    estadisticas.valor = { estadisticas: TOTALES, loading: false, error: null };
     render(<CifrasPortal />);
 
     expect(screen.getByRole("heading", { name: "El portal en números" })).toBeDefined();
     expect(screen.getByText("1.500")).toBeDefined();
-    expect(screen.getByText("contrataciones logradas")).toBeDefined();
+    // The hires are the hero's figure (D-066); this band shows the referrals instead.
+    expect(screen.getByText("personas presentadas a empresas por la Oficina")).toBeDefined();
+    expect(screen.queryByText(/contrataciones/)).toBeNull();
   });
 
   test("is left out when the totals cannot be counted", () => {
     estadisticas.valor = { estadisticas: null, loading: false, error: "No pudimos contar" };
     const { container } = render(<CifrasPortal />);
+
+    expect(container.textContent).toBe("");
+  });
+});
+
+describe("ContadorContrataciones (D-066)", () => {
+  test("shows the hires with a sentence that agrees with the number", () => {
+    estadisticas.valor = { estadisticas: TOTALES, loading: false, error: null };
+    render(<ContadorContrataciones />);
+
+    expect(screen.getByRole("heading", { name: "personas consiguieron trabajo con el portal" })).toBeDefined();
+    expect(screen.getByText("3")).toBeDefined();
+  });
+
+  test("speaks in singular for one hire", () => {
+    estadisticas.valor = { estadisticas: { ...TOTALES, contrataciones: 1 }, loading: false, error: null };
+    render(<ContadorContrataciones />);
+
+    expect(screen.getByRole("heading", { name: "persona consiguió trabajo con el portal" })).toBeDefined();
+  });
+
+  test("is left out when the totals cannot be counted", () => {
+    estadisticas.valor = { estadisticas: null, loading: false, error: "No pudimos contar" };
+    const { container } = render(<ContadorContrataciones />);
 
     expect(container.textContent).toBe("");
   });
