@@ -244,3 +244,11 @@ Qué:
 - No queda registro de qué operadora creó cada cuenta (como DT-006).
 Por qué quedó: el usuario pidió que la Oficina pueda crear cuentas sin borrarlas, a dos semanas de la entrega. Mandar una invitación por email depende de las plantillas con `token_hash` (DT-011), que todavía no están en el panel.
 Cómo se salda: una función `security definer` `crear_cuenta_oficina(email)` que controle en la base que quien la llama es admin y haga los pasos en una transacción; invitación por email en vez de contraseña temporal, cuando las plantillas estén pegadas; una columna `creada_por` en `perfiles`, y un test pgTAP.
+
+### DT-021 — Las 850 ubicaciones previas de la Oficina están fijas en el código
+Fecha: 2026-10-22 · Origen: D-067
+Qué:
+- La cifra de la portada suma `CONTRATACIONES_ANTES_DEL_PORTAL = 850` (`src/lib/use-cases/inicio.ts`) a las contrataciones que cuenta la base. Si la Oficina corrige ese número, hay que cambiar el código y volver a desplegar.
+- No está confirmado desde qué año cuenta la Oficina ese número.
+Por qué quedó: es un solo valor que no cambia en el día a día; guardarlo en la base sumaba una tabla y una pantalla para editarlo (memoria "mvp-minimal-schema").
+Cómo se salda: si la Oficina necesita actualizarlo seguido, una fila de configuración en la base (migración) y un campo en el panel de la Oficina para editarlo.

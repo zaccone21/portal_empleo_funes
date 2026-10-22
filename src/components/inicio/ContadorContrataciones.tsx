@@ -11,9 +11,10 @@ import { Contador } from "./Contador";
 const ACTUALIZAR_CADA_MS = 60_000;
 
 /**
- * The big figure of the home page (P01, D-066): how many people got a job
- * through the portal, counted from the companies' answers (D-044). It counts
- * up when it appears and again whenever a new hire comes in, without reloading.
+ * The big figure of the home page (P01, D-066, D-067): how many people got a
+ * job with the Employment Office: its placements before the portal plus the
+ * hires counted in it (the companies' answers, D-044). It counts up when it
+ * appears and again whenever a new hire comes in, without reloading.
  *
  * On phones it is a band on the green hero; from `lg` it is a white "leaf"
  * panel floating over the mosaic, like the sign-in panel. If the totals cannot
@@ -45,10 +46,11 @@ export function ContadorContrataciones() {
       </div>
       <div className="flex flex-col gap-1">
         <h2 id="contrataciones-titulo" className="text-lg leading-snug font-semibold lg:text-xl">
-          {contrataciones === 1 ? "persona consiguió trabajo" : "personas consiguieron trabajo"} con el portal
+          {contrataciones === 1 ? "persona consiguió trabajo" : "personas consiguieron trabajo"} con la Oficina de
+          Empleo
         </h2>
         <p className="text-sm text-primary-foreground/75 lg:text-base lg:text-muted-foreground">
-          Se suma solo cada vez que una empresa contrata a alguien que le presentó la Oficina.
+          Cuenta a quienes la Oficina ubicó antes del portal y se suma solo con cada contratación nueva.
         </p>
       </div>
     </section>

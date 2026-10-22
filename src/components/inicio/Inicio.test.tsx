@@ -50,7 +50,7 @@ describe("ContadorContrataciones (D-066)", () => {
     estadisticas.valor = { estadisticas: TOTALES, loading: false, error: null };
     render(<ContadorContrataciones />);
 
-    expect(screen.getByRole("heading", { name: "personas consiguieron trabajo con el portal" })).toBeDefined();
+    expect(screen.getByRole("heading", { name: "personas consiguieron trabajo con la Oficina de Empleo" })).toBeDefined();
     expect(screen.getByText("3")).toBeDefined();
   });
 
@@ -58,7 +58,7 @@ describe("ContadorContrataciones (D-066)", () => {
     estadisticas.valor = { estadisticas: { ...TOTALES, contrataciones: 1 }, loading: false, error: null };
     render(<ContadorContrataciones />);
 
-    expect(screen.getByRole("heading", { name: "persona consiguió trabajo con el portal" })).toBeDefined();
+    expect(screen.getByRole("heading", { name: "persona consiguió trabajo con la Oficina de Empleo" })).toBeDefined();
   });
 
   test("is left out when the totals cannot be counted", () => {

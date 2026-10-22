@@ -698,6 +698,15 @@ Decisión:
 - **Misma altura:** las tarjetas de una misma lista o carrusel tienen el mismo alto: el título ocupa siempre dos líneas, cada dato una línea (con "…") y se reserva el lugar del sueldo aunque no esté.
 Motivo: pedidos del usuario: "el portal en números es muy tímido", una estadística grande de contrataciones en la portada "que aumente como un contador siempre que entra una nueva" (si el costo no es alto), "no quiero diferencias en alturas de cards", "Buscá por rubro es una sección repetida", "Para empresas no me sirve" y "Un servicio de la Municipalidad no tiene un logro visual".
 
+### D-067 — El contador de la portada suma las 850 personas que la Oficina ubicó antes del portal
+Fecha: 2026-10-22 · Amplía: D-066
+Decisión:
+- La cifra grande de la portada es **850 + las contrataciones contadas en el portal**. El 850 es un dato real de la Oficina de Empleo: personas que ubicó en un trabajo antes de que existiera el portal (informado por el usuario el 2026-10-22).
+- El texto lo dice: "personas consiguieron trabajo con la Oficina de Empleo" y "Cuenta a quienes la Oficina ubicó antes del portal y se suma solo con cada contratación nueva". Cuenta de 0 a la cifra al aparecer, como las demás.
+- El valor vive en `CONTRATACIONES_ANTES_DEL_PORTAL` (`src/lib/use-cases/inicio.ts`); la base no cambia (DT-021).
+- **Pendiente:** confirmar desde qué año cuenta la Oficina ese número, para poder decirlo si alguien pregunta en la demo.
+Motivo: pedido del usuario ("que el contador arranque desde 850"). Se confirmó que es un dato real y no un número de ejemplo (DESIGN §0, AGENTS §12).
+
 ---
 
 ## Abiertas
