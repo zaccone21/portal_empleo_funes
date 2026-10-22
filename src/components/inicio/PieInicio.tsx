@@ -11,7 +11,7 @@ export function PieInicio() {
   return (
     <footer className="flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
-        <LogoMunicipalidad variante="color" className="h-[26px] w-[92px] shrink-0" />
+        <LogoMunicipalidad variante="color" className="h-8 w-auto shrink-0" />
         <p className="text-sm text-muted-foreground">Oficina de Empleo de la Municipalidad de Funes</p>
       </div>
       <div className="flex flex-wrap items-center gap-x-6">

@@ -54,7 +54,7 @@ export function Confianza() {
             Detrás del portal está la Oficina de Empleo, que conoce a las empresas y a la gente de la ciudad.
           </p>
         </div>
-        <LogoMunicipalidad variante="color" className="h-[26px] w-[92px] shrink-0" />
+        <LogoMunicipalidad variante="color" className="h-8 w-auto shrink-0" />
       </div>
       <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {GARANTIAS.map(({ titulo, texto, icono: Icono }) => (

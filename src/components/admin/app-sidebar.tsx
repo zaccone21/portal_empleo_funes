@@ -36,12 +36,12 @@ export function AppSidebar({ conteos, emailUsuario }: Props) {
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarHeader className="px-2.5 pt-3.5 pb-0 group-data-[collapsible=icon]:hidden">
-        <div className="flex flex-col gap-1.5 px-2 pt-0.5 pb-3">
-          <LogoMunicipalidad variante="color" className="h-[30px] w-auto self-start" />
-          <div className="flex flex-col gap-px">
-            <span className="font-heading text-[14px] leading-[1.15] font-bold text-foreground">Oficina de Empleo</span>
-            <span className="text-[10.5px] text-muted-foreground">Municipalidad de Funes</span>
-          </div>
+        {/* The logo already says "Gobierno de la Ciudad de Funes": under it, only the area's name. */}
+        <div className="flex flex-col gap-2.5 px-2 pt-0.5 pb-3">
+          <LogoMunicipalidad variante="color" className="h-8 w-auto self-start" />
+          <span className="border-t border-border pt-2.5 font-heading text-[15px] leading-tight font-semibold text-foreground">
+            Oficina de Empleo
+          </span>
         </div>
       </SidebarHeader>
       <SidebarContent className="px-2.5 group-data-[collapsible=icon]:pt-3.5">
