@@ -54,13 +54,13 @@ export const ITEMS_POR_ROL: Record<Role, ItemNavegacion[]> = {
   admin: [],
 };
 
-/** What anyone can open without an account in each area. */
+/**
+ * What anyone can open without an account in each area. The logo already
+ * leads home, and companies find their way in through "Ayuda" and the
+ * cross-links of the sign-in screens (D-065).
+ */
 const ITEMS_PUBLICOS: Record<Role, ItemNavegacion[]> = {
-  postulante: [
-    INICIO_POSTULANTE,
-    OFERTAS,
-    { href: "/empresa/ingresar", texto: "Para empresas", icono: Building2Icon },
-  ],
+  postulante: [OFERTAS],
   empresa: [OFERTAS],
   admin: [],
 };
@@ -81,9 +81,9 @@ function conAyuda(items: ItemNavegacion[], rol: Role): ItemNavegacion[] {
  * (the layout's role), on desktop (top bar) or on the phone (`celular`,
  * bottom bar, 3 or 4 items):
  * - logged in: that person's role menu, wherever they are, with the profile
- *   and "Ayuda". On the phone the applicant drops "Inicio" (the logo already
- *   leads there) and the company drops "Ayuda" (it is on its home), so the bar
- *   keeps four items;
+ *   and "Ayuda" (D-056, D-065). The applicant drops "Inicio" (the logo already
+ *   leads there). On the phone the company also drops "Ayuda" (it is on its
+ *   home), so the bottom bar keeps four items;
  * - nobody: the public items of the area and "Ayuda"; on the phone, "Ingresar"
  *   and the registration instead of the desktop links, because the bottom bar
  *   is the only menu there (on desktop they are buttons on the right);
@@ -98,9 +98,10 @@ export function itemsNavegacion(
 
   if (usuario) {
     const { rol } = usuario;
-    const completo = conAyuda([...ITEMS_POR_ROL[rol], ITEM_PERFIL_POR_ROL[rol]], rol);
-    if (!celular || rol === "admin") return completo;
-    if (rol === "postulante") return completo.filter((item) => item !== INICIO_POSTULANTE);
+    const completo = conAyuda([...ITEMS_POR_ROL[rol], ITEM_PERFIL_POR_ROL[rol]], rol).filter(
+      (item) => item !== INICIO_POSTULANTE,
+    );
+    if (!celular || rol !== "empresa") return completo;
     return completo.filter((item) => item !== ITEM_AYUDA);
   }
 

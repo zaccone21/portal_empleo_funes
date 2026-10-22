@@ -15,7 +15,7 @@ describe("itemsNavegacion", () => {
     expect(itemsNavegacion(undefined, "postulante", true)).toEqual([]);
   });
 
-  test("a logged-in person gets their role's menu wherever they are, with the profile and help on desktop", () => {
+  test("a logged-in person gets their role's full menu wherever they are; the logo is the applicant's home (D-065)", () => {
     expect(textos(itemsNavegacion(empresa, "postulante", false))).toEqual([
       "Inicio",
       "Mis ofertas",
@@ -24,7 +24,6 @@ describe("itemsNavegacion", () => {
       "Ayuda",
     ]);
     expect(textos(itemsNavegacion(postulante, "postulante", false))).toEqual([
-      "Inicio",
       "Ofertas",
       "Postulaciones",
       "Mi perfil",
@@ -48,7 +47,7 @@ describe("itemsNavegacion", () => {
 
   test("without a session, phones also get the way in (the bottom bar is their only menu)", () => {
     expect(textos(itemsNavegacion(null, "postulante", true))).toEqual(["Ofertas", "Ingresar", "Crear cuenta", "Ayuda"]);
-    expect(textos(itemsNavegacion(null, "postulante", false))).toEqual(["Inicio", "Ofertas", "Para empresas", "Ayuda"]);
+    expect(textos(itemsNavegacion(null, "postulante", false))).toEqual(["Ofertas", "Ayuda"]);
     expect(textos(itemsNavegacion(null, "empresa", true))).toEqual(["Ingresar", "Registrarse", "Ayuda"]);
   });
 

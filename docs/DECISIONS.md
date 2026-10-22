@@ -679,6 +679,14 @@ Decisión:
 - No cambia D-052: la empresa no necesita aprobación. Esto es para que la Oficina la conozca antes de que llegue su primera oferta. Sin cambios en la base: se cuenta por la fecha de alta del perfil.
 Motivo: el usuario preguntó dónde ve la Oficina las empresas nuevas y eligió sumarlas a Tareas pendientes.
 
+### D-065 — Barra superior rediseñada: menú completo y "Mi cuenta"
+Fecha: 2026-10-22 · Reemplaza: en D-056, el bloque de la cuenta (inicial, rol, email y "Salir" sueltos) y el menú sin sesión
+Decisión:
+- Barra verde monte de 64 px (72 px desde `lg`), con el logo nuevo en blanco a la izquierda. Las pantallas del rol van como texto; la actual en blanco con una barra menta sobre el borde inferior.
+- **Con sesión:** el menú completo sigue a la vista (D-056): postulante "Ofertas, Postulaciones, Mi perfil, Ayuda" (el "Inicio" es el logo); empresa "Inicio, Mis ofertas, Mi empresa, Ayuda" y "Publicar" como botón menta a la derecha. A la derecha, **"Mi cuenta"**: la inicial en un azulejo menta que abre quién ingresó (rol y email) y "Salir". En el celular, solo la inicial (con su nombre para lectores de pantalla); la barra de abajo no cambia.
+- **Sin sesión:** "Ofertas" y "Ayuda", con "Ingresar" y "Crear cuenta" (o "Registrar mi empresa") a la derecha. Se sacan "Inicio" (es el logo) y "Para empresas": las empresas entran por "Ayuda" y por los links cruzados de los ingresos.
+Motivo: el usuario dijo que la barra parecía "hecha por un niño de 5 años" y que el bloque del usuario estaba "muy mal dispuesto"; pidió simplificarlo para todas las sesiones. Eligió mantener el menú completo a la vista (lo que había pedido en D-056) y llevar solo la cuenta a "Mi cuenta".
+
 ---
 
 ## Abiertas

@@ -102,10 +102,10 @@ Tamaños:
   - La acción principal del rol va pintada en verde (el "Publicar" de la empresa).
   - Sin sesión: "Ofertas", "Ingresar" y "Crear cuenta".
 - **Lo que se fija abajo** (por ejemplo "Postularme") se apoya sobre esa barra usando `--alto-barra-inferior`. Lo definen los layouts de cada área y vale 0 desde `lg`.
-- **Arriba**, en todas las pantallas internas: la marca (logo de la Municipalidad en blanco + "Portal de Empleo") y la cuenta, alineadas con el contenido (`max-w-6xl`).
-  - En desktop, el menú completo del rol va también arriba, con subrayado menta en la página actual, y la acción principal ("Publicar") como botón menta. La barra queda fija arriba desde `lg` (D-056).
-  - **"Salir" es un botón visible con ícono y palabra**, no un menú escondido, también en el celular. Desde `xl`, a su izquierda, quién ingresó: inicial en un azulejo menta, rol y email.
-  - Sin sesión, a la derecha: "Ingresar" (vuelve a la pantalla) y "Crear cuenta" o "Registrar mi empresa" en menta.
+- **Arriba**, en todas las pantallas internas (D-065): barra verde monte de 64 px (72 px desde `lg`), alineada con el contenido (`max-w-6xl`): la marca (logo en blanco + "Portal de Empleo"), que lleva al inicio, y la cuenta a la derecha.
+  - En desktop, el menú completo del rol va como texto de 15 px (blanco al 75 %); la página actual en blanco con una barra menta de 3 px sobre el borde inferior de la barra. La acción principal ("Publicar") es un botón menta a la derecha, junto a la cuenta. La barra queda fija arriba desde `lg`.
+  - **"Mi cuenta":** la inicial en un azulejo menta y la palabra "Mi cuenta" con una flecha; abre quién ingresó (rol y email) y "Salir". En el celular, solo la inicial. Las pantallas (perfil, ayuda) no van en este menú: siguen a la vista.
+  - Sin sesión, el menú es "Ofertas" y "Ayuda", y a la derecha "Ingresar" (vuelve a la pantalla) y "Crear cuenta" o "Registrar mi empresa" en menta.
   - "Ayuda" (P20) está en el menú del postulante, de la empresa y de quien no ingresó; nunca en el de la Oficina.
 - **Llevar a la persona de vuelta a donde estaba.** Si una pantalla pide ingresar, el link lleva `?volver=` con esa pantalla. Si falta el CV para postularse, "Mi CV" ofrece "Volver a la oferta".
 - **Mostrar el estado que la persona iría a buscar:** "Te postulaste" en la oferta, "Subí tu CV" arriba de las ofertas.
@@ -258,9 +258,9 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 |---|---|---|
 | `MosaicoOficios` | `src/components/marca/MosaicoOficios.tsx` | El mural de azulejos de oficios (decorativo) |
 | `MarcaPortal` | `src/components/marca/MarcaPortal.tsx` | Logo de la Municipalidad en blanco + "Portal de Empleo" en una fila; lleva al inicio |
-| `EncabezadoPortal` | `src/components/marca/EncabezadoPortal.tsx` | Barra superior: marca, menú completo del rol con "Ayuda" (solo desktop, fija desde `lg`) y la cuenta |
+| `EncabezadoPortal` | `src/components/marca/EncabezadoPortal.tsx` | Barra superior (D-065): marca, menú completo del rol con "Ayuda" (solo desktop, fija desde `lg`), "Publicar" y la cuenta |
 | `BarraInferior` | `src/components/marca/BarraInferior.tsx` | Menú del celular, fijo abajo, con ícono y palabra |
-| `BotonCuenta` | `src/components/marca/BotonCuenta.tsx` | Con sesión: quién ingresó (desde `xl`) y "Salir" siempre visible; sin sesión: "Ingresar" y el registro del área (desktop) |
+| `BotonCuenta` | `src/components/marca/BotonCuenta.tsx` | Con sesión: "Mi cuenta" (`DropdownMenu`: quién ingresó y "Salir"); sin sesión: "Ingresar" y el registro del área (desktop) |
 | `itemsNavegacion` | `src/components/marca/itemsNavegacion.ts` | Qué opciones tiene el menú de cada rol, en un solo lugar |
 | `LogoMunicipalidad` | `src/components/marca/LogoMunicipalidad.tsx` | Logo de la Municipalidad, claro o en color |
 | `ProveedorSesion` | `src/components/sesion/ProveedorSesion.tsx` | Lee la sesión una vez por área; se usa con `useSesion` |
@@ -405,3 +405,4 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
 - **2026-10-22 — La Oficina abre cada registro en una página completa.** Se saca el panel lateral de 500 px: la fila abre la página, con la flecha "Volver a …" a la misma lista y dos columnas a todo el ancho. La evaluación también tiene la flecha. Por qué: el usuario marcó que el panel tenía "mucha info en muy poco lugar" y que "Abrir página completa" se veía roto. Reemplaza, en "Mesa de trabajo", el panel al lado de la tabla. (§4 ter, §10, D-062)
 - **2026-10-22 — Tablas de la Oficina que se ordenan y filas más altas.** Encabezados que ordenan toda la lista (flecha en la columna activa, orden en la URL), filas de 56 px y botones de acción de 36 px; "Empresas nuevas" en Tareas pendientes con su vista. Por qué: el usuario marcó que el orden "solo se informaba", que las filas eran angostas y propensas a errores, y preguntó dónde ver las empresas nuevas. (§4 ter, §10, D-063, D-064)
 - **2026-10-22 — Logo nuevo, nítido.** El logo con el texto completo que pasó el usuario (185 × 52 px, el doble del anterior) reemplaza al de 92 × 26 px, que se veía pixelado al agrandarlo. Se muestra a 32 px de alto; en verde, con una máscara CSS sobre el mismo archivo. En el menú lateral de la Oficina se saca "Municipalidad de Funes", que el logo ya dice. Por qué: el usuario marcó el logo como "muy pixelado" y el del panel de la Oficina como "muy mal". (§4 bis)
+- **2026-10-22 — Barra superior rediseñada.** Más alta (64/72 px), logo nuevo, menú como texto con la barra menta sobre el borde inferior, "Publicar" a la derecha y la cuenta en "Mi cuenta" (inicial que abre rol, email y "Salir"). Sin sesión: "Ofertas", "Ayuda", "Ingresar" y "Crear cuenta". Por qué: el usuario marcó la barra como inaceptable y el bloque del usuario como "muy mal dispuesto"; eligió mantener el menú completo a la vista. Reemplaza, en D-056, "Salir" suelto y la identidad desde `xl`. (§4 bis, §10, D-065)
