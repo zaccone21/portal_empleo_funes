@@ -4,9 +4,9 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser, type CurrentUser } from "@/lib/dal/auth";
 import { buscarEmpresas, buscarPostulantes, verOfertas, verPostulacionesAdmin } from "@/lib/use-cases/oficina";
-import { leerParam, type ParamsBusqueda } from "@/lib/admin/url";
+import type { ParamsBusqueda } from "@/lib/admin/url";
 import type { FilaEmpresa } from "@/lib/admin/empresas";
-import { ofertasParaAsociar, type FilaPostulante, type OfertaParaAsociar } from "@/lib/admin/postulantes";
+import type { FilaPostulante } from "@/lib/admin/postulantes";
 import type { OfertaOficina, PostulacionAdmin } from "@/lib/validation/oficina";
 
 /** The logged-in operator, or a redirect to the Office login (the layout already checks, this is the typed guard). */
@@ -16,43 +16,23 @@ export async function operadorActual(): Promise<CurrentUser> {
   return usuario;
 }
 
-/** Everything the offer screens need: the offers and, for the "Postulaciones" tab, those of the selected one. */
-export async function datosOfertas(params: ParamsBusqueda): Promise<{
-  ofertas: OfertaOficina[];
-  postulacionesDeSel?: PostulacionAdmin[];
-}> {
+/** Everything the offer screens need: every offer (each screen filters by its mode and the URL). */
+export async function datosOfertas(): Promise<{ ofertas: OfertaOficina[] }> {
   const usuario = await operadorActual();
   const resultado = await verOfertas(usuario);
-  const ofertas = resultado.ok ? resultado.datos : [];
-
-  const sel = leerParam(params, "sel");
-  if (sel && leerParam(params, "tab") === "postulaciones") {
-    const todas = await verPostulacionesAdmin(usuario);
-    if (todas.ok) return { ofertas, postulacionesDeSel: todas.datos.filter((p) => p.oferta.id === sel) };
-  }
-  return { ofertas };
+  return { ofertas: resultado.ok ? resultado.datos : [] };
 }
 
-/**
- * Everything the applicants screen needs: applicants with application counts,
- * and the history of the selected one with the published offers it can be
- * linked to (RF1.5.8).
- */
-export async function datosPostulantes(params: ParamsBusqueda): Promise<{
-  postulantes: FilaPostulante[];
-  postulacionesDeSel: PostulacionAdmin[];
-  ofertasParaAsociarSel: OfertaParaAsociar[];
-}> {
+/** Everything the applicants screen needs: applicants with their application counts. */
+export async function datosPostulantes(): Promise<{ postulantes: FilaPostulante[] }> {
   const usuario = await operadorActual();
-  const [resPostulantes, resPostulaciones, resOfertas] = await Promise.all([
+  const [resPostulantes, resPostulaciones] = await Promise.all([
     buscarPostulantes(usuario, {}),
     verPostulacionesAdmin(usuario),
-    verOfertas(usuario),
   ]);
 
   const rawPostulantes = resPostulantes.ok ? resPostulantes.datos : [];
   const postulaciones = resPostulaciones.ok ? resPostulaciones.datos : [];
-  const ofertas = resOfertas.ok ? resOfertas.datos : [];
 
   const conteosPorPostulante = new Map<string, number>();
   for (const post of postulaciones) {
@@ -64,17 +44,13 @@ export async function datosPostulantes(params: ParamsBusqueda): Promise<{
     cantidadPostulaciones: conteosPorPostulante.get(p.id) ?? 0,
   }));
 
-  const sel = leerParam(params, "sel");
-  const postulacionesDeSel = sel ? postulaciones.filter((p) => p.postulante.id === sel) : [];
-  const ofertasParaAsociarSel = sel ? ofertasParaAsociar(ofertas, postulacionesDeSel) : [];
-
-  return { postulantes, postulacionesDeSel, ofertasParaAsociarSel };
+  return { postulantes };
 }
 
-/** Everything the companies screen needs: companies with offer counts and offers of the selected one. */
-export async function datosEmpresas(params: ParamsBusqueda): Promise<{
+/** Everything the companies screens need: companies with their offer counts, and the offers themselves. */
+export async function datosEmpresas(): Promise<{
   empresas: FilaEmpresa[];
-  ofertasDeSel: OfertaOficina[];
+  ofertas: OfertaOficina[];
 }> {
   const usuario = await operadorActual();
   const [resEmpresas, resOfertas] = await Promise.all([
@@ -97,10 +73,7 @@ export async function datosEmpresas(params: ParamsBusqueda): Promise<{
     };
   });
 
-  const sel = leerParam(params, "sel");
-  const ofertasDeSel = sel ? ofertas.filter((o) => o.empresaId === sel) : [];
-
-  return { empresas, ofertasDeSel };
+  return { empresas, ofertas };
 }
 
 /** Everything the application queues and register need. */

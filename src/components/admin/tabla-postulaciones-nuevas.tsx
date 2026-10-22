@@ -4,6 +4,7 @@ import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { Ausente, CeldaDoble, nombreCompleto } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { BadgeCv } from "@/components/admin/tabla-postulantes";
+import { useUrlAdmin } from "@/hooks/useUrlAdmin";
 import { diasDesde } from "@/lib/admin/fechas";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
 import { NOMBRE_RUBRO, type Rubro } from "@/lib/validation/rubros";
@@ -16,6 +17,7 @@ type Props = {
 
 /** Screen 05 table: new applications queue waiting for evaluation. */
 export function TablaPostulacionesNuevas({ postulaciones, pager, hayFiltros }: Props) {
+  const { detalle } = useUrlAdmin();
   const columnas: ColumnaAdmin<PostulacionAdmin>[] = [
     {
       id: "postulante",
@@ -43,7 +45,6 @@ export function TablaPostulacionesNuevas({ postulaciones, pager, hayFiltros }: P
     {
       id: "rubros",
       cabecera: "Rubros",
-      soloAncha: true,
       celda: (p) =>
         p.oferta.rubros.length > 0 ? (
           p.oferta.rubros.map((r) => NOMBRE_RUBRO[r as Rubro] ?? r).join(", ")
@@ -71,7 +72,7 @@ export function TablaPostulacionesNuevas({ postulaciones, pager, hayFiltros }: P
       cabecera: "",
       alinear: "derecha",
       celda: (p) => (
-        <EnlaceAccion href={`/admin/postulaciones/${p.id}`} variante="primario">
+        <EnlaceAccion href={detalle(`/admin/postulaciones/${p.id}`)} variante="primario">
           Evaluar
         </EnlaceAccion>
       ),
@@ -84,8 +85,7 @@ export function TablaPostulacionesNuevas({ postulaciones, pager, hayFiltros }: P
         columnas={columnas}
         filas={postulaciones}
         idDe={(p) => p.id}
-        conPanel={false}
-        hrefFila={(p) => `/admin/postulaciones/${p.id}`}
+        hrefFila={(p) => detalle(`/admin/postulaciones/${p.id}`)}
         pager={pager}
         etiquetaFila={(p) =>
           `${nombreCompleto(p.postulante) ?? "Postulante"} para ${p.oferta.titulo}`

@@ -14,20 +14,19 @@ import { NOMBRE_RUBRO } from "@/lib/validation/rubros";
 type Props = {
   modo: ModoOfertas;
   ofertas: OfertaOficina[];
-  conPanel: boolean;
   pager: { desde: number; hasta: number; total: number; pagina: number; paginas: number };
   hayFiltros: boolean;
 };
 
-const PISTA_TECLADO = "↑ ↓ para moverte · Enter abre · Esc cierra · / busca";
+const PISTA_TECLADO = "Tab para moverte · Enter abre · / busca";
 
 /**
- * Offers table of the Office (screens 02, 03, 04). Columns: register with the
- * panel closed shows the full set; with the panel open (or in a queue) it
- * falls back to the compact one. Only the "por revisar" queue has bulk approval.
+ * Offers table of the Office (screens 02, 03, 04). The register shows the full
+ * set of columns and the queues the compact one; every row opens the offer's
+ * page (D-062). Only the "por revisar" queue has bulk approval.
  */
-export function TablaOfertas({ modo, ofertas, conPanel, pager, hayFiltros }: Props) {
-  const { construir } = useUrlAdmin();
+export function TablaOfertas({ modo, ofertas, pager, hayFiltros }: Props) {
+  const { detalle } = useUrlAdmin();
   const cola = modo !== "registro";
 
   const puesto: ColumnaAdmin<OfertaOficina> = {
@@ -65,14 +64,24 @@ export function TablaOfertas({ modo, ofertas, conPanel, pager, hayFiltros }: Pro
     celda: (o) => o.cantidadPostulaciones,
   };
 
+  const ver: ColumnaAdmin<OfertaOficina> = {
+    id: "ver",
+    cabecera: "",
+    alinear: "derecha",
+    celda: (o) => (
+      <EnlaceAccion href={detalle(`/admin/ofertas/${o.id}`)} variante={cola ? "primario" : "secundario"}>
+        {cola ? "Resolver" : "Ver"}
+      </EnlaceAccion>
+    ),
+  };
+
   const columnas: ColumnaAdmin<OfertaOficina>[] = cola
-    ? [puesto, ...(modo === "cierres" ? [estado] : []), enviada]
+    ? [puesto, ...(modo === "cierres" ? [estado] : []), enviada, ver]
     : [
         puesto,
         {
           id: "rubro",
           cabecera: "Rubro",
-          soloAncha: true,
           celda: (o) => (o.rubros.length > 0 ? o.rubros.map((r) => NOMBRE_RUBRO[r]).join(", ") : <Ausente />),
         },
         estado,
@@ -80,20 +89,10 @@ export function TablaOfertas({ modo, ofertas, conPanel, pager, hayFiltros }: Pro
         {
           id: "publicada",
           cabecera: "Publicada",
-          soloAncha: true,
           celda: (o) => (o.publicadaEl ? <span className="tabular-nums">{fechaCorta(o.publicadaEl)}</span> : <Ausente />),
         },
         postulaciones,
-        {
-          id: "ver",
-          cabecera: "",
-          soloAncha: true,
-          celda: (o) => (
-            <EnlaceAccion href={construir({ sel: o.id })} scroll={false}>
-              Ver
-            </EnlaceAccion>
-          ),
-        },
+        ver,
       ];
 
   return (
@@ -101,7 +100,7 @@ export function TablaOfertas({ modo, ofertas, conPanel, pager, hayFiltros }: Pro
       columnas={columnas}
       filas={ofertas}
       idDe={(o) => o.id}
-      conPanel={conPanel}
+      hrefFila={(o) => detalle(`/admin/ofertas/${o.id}`)}
       masiva={modo === "por-revisar" ? (ids, limpiar) => <AprobarSeleccionadas ids={ids} limpiar={limpiar} /> : undefined}
       pager={{ ...pager, pista: cola ? PISTA_TECLADO : undefined }}
       etiquetaFila={(o) => `${o.titulo}, ${o.empresa?.razonSocial ?? "sin empresa"}`}

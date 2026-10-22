@@ -10,14 +10,13 @@ import { NOMBRE_RUBRO, type Rubro } from "@/lib/validation/rubros";
 
 type Props = {
   empresas: FilaEmpresa[];
-  conPanel: boolean;
   pager: { desde: number; hasta: number; total: number; pagina: number; paginas: number };
   hayFiltros: boolean;
 };
 
-/** Companies table (screen 10): compact with panel, wide without it. */
-export function TablaEmpresas({ empresas, conPanel, pager, hayFiltros }: Props) {
-  const { construir } = useUrlAdmin();
+/** Companies table (screen 10): every row opens the company's page (D-062). */
+export function TablaEmpresas({ empresas, pager, hayFiltros }: Props) {
+  const { detalle } = useUrlAdmin();
 
   const columnas: ColumnaAdmin<FilaEmpresa>[] = [
     {
@@ -38,7 +37,6 @@ export function TablaEmpresas({ empresas, conPanel, pager, hayFiltros }: Props) 
     {
       id: "rubros",
       cabecera: "Rubros",
-      soloAncha: true,
       celda: (e) =>
         e.rubros.length > 0 ? e.rubros.map((r) => NOMBRE_RUBRO[r as Rubro] ?? r).join(", ") : <Ausente />,
     },
@@ -57,12 +55,8 @@ export function TablaEmpresas({ empresas, conPanel, pager, hayFiltros }: Props) 
     {
       id: "ver",
       cabecera: "",
-      soloAncha: true,
-      celda: (e) => (
-        <EnlaceAccion href={construir({ sel: e.id })} scroll={false}>
-          Ver
-        </EnlaceAccion>
-      ),
+      alinear: "derecha",
+      celda: (e) => <EnlaceAccion href={detalle(`/admin/empresas/${e.id}`)}>Ver</EnlaceAccion>,
     },
   ];
 
@@ -71,7 +65,7 @@ export function TablaEmpresas({ empresas, conPanel, pager, hayFiltros }: Props) 
       columnas={columnas}
       filas={empresas}
       idDe={(e) => e.id}
-      conPanel={conPanel}
+      hrefFila={(e) => detalle(`/admin/empresas/${e.id}`)}
       pager={pager}
       etiquetaFila={(e) => e.razonSocial ?? "Empresa sin razón social"}
       vacio={

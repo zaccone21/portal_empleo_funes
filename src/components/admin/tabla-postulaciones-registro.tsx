@@ -4,6 +4,7 @@ import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { Ausente, CeldaDoble, nombreCompleto } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { BadgeDecisionEmpresa, BadgePostulacion } from "@/components/admin/status-badge";
+import { useUrlAdmin } from "@/hooks/useUrlAdmin";
 import { fechaCorta } from "@/lib/admin/fechas";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
 
@@ -15,6 +16,7 @@ type Props = {
 
 /** Screen 08 table: historical register of all applications. */
 export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros }: Props) {
+  const { detalle } = useUrlAdmin();
   const columnas: ColumnaAdmin<PostulacionAdmin>[] = [
     {
       id: "postulante",
@@ -47,7 +49,6 @@ export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros }:
     {
       id: "resultado",
       cabecera: "Resultado con la empresa",
-      soloAncha: true,
       // Only a referred application has a company answer (D-044); the rest have none to show.
       celda: (p) => (p.estado === "derivado" ? <BadgeDecisionEmpresa decision={p.decisionEmpresa} /> : <Ausente />),
     },
@@ -62,7 +63,7 @@ export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros }:
       cabecera: "",
       alinear: "derecha",
       celda: (p) => (
-        <EnlaceAccion href={`/admin/postulaciones/${p.id}`}>Ver</EnlaceAccion>
+        <EnlaceAccion href={detalle(`/admin/postulaciones/${p.id}`)}>Ver</EnlaceAccion>
       ),
     },
   ];
@@ -73,8 +74,7 @@ export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros }:
         columnas={columnas}
         filas={postulaciones}
         idDe={(p) => p.id}
-        conPanel={false}
-        hrefFila={(p) => `/admin/postulaciones/${p.id}`}
+        hrefFila={(p) => detalle(`/admin/postulaciones/${p.id}`)}
         pager={pager}
         etiquetaFila={(p) =>
           `${nombreCompleto(p.postulante) ?? "Postulante"} para ${p.oferta.titulo}`

@@ -76,6 +76,19 @@ export function itemActivo(pathname: string): NavItem | undefined {
   )[0];
 }
 
+/** Text of the back arrow of a detail page, named after where `desde` leads ("Volver a Ofertas por revisar"). */
+export function etiquetaVolver(desde: string): string {
+  const ruta = desde.split("?")[0];
+  if (ruta === "/admin") return "Volver al Dashboard";
+  const item = TODOS.find((i) => i.url === ruta);
+  if (item) return `Volver a ${item.titulo}`;
+  if (/^\/admin\/postulaciones\/[^/]+$/.test(ruta)) return "Volver a la evaluación";
+  if (/^\/admin\/postulantes\/[^/]+$/.test(ruta)) return "Volver al postulante";
+  if (/^\/admin\/ofertas\/[^/]+$/.test(ruta)) return "Volver a la oferta";
+  if (/^\/admin\/empresas\/[^/]+$/.test(ruta)) return "Volver a la empresa";
+  return "Volver";
+}
+
 /** Group + item title for the breadcrumb ("Gestión › Ofertas"), or null for unknown paths. */
 export function migasDeRuta(pathname: string): string[] | null {
   const item = itemActivo(pathname);

@@ -652,6 +652,15 @@ Decisión:
 - Se agrega una **fase de seguridad** antes de la entrega y antes de los refactors del frontend: auditoría de los usos del cliente admin y de las respuestas de la API, y pruebas de fuga entre cuentas con sesiones reales.
 Motivo: el usuario lo exigió ("no puede pasar esto de ninguna manera, en ningún lugar del portal"). Es la regla de AGENTS §7, que DT-019 incumplía de forma documentada.
 
+### D-062 — La Oficina abre cada registro en una página completa, sin panel lateral
+Fecha: 2026-10-22 · Reemplaza: en D-042, el panel de detalle de 500 px al lado de la tabla y "Abrir página completa"
+Decisión:
+- En todas las tablas de la Oficina (ofertas, colas de ofertas, postulaciones, postulantes, empresas), tocar la fila o "Ver" abre la **página completa** del registro. No hay panel lateral.
+- Cada página completa tiene arriba una **flecha para volver** que dice adónde vuelve ("Volver a Ofertas por revisar") y lleva a la misma lista, con sus filtros, orden y página. La lista de origen viaja en la URL (`?desde=`) y solo se acepta una ruta de la Oficina.
+- La página usa todo el ancho: título con su estado y acciones, y el contenido en dos columnas desde `lg` (lo principal a la izquierda; empresa, contacto y herramientas a la derecha). Sin pestañas: las secciones se leen de corrido.
+- Desde una cola, después de aprobar, rechazar o cerrar una oferta, la página pasa sola a la siguiente de esa cola (o vuelve a la cola si no quedan).
+Motivo: pedido del usuario. El panel lateral era angosto ("mucha info en muy poco lugar") y "Abrir página completa" mostraba el mismo panel encajonado.
+
 ---
 
 ## Abiertas

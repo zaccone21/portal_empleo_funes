@@ -4,19 +4,22 @@ import { notFound } from "next/navigation";
 import { EvaluacionPostulacion } from "@/components/admin/evaluacion-postulacion";
 import { operadorActual } from "@/lib/admin/datos";
 import { postulacionesDelModo } from "@/lib/admin/postulaciones";
-import {
-  abrirCvPostulante,
-  verPostulacionAdmin,
-  verPostulacionesAdmin,
-} from "@/lib/use-cases/oficina";
+import { conDesde, leerDesde, urlCon, type ParamsBusqueda } from "@/lib/admin/url";
+import { verPostulacionAdmin, verPostulacionesAdmin } from "@/lib/use-cases/oficina";
 
 export const metadata: Metadata = { title: "Evaluación de postulación · Oficina de Empleo" };
 
 export default async function AdminPostulacionDetallePage(props: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<ParamsBusqueda>;
 }) {
   const { id } = await props.params;
+  const params = await props.searchParams;
+  const desde = leerDesde(params);
   const usuario = await operadorActual();
+  // J/K and "next" keep where the evaluation was opened from, so the back arrow still leads there.
+  const enlace = (otraId: string) =>
+    desde ? conDesde(`/admin/postulaciones/${otraId}`, desde) : `/admin/postulaciones/${otraId}`;
 
   const [resPostulacion, resTodas] = await Promise.all([
     verPostulacionAdmin(usuario, id),
@@ -32,13 +35,13 @@ export default async function AdminPostulacionDetallePage(props: {
   const colaPorEvaluar = postulacionesDelModo(todas, "por-evaluar");
   const indiceEnCola = colaPorEvaluar.findIndex((p) => p.id === id);
 
-  let anteriorId: string | undefined;
-  let siguienteId: string | undefined;
+  let hrefAnterior: string | undefined;
+  let hrefSiguiente: string | undefined;
   let posicionEnCola: { actual: number; total: number } | undefined;
 
   if (indiceEnCola !== -1) {
-    if (indiceEnCola > 0) anteriorId = colaPorEvaluar[indiceEnCola - 1].id;
-    if (indiceEnCola < colaPorEvaluar.length - 1) siguienteId = colaPorEvaluar[indiceEnCola + 1].id;
+    if (indiceEnCola > 0) hrefAnterior = enlace(colaPorEvaluar[indiceEnCola - 1].id);
+    if (indiceEnCola < colaPorEvaluar.length - 1) hrefSiguiente = enlace(colaPorEvaluar[indiceEnCola + 1].id);
     posicionEnCola = { actual: indiceEnCola + 1, total: colaPorEvaluar.length };
   }
 
@@ -61,19 +64,13 @@ export default async function AdminPostulacionDetallePage(props: {
     (p) => p.id !== id && p.postulante.id === postulacion.postulante.id,
   ).length;
 
-  // Pre-generate CV signed URL if the applicant uploaded one
-  let urlCv: string | undefined;
-  if (postulacion.postulante.cvNombre) {
-    const resCv = await abrirCvPostulante(usuario, postulacion.postulante.id);
-    if (resCv.ok) urlCv = resCv.datos.url;
-  }
-
   return (
     <EvaluacionPostulacion
       postulacion={postulacion}
-      urlCv={urlCv}
-      anteriorId={anteriorId}
-      siguienteId={siguienteId}
+      volver={desde ?? "/admin/postulaciones/por-evaluar"}
+      aqui={urlCon(`/admin/postulaciones/${id}`, params, {})}
+      hrefAnterior={hrefAnterior}
+      hrefSiguiente={hrefSiguiente}
       posicionEnCola={posicionEnCola}
       sinRespuestaEnOferta={sinRespuestaEnOferta}
       resumenOferta={resumenOferta}

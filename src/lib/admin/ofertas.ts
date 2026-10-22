@@ -1,4 +1,4 @@
-import { coincideBusqueda, type ParamsBusqueda, leerParam } from "@/lib/admin/url";
+import { coincideBusqueda, conDesde, type ParamsBusqueda, leerParam, siguienteId } from "@/lib/admin/url";
 import { diasDesde } from "@/lib/admin/fechas";
 import type { OfertaOficina } from "@/lib/validation/oficina";
 import type { EstadoOferta } from "@/lib/validation/ofertas";
@@ -50,6 +50,28 @@ export function filtrarOfertas(
 
   // Queues: the oldest first, so nothing waits forever. Register: the newest first.
   return [...filtradas].sort((a, b) => (modo === "registro" ? b.creadaEl.localeCompare(a.creadaEl) : a.creadaEl.localeCompare(b.creadaEl)));
+}
+
+const COLAS: Record<string, ModoOfertas> = {
+  "/admin/ofertas/por-revisar": "por-revisar",
+  "/admin/ofertas/cierres-solicitados": "cierres",
+};
+
+/**
+ * Where an offer's page goes after a decision when it was opened from a queue
+ * (`desde`, D-062): the next offer of that queue as the operator sees it (same
+ * filters), the previous one when it was the last, or the queue when it is
+ * empty. Undefined when it was not opened from a queue: the page stays.
+ */
+export function destinoEnCola(ofertas: OfertaOficina[], id: string, desde: string | undefined): string | undefined {
+  if (!desde) return undefined;
+  const url = new URL(desde, "http://portal.local");
+  const modo = COLAS[url.pathname];
+  if (!modo) return undefined;
+
+  const cola = filtrarOfertas(ofertasDelModo(ofertas, modo), Object.fromEntries(url.searchParams), modo).map((o) => o.id);
+  const otra = siguienteId(cola, id);
+  return otra ? conDesde(`/admin/ofertas/${otra}`, desde) : desde;
 }
 
 /** Companies that appear in the offers, for the "Empresa" filter. */

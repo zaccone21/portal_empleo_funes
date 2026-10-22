@@ -18,8 +18,6 @@ export type ColumnaAdmin<T> = {
   celda: (fila: T) => ReactNode;
   /** Numeric columns go to the right. */
   alinear?: "derecha";
-  /** Shown only while the detail panel is closed (the compact layout drops it). */
-  soloAncha?: boolean;
   /** Tailwind width class for the column. */
   ancho?: string;
 };
@@ -28,11 +26,7 @@ type Props<T> = {
   columnas: ColumnaAdmin<T>[];
   filas: T[];
   idDe: (fila: T) => string;
-  /** The detail panel is open: compact columns and the row stays highlighted. */
-  conPanel: boolean;
-  /** Clicking a row sets ?sel=<id>. Off for the full-width tables without panel. */
-  seleccionable?: boolean;
-  /** For tables without a panel: clicking a row (or Enter on it) opens this page instead of selecting it. */
+  /** Clicking a row (or Enter on it) opens this page (D-062). Without it the row only holds its own buttons. */
   hrefFila?: (fila: T) => string;
   /** Bulk selection with checkboxes; renders the actions of the selection bar. */
   masiva?: (ids: string[], limpiar: () => void) => ReactNode;
@@ -54,29 +48,15 @@ function eventoDeEscritura(e: globalThis.KeyboardEvent): boolean {
 }
 
 /**
- * Table of the Office registers and queues (D-042). 40 px rows, mint selected
- * row bound to ?sel=<id>, optional bulk selection and a pager. Keyboard:
- * ↑/↓ move the selection, Enter opens the focused row, Esc closes the panel
- * and "/" focuses the search box.
+ * Table of the Office registers and queues (D-042). Rows open their record's
+ * page (D-062), optional bulk selection and a pager. Keyboard: Tab moves
+ * between rows, Enter opens the focused one and "/" focuses the search box.
  */
-export function AdminTable<T>({
-  columnas,
-  filas,
-  idDe,
-  conPanel,
-  seleccionable = true,
-  hrefFila,
-  masiva,
-  pager,
-  vacio,
-  etiquetaFila,
-}: Props<T>) {
-  const { params, construir, ir } = useUrlAdmin();
+export function AdminTable<T>({ columnas, filas, idDe, hrefFila, masiva, pager, vacio, etiquetaFila }: Props<T>) {
+  const { construir } = useUrlAdmin();
   const router = useRouter();
-  const sel = params.get("sel");
   const [marcadas, setMarcadas] = useState<Set<string>>(new Set());
 
-  const visibles = columnas.filter((c) => !c.soloAncha || !conPanel);
   const ids = filas.map(idDe);
   const idsMarcadas = ids.filter((id) => marcadas.has(id));
 
@@ -89,44 +69,23 @@ export function AdminTable<T>({
           e.preventDefault();
           caja.focus();
         }
-        return;
-      }
-      // Rows that open a page have no selection to move with the arrows.
-      if (!seleccionable || hrefFila) return;
-      if (e.key === "Escape" && sel) {
-        ir({ sel: undefined });
-      } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        if (ids.length === 0) return;
-        e.preventDefault();
-        const actual = sel ? ids.indexOf(sel) : -1;
-        const destino = e.key === "ArrowDown" ? Math.min(ids.length - 1, actual + 1) : Math.max(0, actual - 1);
-        if (ids[destino] !== sel) ir({ sel: ids[destino] });
       }
     }
     document.addEventListener("keydown", alTeclear);
     return () => document.removeEventListener("keydown", alTeclear);
-  }, [ids, sel, seleccionable, hrefFila, ir]);
+  }, []);
 
-  useEffect(() => {
-    if (sel) document.querySelector(`[data-fila-id="${CSS.escape(sel)}"]`)?.scrollIntoView({ block: "nearest" });
-  }, [sel]);
-
-  function abrir(fila: T) {
-    if (hrefFila) router.push(hrefFila(fila));
-    else ir({ sel: idDe(fila) });
-  }
-
-  function alTocarFila(e: MouseEvent<HTMLTableRowElement>, fila: T) {
+  function alTocarFila(e: MouseEvent<HTMLTableRowElement>, href: string) {
     // A link or button inside the row does its own thing; the row must not navigate on top of it.
-    if (hrefFila && (e.target as HTMLElement).closest("a, button")) return;
-    abrir(fila);
+    if ((e.target as HTMLElement).closest("a, button")) return;
+    router.push(href);
   }
 
-  function alTeclearFila(e: KeyboardEvent<HTMLTableRowElement>, fila: T) {
+  function alTeclearFila(e: KeyboardEvent<HTMLTableRowElement>, href: string) {
     if (e.target !== e.currentTarget) return;
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      abrir(fila);
+      router.push(href);
     }
   }
 
@@ -171,7 +130,7 @@ export function AdminTable<T>({
                     />
                   </TableHead>
                 )}
-                {visibles.map((c, i) => (
+                {columnas.map((c, i) => (
                   <TableHead
                     key={c.id}
                     className={cn(
@@ -189,28 +148,23 @@ export function AdminTable<T>({
             <TableBody>
               {filas.map((fila) => {
                 const id = idDe(fila);
-                const elegida = seleccionable && sel === id;
+                const href = hrefFila?.(fila);
                 return (
                   <TableRow
                     key={id}
                     data-fila-id={id}
-                    data-state={elegida ? "selected" : undefined}
-                    aria-selected={seleccionable ? elegida : undefined}
                     aria-label={etiquetaFila?.(fila)}
-                    tabIndex={seleccionable ? 0 : undefined}
-                    onClick={seleccionable ? (e) => alTocarFila(e, fila) : undefined}
-                    onKeyDown={seleccionable ? (e) => alTeclearFila(e, fila) : undefined}
+                    tabIndex={href ? 0 : undefined}
+                    onClick={href ? (e) => alTocarFila(e, href) : undefined}
+                    onKeyDown={href ? (e) => alTeclearFila(e, href) : undefined}
                     className={cn(
-                      "border-b border-border bg-background hover:bg-row-hover data-[state=selected]:bg-accent",
-                      seleccionable &&
+                      "border-b border-border bg-background hover:bg-row-hover",
+                      href &&
                         "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-inset",
                     )}
                   >
                     {masiva && (
-                      <TableCell
-                        className={cn(CELDA, "w-[34px]", elegida && "shadow-[inset_2px_0_0_var(--primary)]")}
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <TableCell className={cn(CELDA, "w-[34px]")} onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={marcadas.has(id)}
                           onCheckedChange={(c) => alternar(id, c === true)}
@@ -218,14 +172,13 @@ export function AdminTable<T>({
                         />
                       </TableCell>
                     )}
-                    {visibles.map((c, i) => (
+                    {columnas.map((c, i) => (
                       <TableCell
                         key={c.id}
                         className={cn(
                           CELDA,
                           c.alinear === "derecha" && "text-right tabular-nums",
                           c.ancho,
-                          i === 0 && !masiva && elegida && "shadow-[inset_2px_0_0_var(--primary)]",
                           i === 0 && !masiva && "max-md:sticky max-md:left-0 max-md:bg-inherit",
                         )}
                       >

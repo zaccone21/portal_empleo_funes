@@ -1,41 +1,26 @@
 import { PageHeader } from "@/components/admin/page-header";
-import { PanelLateral } from "@/components/admin/panel-lateral";
-import { PanelPostulante } from "@/components/admin/panel-postulante";
 import { Split } from "@/components/admin/split";
 import { StatusStrip } from "@/components/admin/status-strip";
 import { TablaPostulantes } from "@/components/admin/tabla-postulantes";
 import { Toolbar, type FiltroToolbar } from "@/components/admin/toolbar";
-import {
-  contarVistasPostulantes,
-  filtrarPostulantes,
-  type FilaPostulante,
-  type OfertaParaAsociar,
-} from "@/lib/admin/postulantes";
-import { leerParam, paginar, urlCon, type ParamsBusqueda } from "@/lib/admin/url";
-import type { PostulacionAdmin } from "@/lib/validation/oficina";
+import { contarVistasPostulantes, filtrarPostulantes, type FilaPostulante } from "@/lib/admin/postulantes";
+import { leerParam, paginar, type ParamsBusqueda } from "@/lib/admin/url";
 import { NOMBRE_RUBRO, RUBROS, type Rubro } from "@/lib/validation/rubros";
 
 type Props = {
-  ruta: string;
   postulantes: FilaPostulante[];
   params: ParamsBusqueda;
-  postulacionesDeSel: PostulacionAdmin[];
-  ofertasParaAsociarSel: OfertaParaAsociar[];
 };
 
 /**
  * Screen 09 (Postulantes): status strip, search by name/DNI/email, filters by
- * several trades (RF1.5.7) and CV status, split table + detail panel with tabs,
- * where the selected person can be linked to a published offer (RF1.5.8).
+ * several trades (RF1.5.7) and CV status, and the table, whose rows open the
+ * person's page (D-062), where they can be linked to an offer (RF1.5.8).
  */
-export function VistaPostulantes({ ruta, postulantes, params, postulacionesDeSel, ofertasParaAsociarSel }: Props) {
+export function VistaPostulantes({ postulantes, params }: Props) {
   const filtrados = filtrarPostulantes(postulantes, params);
   const pagina = paginar(filtrados, Number(leerParam(params, "pagina")));
   const conteo = contarVistasPostulantes(postulantes);
-
-  const selId = leerParam(params, "sel");
-  const seleccionado = selId ? postulantes.find((p) => p.id === selId) : undefined;
-  const tab = leerParam(params, "tab") === "postulaciones" ? "postulaciones" : "resumen";
 
   const filtros: FiltroToolbar[] = [
     {
@@ -70,29 +55,7 @@ export function VistaPostulantes({ ruta, postulantes, params, postulacionesDeSel
         ]}
       />
       <Toolbar placeholder="Buscar nombre, apellido o DNI" filtros={filtros} />
-      <Split
-        tabla={
-          <TablaPostulantes
-            postulantes={pagina.filas}
-            conPanel={Boolean(seleccionado)}
-            pager={pagina}
-            hayFiltros={hayFiltros}
-          />
-        }
-        panel={
-          seleccionado && (
-            <PanelLateral>
-              <PanelPostulante
-                postulante={seleccionado}
-                postulaciones={postulacionesDeSel}
-                tab={tab}
-                hrefTab={(t) => urlCon(ruta, params, { tab: t === "resumen" ? undefined : t })}
-                ofertasParaAsociar={ofertasParaAsociarSel}
-              />
-            </PanelLateral>
-          )
-        }
-      />
+      <Split tabla={<TablaPostulantes postulantes={pagina.filas} pager={pagina} hayFiltros={hayFiltros} />} />
     </>
   );
 }

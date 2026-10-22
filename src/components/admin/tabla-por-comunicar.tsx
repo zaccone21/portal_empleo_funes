@@ -5,6 +5,7 @@ import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { Ausente, CeldaDoble, nombreCompleto } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
+import { useUrlAdmin } from "@/hooks/useUrlAdmin";
 import { fechaCorta } from "@/lib/admin/fechas";
 import { enlaceLlamada, enlaceWhatsApp, formatearTelefonoAR } from "@/lib/telefonos";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
@@ -17,6 +18,7 @@ type Props = {
 
 /** Screen 07 table: pre-selected applications waiting to be communicated to the company. */
 export function TablaPorComunicar({ postulaciones, pager, hayFiltros }: Props) {
+  const { detalle } = useUrlAdmin();
   const columnas: ColumnaAdmin<PostulacionAdmin>[] = [
     {
       id: "postulante",
@@ -87,7 +89,7 @@ export function TablaPorComunicar({ postulaciones, pager, hayFiltros }: Props) {
       celda: (p) => (
         <div className="flex items-center justify-end gap-2">
           <BotonDerivar id={p.id} />
-          <EnlaceAccion href={`/admin/postulaciones/${p.id}`}>Ver</EnlaceAccion>
+          <EnlaceAccion href={detalle(`/admin/postulaciones/${p.id}`)}>Ver</EnlaceAccion>
         </div>
       ),
     },
@@ -99,7 +101,6 @@ export function TablaPorComunicar({ postulaciones, pager, hayFiltros }: Props) {
         columnas={columnas}
         filas={postulaciones}
         idDe={(p) => p.id}
-        conPanel={false}
         pager={pager}
         etiquetaFila={(p) =>
           `${nombreCompleto(p.postulante) ?? "Postulante"} para ${p.oferta.titulo}`

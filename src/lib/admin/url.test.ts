@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { coincideBusqueda, leerLista, paginar, siguienteId, urlCon } from "./url";
+import { coincideBusqueda, conDesde, leerDesde, leerLista, paginar, siguienteId, urlCon } from "./url";
 
 describe("url del admin", () => {
   it("builds a URL changing and removing parameters", () => {
@@ -27,6 +27,22 @@ describe("url del admin", () => {
     expect(siguienteId(["a", "b", "c"], "c")).toBe("b");
     expect(siguienteId(["a"], "a")).toBeUndefined();
     expect(siguienteId(["a"], "x")).toBeUndefined();
+  });
+
+  it("only accepts an Office path as the page to go back to", () => {
+    expect(leerDesde({ desde: "/admin/ofertas/por-revisar?q=mozo" })).toBe("/admin/ofertas/por-revisar?q=mozo");
+    expect(leerDesde({ desde: "/admin" })).toBe("/admin");
+    expect(leerDesde({ desde: "https://example.com/admin" })).toBeUndefined();
+    expect(leerDesde({ desde: "//example.com/admin" })).toBeUndefined();
+    expect(leerDesde({ desde: "/administrar" })).toBeUndefined();
+    expect(leerDesde({ desde: "/postulante/perfil" })).toBeUndefined();
+    expect(leerDesde({})).toBeUndefined();
+  });
+
+  it("links to a detail page remembering the list", () => {
+    expect(conDesde("/admin/ofertas/1", "/admin/ofertas?estado=pendiente")).toBe(
+      "/admin/ofertas/1?desde=%2Fadmin%2Fofertas%3Festado%3Dpendiente",
+    );
   });
 
   it("searches ignoring accents and word order", () => {
