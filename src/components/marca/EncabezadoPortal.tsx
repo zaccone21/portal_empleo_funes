@@ -21,7 +21,7 @@ function itemActual(items: ItemNavegacion[], ruta: string): string | undefined {
 
 /**
  * Top bar of the portal (D-022, D-028, D-065), on the deep green brand
- * surface, 64 px (72 px from `lg`), aligned with the content (max-w-6xl):
+ * surface, 64 px (72 px from `lg`), spanning the whole width of the screen:
  * - left, the lockup with the municipal logo, which leads home;
  * - desktop only, the role's screens as text links; the current one is white
  *   with a mint bar on the bar's bottom edge. On phones the menu is BarraInferior;
@@ -44,7 +44,7 @@ export function EncabezadoPortal({ area }: { area: Role }) {
 
   return (
     <header className="z-40 border-b border-primary-foreground/10 bg-brand-deep text-primary-foreground lg:sticky lg:top-0">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4 lg:h-[4.5rem] lg:gap-8 lg:px-10">
+      <div className="flex h-16 w-full items-center gap-4 px-4 sm:px-6 lg:h-[4.5rem] lg:gap-8 lg:px-10">
         {/* MarcaPortal aligns itself to the start (for the sign-in frame); this wrapper centers it in the bar. */}
         <div className="flex min-w-0">
           <MarcaPortal />
