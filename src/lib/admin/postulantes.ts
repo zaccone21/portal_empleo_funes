@@ -1,6 +1,8 @@
+import type { ClavesOrden } from "@/lib/admin/orden";
 import { leerParam, type ParamsBusqueda } from "@/lib/admin/url";
 import type { ResultadoBusquedaPostulante } from "@/lib/dal/postulantes";
 import type { OfertaOficina, PostulacionAdmin } from "@/lib/validation/oficina";
+import { NOMBRE_RUBRO, type Rubro } from "@/lib/validation/rubros";
 
 /*
  * Views of the applicants register (screen 09, D-042). Search by name, surname
@@ -45,6 +47,14 @@ export function filtrarPostulantes(postulantes: FilaPostulante[], params: Params
     return true;
   });
 }
+
+/** What each sortable column of the applicants table sorts by (D-063); the keys are the column ids. */
+export const CLAVES_ORDEN_POSTULANTES: ClavesOrden<FilaPostulante> = {
+  postulante: (p) => [p.apellido, p.nombre].filter(Boolean).join(" ") || null,
+  rubros: (p) => (p.rubros.length > 0 ? p.rubros.map((r) => NOMBRE_RUBRO[r as Rubro] ?? r).join(", ") : null),
+  cv: (p) => (tieneCv(p) ? 1 : 0),
+  postulaciones: (p) => p.cantidadPostulaciones,
+};
 
 export type OfertaParaAsociar = { id: string; titulo: string; empresa: string };
 

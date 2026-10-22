@@ -76,6 +76,19 @@ export async function guardarPerfilEmpresa(empresaId: string, perfil: PerfilEmpr
   return { ok: true, perfil: guardado };
 }
 
+/** How many companies signed up from `desde` (ISO 8601) on, for the Office's "Empresas nuevas" counter (D-064). */
+export async function contarEmpresasRegistradasDesde(desde: string): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("perfiles")
+    .select("id", { count: "exact", head: true })
+    .eq("rol", "empresa")
+    .gte("creado_el", desde);
+
+  if (error) throw new Error("Could not count the new companies.");
+  return count ?? 0;
+}
+
 export type EmpresaLista = {
   id: string;
   razonSocial: string | null;

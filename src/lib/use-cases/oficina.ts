@@ -4,7 +4,8 @@ import { puedeTransicionarPostulacion } from "@/features/postulaciones/domain/es
 import type { CurrentUser } from "@/lib/dal/auth";
 import { crearUrlFirmadaCv, leerCv } from "@/lib/dal/cv";
 import { contarDerivacionesCurso, crearDerivacionCurso, listarDerivacionesCurso } from "@/lib/dal/derivaciones-curso";
-import { listarEmpresas, type EmpresaLista } from "@/lib/dal/empresas";
+import { inicioEmpresasNuevas } from "@/lib/admin/empresas";
+import { contarEmpresasRegistradasDesde, listarEmpresas, type EmpresaLista } from "@/lib/dal/empresas";
 import {
   actualizarEstadoOferta,
   contarOfertas,
@@ -54,16 +55,17 @@ const NO_ENCONTRADA = "No encontramos esa oferta.";
 /** Counters of the Office's side menu and dashboard (P14). */
 export async function getConteosAdmin(usuario: CurrentUser) {
   const negado = sinPermiso(usuario, "admin");
-  if (negado) return { ofertasPendientes: 0, postulacionesNuevas: 0, cierresSolicitados: 0, porDerivar: 0 };
+  if (negado) return { ofertasPendientes: 0, postulacionesNuevas: 0, cierresSolicitados: 0, porDerivar: 0, empresasNuevas: 0 };
 
-  const [ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar] = await Promise.all([
+  const [ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar, empresasNuevas] = await Promise.all([
     contarOfertas("pendiente"),
     contarPostulaciones("postulado"),
     contarOfertas("publicada", true),
     contarPostulaciones("preseleccionado"),
+    contarEmpresasRegistradasDesde(inicioEmpresasNuevas()),
   ]);
 
-  return { ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar };
+  return { ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar, empresasNuevas };
 }
 
 export async function verOfertas(usuario: CurrentUser): Promise<Resultado<OfertaOficina[]>> {

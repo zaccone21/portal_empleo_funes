@@ -1,7 +1,10 @@
+import { ESTADOS_OFERTA } from "@/features/ofertas/domain/estados";
+import { aplicarOrden, type ClavesOrden, type OrdenTabla } from "@/lib/admin/orden";
 import { coincideBusqueda, conDesde, type ParamsBusqueda, leerParam, siguienteId } from "@/lib/admin/url";
 import { diasDesde } from "@/lib/admin/fechas";
 import type { OfertaOficina } from "@/lib/validation/oficina";
 import type { EstadoOferta } from "@/lib/validation/ofertas";
+import { NOMBRE_RUBRO } from "@/lib/validation/rubros";
 
 /*
  * Filtering and ordering of offers for the Office screens (D-042). Pure
@@ -52,6 +55,21 @@ export function filtrarOfertas(
   return [...filtradas].sort((a, b) => (modo === "registro" ? b.creadaEl.localeCompare(a.creadaEl) : a.creadaEl.localeCompare(b.creadaEl)));
 }
 
+/** What each sortable column of the offers table sorts by (D-063); the keys are the column ids. */
+export const CLAVES_ORDEN_OFERTAS: ClavesOrden<OfertaOficina> = {
+  puesto: (o) => o.titulo,
+  rubro: (o) => (o.rubros.length > 0 ? o.rubros.map((r) => NOMBRE_RUBRO[r]).join(", ") : null),
+  estado: (o) => ESTADOS_OFERTA[o.estado].etiqueta,
+  enviada: (o) => o.creadaEl,
+  publicada: (o) => o.publicadaEl,
+  postulaciones: (o) => o.cantidadPostulaciones,
+};
+
+/** The order each offers screen comes in without ?orden: queues oldest first, the register newest first. */
+export function ordenPorDefectoOfertas(modo: ModoOfertas): OrdenTabla {
+  return { columna: "enviada", direccion: modo === "registro" ? "desc" : "asc" };
+}
+
 const COLAS: Record<string, ModoOfertas> = {
   "/admin/ofertas/por-revisar": "por-revisar",
   "/admin/ofertas/cierres-solicitados": "cierres",
@@ -69,7 +87,10 @@ export function destinoEnCola(ofertas: OfertaOficina[], id: string, desde: strin
   const modo = COLAS[url.pathname];
   if (!modo) return undefined;
 
-  const cola = filtrarOfertas(ofertasDelModo(ofertas, modo), Object.fromEntries(url.searchParams), modo).map((o) => o.id);
+  const params = Object.fromEntries(url.searchParams);
+  const cola = aplicarOrden(filtrarOfertas(ofertasDelModo(ofertas, modo), params, modo), params, CLAVES_ORDEN_OFERTAS).map(
+    (o) => o.id,
+  );
   const otra = siguienteId(cola, id);
   return otra ? conDesde(`/admin/ofertas/${otra}`, desde) : desde;
 }

@@ -5,6 +5,7 @@ import { Ausente, CeldaDoble, nombreCompleto } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { BadgeDecisionEmpresa, BadgePostulacion } from "@/components/admin/status-badge";
 import { useUrlAdmin } from "@/hooks/useUrlAdmin";
+import type { OrdenTabla } from "@/lib/admin/orden";
 import { fechaCorta } from "@/lib/admin/fechas";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
 
@@ -12,14 +13,17 @@ type Props = {
   postulaciones: PostulacionAdmin[];
   pager: { desde: number; hasta: number; total: number; pagina: number; paginas: number };
   hayFiltros: boolean;
+  /** The order the rows come in, to mark its column (D-063). */
+  orden: OrdenTabla;
 };
 
 /** Screen 08 table: historical register of all applications. */
-export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros }: Props) {
+export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros, orden }: Props) {
   const { detalle } = useUrlAdmin();
   const columnas: ColumnaAdmin<PostulacionAdmin>[] = [
     {
       id: "postulante",
+      ordenable: true,
       cabecera: "Postulante",
       celda: (p) => {
         const nombre = nombreCompleto(p.postulante);
@@ -33,6 +37,7 @@ export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros }:
     },
     {
       id: "puesto",
+      ordenable: true,
       cabecera: "Puesto y empresa",
       celda: (p) => (
         <CeldaDoble
@@ -43,17 +48,20 @@ export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros }:
     },
     {
       id: "estado",
+      ordenable: true,
       cabecera: "Estado",
       celda: (p) => <BadgePostulacion estado={p.estado} />,
     },
     {
       id: "resultado",
+      ordenable: true,
       cabecera: "Resultado con la empresa",
       // Only a referred application has a company answer (D-044); the rest have none to show.
       celda: (p) => (p.estado === "derivado" ? <BadgeDecisionEmpresa decision={p.decisionEmpresa} /> : <Ausente />),
     },
     {
       id: "fecha",
+      ordenable: true,
       cabecera: "Fecha",
       alinear: "derecha",
       celda: (p) => fechaCorta(p.postuladoEl),
@@ -75,6 +83,7 @@ export function TablaPostulacionesRegistro({ postulaciones, pager, hayFiltros }:
         filas={postulaciones}
         idDe={(p) => p.id}
         hrefFila={(p) => detalle(`/admin/postulaciones/${p.id}`)}
+        orden={orden}
         pager={pager}
         etiquetaFila={(p) =>
           `${nombreCompleto(p.postulante) ?? "Postulante"} para ${p.oferta.titulo}`

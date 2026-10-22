@@ -661,6 +661,24 @@ Decisión:
 - Desde una cola, después de aprobar, rechazar o cerrar una oferta, la página pasa sola a la siguiente de esa cola (o vuelve a la cola si no quedan).
 Motivo: pedido del usuario. El panel lateral era angosto ("mucha info en muy poco lugar") y "Abrir página completa" mostraba el mismo panel encajonado.
 
+### D-063 — Las tablas de la Oficina se ordenan por columna y tienen filas de 56 px
+Fecha: 2026-10-22 · Amplía: D-042
+Decisión:
+- Cada columna con dato se ordena tocando su encabezado; otro toque invierte el sentido. Una flecha marca la columna y el sentido. El orden va en la URL (`?orden=<columna>&dir=asc|desc`), se aplica en el servidor a toda la lista antes de paginar y se conserva al volver de una página completa.
+- Sin orden elegido, cada pantalla sigue como antes: colas por antigüedad (la más vieja primero), registros con lo más nuevo primero. El encabezado de esa columna lo muestra.
+- Las filas pasan de 40 a **56 px** y los botones "Ver"/"Resolver" de 28 a 36 px.
+- Se saca el texto "Orden: más antiguas primero", que solo informaba.
+Motivo: pedido del usuario. El orden "no existía, solo se informaba", y las filas angostas eran "propensas a missclicks e incómodas para el operador".
+
+### D-064 — "Empresas nuevas": las de los últimos 7 días, en Tareas pendientes
+Fecha: 2026-10-22 · Responde: dónde ve la Oficina las empresas nuevas
+Decisión:
+- Una empresa es **nueva** durante sus primeros 7 días de calendario (hora argentina) desde que se registró.
+- En "Empresas", una vista "Nuevas (7 días)" en la tira de estados y la columna "Registrada" con la etiqueta "Nueva".
+- En el menú, dentro de "Tareas pendientes", "Empresas nuevas" con su contador (solo si hay alguna), que abre esa vista.
+- No cambia D-052: la empresa no necesita aprobación. Esto es para que la Oficina la conozca antes de que llegue su primera oferta. Sin cambios en la base: se cuenta por la fecha de alta del perfil.
+Motivo: el usuario preguntó dónde ve la Oficina las empresas nuevas y eligió sumarlas a Tareas pendientes.
+
 ---
 
 ## Abiertas

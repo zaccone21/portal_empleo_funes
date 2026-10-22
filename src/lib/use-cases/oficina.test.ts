@@ -27,6 +27,7 @@ const dal = vi.hoisted(() => ({
   contarPostulantes: vi.fn(),
   leerPerfilPostulanteAdmin: vi.fn(),
   listarEmpresas: vi.fn(),
+  contarEmpresasRegistradasDesde: vi.fn(),
   listarDerivacionesCurso: vi.fn(),
   crearDerivacionCurso: vi.fn(),
   contarDerivacionesCurso: vi.fn(),
@@ -54,7 +55,10 @@ vi.mock("@/lib/dal/postulantes", () => ({
   contarPostulantes: dal.contarPostulantes,
   leerPerfilPostulanteAdmin: dal.leerPerfilPostulanteAdmin,
 }));
-vi.mock("@/lib/dal/empresas", () => ({ listarEmpresas: dal.listarEmpresas }));
+vi.mock("@/lib/dal/empresas", () => ({
+  listarEmpresas: dal.listarEmpresas,
+  contarEmpresasRegistradasDesde: dal.contarEmpresasRegistradasDesde,
+}));
 vi.mock("@/lib/dal/cv", () => ({ leerCv: dal.leerCv, crearUrlFirmadaCv: dal.crearUrlFirmadaCv }));
 vi.mock("@/lib/dal/derivaciones-curso", () => ({
   listarDerivacionesCurso: dal.listarDerivacionesCurso,
@@ -146,9 +150,27 @@ beforeEach(() => {
 test("only the Office gets the counters of its panel", async () => {
   const conteos = await getConteosAdmin(empresa);
 
-  expect(conteos).toEqual({ ofertasPendientes: 0, postulacionesNuevas: 0, cierresSolicitados: 0, porDerivar: 0 });
+  expect(conteos).toEqual({
+    ofertasPendientes: 0,
+    postulacionesNuevas: 0,
+    cierresSolicitados: 0,
+    porDerivar: 0,
+    empresasNuevas: 0,
+  });
   expect(dal.contarOfertas).not.toHaveBeenCalled();
   expect(dal.contarPostulaciones).not.toHaveBeenCalled();
+  expect(dal.contarEmpresasRegistradasDesde).not.toHaveBeenCalled();
+});
+
+test("the Office counts the companies of its first week as new (D-064)", async () => {
+  dal.contarOfertas.mockResolvedValue(0);
+  dal.contarPostulaciones.mockResolvedValue(0);
+  dal.contarEmpresasRegistradasDesde.mockResolvedValue(2);
+
+  const conteos = await getConteosAdmin(oficina);
+
+  expect(conteos.empresasNuevas).toBe(2);
+  expect(dal.contarEmpresasRegistradasDesde).toHaveBeenCalledWith(expect.stringMatching(/T00:00:00-03:00$/));
 });
 
 describe("publicarOfertaPendiente (RF1.5.3)", () => {

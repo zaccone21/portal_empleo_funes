@@ -6,6 +6,7 @@ import { Ausente, CeldaDoble } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { BadgeOferta } from "@/components/admin/status-badge";
 import { useUrlAdmin } from "@/hooks/useUrlAdmin";
+import type { OrdenTabla } from "@/lib/admin/orden";
 import { fechaCorta, haceCuanto } from "@/lib/admin/fechas";
 import type { ModoOfertas } from "@/lib/admin/ofertas";
 import type { OfertaOficina } from "@/lib/validation/oficina";
@@ -16,6 +17,8 @@ type Props = {
   ofertas: OfertaOficina[];
   pager: { desde: number; hasta: number; total: number; pagina: number; paginas: number };
   hayFiltros: boolean;
+  /** The order the rows come in, to mark its column (D-063). */
+  orden: OrdenTabla;
 };
 
 const PISTA_TECLADO = "Tab para moverte · Enter abre · / busca";
@@ -25,18 +28,20 @@ const PISTA_TECLADO = "Tab para moverte · Enter abre · / busca";
  * set of columns and the queues the compact one; every row opens the offer's
  * page (D-062). Only the "por revisar" queue has bulk approval.
  */
-export function TablaOfertas({ modo, ofertas, pager, hayFiltros }: Props) {
+export function TablaOfertas({ modo, ofertas, pager, hayFiltros, orden }: Props) {
   const { detalle } = useUrlAdmin();
   const cola = modo !== "registro";
 
   const puesto: ColumnaAdmin<OfertaOficina> = {
     id: "puesto",
     cabecera: "Puesto / empresa",
+    ordenable: true,
     celda: (o) => <CeldaDoble titulo={o.titulo} detalle={o.empresa?.razonSocial ?? "Sin datos de empresa"} />,
   };
   const estado: ColumnaAdmin<OfertaOficina> = {
     id: "estado",
     cabecera: "Estado",
+    ordenable: true,
     celda: (o) => (
       <div className="flex flex-col items-start leading-tight">
         <BadgeOferta estado={o.estado} />
@@ -47,6 +52,7 @@ export function TablaOfertas({ modo, ofertas, pager, hayFiltros }: Props) {
   const enviada: ColumnaAdmin<OfertaOficina> = {
     id: "enviada",
     cabecera: "Enviada",
+    ordenable: true,
     celda: (o) =>
       cola ? (
         <div className="flex flex-col leading-tight tabular-nums">
@@ -60,6 +66,7 @@ export function TablaOfertas({ modo, ofertas, pager, hayFiltros }: Props) {
   const postulaciones: ColumnaAdmin<OfertaOficina> = {
     id: "postulaciones",
     cabecera: "Postul.",
+    ordenable: true,
     alinear: "derecha",
     celda: (o) => o.cantidadPostulaciones,
   };
@@ -82,6 +89,7 @@ export function TablaOfertas({ modo, ofertas, pager, hayFiltros }: Props) {
         {
           id: "rubro",
           cabecera: "Rubro",
+          ordenable: true,
           celda: (o) => (o.rubros.length > 0 ? o.rubros.map((r) => NOMBRE_RUBRO[r]).join(", ") : <Ausente />),
         },
         estado,
@@ -89,6 +97,7 @@ export function TablaOfertas({ modo, ofertas, pager, hayFiltros }: Props) {
         {
           id: "publicada",
           cabecera: "Publicada",
+          ordenable: true,
           celda: (o) => (o.publicadaEl ? <span className="tabular-nums">{fechaCorta(o.publicadaEl)}</span> : <Ausente />),
         },
         postulaciones,
@@ -101,6 +110,7 @@ export function TablaOfertas({ modo, ofertas, pager, hayFiltros }: Props) {
       filas={ofertas}
       idDe={(o) => o.id}
       hrefFila={(o) => detalle(`/admin/ofertas/${o.id}`)}
+      orden={orden}
       masiva={modo === "por-revisar" ? (ids, limpiar) => <AprobarSeleccionadas ids={ids} limpiar={limpiar} /> : undefined}
       pager={{ ...pager, pista: cola ? PISTA_TECLADO : undefined }}
       etiquetaFila={(o) => `${o.titulo}, ${o.empresa?.razonSocial ?? "sin empresa"}`}

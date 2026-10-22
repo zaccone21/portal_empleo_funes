@@ -3,7 +3,13 @@ import { Split } from "@/components/admin/split";
 import { StatusStrip } from "@/components/admin/status-strip";
 import { TablaPostulantes } from "@/components/admin/tabla-postulantes";
 import { Toolbar, type FiltroToolbar } from "@/components/admin/toolbar";
-import { contarVistasPostulantes, filtrarPostulantes, type FilaPostulante } from "@/lib/admin/postulantes";
+import { aplicarOrden, leerOrden } from "@/lib/admin/orden";
+import {
+  CLAVES_ORDEN_POSTULANTES,
+  contarVistasPostulantes,
+  filtrarPostulantes,
+  type FilaPostulante,
+} from "@/lib/admin/postulantes";
 import { leerParam, paginar, type ParamsBusqueda } from "@/lib/admin/url";
 import { NOMBRE_RUBRO, RUBROS, type Rubro } from "@/lib/validation/rubros";
 
@@ -18,7 +24,7 @@ type Props = {
  * person's page (D-062), where they can be linked to an offer (RF1.5.8).
  */
 export function VistaPostulantes({ postulantes, params }: Props) {
-  const filtrados = filtrarPostulantes(postulantes, params);
+  const filtrados = aplicarOrden(filtrarPostulantes(postulantes, params), params, CLAVES_ORDEN_POSTULANTES);
   const pagina = paginar(filtrados, Number(leerParam(params, "pagina")));
   const conteo = contarVistasPostulantes(postulantes);
 
@@ -55,7 +61,16 @@ export function VistaPostulantes({ postulantes, params }: Props) {
         ]}
       />
       <Toolbar placeholder="Buscar nombre, apellido o DNI" filtros={filtros} />
-      <Split tabla={<TablaPostulantes postulantes={pagina.filas} pager={pagina} hayFiltros={hayFiltros} />} />
+      <Split
+        tabla={
+          <TablaPostulantes
+            postulantes={pagina.filas}
+            pager={pagina}
+            hayFiltros={hayFiltros}
+            orden={leerOrden(params, CLAVES_ORDEN_POSTULANTES)}
+          />
+        }
+      />
     </>
   );
 }

@@ -26,7 +26,7 @@ export function EnlaceAccion({ href, children, variante = "secundario", scroll, 
       href={href}
       scroll={scroll}
       className={cn(
-        "inline-flex h-7 shrink-0 items-center gap-0.5 rounded-lg border pr-1.5 pl-2.5 text-[12.5px] font-semibold whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
+        "inline-flex h-9 shrink-0 items-center gap-0.5 rounded-lg border pr-2 pl-3 text-[13px] font-semibold whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
         variante === "primario"
           ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90"
           : "border-input bg-background text-primary hover:border-primary/40 hover:bg-accent",

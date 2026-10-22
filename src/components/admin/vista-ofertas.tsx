@@ -3,12 +3,15 @@ import { Split } from "@/components/admin/split";
 import { StatusStrip } from "@/components/admin/status-strip";
 import { TablaOfertas } from "@/components/admin/tabla-ofertas";
 import { Toolbar, type FiltroToolbar } from "@/components/admin/toolbar";
+import { aplicarOrden, leerOrden } from "@/lib/admin/orden";
 import {
+  CLAVES_ORDEN_OFERTAS,
   contarPorEstado,
   empresasDeOfertas,
   filtrarOfertas,
   OPCIONES_FECHA,
   ofertasDelModo,
+  ordenPorDefectoOfertas,
   type ModoOfertas,
 } from "@/lib/admin/ofertas";
 import { leerParam, paginar, type ParamsBusqueda } from "@/lib/admin/url";
@@ -35,8 +38,9 @@ const TITULOS: Record<ModoOfertas, { migas: string[]; titulo: string }> = {
  */
 export function VistaOfertas({ modo, ofertas, params }: Props) {
   const delModo = ofertasDelModo(ofertas, modo);
-  const filtradas = filtrarOfertas(delModo, params, modo);
+  const filtradas = aplicarOrden(filtrarOfertas(delModo, params, modo), params, CLAVES_ORDEN_OFERTAS);
   const pagina = paginar(filtradas, Number(leerParam(params, "pagina")));
+  const orden = leerOrden(params, CLAVES_ORDEN_OFERTAS) ?? ordenPorDefectoOfertas(modo);
   const conteo = contarPorEstado(ofertas);
 
   const filtros: FiltroToolbar[] = [
@@ -50,7 +54,7 @@ export function VistaOfertas({ modo, ofertas, params }: Props) {
 
   return (
     <>
-      <PageHeader migas={migas} titulo={titulo} aside={modo === "registro" ? undefined : "Orden: más antiguas primero"} />
+      <PageHeader migas={migas} titulo={titulo} />
       {modo === "registro" && (
         <StatusStrip
           valorTodos="todas"
@@ -64,7 +68,7 @@ export function VistaOfertas({ modo, ofertas, params }: Props) {
         />
       )}
       <Toolbar placeholder="Buscar puesto o empresa" filtros={filtros} />
-      <Split tabla={<TablaOfertas modo={modo} ofertas={pagina.filas} pager={pagina} hayFiltros={hayFiltros} />} />
+      <Split tabla={<TablaOfertas modo={modo} ofertas={pagina.filas} pager={pagina} hayFiltros={hayFiltros} orden={orden} />} />
     </>
   );
 }

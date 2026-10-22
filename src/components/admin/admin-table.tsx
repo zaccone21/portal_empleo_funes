@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 
@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/admin/empty-state";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useUrlAdmin } from "@/hooks/useUrlAdmin";
+import type { OrdenTabla } from "@/lib/admin/orden";
 import { FILAS_POR_PAGINA } from "@/lib/admin/url";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,8 @@ export type ColumnaAdmin<T> = {
   alinear?: "derecha";
   /** Tailwind width class for the column. */
   ancho?: string;
+  /** The header sorts the whole list by this column (D-063); its id must be a key of the screen's `ClavesOrden`. */
+  ordenable?: boolean;
 };
 
 type Props<T> = {
@@ -34,9 +37,12 @@ type Props<T> = {
   vacio: { titulo: string; descripcion: string; accion?: ReactNode };
   /** Accessible name of the row, for screen readers. */
   etiquetaFila?: (fila: T) => string;
+  /** The order the rows are in (from ?orden= or the screen's default), to mark its column. */
+  orden?: OrdenTabla;
 };
 
-const CELDA = "h-10 px-[10px] py-0 text-[13px]";
+// 56 px rows (D-063): the whole row opens the record, so it has to be an easy target.
+const CELDA = "h-14 px-3 py-2 text-[14px]";
 const ENLACE_PAGINA =
   "inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 font-semibold text-primary hover:bg-accent focus-visible:outline-2 focus-visible:outline-primary";
 
@@ -48,11 +54,12 @@ function eventoDeEscritura(e: globalThis.KeyboardEvent): boolean {
 }
 
 /**
- * Table of the Office registers and queues (D-042). Rows open their record's
- * page (D-062), optional bulk selection and a pager. Keyboard: Tab moves
+ * Table of the Office registers and queues (D-042). 56 px rows that open their
+ * record's page (D-062, D-063), headers that sort the whole list by their
+ * column (?orden=), optional bulk selection and a pager. Keyboard: Tab moves
  * between rows, Enter opens the focused one and "/" focuses the search box.
  */
-export function AdminTable<T>({ columnas, filas, idDe, hrefFila, masiva, pager, vacio, etiquetaFila }: Props<T>) {
+export function AdminTable<T>({ columnas, filas, idDe, hrefFila, masiva, pager, vacio, etiquetaFila, orden }: Props<T>) {
   const { construir } = useUrlAdmin();
   const router = useRouter();
   const [marcadas, setMarcadas] = useState<Set<string>>(new Set());
@@ -130,19 +137,45 @@ export function AdminTable<T>({ columnas, filas, idDe, hrefFila, masiva, pager, 
                     />
                   </TableHead>
                 )}
-                {columnas.map((c, i) => (
-                  <TableHead
-                    key={c.id}
-                    className={cn(
-                      "sticky top-0 z-[1] h-auto bg-muted px-[10px] py-2 text-[10.5px] font-medium tracking-[0.07em] text-muted-foreground uppercase",
-                      c.alinear === "derecha" && "text-right",
-                      c.ancho,
-                      i === 0 && !masiva && "max-md:left-0 max-md:z-[2]",
-                    )}
-                  >
-                    {c.cabecera}
-                  </TableHead>
-                ))}
+                {columnas.map((c, i) => {
+                  const activa = orden?.columna === c.id;
+                  return (
+                    <TableHead
+                      key={c.id}
+                      aria-sort={c.ordenable ? (activa ? (orden.direccion === "asc" ? "ascending" : "descending") : "none") : undefined}
+                      className={cn(
+                        "sticky top-0 z-[1] h-auto bg-muted px-3 py-2 text-[11px] font-medium tracking-[0.07em] text-muted-foreground uppercase",
+                        c.alinear === "derecha" && "text-right",
+                        c.ancho,
+                        i === 0 && !masiva && "max-md:left-0 max-md:z-[2]",
+                      )}
+                    >
+                      {c.ordenable ? (
+                        <Link
+                          href={construir({ orden: c.id, dir: activa && orden.direccion === "asc" ? "desc" : "asc" })}
+                          scroll={false}
+                          className={cn(
+                            "-mx-1.5 inline-flex h-8 items-center gap-1 rounded-md px-1.5 uppercase outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary",
+                            activa && "font-bold text-foreground",
+                          )}
+                        >
+                          {c.cabecera}
+                          {activa ? (
+                            orden.direccion === "asc" ? (
+                              <ArrowUpIcon aria-hidden="true" className="size-3.5" />
+                            ) : (
+                              <ArrowDownIcon aria-hidden="true" className="size-3.5" />
+                            )
+                          ) : (
+                            <ArrowUpDownIcon aria-hidden="true" className="size-3.5 opacity-50" />
+                          )}
+                        </Link>
+                      ) : (
+                        c.cabecera
+                      )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             </TableHeader>
             <TableBody>
