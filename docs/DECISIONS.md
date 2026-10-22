@@ -686,6 +686,7 @@ Decisión:
 - **Con sesión:** el menú completo sigue a la vista (D-056): postulante "Ofertas, Postulaciones, Mi perfil, Ayuda" (el "Inicio" es el logo); empresa "Inicio, Mis ofertas, Mi empresa, Ayuda" y "Publicar" como botón menta a la derecha. A la derecha, **"Mi cuenta"**: la inicial en un azulejo menta que abre quién ingresó (rol y email) y "Salir". En el celular, solo la inicial (con su nombre para lectores de pantalla); la barra de abajo no cambia.
 - **Sin sesión:** "Ofertas" y "Ayuda", con "Ingresar" y "Crear cuenta" (o "Registrar mi empresa") a la derecha. Se sacan "Inicio" (es el logo) y "Para empresas": las empresas entran por "Ayuda" y por los links cruzados de los ingresos.
 Motivo: el usuario dijo que la barra parecía "hecha por un niño de 5 años" y que el bloque del usuario estaba "muy mal dispuesto"; pidió simplificarlo para todas las sesiones. Eligió mantener el menú completo a la vista (lo que había pedido en D-056) y llevar solo la cuenta a "Mi cuenta".
+*Actualizada el 2026-10-22: vuelve "Inicio" al menú de la computadora para el postulante y para quien no ingresó ("Inicio, Ofertas, Postulaciones, Mi perfil, Ayuda" y "Inicio, Ofertas, Ayuda"), por si alguien no sabe que el logo lleva al inicio. En el celular no se suma: la barra de abajo mantiene 4 opciones (D-028).*
 
 ### D-066 — Inicio: contrataciones en vivo en la portada, cifras con más peso y menos bloques
 Fecha: 2026-10-22 · Amplía: D-059
