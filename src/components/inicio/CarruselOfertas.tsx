@@ -52,12 +52,15 @@ export function CarruselOfertas({ ofertas }: { ofertas: OfertaPublica[] }) {
     <div className="flex flex-col gap-3">
       <ul
         ref={pista}
-        className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 lg:mx-0 lg:scroll-px-0 lg:px-0"
+        // `relative` makes the list the containing block of the screen-reader-only
+        // labels inside the cards (absolutely positioned), so it clips them too and
+        // they do not widen the page on phones.
+        className="relative -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 lg:mx-0 lg:scroll-px-0 lg:px-0"
       >
         {ofertas.map((oferta) => (
           <li
             key={oferta.id}
-            className="shrink-0 basis-[85%] snap-start sm:basis-[calc(50%-0.375rem)] lg:basis-[calc(25%-0.5625rem)]"
+            className="flex shrink-0 basis-[85%] snap-start flex-col sm:basis-[calc(50%-0.375rem)] lg:basis-[calc(25%-0.5625rem)]"
           >
             <TarjetaOferta
               oferta={oferta}

@@ -21,9 +21,11 @@ export function ListaPostulaciones({ postulaciones }: { postulaciones: Postulaci
             seleccionada={false}
             soloEnEscritorio={false}
           >
-            <h2 className="font-heading text-lg leading-snug font-semibold">{postulacion.oferta.titulo}</h2>
-            <p className="-mt-2 text-base text-muted-foreground">{postulacion.oferta.lugar}</p>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="line-clamp-2 min-h-[2lh] font-heading text-lg leading-snug font-semibold">
+              {postulacion.oferta.titulo}
+            </h2>
+            <p className="-mt-2 truncate text-base text-muted-foreground">{postulacion.oferta.lugar}</p>
+            <p className="mt-auto text-sm text-muted-foreground">
               Te postulaste el {formatearDia(postulacion.postuladoEl)}
             </p>
           </TarjetaSeleccionable>
