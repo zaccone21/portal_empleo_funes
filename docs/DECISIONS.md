@@ -635,6 +635,23 @@ Decisión:
 - **Sin testimonios inventados ni números de ejemplo:** todo lo que se muestra es real o es una regla del sistema.
 Motivo: pedido del usuario ("la landing está muy vacía; estadísticas, contadores, sliders, cosas que aporten seguridad").
 
+### D-060 — El pedido de cierre no se cancela; para seguir buscando se duplica la oferta
+Fecha: 2026-10-22 · Resuelve: Q-003
+Decisión:
+- La empresa **no puede cancelar** un pedido de cierre ya enviado.
+- Si quiere seguir buscando gente, usa "Duplicar" (D-048): crea una oferta nueva, que pasa otra vez por la moderación de la Oficina.
+- Una oferta cerrada **no se vuelve a publicar**.
+Motivo: el usuario lo decidió. Mantiene una regla única (una oferta cerrada es definitiva) y reutiliza "Duplicar", sin estados nuevos.
+*Sin cambios de código: es lo que el portal hace hoy (DECISIONS D-027, D-048). Si la Oficina debe poder rechazar un pedido de cierre, no está decidido.*
+
+### D-061 — Ningún dato personal se lee ni se escribe con una sola barrera
+Fecha: 2026-10-22 · Reemplaza: la excepción de D-044/DT-019 (cliente admin para la empresa)
+Decisión:
+- No puede haber filtración de datos personales en ningún lugar del portal. Toda lectura o escritura de datos personales tiene **dos barreras**: el caso de uso y la base de datos (RLS o función `security definer` que repite el control).
+- El acceso de la empresa a sus candidatos derivados (P17, decisión, CV) y la creación de cuentas de la Oficina dejan de depender solo del cliente admin (DT-019, DT-020).
+- Se agrega una **fase de seguridad** antes de la entrega y antes de los refactors del frontend: auditoría de los usos del cliente admin y de las respuestas de la API, y pruebas de fuga entre cuentas con sesiones reales.
+Motivo: el usuario lo exigió ("no puede pasar esto de ninguna manera, en ningún lugar del portal"). Es la regla de AGENTS §7, que DT-019 incumplía de forma documentada.
+
 ---
 
 ## Abiertas
@@ -649,6 +666,7 @@ Motivo: pedido del usuario ("la landing está muy vacía; estadísticas, contado
 
 ### Q-003 — Solicitud de cierre
 ¿La empresa puede cancelar una solicitud de cierre? ¿El admin puede rechazarla (vuelve `close_requested = false`)? ¿Una oferta cerrada se puede volver a publicar?
+*Resuelta por D-060 (2026-10-22): el pedido no se cancela y la oferta cerrada no se republica; se duplica. Sigue sin decidir si la Oficina puede rechazar un pedido de cierre.*
 
 ### Q-004 — "Cargar/Crear CV" (P04)
 `pantallas.md` y el diagrama mencionan **crear** un CV online además de subirlo, pero RF1.2.3 solo pide subir 1 PDF. ¿El MVP es solo subida? *Por ahora solo subida.*

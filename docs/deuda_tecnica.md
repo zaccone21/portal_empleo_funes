@@ -226,6 +226,7 @@ Pérdida de cobertura: Se perdieron las pruebas unitarias que apuntaban a los co
 
 ### DT-019 — La empresa ve a sus derivados con el cliente admin, sin RLS propia
 Fecha: 2026-10-18 · Origen: D-044, migración `20261018200000`
+**Prioridad (2026-10-22): bloqueante. Se salda en la fase de seguridad, antes de los refactors del frontend y de la entrega.** El usuario descartó dejarla como excepción: no puede haber filtración de datos en ningún lugar del portal, y toda lectura o escritura de datos personales necesita dos barreras. Hoy no hay una fuga conocida (el caso de uso comprueba rol, dueño de la oferta y estado `derivado`, con tests), pero esa comprobación es la única barrera y nunca se probó con sesiones reales de dos empresas.
 Qué:
 - La empresa no tiene políticas RLS sobre `postulaciones` ni `postulantes`, ni sobre el bucket `cvs`. Para mostrarle sus candidatos derivados (P17), informar su decisión y abrir el CV, el caso de uso (`src/lib/use-cases/empresa.ts`) verifica el rol, que la oferta sea suya y que la postulación esté derivada, y el DAL usa el cliente admin (`src/lib/supabase/admin.ts`), que saltea RLS: `src/lib/dal/candidatos.ts` y `crearUrlFirmadaCvParaEmpresa` en `src/lib/dal/cv.ts`. Como segunda línea, la lista de candidatos filtra por empresa en la misma consulta.
 - Si el caso de uso se equivoca en ese control, la base no lo frena: es la única barrera para esas lecturas y escrituras (AGENTS §7 pide dos).
@@ -235,6 +236,7 @@ Cómo se salda: una función `security definer` por operación (por ejemplo `can
 
 ### DT-020 — Las cuentas de la Oficina se crean con el cliente admin y una contraseña temporal a la vista
 Fecha: 2026-10-20 · Origen: D-058
+**Prioridad (2026-10-22): entra en la fase de seguridad** junto con DT-019, por el mismo motivo (una sola barrera sobre una operación sensible: crear cuentas con rol `admin`). Las plantillas con `token_hash` ya están pegadas en el panel (2026-10-22), así que la invitación por email deja de estar bloqueada.
 Qué:
 - "Equipo" (P21) crea la cuenta de una operadora con el cliente admin (`src/lib/dal/equipo.ts`): `auth.admin.createUser`, después cambia `perfiles.rol` a `admin` y borra la fila de `postulantes` que crea el trigger `crear_perfil`. El único control es el caso de uso (`src/lib/use-cases/equipo.ts`), que exige el rol `admin`; la base no lo repite (AGENTS §7 pide dos barreras).
 - Son tres pasos sin transacción. Si falla el segundo o el tercero, el DAL borra el usuario recién creado; si también falla ese borrado, queda una cuenta a medias que hay que arreglar a mano en Supabase.
