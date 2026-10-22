@@ -35,11 +35,12 @@ const GARANTIAS: { titulo: string; texto: string; icono: LucideIcon }[] = [
 /**
  * "Un servicio de la Municipalidad de Funes" on the home page (P01, D-059,
  * D-066): why a visitor can trust the portal, told with what the Office really
- * does. On the left, the municipal seal big on the deep green, so the block
- * reads as an official endorsement at a glance; on the right, the four
- * promises in a grid of equal cells.
+ * does. On the left, the municipal seal big and white straight on the deep
+ * green (no disc behind it), so the block reads as an official endorsement at
+ * a glance; on the right, the four promises in a grid of equal cells.
  *
- * The seal file is 447 px, so it stays sharp up to about 220 px.
+ * The seal file is 447 px, white on a transparent background (made from the
+ * green one, 2026-10-22), so it stays sharp up to about 224 px.
  */
 export function Confianza() {
   return (
@@ -49,11 +50,11 @@ export function Confianza() {
     >
       <div className="flex flex-col items-center justify-center gap-5 bg-brand-deep p-8 text-center text-primary-foreground sm:p-10">
         <Image
-          src="/sello-funes-verde.png"
+          src="/sello-funes-blanco.png"
           alt="Sello del Gobierno de la Ciudad de Funes"
           width={447}
           height={447}
-          className="size-36 rounded-full ring-4 ring-primary-foreground/15 sm:size-44 lg:size-52"
+          className="size-40 sm:size-48 lg:size-56"
         />
         <div className="flex flex-col gap-2">
           <h2 id="confianza-titulo" className="text-2xl font-semibold text-balance sm:text-3xl">

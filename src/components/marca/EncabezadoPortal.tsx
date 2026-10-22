@@ -24,7 +24,8 @@ function itemActual(items: ItemNavegacion[], ruta: string): string | undefined {
  * surface, 64 px (72 px from `lg`), spanning the whole width of the screen:
  * - left, the lockup with the municipal logo, which leads home;
  * - desktop only, the role's screens as text links; the current one is white
- *   with a mint bar on the bar's bottom edge. On phones the menu is BarraInferior;
+ *   with a mint bar on the bar's bottom edge; on hover a link's slot lights up
+ *   and shows the bar at half strength. On phones the menu is BarraInferior;
  * - right, the role's main action ("Publicar") as a mint button and the
  *   account corner (BotonCuenta): "Mi cuenta", or "Ingresar" and the registration.
  * From `lg` it stays pinned on top while the page scrolls.
@@ -58,9 +59,13 @@ export function EncabezadoPortal({ area }: { area: Role }) {
                     href={href}
                     aria-current={actual === href ? "page" : undefined}
                     className={cn(
-                      "relative inline-flex items-center px-3 text-[0.9375rem] font-medium whitespace-nowrap text-primary-foreground/75 outline-none hover:text-primary-foreground",
+                      "relative inline-flex items-center px-3 text-[0.9375rem] font-medium whitespace-nowrap text-primary-foreground/75 outline-none",
                       "focus-visible:ring-3 focus-visible:ring-brand-mint/70 focus-visible:ring-inset",
                       "after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t-full after:bg-brand-mint after:opacity-0",
+                      // Hover: the whole slot lights up and the mint bar shows at half strength,
+                      // so the option under the pointer stands out before choosing it.
+                      "hover:bg-primary-foreground/[0.08] hover:text-primary-foreground hover:after:opacity-50",
+                      "motion-safe:transition-colors motion-safe:after:transition-opacity",
                       "aria-[current=page]:text-primary-foreground aria-[current=page]:after:opacity-100",
                     )}
                   >
