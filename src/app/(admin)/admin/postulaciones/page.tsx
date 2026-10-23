@@ -5,10 +5,13 @@ import { StatusStrip } from "@/components/admin/status-strip";
 import { TablaPostulacionesRegistro } from "@/components/admin/tabla-postulaciones-registro";
 import { Toolbar, type FiltroToolbar } from "@/components/admin/toolbar";
 import { datosPostulaciones } from "@/lib/admin/datos";
+import { aplicarOrden, leerOrden } from "@/lib/admin/orden";
 import {
+  CLAVES_ORDEN_POSTULACIONES,
   contarPorEstadoPostulaciones,
   empresasDePostulaciones,
   filtrarPostulaciones,
+  ORDEN_POR_DEFECTO_POSTULACIONES,
   postulacionesDelModo,
 } from "@/lib/admin/postulaciones";
 import { leerParam, paginar, type ParamsBusqueda } from "@/lib/admin/url";
@@ -23,7 +26,8 @@ export default async function AdminPostulacionesPage(props: {
   const { postulaciones } = await datosPostulaciones(params);
 
   const delModo = postulacionesDelModo(postulaciones, "registro");
-  const filtradas = filtrarPostulaciones(delModo, params, "registro");
+  const filtradas = aplicarOrden(filtrarPostulaciones(delModo, params, "registro"), params, CLAVES_ORDEN_POSTULACIONES);
+  const orden = leerOrden(params, CLAVES_ORDEN_POSTULACIONES) ?? ORDEN_POR_DEFECTO_POSTULACIONES["registro"];
   const pagina = paginar(filtradas, Number(leerParam(params, "pagina")));
   const conteo = contarPorEstadoPostulaciones(postulaciones);
 
@@ -61,6 +65,7 @@ export default async function AdminPostulacionesPage(props: {
         postulaciones={pagina.filas}
         pager={pagina}
         hayFiltros={hayFiltros}
+        orden={orden}
       />
     </>
   );

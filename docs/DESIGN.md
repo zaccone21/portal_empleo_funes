@@ -14,7 +14,7 @@ Público: personas con poca práctica digital, en celulares de gama baja y mucha
 
 La idea: **un mural de azulejos con los oficios de la ciudad** (albañilería, jardinería, cocina, electricidad, transporte, costura…), en los verdes de la Municipalidad y con un único acento amarillo "sol". Conecta con el corazón del portal, que es que cada persona encuentre trabajo de lo suyo (las etiquetas de oficios de RF1.2.2).
 
-- **El mosaico es el elemento memorable** y aparece en los fondos verdes: el marco de acceso, los encabezados de sección y el bloque "¿Tenés una empresa…?" del inicio. Todo lo que está alrededor es sobrio: fondos blancos, tipografía clara, sin decoración extra. Si un fondo ya tiene mosaico, no se le suma otro adorno.
+- **El mosaico es el elemento memorable** y aparece en los fondos verdes: el marco de acceso, los encabezados de sección y la portada del inicio. Todo lo que está alrededor es sobrio: fondos blancos, tipografía clara, sin decoración extra. Si un fondo ya tiene mosaico, no se le suma otro adorno.
 - **En el celular, el mosaico nunca va detrás de un texto.** En los encabezados de sección y en el bloque de empresas se oculta por debajo de `sm` (640 px), porque ahí queda detrás del título y le quita legibilidad. En el acceso aparece como franja propia, arriba del panel.
 - **Forma firma, la "hoja":** dos esquinas redondeadas en diagonal (arriba a la izquierda y abajo a la derecha) y dos casi rectas, **siempre discreta**. La usan algunos azulejos, el panel blanco del acceso y las tarjetas. Clases:
   - Paneles grandes: `rounded-tl-[1.75rem] rounded-br-[1.75rem] rounded-tr-lg rounded-bl-lg`.
@@ -24,7 +24,7 @@ La idea: **un mural de azulejos con los oficios de la ciudad** (albañilería, j
 - **Tono adulto e institucional:** es atrevida pero no infantil. Los azulejos son cuadrados (uno de cada tres con forma "hoja"); no hay círculos ni arcos. Los títulos van en Sora semibold, no bold. La navegación marca la página actual con un subrayado, no con píldoras de color.
 - **Superficies:** verde monte (`bg-brand-deep`) para los fondos de marca, con texto blanco. Blanco (`bg-background`) para el contenido que se lee o se completa.
 - **Lema grande:** en los fondos verdes va una frase corta en Sora 700, grande y apretada (`tracking-[-0.03em]`, `leading-[1.05]`). Es un `<p>`; el `h1` de la página sigue siendo el título de la pantalla.
-- **Movimiento:** un único momento al cargar, en el que los azulejos aparecen escalonados y el panel sube. Siempre con `motion-safe:`, para respetar "reducir movimiento". No hay animaciones de hover en cada tarjeta ni entradas por sección.
+- **Movimiento:** un único momento al cargar, en el que los azulejos aparecen escalonados y el panel sube. Siempre con `motion-safe:`, para respetar "reducir movimiento". No hay animaciones de hover en cada tarjeta ni entradas por sección. Única excepción: los contadores del inicio (la cifra de contrataciones de la portada y "El portal en números"), que suben una vez al aparecer y, si el número cambia, cuentan desde el anterior; con "reducir movimiento" muestran el número final (D-059, D-066).
 - **Qué evitar:** degradados de relleno, etiquetas en mayúsculas sobre los títulos, resaltar una palabra del título con otro color, tarjetas idénticas con la misma sombra gris, y "→" al final de los botones.
 
 Componentes: `MosaicoOficios` y `MarcaPortal` (`src/components/marca/`), y `MarcoAcceso` y `PanelAcceso` (`src/components/auth/`).
@@ -102,14 +102,17 @@ Tamaños:
   - La acción principal del rol va pintada en verde (el "Publicar" de la empresa).
   - Sin sesión: "Ofertas", "Ingresar" y "Crear cuenta".
 - **Lo que se fija abajo** (por ejemplo "Postularme") se apoya sobre esa barra usando `--alto-barra-inferior`. Lo definen los layouts de cada área y vale 0 desde `lg`.
-- **Arriba**, en todas las pantallas internas: la marca (logo de la Municipalidad en blanco + "Portal de Empleo") y la cuenta.
-  - En desktop, el menú va también arriba, con subrayado en la página actual.
-  - **"Salir" es un botón visible con ícono y palabra**, no un menú escondido.
+- **Arriba**, en todas las pantallas internas (D-065): barra verde monte de 64 px (72 px desde `lg`), **a todo el ancho de la pantalla** (con 16 px de margen, 24 px desde `sm` y 40 px desde `lg`): la marca (logo en blanco + "Portal de Empleo"), que lleva al inicio, y la cuenta a la derecha.
+  - En desktop, el menú completo del rol va como texto de 15 px (blanco al 75 %); la página actual en blanco con una barra menta de 3 px sobre el borde inferior de la barra. Al pasar el mouse, todo el espacio de la opción se aclara (blanco al 8 %), el texto pasa a blanco y la barra menta aparece a media intensidad, con una transición corta (solo con `motion-safe`). La acción principal ("Publicar") es un botón menta a la derecha, junto a la cuenta. La barra queda fija arriba desde `lg`.
+  - **"Mi cuenta":** la inicial en un azulejo menta y la palabra "Mi cuenta" con una flecha; abre quién ingresó (rol y email) y "Salir". En el celular, solo la inicial. Las pantallas (perfil, ayuda) no van en este menú: siguen a la vista.
+  - El menú empieza con "Inicio" (postulante y sin sesión), aunque el logo también lleva al inicio: no todos saben que el logo es un link. En el celular no está: la barra de abajo tiene 4 opciones como máximo.
+  - Sin sesión, el menú es "Inicio", "Ofertas" y "Ayuda", y a la derecha "Ingresar" (vuelve a la pantalla) y "Crear cuenta" o "Registrar mi empresa" en menta.
+  - "Ayuda" (P20) está en el menú del postulante, de la empresa y de quien no ingresó; nunca en el de la Oficina.
 - **Llevar a la persona de vuelta a donde estaba.** Si una pantalla pide ingresar, el link lleva `?volver=` con esa pantalla. Si falta el CV para postularse, "Mi CV" ofrece "Volver a la oferta".
 - **Mostrar el estado que la persona iría a buscar:** "Te postulaste" en la oferta, "Subí tu CV" arriba de las ofertas.
 - **Links cruzados** para quien entró por la puerta equivocada ("¿Sos una empresa? Ingresá acá").
 - **Pantalla privada sin sesión o con otro rol:** `PedirIngreso` ("Ingresá…" con los botones), nunca un error.
-- **Logo de la Municipalidad:** `LogoMunicipalidad`, en blanco (`variante="claro"`) sobre verde y en color sobre blanco (pie del inicio). Se muestra a su tamaño real, con ancho y alto fijos (92 × 26 px) y sin encogerse (`shrink-0`): si el contenedor lo estira o lo aprieta, se deforma. El archivo es chico; hace falta un SVG para verlo nítido en celulares.
+- **Logo de la Municipalidad:** `LogoMunicipalidad`, con el texto completo ("Gobierno de la Ciudad de Funes"), en blanco (`variante="claro"`) sobre verde y en verde municipal (`variante="color"`) sobre blanco. Hay un solo archivo, `public/LOGOencabezado.png` (185 × 52 px, blanco): la versión en verde es la misma forma pintada con una máscara CSS. Se dimensiona por el alto (`h-8 w-auto`, 32 px) y nunca más de ~34 px, para que se vea nítido también en pantallas de alta densidad; sin encogerse (`shrink-0`). Para usarlo más grande hace falta un SVG de la Municipalidad.
 
 ## 4 ter. Reglas por pantalla
 
@@ -117,11 +120,21 @@ Tamaños:
 
 La portada sirve para **empezar a buscar trabajo sin leer nada más**. Orden, de arriba hacia abajo:
 1. **Portada verde**: el título "Tu próximo trabajo está en Funes.", una bajada corta y el buscador "¿Qué trabajo buscás?". Buscar lleva al catálogo con la búsqueda hecha (`/ofertas?q=…`). Es un formulario común (GET): funciona aunque falle el JavaScript.
-2. **Rubros como atajos**: los 7 rubros con más trabajos del día a día, como chips con ícono. Cada uno abre el catálogo filtrado (`/ofertas?rubro=…`). En el celular es una fila que se desliza de costado, para no empujar el contenido hacia abajo.
-3. **Ofertas recientes**: las 4 ofertas publicadas más nuevas, con "Ver todas las ofertas". Se eligieron las recientes y no las "más relevantes" porque la relevancia necesita un criterio que no está definido.
-4. **Cómo postularte**: 3 pasos numerados (es una secuencia real: cuenta, CV, postulación) y "Crear mi cuenta".
-5. **Para empresas**: bloque verde con mosaico (solo desde `sm`) y dos botones: "Registrar mi empresa" y "Ya tengo cuenta".
-6. **Pie**: logo en color y el ingreso de la Oficina de Empleo, discreto, porque lo usan pocas personas.
+2. **Rubros como atajos** (en la portada): los 7 rubros con más trabajos del día a día, como chips con ícono. Cada uno abre el catálogo filtrado (`/ofertas?rubro=…`). En el celular es una fila que se desliza de costado, para no empujar el contenido hacia abajo.
+3. **Contrataciones** (en la portada, D-066): desde `lg`, un panel blanco "hoja" que flota sobre el mosaico a la derecha, con un ícono en azulejo menta, el número en Sora de 96 px en verde municipal y "personas consiguieron trabajo con la Oficina de Empleo" (850 ubicadas antes del portal + las contrataciones del portal, D-067); en el celular, una banda translúcida sobre el verde, abajo del buscador. Se actualiza sola cada minuto mientras se mira. Sin datos, no aparece.
+4. **Ofertas recientes**: las 8 ofertas publicadas más nuevas en un **carrusel** (deslizar, con botones de 44 px anterior/siguiente que se apagan en cada punta; en el celular asoma la tarjeta siguiente), con "Ver todas las ofertas". Se eligieron las recientes y no las "más relevantes" porque la relevancia necesita un criterio que no está definido.
+5. **El portal en números** (D-059, D-066): banda verde monte con forma "hoja", título en blanco y cuatro celdas iguales separadas por líneas finas, cada una con su ícono en azulejo menta, el número en blanco (48 px) y su rótulo. Sin datos, no aparece.
+6. **Un servicio de la Municipalidad de Funes** (solo sin sesión, D-066): a la izquierda, sobre verde monte, el sello municipal grande y **en blanco, sin disco de fondo** (`public/sello-funes-blanco.png`, hasta 224 px) con el título y la bajada; a la derecha, las cuatro garantías en una grilla 2 × 2 de celdas blancas iguales, con el ícono en azulejo verde.
+7. **Cómo postularte**: 3 pasos numerados (es una secuencia real: cuenta, CV, postulación) y "Crear mi cuenta".
+8. **Pie**: logo en color, "Ayuda y preguntas frecuentes" y el ingreso de la Oficina de Empleo, discreto, porque lo usan pocas personas.
+
+Sin "Buscá por rubro" (repetía los atajos) ni "Para empresas" (las empresas llegan por "Ayuda"), D-066.
+
+### Ayuda (P20, D-057)
+
+- Arriba, dos tarjetas "hoja" que son links: "Busco trabajo" y "Tengo una empresa" (`?para=empresa`). La elegida va con fondo menta claro, borde verde y su ícono en verde lleno.
+- Debajo, en dos columnas desde `lg`: la **guía paso a paso** (pasos numerados con ícono en azulejo verde, unidos por una línea fina, y al final de cada paso un link a su pantalla) y las **preguntas frecuentes** en un `Accordion` dentro de una tarjeta blanca, con texto de 16 px.
+- Al final, un bloque menta "¿Te quedó alguna duda?" que manda a la Oficina en persona.
 
 ### Catálogo de ofertas (P05 y P06, D-029)
 
@@ -140,17 +153,32 @@ La portada sirve para **empezar a buscar trabajo sin leer nada más**. Orden, de
 *Reescrita el 2026-10-18; reemplaza la versión de D-030 (panel de 4 números y pestañas por estado). La referencia visual son los mocks de `docs/admin-view-mocks/`.*
 
 La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tareas pendientes y registros para consultar. Está pensada para la computadora de la Oficina; en el celular se puede usar, pero no es su caso principal.
-- **Menú lateral** (232 px, se pliega a 56 px de íconos): "Resumen" (Dashboard), "Tareas pendientes" (Ofertas por revisar, Postulaciones nuevas, Cierres solicitados, Por comunicar / derivar) y "Gestión" (Ofertas, Postulaciones, Postulantes, Empresas). Las tareas muestran su cantidad en una pastilla de atención **solo si hay alguna**.
+- **Menú lateral** (232 px, se pliega a 56 px de íconos): "Resumen" (Dashboard), "Tareas pendientes" (Ofertas por revisar, Postulaciones nuevas, Cierres solicitados, Por comunicar / derivar, Empresas nuevas) y "Gestión" (Ofertas, Postulaciones, Postulantes, Empresas). Las tareas muestran su cantidad en una pastilla de atención **solo si hay alguna**. Arriba, el logo en verde (32 px de alto) y, debajo de una línea, "Oficina de Empleo".
 - **Dashboard (P14):** una tarjeta por cola, que lleva a resolverla; "Para resolver hoy" con las tareas más viejas primero; accesos a los registros. Los indicadores con datos reales se suman según D-051.
 - **Colas** (ofertas por revisar, postulaciones nuevas, cierres, por comunicar): la más vieja primero (se atiende por orden de llegada), sin tira de estados, con la pista de teclado abajo.
 - **Registros** (ofertas, postulaciones, postulantes, empresas): tira de estados con la cantidad de cada uno (filtra por la URL), búsqueda (`/` la enfoca) y filtros. Todo el estado de la pantalla va en la URL, así funcionan el "atrás" y compartir el link.
-- **Tabla:** filas de 40 px. Donde hay panel, tocar la fila la elige (`?sel=`) y abre el **panel de detalle** al lado (500 px desde 1280 px; por debajo, como hoja lateral), con "Abrir página completa". **Donde no hay panel, tocar la fila abre su página** (por ejemplo, la evaluación). Teclado: ↑/↓ para moverse, Enter abre, Esc cierra.
+- **Tabla:** filas de 56 px y texto de 14 px (D-063), para que tocar la fila no sea un tiro al blanco. **Tocar la fila (o "Ver") abre la página completa del registro** (D-062); no hay panel lateral. Teclado: Tab para moverse, Enter abre, `/` busca.
+- **Ordenar (D-063):** cada columna con dato se ordena tocando su encabezado (otro toque invierte); la columna activa va en negrita con una flecha ↑/↓ y las demás con ↕ tenue. El orden va en la URL. Sin elegir, la columna del orden de la pantalla ya aparece marcada (colas: la más vieja primero).
+- **Empresas nuevas (D-064):** vista "Nuevas (7 días)" en Empresas y columna "Registrada" con la etiqueta "Nueva" (tono atención).
+- **Página completa de un registro (D-062, `FichaAdmin`):** arriba, la flecha "Volver a …" (44 px) que lleva a la lista de origen con sus filtros (`?desde=`); el título en Sora 26 px con su estado y, al lado, las acciones (contacto de un toque, Ver CV, Aprobar/Rechazar). Debajo, dos columnas desde `lg`: lo principal a la izquierda y, en una columna de 300 a 380 px, la empresa, los datos de contacto y las herramientas (asociar a una oferta, cursos). Cada bloque es una tarjeta blanca con su título (`FichaSeccion`); texto de 14 px. Sin pestañas. Desde una cola, la decisión pasa a la oferta siguiente.
 - **Decisiones sobre una oferta:** "Aprobar" es un clic y un toast lo confirma; "Rechazar" abre una confirmación con el motivo obligatorio, porque la empresa lo lee (RF1.3.5); "Cerrar oferta" pide confirmación. En la cola de revisión se pueden aprobar varias juntas. Si otra operadora decidió primero, el toast lo dice.
 - **Evaluación de una postulación (P15):** dos columnas: la oferta a la izquierda; a la derecha, la persona (datos, contacto de un toque, rubros) y su CV en un visor. Abajo, "Preseleccionar" o "Marcar no apto", y anterior/siguiente para recorrer la cola (J/K).
 - **Por comunicar / derivar:** cada fila trae el contacto de la empresa (WhatsApp, teléfono, email) y "Marcar como derivado" una vez que se habló con ella.
 - **Contacto de un toque:** teléfono (`tel:`), WhatsApp y email (`mailto:`) son botones, nunca texto suelto.
 - **Celular:** las tablas se desplazan de costado dentro de su caja, con la primera columna fija; la página no se desborda.
-- **Pendiente (Etapa 4 del plan de cierre):** preentrevista y "Derivar" en la evaluación (RF1.6.1, RF1.6.2), seguimiento con la cantidad de rechazos en la ficha del postulante (P18) y derivaciones a cursos (P19). Siguen estas mismas reglas.
+- **Evaluación (P15), además:** el contacto de la empresa junto a la oferta; la preentrevista opcional (fecha y hora en hora argentina, y notas) en la columna de la persona; una vez derivada, "Resultado con la empresa" (Contratado, No contratado con su motivo, o Sin respuesta y hace cuánto). Con la postulación preseleccionada, "Marcar como derivado" está en la misma pantalla; si la empresa no respondió por otras personas de esa oferta, un aviso lo dice, sin bloquear (D-054).
+- **Evaluación (P15), herramientas (2026-10-20):** arriba de la oferta, cómo viene (postulaciones, derivadas y contratadas) y "Ver oferta"; la tarjeta de la empresa (la misma del panel de ofertas) con su descripción, el contacto de un toque y "Ver ficha"; los requisitos debajo de la descripción. Del lado de la persona: "Ver ficha", cuántas postulaciones más tiene y "Copiar datos para la empresa" (nombre, teléfono, email, oficios y la oferta, para pegar en el mensaje). El registro de postulaciones suma la columna "Resultado con la empresa".
+- **Equipo (P21, D-058):** grupo "Oficina" del menú lateral. A la izquierda, la lista de cuentas (inicial en un azulejo menta, email, "Vos" en la propia y desde cuándo existe) y una línea que dice que no se borran; a la derecha, el formulario con solo el email. La contraseña temporal aparece una vez en un recuadro de atención, en monoespaciada, con "Copiar" y la indicación de entregarla en persona. Abajo del menú lateral, "Cambiar mi contraseña".
+- **Panel (P14), además:** una quinta tarjeta "Sin respuesta de la empresa", esas derivaciones también en "Para resolver hoy" (por fecha de derivación), y una fila de indicadores reales en números, sin gráficos (D-051).
+- **Ficha del postulante (P18, P19):** en la página completa, "Seguimiento" con los conteos (los rechazos son solo los "No contrata" de las empresas; el "No apto" va aparte) y, con 3 rechazos o más, un aviso que lleva a la pestaña "Cursos". "Cursos" tiene el formulario (curso, fecha, notas) y el historial. Cada postulación muestra su preentrevista y el resultado con la empresa.
+- **Padrón (P16):** el filtro de rubros es múltiple (alcanza con uno). En el panel y en la ficha, "Asociar a una oferta" con el selector nativo y solo las ofertas publicadas a las que la persona no se postuló.
+
+### Empresa: candidatos derivados (P17, D-044)
+
+- Van **dentro del detalle de cada oferta** publicada o cerrada, en "Candidatos que te propuso la Oficina". No hay pantalla aparte.
+- Una tarjeta "hoja" por persona: nombre, rubros, cuándo la propuso la Oficina, contacto de un toque (llamar, WhatsApp, email) y "Ver CV".
+- La respuesta se da una sola vez: "Sí, la contraté" o "No la contraté". Para "No", el motivo se escribe ahí mismo, en la tarjeta (§5). Las dos se confirman con un `AlertDialog` que dice que no se puede cambiar después.
+- Arriba de la lista, una frase dice a cuántas personas les falta respuesta. En el inicio (P09), un aviso "N personas esperan tu respuesta" lleva a la oferta de la más antigua. No hay topes: se pide el feedback (D-054).
 
 ## 5. Componentes: cuándo usar cada uno
 
@@ -160,7 +188,9 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 | Acción secundaria | `Button variant="outline"` o link | |
 | Botón de ícono (mostrar contraseña, cerrar) | `Button variant="ghost" size="icon"` | Siempre con `aria-label` en español |
 | Navegar a otra pantalla | `<Link>` de `next/link` | Nunca `<a href>` para rutas internas |
+| Link con forma de botón (Duplicar, Llamar, Ver CV) | `<Link>` o `<a>` con `className={buttonVariants(...)}` | No `Button render={<Link />}`: Base UI le pone `role="button"` y el lector de pantalla no lo anuncia como link |
 | Lista con detalle (catálogo de ofertas, ofertas de la empresa, gestión de la Oficina) | Lista + panel de detalle en la misma página, con la selección en la URL (`?oferta=<id>`) | **No usar `Dialog` para contenido largo ni formularios**: en celulares de gama baja un modal es frágil (D-025). En desktop van lado a lado; en mobile el detalle reemplaza a la lista y tiene "Volver" |
+| Tarjetas de una lista o carrusel | `TarjetaSeleccionable` (`h-full`) con título de dos líneas (`line-clamp-2 min-h-[2lh]`) y datos de una línea | **Todas las tarjetas del mismo tipo miden lo mismo** (D-066): en una fila o carrusel se estiran al alto de la mayor; en una columna, el título reserva dos líneas y `DatosOferta compacto` reserva cuatro |
 | Confirmar una acción que no se deshace | `AlertDialog` | Por ejemplo, solicitar el cierre de una oferta. Texto corto y dos botones |
 | Pedir un texto antes de una decisión (motivo del rechazo) | El campo aparece ahí mismo, en la barra de acciones | No es un modal: el teclado del celular y el modal se llevan mal (D-025) |
 | Elegir de una lista corta (ordenar, estado de una postulación) | `SelectorNativo` (el `<select>` del navegador con el estilo del portal) | Abre el selector propio del teléfono, que la gente ya conoce y siempre entra en la pantalla. El `Select` de shadcn queda para listas que necesiten buscar o mostrar íconos |
@@ -231,9 +261,9 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 |---|---|---|
 | `MosaicoOficios` | `src/components/marca/MosaicoOficios.tsx` | El mural de azulejos de oficios (decorativo) |
 | `MarcaPortal` | `src/components/marca/MarcaPortal.tsx` | Logo de la Municipalidad en blanco + "Portal de Empleo" en una fila; lleva al inicio |
-| `EncabezadoPortal` | `src/components/marca/EncabezadoPortal.tsx` | Barra superior: marca, menú del rol (solo desktop) y la cuenta |
+| `EncabezadoPortal` | `src/components/marca/EncabezadoPortal.tsx` | Barra superior (D-065): marca, menú completo del rol con "Ayuda" (solo desktop, fija desde `lg`), "Publicar" y la cuenta |
 | `BarraInferior` | `src/components/marca/BarraInferior.tsx` | Menú del celular, fijo abajo, con ícono y palabra |
-| `BotonCuenta` | `src/components/marca/BotonCuenta.tsx` | "Salir" visible con sesión; "Ingresar" y "Crear cuenta" sin sesión (desktop) |
+| `BotonCuenta` | `src/components/marca/BotonCuenta.tsx` | Con sesión: "Mi cuenta" (`DropdownMenu`: quién ingresó y "Salir"); sin sesión: "Ingresar" y el registro del área (desktop) |
 | `itemsNavegacion` | `src/components/marca/itemsNavegacion.ts` | Qué opciones tiene el menú de cada rol, en un solo lugar |
 | `LogoMunicipalidad` | `src/components/marca/LogoMunicipalidad.tsx` | Logo de la Municipalidad, claro o en color |
 | `ProveedorSesion` | `src/components/sesion/ProveedorSesion.tsx` | Lee la sesión una vez por área; se usa con `useSesion` |
@@ -252,11 +282,25 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 
 | Componente | Archivo | Qué es |
 |---|---|---|
-| `PortadaInicio` | `src/components/inicio/` | Título, buscador "¿Qué trabajo buscás?" y rubros como atajos al catálogo |
-| `OfertasRecientes` | `src/components/inicio/` | Las 4 ofertas publicadas más nuevas y "Ver todas las ofertas" |
+| `PortadaInicio` | `src/components/inicio/` | Título, buscador "¿Qué trabajo buscás?", rubros como atajos al catálogo y `ContadorContrataciones` |
+| `ContadorContrataciones` | `src/components/inicio/` | La cifra grande de contrataciones de la portada, que se actualiza sola (D-066) |
+| `Contador` | `src/components/inicio/` | Número que cuenta al aparecer y desde el valor anterior cuando cambia; respeta "reducir movimiento" |
+| `CifrasPortal` | `src/components/inicio/` | "El portal en números": banda verde con cuatro totales reales (D-059, D-066) |
+| `OfertasRecientes` | `src/components/inicio/` | Trae las ofertas: las 8 más nuevas en `CarruselOfertas` |
+| `CarruselOfertas` | `src/components/inicio/` | Lista que se desliza de costado con puntos de anclaje y botones anterior/siguiente; tarjetas de igual alto |
+| `Confianza` | `src/components/inicio/` | "Un servicio de la Municipalidad de Funes": sello municipal y cuatro garantías reales |
 | `ComoFunciona` | `src/components/inicio/` | Los 3 pasos para postularse y "Crear mi cuenta" |
-| `ParaEmpresas` | `src/components/inicio/` | Bloque verde para empresas: registrarse o ingresar |
 | `PieInicio` | `src/components/inicio/` | Logo en color y el ingreso de la Oficina de Empleo |
+
+### Ayuda (P20)
+
+| Componente | Archivo | Qué es |
+|---|---|---|
+| `SelectorPublico` | `src/components/ayuda/` | Las dos tarjetas-link que eligen la guía (postulante o empresa) |
+| `GuiaPasos` | `src/components/ayuda/` | Pasos numerados con ícono, texto y link a la pantalla de cada paso |
+| `PreguntasFrecuentes` | `src/components/ayuda/` | Acordeón de preguntas y respuestas |
+| `ContactoAyuda` | `src/components/ayuda/` | Cierre: la Oficina ayuda en persona |
+| `contenido.ts` | `src/components/ayuda/` | Todo el texto de la ayuda, con la regla de la que sale cada respuesta |
 
 ### Ofertas y postulaciones (P05, P06, P07)
 
@@ -282,6 +326,7 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 | `FormularioOferta` | `src/components/empresa/` | Publicar una oferta: todos los campos obligatorios salvo el sueldo, de 1 a 3 rubros con casillas, y sin borrador |
 | `OfertasEmpresa` / `TarjetaOfertaEmpresa` / `DetalleOfertaEmpresa` | `src/components/empresa/` | Mis ofertas: lista + detalle con estado, motivo del rechazo y pedido de cierre |
 | `BotonSolicitarCierre` | `src/components/empresa/` | "Pedir el cierre" con confirmación (`AlertDialog`, el único tipo de modal del portal) |
+| `CandidatosDerivados` / `TarjetaCandidato` / `DecisionCandidato` | `src/components/empresa/` | P17: los candidatos que derivó la Oficina, con contacto, CV y la respuesta "contraté / no contraté" (motivo ahí mismo, confirmación con `AlertDialog`) |
 
 ### Oficina de Empleo (P14 a P16, "Mesa de trabajo", D-042)
 
@@ -293,14 +338,20 @@ Todo en `src/components/admin/`. La UI anterior (`components/oficina/`) se borr�
 | `PageHeader` | Migas, título de 20 px y un texto opcional a la derecha |
 | `Dashboard` | Pantalla 01: cuatro tarjetas de tareas que llevan a su cola, "Para resolver hoy" y accesos de gestión |
 | `StatusStrip`, `Toolbar` | Tira de estados con su cantidad (filtro en la URL) y búsqueda con filtros (`/` la enfoca) |
-| `AdminTable` | Tabla de filas de 40 px con paginado y teclado (↑/↓, Enter, Esc). Con panel, la fila elige `?sel=`; sin panel (`hrefFila`), la fila abre su página |
+| `AdminTable` | Tabla de filas de 56 px con paginado, encabezados que ordenan (`ordenable`, `?orden=`) y teclado (Tab, Enter, `/`). Con `hrefFila`, la fila abre la página del registro |
 | `TablaOfertas`, `TablaPostulacionesNuevas`, `TablaPostulacionesRegistro`, `TablaPorComunicar`, `TablaPostulantes`, `TablaEmpresas` | Las tablas de cada cola o registro |
-| `Split`, `PanelLateral`, `PanelDetalle` | Tabla + panel de detalle de 500 px desde 1280 px; por debajo, el panel es un `Sheet` |
-| `PanelOferta`, `PanelPostulante`, `PanelEmpresa` | Detalle de cada entidad, con botones de contacto (llamar, WhatsApp, email) |
+| `Split` | La caja con borde de la tabla, que ocupa el alto que queda |
+| `FichaAdmin`, `FichaSeccion`, `EnlaceVolver` | Página completa de un registro (D-062): flecha "Volver a …", título con estado y acciones, dos columnas con tarjetas |
+| `FichaOferta`, `FichaPostulante`, `FichaEmpresa` | La página completa de cada registro, con botones de contacto (llamar, WhatsApp, email) |
+| `DatosLista`, `TarjetaEmpresa` (`panel-detalle.tsx`) | Lista rótulo/valor y tarjeta de la empresa con su contacto, compartidas por las páginas y la evaluación |
 | `AccionesOferta`, `AccionesPostulacion` | Aprobar / rechazar con motivo / cerrar una oferta; preseleccionar / no apto / derivar una postulación (Server Actions, toast con el resultado) |
 | `EvaluacionPostulacion` | Pantalla 06: oferta a la izquierda y postulante con su CV en un visor a la derecha (J/K para pasar de una a otra) |
 | `ConfirmDialog` | Confirmación corta (`AlertDialog`), con motivo obligatorio cuando corresponde |
+| `FormularioPreentrevista`, `ResultadoEmpresa` | Preentrevista opcional de una postulación; qué pasó después de derivarla (decisión de la empresa o sin respuesta) |
+| `FormularioDerivacionCurso`, `AsociarOferta` | Derivar a un curso desde la ficha (P19); asociar a una persona con una oferta publicada (P16) |
 | `StatusBadge`, `EmptyState`, `BotonAdmin`, `celdas` | Estado con punto de color, estado vacío sobrio, botón de 12,5 px y celdas comunes |
+| `ListaEquipo`, `FormularioCuentaOficina` | P21: las cuentas de la Oficina (sin botón de borrar) y la creación con la contraseña temporal que se ve una sola vez |
+| `EnlaceAccion` | Link con forma de botón chico y chevron, para la columna de acción de tablas y listas ("Resolver", "Evaluar", "Ver"); verde en la acción de la cola, con borde en las demás |
 
 ### CV (P04)
 
@@ -344,4 +395,22 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
 - **2026-09-29 — "Crear cuenta" también vuelve a la oferta.** Desde "Postularme" sin sesión, tanto "Ingresar" como "Crear cuenta" llevan `?volver=` y, al terminar, devuelven a la oferta. Si Supabase deja entrar directo (confirmación de email apagada), no se muestra "Revisá tu correo". Por qué: que postularse sea un solo camino para quien entra por primera vez (D-034). (§5)
 - **2026-10-15 — Interfaz "Mesa de trabajo" para el panel de administración de la Oficina de Empleo.** Rediseño integral al píxel de la vista de administración según especificaciones y mockups 01 a 10 (D-042). Sidebar colapsable a 56 px con escudo municipal institucional a 30 px, tira de estados con estilo menta y conteos en tiempo real, contenedor split 1fr 500px para tablas y panel de inspección lateral (con hoja de CV y reproductor PDF en evaluación), atajos de teclado (/ para búsqueda, ↑/↓/Enter/Esc para tablas, J/K en evaluación), altura de fila de 40 px estricta, tokens semánticos suaves (attention, success-soft, danger-soft, neutral-soft) en coherencia con el verde primario municipal (#074A1F), y mutaciones con Server Actions y confirmaciones toast. (§4 ter, D-042)
 - **2026-10-18 — En las tablas de la Oficina sin panel, la fila abre su página.** En "Postulaciones" y "Postulaciones nuevas", tocar la fila (o Enter) abre la evaluación, igual que "Ver"/"Evaluar". Antes la fila solo quedaba marcada y no pasaba nada. En "Por comunicar" no: sus filas tienen botones con diálogo. (§4 ter, §10, `AdminTable.hrefFila`)
+- **2026-10-18 — Candidatos derivados dentro de la oferta, sin topes.** La empresa ve y responde por cada persona en el detalle de su oferta; "No la contraté" pide el motivo ahí mismo y las dos respuestas se confirman porque no se cambian. En lugar de limitar candidatos, se muestra cuántas respuestas faltan, también en el inicio. Por qué: D-044 y D-054 (el debate con el usuario: un tope cortaba al candidato que podía servir). (§4 ter, §5)
+- **2026-10-18 — Seguimiento y cursos en la ficha de la Oficina.** Conteos del seguimiento, aviso con 3 rechazos que lleva a "Cursos", preentrevista y resultado con la empresa en la evaluación, tarjeta y tareas "Sin respuesta de la empresa" e indicadores en números en el panel. Por qué: RF1.6.1 a RF1.6.6, D-051 y D-054; el aviso de 3 rechazos es la idea del usuario y solo informa. (§4 ter)
+- **2026-10-18 — Los links con forma de botón conservan el rol de link.** `buttonVariants` sobre `<Link>` o `<a>`, no `Button render`. Por qué: Base UI los anunciaba como botones. (§5)
 - **2026-10-18 — "Mi perfil" sin sesión pide ingresar una sola vez.** El bloque del CV (`SeccionCv`) se muestra solo con sesión de postulante; sin ella, el aviso de los datos personales alcanza. Antes salían dos avisos seguidos con los mismos botones.
+- **2026-10-20 — Acciones de las tablas de la Oficina como botón chico.** "Resolver", "Evaluar" y "Ver" dejan de ser texto con "→" y pasan a `EnlaceAccion` (borde, chevron y fondo menta al pasar el mouse; verde lleno en la acción de cada cola). El paginado usa chevrons. `BotonAdmin` fija el color del texto al pasar el mouse: antes el botón verde quedaba con texto gris oscuro. Por qué: el usuario marcó el botón y su hover como malos; "→" al final está en "Qué evitar" (§0). (§10)
+- **2026-10-20 — La evaluación muestra la empresa completa y suma atajos.** Tarjeta de la empresa con descripción, contacto y "Ver ficha"; requisitos de la oferta; cómo viene la oferta; "Ver ficha" de la persona y "Copiar datos para la empresa". El texto copiado no viaja en el link de WhatsApp: la operadora lo pega donde quiera. Por qué: el usuario pidió los datos de la empresa en la postulación y más herramientas para la Oficina; mandar datos personales dentro de una URL a un servicio externo está prohibido (§7 de AGENTS.md). (§4 ter)
+- **2026-10-20 — Barra de navegación completa y "Salir" a la vista.** En la computadora, el menú completo del rol con "Ayuda", "Publicar" como botón menta, la barra fija arriba y alineada con el contenido; a la derecha, quién ingresó y "Salir" (sin menú desplegable). En el celular, "Salir" arriba y 4 opciones abajo. Por qué: el usuario la marcó como "malísima, con 2 botones cualquiera". Reemplaza D-040. (§4 bis, D-056)
+- **2026-10-20 — Ayuda (P20).** Tarjetas para elegir el público, guía numerada con links a cada pantalla y preguntas frecuentes en acordeón. Por qué: pedido del usuario; guías para quien tiene poca práctica digital. (§4 ter, D-057)
+- **2026-10-20 — Equipo de la Oficina (P21).** Lista de cuentas sin botón de borrar y formulario de un solo campo; la contraseña temporal se ve una vez, en un recuadro de atención con "Copiar". Por qué: pedido del usuario (crear sin borrar, D-058); que no quede a la vista más de lo necesario. (§4 ter, §10)
+- **2026-10-20 — Inicio con cifras, carrusel, rubros y confianza.** Totales reales con contador, ofertas en carrusel, rubros con su cantidad de ofertas y un bloque institucional con garantías que el sistema cumple; sin testimonios ni números inventados. Los contadores son la única animación además de la carga (§0). Por qué: el usuario pidió una landing menos vacía, con estadísticas, sliders y cosas que den seguridad. (§0, §4 ter, §10, D-059)
+- **2026-10-22 — La Oficina abre cada registro en una página completa.** Se saca el panel lateral de 500 px: la fila abre la página, con la flecha "Volver a …" a la misma lista y dos columnas a todo el ancho. La evaluación también tiene la flecha. Por qué: el usuario marcó que el panel tenía "mucha info en muy poco lugar" y que "Abrir página completa" se veía roto. Reemplaza, en "Mesa de trabajo", el panel al lado de la tabla. (§4 ter, §10, D-062)
+- **2026-10-22 — Tablas de la Oficina que se ordenan y filas más altas.** Encabezados que ordenan toda la lista (flecha en la columna activa, orden en la URL), filas de 56 px y botones de acción de 36 px; "Empresas nuevas" en Tareas pendientes con su vista. Por qué: el usuario marcó que el orden "solo se informaba", que las filas eran angostas y propensas a errores, y preguntó dónde ver las empresas nuevas. (§4 ter, §10, D-063, D-064)
+- **2026-10-22 — Logo nuevo, nítido.** El logo con el texto completo que pasó el usuario (185 × 52 px, el doble del anterior) reemplaza al de 92 × 26 px, que se veía pixelado al agrandarlo. Se muestra a 32 px de alto; en verde, con una máscara CSS sobre el mismo archivo. En el menú lateral de la Oficina se saca "Municipalidad de Funes", que el logo ya dice. Por qué: el usuario marcó el logo como "muy pixelado" y el del panel de la Oficina como "muy mal". (§4 bis)
+- **2026-10-22 — Barra superior rediseñada.** Más alta (64/72 px), logo nuevo, menú como texto con la barra menta sobre el borde inferior, "Publicar" a la derecha y la cuenta en "Mi cuenta" (inicial que abre rol, email y "Salir"). Sin sesión: "Ofertas", "Ayuda", "Ingresar" y "Crear cuenta". Por qué: el usuario marcó la barra como inaceptable y el bloque del usuario como "muy mal dispuesto"; eligió mantener el menú completo a la vista. Reemplaza, en D-056, "Salir" suelto y la identidad desde `xl`. (§4 bis, §10, D-065)
+- **2026-10-22 — Inicio con más peso y menos repetición.** Contrataciones en grande en la portada, que se actualiza sola cada minuto; "El portal en números" como banda verde con cifras grandes; el sello municipal grande en "Un servicio de la Municipalidad"; tarjetas del mismo tipo con el mismo alto; fuera "Buscá por rubro" y "Para empresas". Por qué: el usuario marcó las cifras como "tímidas", las alturas desparejas, la sección de rubros repetida, el bloque para empresas como innecesario y el bloque municipal como "muy neutro". (§0, §4 ter, §5, §10, D-066)
+- **2026-10-22 — La barra superior ocupa todo el ancho.** El logo queda contra el borde izquierdo y la cuenta contra el derecho, en vez de alinearse con el contenido (`max-w-6xl`). Por qué: pedido del usuario. (§4 bis, D-065)
+- **2026-10-22 — El contador de la portada incluye las 850 personas que la Oficina ubicó antes del portal.** El título pasa a "con la Oficina de Empleo" y la bajada lo explica. Por qué: pedido del usuario; es un dato real de la Oficina. (§4 ter, D-067)
+- **2026-10-22 — Hover marcado en la barra y sello en blanco.** El menú de la barra superior marca la opción bajo el mouse (fondo más claro y la barra menta a media intensidad), no solo el color del texto. El sello de "Un servicio de la Municipalidad" pasa a blanco sobre transparente, directo sobre el verde monte. Por qué: pedido del usuario. (§4 bis, §4 ter, D-065, D-066)
+- **2026-10-22 — Vuelve "Inicio" a la barra de la computadora.** Para el postulante y sin sesión, primero en el menú. Por qué: el usuario pidió un atajo visible por si la gente no entiende que hay que tocar el logo. (§4 bis, D-065)

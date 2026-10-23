@@ -21,6 +21,8 @@ Todo en el panel del proyecto de **testing** (supabase.com).
 ### 1.1 Aplicar la migración nueva
 SQL Editor → New query → pegá todo `supabase/migrations/20260929130000_ofertas_visibles_para_postulados.sql` → Run. Tiene que decir "Success". Avisame y la anoto en `docs/migraciones.md`.
 
+**Pendiente (2026-10-20):** `supabase/migrations/20261020220000_estadisticas_publicas.sql`, igual que la anterior. Sin ella, el inicio no muestra "El portal en números" (el resto anda igual). Para comprobarla: abrí `http://localhost:3000/api/estadisticas`, que tiene que devolver los cinco totales.
+
 ### 1.2 Configurar el acceso (Authentication)
 1. **URL Configuration:**
    - Site URL: `http://localhost:3000`.
@@ -29,9 +31,11 @@ SQL Editor → New query → pegá todo `supabase/migrations/20260929130000_ofer
 3. **Confirmar el email:** en el proyecto de testing ya está prendido, con el SMTP propio (Gmail) configurado el 2026-09-29. Si algún día hay que armarlo de nuevo: el servicio de email que trae Supabase solo manda a los miembros del equipo del proyecto, y como máximo 2 por hora. Hay dos caminos:
    - **Para probar ya (recomendado en testing):** apagá "Confirm email". Al registrarse, la persona entra directo a su inicio.
    - **Para que se parezca a producción:** dejalo prendido y configurá un SMTP propio (Authentication → Emails → SMTP). Sin eso, el registro responde "No pudimos enviarte el email…".
-4. **Recomendado con emails reales:** para que el link del email funcione en cualquier dispositivo (por ejemplo, registrarse en la computadora y abrir el email en el celular, DT-011), en Authentication → Emails:
-   - plantilla "Confirm signup": cambiá el link por `{{ .SiteURL }}/acceso/confirmar?token_hash={{ .TokenHash }}&type=email`;
-   - plantilla "Reset password": cambiá el link por `{{ .SiteURL }}/acceso/confirmar?token_hash={{ .TokenHash }}&type=recovery`.
+4. **Plantillas de email (DT-011):** para que el link del email funcione en cualquier dispositivo (por ejemplo, registrarse en la computadora y abrir el email en el celular), en Authentication → Emails:
+   - **"Confirm signup":** asunto `Activá tu cuenta del Portal de Empleo de Funes`; en el cuerpo, pegá todo `docs/plantillas-email/confirmar-registro.html`.
+   - **"Reset password":** asunto `Elegí una contraseña nueva para el Portal de Empleo de Funes`; en el cuerpo, pegá todo `docs/plantillas-email/recuperar-contrasena.html`.
+   - Las dos usan `{{ .RedirectTo }}`, la dirección que manda el portal, en vez de `{{ .SiteURL }}`. Así el mismo proyecto de Supabase sirve para `localhost` y para Vercel (D-050). Para que Supabase la acepte, esa dirección tiene que estar en **Redirect URLs** (paso 1). Si no está, Supabase usa la Site URL y el link no funciona.
+   - Para probarlo: registrate con un email tuyo en la computadora y abrí el email en el celular. Tiene que entrar a la cuenta. Lo mismo con "¿Olvidaste tu contraseña?", que tiene que llevar a elegir una nueva.
 
 ### 1.3 Crear las tres cuentas de prueba
 Authentication → Users → **Add user → Create new user**. Poné email y contraseña, y tildá **Auto Confirm User**. Los emails pueden ser inventados, porque no se manda nada; por ejemplo `postulante@ejemplo.com`, `empresa@ejemplo.com` y `oficina@ejemplo.com`.

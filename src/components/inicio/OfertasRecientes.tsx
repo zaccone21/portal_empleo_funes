@@ -4,19 +4,26 @@ import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
-import { TarjetaOferta } from "@/components/ofertas/TarjetaOferta";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOfertasPublicadas } from "@/hooks/useOfertasPublicadas";
 import { FILTROS_VACIOS, filtrarOfertas } from "@/lib/catalogo";
 
-const CANTIDAD = 4;
+import { CarruselOfertas } from "./CarruselOfertas";
+
+/** Cards in the slider: enough to browse, few enough for a cheap phone. */
+const CANTIDAD = 8;
+const CANTIDAD_ESQUELETO = 4;
 
 /**
  * The newest published offers on the home page (P01, D-029), so a visitor
  * sees real jobs at once. Each card opens the offer in the catalog; "Ver todas
  * las ofertas" leads to the whole catalog. "Newest" is the only relevance the
  * portal can tell today (there is no other signal yet).
+ *
+ * Since 2026-10-20 (D-059) the offers are a slider of up to 8. The trades are
+ * the hero's shortcuts; the "Buscá por rubro" section that repeated them was
+ * removed (D-066).
  */
 export function OfertasRecientes() {
   const { ofertas, loading, error, recargar } = useOfertasPublicadas();
@@ -38,7 +45,7 @@ export function OfertasRecientes() {
           <span className="sr-only" role="status">
             Cargando ofertas…
           </span>
-          {Array.from({ length: CANTIDAD }, (_, i) => (
+          {Array.from({ length: CANTIDAD_ESQUELETO }, (_, i) => (
             <Skeleton key={i} className="h-44 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card" />
           ))}
         </div>
@@ -53,20 +60,7 @@ export function OfertasRecientes() {
       )}
 
       {ofertas && ofertas.length > 0 && (
-        <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-          {filtrarOfertas(ofertas, FILTROS_VACIOS)
-            .slice(0, CANTIDAD)
-            .map((oferta) => (
-              <li key={oferta.id}>
-                <TarjetaOferta
-                  oferta={oferta}
-                  href={`/ofertas?oferta=${encodeURIComponent(oferta.id)}`}
-                  seleccionada={false}
-                  soloEnEscritorio={false}
-                />
-              </li>
-            ))}
-        </ul>
+        <CarruselOfertas ofertas={filtrarOfertas(ofertas, FILTROS_VACIOS).slice(0, CANTIDAD)} />
       )}
     </section>
   );

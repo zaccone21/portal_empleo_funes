@@ -31,7 +31,7 @@ export const PASSWORD_MAX_LENGTH = 72;
  * only checks the format when the value is not empty, so an empty field shows
  * "Ingresá tu email" instead of "email inválido".
  */
-const emailSchema = z
+export const emailSchema = z
   .string({ error: "Ingresá tu email" })
   .trim()
   .min(1, "Ingresá tu email")

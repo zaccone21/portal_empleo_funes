@@ -1,35 +1,29 @@
 import { PageHeader } from "@/components/admin/page-header";
-import { PanelEmpresa } from "@/components/admin/panel-empresa";
-import { PanelLateral } from "@/components/admin/panel-lateral";
 import { Split } from "@/components/admin/split";
 import { StatusStrip } from "@/components/admin/status-strip";
 import { TablaEmpresas } from "@/components/admin/tabla-empresas";
 import { Toolbar, type FiltroToolbar } from "@/components/admin/toolbar";
 import {
+  CLAVES_ORDEN_EMPRESAS,
   contarVistasEmpresas,
   filtrarEmpresas,
+  ORDEN_POR_DEFECTO_EMPRESAS,
   type FilaEmpresa,
 } from "@/lib/admin/empresas";
-import { leerParam, paginar, urlCon, type ParamsBusqueda } from "@/lib/admin/url";
-import type { OfertaOficina } from "@/lib/validation/oficina";
+import { aplicarOrden, leerOrden } from "@/lib/admin/orden";
+import { leerParam, paginar, type ParamsBusqueda } from "@/lib/admin/url";
 import { NOMBRE_RUBRO, RUBROS, type Rubro } from "@/lib/validation/rubros";
 
 type Props = {
-  ruta: string;
   empresas: FilaEmpresa[];
   params: ParamsBusqueda;
-  ofertasDeSel: OfertaOficina[];
 };
 
-/** Screen 10 (Empresas): toolbar, status strip, split table + detail panel. */
-export function VistaEmpresas({ ruta, empresas, params, ofertasDeSel }: Props) {
-  const filtradas = filtrarEmpresas(empresas, params);
+/** Screen 10 (Empresas): toolbar, status strip and the table, whose rows open the company's page (D-062). */
+export function VistaEmpresas({ empresas, params }: Props) {
+  const filtradas = aplicarOrden(filtrarEmpresas(empresas, params), params, CLAVES_ORDEN_EMPRESAS);
   const pagina = paginar(filtradas, Number(leerParam(params, "pagina")));
   const conteo = contarVistasEmpresas(empresas);
-
-  const selId = leerParam(params, "sel");
-  const seleccionada = selId ? empresas.find((e) => e.id === selId) : undefined;
-  const tab = leerParam(params, "tab") === "ofertas" ? "ofertas" : "resumen";
 
   const filtros: FiltroToolbar[] = [
     {
@@ -49,6 +43,7 @@ export function VistaEmpresas({ ruta, empresas, params, ofertasDeSel }: Props) {
         param="vista"
         opciones={[
           { valor: "todas", etiqueta: "Todas", cantidad: conteo.todas },
+          { valor: "nuevas", etiqueta: "Nuevas (7 días)", cantidad: conteo.nuevas },
           { valor: "activas", etiqueta: "Con ofertas activas", cantidad: conteo.activas },
           { valor: "sin-ofertas", etiqueta: "Sin ofertas", cantidad: conteo.sinOfertas },
         ]}
@@ -58,22 +53,10 @@ export function VistaEmpresas({ ruta, empresas, params, ofertasDeSel }: Props) {
         tabla={
           <TablaEmpresas
             empresas={pagina.filas}
-            conPanel={Boolean(seleccionada)}
             pager={pagina}
             hayFiltros={hayFiltros}
+            orden={leerOrden(params, CLAVES_ORDEN_EMPRESAS) ?? ORDEN_POR_DEFECTO_EMPRESAS}
           />
-        }
-        panel={
-          seleccionada && (
-            <PanelLateral>
-              <PanelEmpresa
-                empresa={seleccionada}
-                ofertas={ofertasDeSel}
-                tab={tab}
-                hrefTab={(t) => urlCon(ruta, params, { tab: t === "resumen" ? undefined : t })}
-              />
-            </PanelLateral>
-          )
         }
       />
     </>

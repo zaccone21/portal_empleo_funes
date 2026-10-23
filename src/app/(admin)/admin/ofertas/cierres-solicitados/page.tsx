@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Cierres solicitados" };
 /** Screen 04: queue of published offers whose company asked to close them (RF1.5.4, D-042). */
 export default async function CierresSolicitadosPage(props: { searchParams: Promise<ParamsBusqueda> }) {
   const params = await props.searchParams;
-  const { ofertas, postulacionesDeSel } = await datosOfertas(params);
+  const { ofertas } = await datosOfertas();
 
-  return <VistaOfertas modo="cierres" ruta="/admin/ofertas/cierres-solicitados" ofertas={ofertas} params={params} postulacionesDeSel={postulacionesDeSel} />;
+  return <VistaOfertas modo="cierres" ofertas={ofertas} params={params} />;
 }

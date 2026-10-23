@@ -3,7 +3,9 @@ import "server-only";
 import { puedeTransicionarPostulacion } from "@/features/postulaciones/domain/estados";
 import type { CurrentUser } from "@/lib/dal/auth";
 import { crearUrlFirmadaCv, leerCv } from "@/lib/dal/cv";
-import { listarEmpresas, type EmpresaLista } from "@/lib/dal/empresas";
+import { contarDerivacionesCurso, crearDerivacionCurso, listarDerivacionesCurso } from "@/lib/dal/derivaciones-curso";
+import { inicioEmpresasNuevas } from "@/lib/admin/empresas";
+import { contarEmpresasRegistradasDesde, listarEmpresas, type EmpresaLista } from "@/lib/dal/empresas";
 import {
   actualizarEstadoOferta,
   contarOfertas,
@@ -12,16 +14,31 @@ import {
 } from "@/lib/dal/ofertas";
 import {
   actualizarEstadoPostulacion,
+  contarDecisiones,
+  contarDerivaciones,
+  contarDerivadasSinDecision,
   contarPostulaciones,
+  crearPostulacionDeOficina,
+  guardarPreentrevista,
   leerPostulacionAdmin,
+  listarDerivadasSinDecision,
   listarPostulacionesAdmin,
 } from "@/lib/dal/postulaciones";
 import {
   buscarPostulantes as dalBuscarPostulantes,
+  contarPostulantes,
   leerPerfilPostulanteAdmin,
   type ResultadoBusquedaPostulante,
 } from "@/lib/dal/postulantes";
-import type { OfertaOficina, PostulacionAdmin } from "@/lib/validation/oficina";
+import type {
+  DatosDerivacionCurso,
+  DatosPreentrevista,
+  DerivacionCurso,
+  IndicadoresOficina,
+  OfertaOficina,
+  PostulacionAdmin,
+  ResumenSeguimiento,
+} from "@/lib/validation/oficina";
 import type { EstadoPostulacion } from "@/lib/validation/postulaciones";
 
 import { aOfertaOficina } from "./dto-ofertas";
@@ -38,16 +55,17 @@ const NO_ENCONTRADA = "No encontramos esa oferta.";
 /** Counters of the Office's side menu and dashboard (P14). */
 export async function getConteosAdmin(usuario: CurrentUser) {
   const negado = sinPermiso(usuario, "admin");
-  if (negado) return { ofertasPendientes: 0, postulacionesNuevas: 0, cierresSolicitados: 0, porDerivar: 0 };
+  if (negado) return { ofertasPendientes: 0, postulacionesNuevas: 0, cierresSolicitados: 0, porDerivar: 0, empresasNuevas: 0 };
 
-  const [ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar] = await Promise.all([
+  const [ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar, empresasNuevas] = await Promise.all([
     contarOfertas("pendiente"),
     contarPostulaciones("postulado"),
     contarOfertas("publicada", true),
     contarPostulaciones("preseleccionado"),
+    contarEmpresasRegistradasDesde(inicioEmpresasNuevas()),
   ]);
 
-  return { ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar };
+  return { ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar, empresasNuevas };
 }
 
 export async function verOfertas(usuario: CurrentUser): Promise<Resultado<OfertaOficina[]>> {
@@ -193,6 +211,153 @@ export async function resolverPostulacion(
   const nueva = await leerPostulacionAdmin(id);
   if (!nueva) throw new Error("The application disappeared after the decision.");
   return exito({ postulacion: nueva });
+}
+
+/**
+ * Records the pre-interview of an application (RF1.6.1, D-045): a date and
+ * optional notes, in any status. Saving again replaces it, so the Office can
+ * correct it. Empty notes are saved as none.
+ */
+export async function registrarPreentrevista(
+  usuario: CurrentUser,
+  id: string,
+  datos: DatosPreentrevista,
+): Promise<Resultado<{ postulacion: PostulacionAdmin }>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const actual = await leerPostulacionAdmin(id);
+  if (!actual) return falla("not_found", "No encontramos esa postulación.");
+
+  await guardarPreentrevista(id, { fecha: datos.fecha, notas: datos.notas || null });
+  const nueva = await leerPostulacionAdmin(id);
+  if (!nueva) throw new Error("The application disappeared after saving the pre-interview.");
+  return exito({ postulacion: nueva });
+}
+
+/**
+ * Links an applicant to a published offer as if they had applied (P16,
+ * RF1.5.8). Unlike the applicant's own "Postularme" (D-024), a repeated link is
+ * a conflict: the operator needs to know the person was already there.
+ */
+export async function asociarPostulanteAOferta(
+  usuario: CurrentUser,
+  postulanteId: string,
+  ofertaId: string,
+): Promise<Resultado<{ oferta: OfertaOficina }>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const postulante = await leerPerfilPostulanteAdmin(postulanteId);
+  if (!postulante) return falla("not_found", "No encontramos a ese postulante.");
+
+  const oferta = await leerOfertaParaOficina(ofertaId);
+  if (!oferta) return falla("not_found", NO_ENCONTRADA);
+  if (oferta.estado !== "publicada") return falla("conflict", "Solo se puede asociar a una oferta publicada.");
+
+  const creada = await crearPostulacionDeOficina(postulanteId, ofertaId);
+  if (!creada) return falla("conflict", "Esta persona ya está postulada a esa oferta.");
+  return exito({ oferta: aOfertaOficina(oferta) });
+}
+
+/** Counts one applicant's follow-up from their applications (D-046, D-054). */
+function resumirSeguimiento(postulaciones: PostulacionAdmin[], derivacionesCurso: number): ResumenSeguimiento {
+  const contar = (condicion: (p: PostulacionAdmin) => boolean) => postulaciones.filter(condicion).length;
+  return {
+    postulaciones: postulaciones.length,
+    preseleccionadas: contar((p) => p.estado === "preseleccionado" || p.estado === "derivado"),
+    derivadas: contar((p) => p.derivadaEl !== null),
+    contrataciones: contar((p) => p.decisionEmpresa === "contratado"),
+    rechazos: contar((p) => p.decisionEmpresa === "no_contratado"),
+    noApto: contar((p) => p.estado === "no_apto"),
+    derivacionesCurso,
+  };
+}
+
+/**
+ * The applicant's follow-up (P18, RF1.6.5, D-046): every application with its
+ * pre-interview, referral and the company's decision and reason; the course
+ * referrals (P19); and the counts, among them the rejections.
+ */
+export async function verSeguimientoPostulante(
+  usuario: CurrentUser,
+  postulanteId: string,
+): Promise<
+  Resultado<{
+    postulante: ResultadoBusquedaPostulante;
+    postulaciones: PostulacionAdmin[];
+    derivacionesCurso: DerivacionCurso[];
+    resumen: ResumenSeguimiento;
+  }>
+> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const postulante = await leerPerfilPostulanteAdmin(postulanteId);
+  if (!postulante) return falla("not_found", "No encontramos a ese postulante.");
+
+  const [postulaciones, derivacionesCurso] = await Promise.all([
+    listarPostulacionesAdmin(postulanteId),
+    listarDerivacionesCurso(postulanteId),
+  ]);
+  return exito({
+    postulante,
+    postulaciones,
+    derivacionesCurso,
+    resumen: resumirSeguimiento(postulaciones, derivacionesCurso.length),
+  });
+}
+
+/** Registers that the Office referred an applicant to a training course (P19, RF1.6.6, D-047). */
+export async function registrarDerivacionCurso(
+  usuario: CurrentUser,
+  postulanteId: string,
+  datos: DatosDerivacionCurso,
+): Promise<Resultado<{ derivacion: DerivacionCurso }>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const postulante = await leerPerfilPostulanteAdmin(postulanteId);
+  if (!postulante) return falla("not_found", "No encontramos a ese postulante.");
+
+  const derivacion = await crearDerivacionCurso(postulanteId, {
+    curso: datos.curso,
+    fecha: datos.fecha,
+    notas: datos.notas || null,
+  });
+  return exito({ derivacion });
+}
+
+/** The panel's indicators, counted on the real data (P14, D-051). */
+export async function verIndicadoresAdmin(usuario: CurrentUser): Promise<Resultado<IndicadoresOficina>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const [postulantes, ofertasActivas, postulaciones, derivaciones, contrataciones, rechazos, derivacionesCurso, sinRespuesta] =
+    await Promise.all([
+      contarPostulantes(),
+      contarOfertas("publicada"),
+      contarPostulaciones(),
+      contarDerivaciones(),
+      contarDecisiones("contratado"),
+      contarDecisiones("no_contratado"),
+      contarDerivacionesCurso(),
+      contarDerivadasSinDecision(),
+    ]);
+
+  return exito({ postulantes, ofertasActivas, postulaciones, derivaciones, contrataciones, rechazos, derivacionesCurso, sinRespuesta });
+}
+
+/**
+ * The Office's queue of referrals the company has not answered yet, the
+ * oldest first (D-054): there are no caps on companies, the Office follows
+ * them up from here.
+ */
+export async function verDerivadasSinRespuesta(usuario: CurrentUser): Promise<Resultado<PostulacionAdmin[]>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  return exito(await listarDerivadasSinDecision());
 }
 
 /** Generates a short-lived signed URL to open or download an applicant's CV (RF1.5.5, RNF1). */

@@ -3,62 +3,111 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeftIcon, ChevronRightIcon, CopyIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { BotonesEvaluacion } from "@/components/admin/acciones-postulacion";
+import { BotonDerivar, BotonesEvaluacion } from "@/components/admin/acciones-postulacion";
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { Ausente, nombreCompleto } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
+import { EnlaceVolver } from "@/components/admin/ficha";
+import { FormularioPreentrevista } from "@/components/admin/formulario-preentrevista";
 import { PageHeader } from "@/components/admin/page-header";
+import { TarjetaEmpresa } from "@/components/admin/panel-detalle";
+import { ResultadoEmpresa } from "@/components/admin/resultado-empresa";
 import { BadgePostulacion } from "@/components/admin/status-badge";
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
 import { fechaLarga } from "@/lib/admin/fechas";
+import { conDesde } from "@/lib/admin/url";
 import { enlaceLlamada, enlaceWhatsApp, formatearTelefonoAR } from "@/lib/telefonos";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
 import { NOMBRE_RUBRO, type Rubro } from "@/lib/validation/rubros";
 
 type Props = {
   postulacion: PostulacionAdmin;
-  urlCv?: string;
-  anteriorId?: string;
-  siguienteId?: string;
+  /** The list or page it was opened from, for the back arrow (D-062). */
+  volver: string;
+  /** This page's own URL, so the offer and the files it links to can come back here. */
+  aqui: string;
+  /** Previous and next applications of the queue, keeping where it was opened from. */
+  hrefAnterior?: string;
+  hrefSiguiente?: string;
   posicionEnCola?: { actual: number; total: number };
+  /** Other applications of the same offer referred to the company and still without its answer (D-054). */
+  sinRespuestaEnOferta?: number;
+  /** How this offer is going, counted on its applications: the context to decide this one. */
+  resumenOferta?: { postulaciones: number; derivadas: number; contratadas: number };
+  /** How many other applications this person has, to open their file when there are. */
+  otrasPostulaciones?: number;
 };
+
+/** Plain text with the applicant's data, for the operator to paste where they talk to the company. */
+function textoParaEmpresa(postulacion: PostulacionAdmin, nombre: string): string {
+  const { telefono, email, rubros } = postulacion.postulante;
+  return [
+    nombre,
+    telefono ? `Teléfono: ${formatearTelefonoAR(telefono)}` : null,
+    email ? `Email: ${email}` : null,
+    rubros.length > 0 ? `Oficios: ${rubros.map((r) => NOMBRE_RUBRO[r as Rubro] ?? r).join(", ")}` : null,
+    `Oferta: ${postulacion.oferta.titulo}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 
 /**
  * Screen 06: split 1fr 1fr evaluation screen.
- * Left: Offer detail with company data.
- * Right: White CV sheet with contact buttons and document preview.
- * Footer: Keyboard shortcuts (J/K/P/N) and evaluation actions.
+ * Left: Offer detail with how it is going (applications, referrals, hires),
+ * its requirements, and the company card with one-tap contact and a link to
+ * its file.
+ * Right: White CV sheet with contact buttons, the optional pre-interview
+ * (RF1.6.1), the result with the company once referred, and the document preview.
+ * Footer: Keyboard shortcuts (J/K/P/N) and evaluation actions; a pre-selected
+ * application is referred from here (RF1.6.2), with a warning that does not
+ * block when the company has not answered for others of the same offer (D-054).
  */
 export function EvaluacionPostulacion({
   postulacion,
-  urlCv,
-  anteriorId,
-  siguienteId,
+  volver,
+  aqui,
+  hrefAnterior,
+  hrefSiguiente,
   posicionEnCola,
+  sinRespuestaEnOferta = 0,
+  resumenOferta,
+  otrasPostulaciones = 0,
 }: Props) {
   const router = useRouter();
   const nombre = nombreCompleto(postulacion.postulante) ?? "Sin nombre cargado";
   const whatsapp = enlaceWhatsApp(postulacion.postulante.telefono);
-  const destinoSiguiente = siguienteId
-    ? `/admin/postulaciones/${siguienteId}`
-    : "/admin/postulaciones/por-evaluar";
+  const destinoSiguiente = hrefSiguiente ?? volver;
 
   // Keyboard navigation shortcuts (J = previous, K = next)
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === "j" || e.key === "J") {
-        if (anteriorId) router.push(`/admin/postulaciones/${anteriorId}`);
+        if (hrefAnterior) router.push(hrefAnterior);
       } else if (e.key === "k" || e.key === "K") {
-        if (siguienteId) router.push(`/admin/postulaciones/${siguienteId}`);
+        if (hrefSiguiente) router.push(hrefSiguiente);
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [anteriorId, siguienteId, router]);
+  }, [hrefAnterior, hrefSiguiente, router]);
+
+  async function copiarDatos() {
+    try {
+      await navigator.clipboard.writeText(textoParaEmpresa(postulacion, nombre));
+      toast.success("Datos copiados. Pegalos en el mensaje a la empresa.");
+    } catch {
+      toast.error("No pudimos copiar los datos. Copialos a mano desde esta pantalla.");
+    }
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-3 min-h-0">
+      <EnlaceVolver href={volver} />
       <PageHeader
         migas={["Tareas pendientes", "Postulaciones nuevas", nombre]}
         titulo="Evaluación de postulación"
@@ -69,15 +118,28 @@ export function EvaluacionPostulacion({
         {/* Left column: Offer detail */}
         <section className="flex flex-col gap-4 overflow-y-auto rounded-[10px] border border-border bg-card p-5">
           <div className="flex flex-col gap-1 border-b border-border pb-3">
-            <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-              Oferta laboral
-            </span>
-            <h2 className="text-[20px] font-bold text-foreground leading-snug">{postulacion.oferta.titulo}</h2>
-            <div className="text-[13px] text-muted-foreground">
-              {postulacion.oferta.empresa?.razonSocial ?? "Empresa confidencial"}
-              {postulacion.oferta.empresa?.cuit && ` · CUIT ${postulacion.oferta.empresa.cuit}`}
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                Oferta laboral
+              </span>
+              <EnlaceAccion href={conDesde(`/admin/ofertas/${postulacion.oferta.id}`, aqui)}>Ver oferta</EnlaceAccion>
             </div>
+            <h2 className="text-[20px] font-bold text-foreground leading-snug">{postulacion.oferta.titulo}</h2>
+            {resumenOferta && (
+              <p className="text-[12.5px] text-muted-foreground tabular-nums">
+                {resumenOferta.postulaciones === 1 ? "1 postulación" : `${resumenOferta.postulaciones} postulaciones`}
+                {" · "}
+                {resumenOferta.derivadas === 1 ? "1 derivada" : `${resumenOferta.derivadas} derivadas`}
+                {" · "}
+                {resumenOferta.contratadas === 1 ? "1 contratada" : `${resumenOferta.contratadas} contratadas`}
+              </p>
+            )}
           </div>
+
+          <TarjetaEmpresa
+            empresa={postulacion.oferta.empresa}
+            hrefFicha={conDesde(`/admin/empresas/${postulacion.oferta.empresaId}`, aqui)}
+          />
 
           <div className="grid grid-cols-2 gap-3 text-[12.5px]">
             <div>
@@ -119,6 +181,13 @@ export function EvaluacionPostulacion({
               {postulacion.oferta.descripcion}
             </div>
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-medium text-muted-foreground uppercase">Requisitos</span>
+            <div className="whitespace-pre-line text-[13px] leading-relaxed text-foreground">
+              {postulacion.oferta.requisitos}
+            </div>
+          </div>
         </section>
 
         {/* Right column: White CV sheet */}
@@ -132,10 +201,13 @@ export function EvaluacionPostulacion({
                 <h2 className="text-[20px] font-bold text-foreground">{nombre}</h2>
                 <span className="text-[12.5px] text-muted-foreground">
                   {postulacion.postulante.dni ? `DNI ${postulacion.postulante.dni}` : "Sin DNI registrado"}
+                  {otrasPostulaciones > 0 &&
+                    ` · ${otrasPostulaciones === 1 ? "1 postulación más" : `${otrasPostulaciones} postulaciones más`}`}
                 </span>
               </div>
-              {postulacion.postulante.cvNombre && (
-                <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center justify-end gap-1.5">
+                <EnlaceAccion href={conDesde(`/admin/postulantes/${postulacion.postulante.id}`, aqui)}>Ver ficha</EnlaceAccion>
+                {postulacion.postulante.cvNombre && (
                   <BotonAdmin
                     variante="primario"
                     render={
@@ -146,8 +218,8 @@ export function EvaluacionPostulacion({
                   >
                     Descargar PDF
                   </BotonAdmin>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -166,6 +238,10 @@ export function EvaluacionPostulacion({
                   Email
                 </BotonAdmin>
               )}
+              <BotonAdmin onClick={copiarDatos}>
+                <CopyIcon data-icon="inline-start" aria-hidden="true" />
+                Copiar datos para la empresa
+              </BotonAdmin>
             </div>
           </div>
 
@@ -186,20 +262,30 @@ export function EvaluacionPostulacion({
             </div>
           )}
 
+          {postulacion.derivadaEl && (
+            <section className="flex flex-col gap-2 rounded-[10px] border border-border bg-surface p-3">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase">Resultado con la empresa</span>
+              <ResultadoEmpresa postulacion={postulacion} />
+            </section>
+          )}
+
+          <FormularioPreentrevista postulacionId={postulacion.id} preentrevista={postulacion.preentrevista} />
+
           {/* CV Document preview or message */}
           <div className="flex flex-1 flex-col gap-2 min-h-[350px]">
             <span className="text-[11px] font-medium text-muted-foreground uppercase">Documento adjunto</span>
-            {urlCv ? (
-              <iframe
-                src={urlCv}
-                title="Visor de CV"
-                className="size-full flex-1 rounded-[8px] border border-border min-h-[420px]"
-              />
-            ) : postulacion.postulante.cvNombre ? (
-              <div className="flex flex-col items-center justify-center gap-2 rounded-[8px] border border-border bg-surface p-8 text-center">
-                <p className="font-semibold text-foreground">CV: {postulacion.postulante.cvNombre}</p>
+            {postulacion.postulante.cvNombre ? (
+              <>
+                {/* The route signs a fresh link on every load: a link signed when the
+                    page was rendered expires in 60 s and broke the viewer. */}
+                <iframe
+                  src={`/api/admin/postulantes/${postulacion.postulante.id}/cv`}
+                  title="Visor de CV"
+                  className="size-full flex-1 rounded-[8px] border border-border min-h-[420px]"
+                />
                 <BotonAdmin
-                  variante="primario"
+                  variante="secundario"
+                  className="self-start"
                   render={
                     <a
                       href={`/api/admin/postulantes/${postulacion.postulante.id}/cv`}
@@ -210,7 +296,7 @@ export function EvaluacionPostulacion({
                 >
                   Abrir CV en pestaña nueva
                 </BotonAdmin>
-              </div>
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center gap-1 rounded-[8px] border border-dashed border-border bg-surface p-8 text-center text-muted-foreground">
                 <p className="font-medium text-foreground">Esta persona no subió CV en PDF.</p>
@@ -224,15 +310,16 @@ export function EvaluacionPostulacion({
       {/* Footer bar */}
       <footer className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-surface px-4 py-2.5">
         <div className="flex items-center gap-3 text-[12.5px] text-muted-foreground">
-          {anteriorId ? (
+          {hrefAnterior ? (
             <Link
-              href={`/admin/postulaciones/${anteriorId}`}
-              className="font-medium text-primary hover:underline"
+              href={hrefAnterior}
+              className="inline-flex items-center gap-0.5 font-medium text-primary hover:underline"
             >
-              ← Anterior (J)
+              <ChevronLeftIcon aria-hidden="true" className="size-3.5" />
+              Anterior (J)
             </Link>
           ) : (
-            <span className="opacity-40">← Anterior</span>
+            <span className="opacity-40">Anterior</span>
           )}
 
           {posicionEnCola && (
@@ -241,15 +328,16 @@ export function EvaluacionPostulacion({
             </span>
           )}
 
-          {siguienteId ? (
+          {hrefSiguiente ? (
             <Link
-              href={`/admin/postulaciones/${siguienteId}`}
-              className="font-medium text-primary hover:underline"
+              href={hrefSiguiente}
+              className="inline-flex items-center gap-0.5 font-medium text-primary hover:underline"
             >
-              Siguiente (K) →
+              Siguiente (K)
+              <ChevronRightIcon aria-hidden="true" className="size-3.5" />
             </Link>
           ) : (
-            <span className="opacity-40">Siguiente →</span>
+            <span className="opacity-40">Siguiente</span>
           )}
         </div>
 
@@ -257,16 +345,20 @@ export function EvaluacionPostulacion({
           {postulacion.estado === "postulado" ? (
             <BotonesEvaluacion id={postulacion.id} destinoSiguiente={destinoSiguiente} />
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-end gap-3">
               <span className="text-[12px] text-muted-foreground">Estado actual:</span>
               <BadgePostulacion estado={postulacion.estado} />
               {postulacion.estado === "preseleccionado" && (
-                <BotonAdmin
-                  variante="primario"
-                  render={<Link href="/admin/por-comunicar" />}
-                >
-                  Ir a derivaciones →
-                </BotonAdmin>
+                <>
+                  {sinRespuestaEnOferta > 0 && (
+                    <span className="text-[12px] font-medium text-attention-foreground">
+                      {sinRespuestaEnOferta === 1
+                        ? "La empresa todavía no respondió por 1 persona de esta oferta."
+                        : `La empresa todavía no respondió por ${sinRespuestaEnOferta} personas de esta oferta.`}
+                    </span>
+                  )}
+                  <BotonDerivar id={postulacion.id} />
+                </>
               )}
             </div>
           )}

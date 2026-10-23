@@ -4,7 +4,7 @@ import { LightbulbIcon } from "lucide-react";
 import { FormularioOferta } from "@/components/empresa/FormularioOferta";
 import { Seccion } from "@/components/marca/Seccion";
 import { getCurrentUser } from "@/lib/dal/auth";
-import { verMisOfertas } from "@/lib/use-cases/empresa";
+import { verMiOferta } from "@/lib/use-cases/empresa";
 import type { DatosNuevaOferta } from "@/lib/validation/ofertas";
 
 export const metadata: Metadata = { title: "Publicar una oferta" };
@@ -21,10 +21,11 @@ export default async function EmpresaNuevaOfertaPage({
   if (params.duplicar) {
     const usuario = await getCurrentUser();
     if (usuario && usuario.rol === "empresa") {
-      const resultado = await verMisOfertas(usuario);
+      const resultado = await verMiOferta(usuario, params.duplicar);
       if (resultado.ok) {
-        const duplicada = resultado.datos.find((o) => o.id === params.duplicar && o.estado === "rechazada");
-        if (duplicada) {
+        const duplicada = resultado.datos.oferta;
+        // D-048: rejected offers are corrected and sent again; closed ones, to look for someone again.
+        if (duplicada.estado === "rechazada" || duplicada.estado === "cerrada") {
           ofertaPrevia = {
             titulo: duplicada.titulo,
             descripcion: duplicada.descripcion,

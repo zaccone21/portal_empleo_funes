@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
+import type { CandidatoDerivado } from "@/lib/validation/candidatos";
 import type { OfertaEmpresa } from "@/lib/validation/ofertas";
 
 import { DetalleOfertaEmpresa } from "./DetalleOfertaEmpresa";
@@ -8,15 +9,30 @@ import { DetalleOfertaEmpresa } from "./DetalleOfertaEmpresa";
 const mocks = vi.hoisted(() => ({
   solicitar: vi.fn(),
   toastSuccess: vi.fn(),
+  candidatos: [] as CandidatoDerivado[],
 }));
 
 vi.mock("@/hooks/useSolicitarCierre", () => ({
   useSolicitarCierre: () => ({ solicitar: mocks.solicitar, loading: false, error: null }),
 }));
+vi.mock("@/hooks/useCandidatosDerivados", () => ({
+  useCandidatosDerivados: () => ({
+    candidatos: mocks.candidatos,
+    loading: false,
+    error: null,
+    sinAcceso: false,
+    recargar: vi.fn(),
+    reemplazar: vi.fn(),
+  }),
+}));
+vi.mock("@/hooks/useDecidirCandidato", () => ({
+  useDecidirCandidato: () => ({ decidir: vi.fn(), loading: false, error: null }),
+}));
 vi.mock("sonner", () => ({ toast: { success: mocks.toastSuccess } }));
 
 beforeEach(() => {
   mocks.solicitar.mockReset();
+  mocks.candidatos = [];
   vi.stubGlobal("matchMedia", (query: string) => ({ matches: false, media: query }));
 });
 
@@ -78,4 +94,41 @@ test("after asking to close, it says so and does not offer the action again", ()
 
   expect(screen.getByText("Pediste el cierre")).toBeDefined();
   expect(screen.queryByRole("button", { name: "Pedir el cierre" })).toBeNull();
+});
+
+test("a published offer shows the applicants the Office referred (P17)", () => {
+  mocks.candidatos = [
+    {
+      postulacionId: "p-1",
+      oferta: { id: "o-1", titulo: "Cadete (ejemplo)" },
+      derivadoEl: "2026-10-10T12:00:00.000Z",
+      nombre: "Persona",
+      apellido: "De Prueba",
+      telefono: null,
+      email: "persona@ejemplo.com",
+      rubros: ["otros"],
+      tieneCv: true,
+      decision: null,
+      motivoNoContratacion: null,
+    },
+  ];
+  renderDetalle({ estado: "publicada" });
+
+  expect(screen.getByRole("heading", { name: "Persona De Prueba" })).toBeDefined();
+  expect(screen.getByText(/Te falta contarnos si contrataste a 1 persona/)).toBeDefined();
+  expect(screen.getByRole("link", { name: "Ver CV" }).getAttribute("href")).toBe("/api/empresa/candidatos/p-1/cv");
+});
+
+test("a pending offer has no applicants section", () => {
+  renderDetalle({ estado: "pendiente" });
+
+  expect(screen.queryByText("Candidatos que te propuso la Oficina")).toBeNull();
+});
+
+test("a closed offer can be duplicated to look for someone again (D-048)", () => {
+  renderDetalle({ estado: "cerrada" });
+
+  expect(screen.getByRole("link", { name: "Duplicar para buscar de nuevo" }).getAttribute("href")).toBe(
+    "/empresa/ofertas/nueva?duplicar=o-1",
+  );
 });

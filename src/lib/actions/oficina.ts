@@ -4,13 +4,18 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/dal/auth";
+import { crearCuentaOficina } from "@/lib/use-cases/equipo";
 import {
+  asociarPostulanteAOferta,
   cerrarOferta,
   publicarOfertaPendiente,
   rechazarOferta,
+  registrarDerivacionCurso,
+  registrarPreentrevista,
   resolverPostulacion,
 } from "@/lib/use-cases/oficina";
-import { rechazoSchema } from "@/lib/validation/oficina";
+import { nuevaCuentaOficinaSchema } from "@/lib/validation/equipo";
+import { derivacionCursoSchema, preentrevistaSchema, rechazoSchema } from "@/lib/validation/oficina";
 import { estadoPostulacionSchema } from "@/lib/validation/postulaciones";
 
 /*
@@ -118,4 +123,69 @@ export async function resolverPostulacionAccion(id: string, estado: string): Pro
   if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
   refrescarAdmin();
   return { ok: true, mensaje: MENSAJE_ESTADO[parsedEstado.data] };
+}
+
+/** Saves the optional pre-interview of an application: date and notes (RF1.6.1, D-045). */
+export async function registrarPreentrevistaAccion(id: string, datos: unknown): Promise<RespuestaAccion> {
+  const parsedId = idSchema.safeParse(id);
+  const parsedDatos = preentrevistaSchema.safeParse(datos);
+  if (!parsedId.success) return DATOS_INVALIDOS;
+  if (!parsedDatos.success) return { ok: false, mensaje: parsedDatos.error.issues[0]?.message ?? DATOS_INVALIDOS.mensaje };
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const resultado = await registrarPreentrevista(usuario, parsedId.data, parsedDatos.data);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  refrescarAdmin();
+  return { ok: true, mensaje: "Guardaste la preentrevista." };
+}
+
+/** Registers a course referral from the applicant's page (P19, RF1.6.6, D-047). */
+export async function registrarDerivacionCursoAccion(postulanteId: string, datos: unknown): Promise<RespuestaAccion> {
+  const parsedId = idSchema.safeParse(postulanteId);
+  const parsedDatos = derivacionCursoSchema.safeParse(datos);
+  if (!parsedId.success) return DATOS_INVALIDOS;
+  if (!parsedDatos.success) return { ok: false, mensaje: parsedDatos.error.issues[0]?.message ?? DATOS_INVALIDOS.mensaje };
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const resultado = await registrarDerivacionCurso(usuario, parsedId.data, parsedDatos.data);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  refrescarAdmin();
+  return { ok: true, mensaje: `Registraste la derivación a “${resultado.datos.derivacion.curso}”.` };
+}
+
+/** Links an applicant to a published offer from the pool, as if they had applied (P16, RF1.5.8). */
+export async function asociarPostulanteAccion(postulanteId: string, ofertaId: string): Promise<RespuestaAccion> {
+  const parsedPostulante = idSchema.safeParse(postulanteId);
+  const parsedOferta = idSchema.safeParse(ofertaId);
+  if (!parsedPostulante.success || !parsedOferta.success) return DATOS_INVALIDOS;
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const resultado = await asociarPostulanteAOferta(usuario, parsedPostulante.data, parsedOferta.data);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  refrescarAdmin();
+  return { ok: true, mensaje: `Quedó postulada a “${resultado.datos.oferta.titulo}”.` };
+}
+
+export type RespuestaCrearCuenta =
+  | { ok: true; email: string; contrasenaTemporal: string }
+  | { ok: false; mensaje: string };
+
+/**
+ * Creates an Office account (P21, D-058). The temporary password comes back
+ * only in this answer, so the operator can hand it over in person; it is never
+ * stored or shown again.
+ */
+export async function crearCuentaOficinaAccion(datos: unknown): Promise<RespuestaCrearCuenta> {
+  const parsed = nuevaCuentaOficinaSchema.safeParse(datos);
+  if (!parsed.success) return { ok: false, mensaje: parsed.error.issues[0]?.message ?? DATOS_INVALIDOS.mensaje };
+  const usuario = await getCurrentUser();
+  if (!usuario) return { ok: false, mensaje: SIN_SESION.mensaje };
+
+  const resultado = await crearCuentaOficina(usuario, parsed.data);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  revalidatePath("/admin/equipo");
+  return { ok: true, ...resultado.datos };
 }

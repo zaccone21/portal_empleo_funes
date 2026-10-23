@@ -24,6 +24,9 @@ type Props = {
  * list and an item can be shared. `aria-current` tells screen readers which
  * one is open. `scroll={false}` keeps the list where it was on desktop; on
  * phones the detail scrolls itself into view (see PanelDetalle).
+ *
+ * It fills the height it is given (`h-full`), so the cards of a row or a
+ * slider are the same height (D-066).
  */
 export function TarjetaSeleccionable({ href, seleccionada, soloEnEscritorio, children }: Props) {
   return (
@@ -32,7 +35,7 @@ export function TarjetaSeleccionable({ href, seleccionada, soloEnEscritorio, chi
       scroll={false}
       aria-current={seleccionada && !soloEnEscritorio ? "true" : undefined}
       className={cn(
-        "flex items-start gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/5 outline-none sm:p-5",
+        "flex h-full items-start gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/5 outline-none sm:p-5",
         "hover:ring-foreground/20 focus-visible:ring-3 focus-visible:ring-ring/50",
         seleccionada &&
           (soloEnEscritorio ? "lg:bg-secondary lg:ring-2 lg:ring-primary" : "bg-secondary ring-2 ring-primary"),

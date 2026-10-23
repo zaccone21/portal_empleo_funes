@@ -1,30 +1,28 @@
 import { PageHeader } from "@/components/admin/page-header";
-import { PanelLateral } from "@/components/admin/panel-lateral";
-import { PanelOferta } from "@/components/admin/panel-oferta";
 import { Split } from "@/components/admin/split";
 import { StatusStrip } from "@/components/admin/status-strip";
 import { TablaOfertas } from "@/components/admin/tabla-ofertas";
 import { Toolbar, type FiltroToolbar } from "@/components/admin/toolbar";
+import { aplicarOrden, leerOrden } from "@/lib/admin/orden";
 import {
+  CLAVES_ORDEN_OFERTAS,
   contarPorEstado,
   empresasDeOfertas,
   filtrarOfertas,
   OPCIONES_FECHA,
   ofertasDelModo,
+  ordenPorDefectoOfertas,
   type ModoOfertas,
 } from "@/lib/admin/ofertas";
-import { leerParam, paginar, siguienteId, urlCon, type ParamsBusqueda } from "@/lib/admin/url";
-import type { OfertaOficina, PostulacionAdmin } from "@/lib/validation/oficina";
+import { leerParam, paginar, type ParamsBusqueda } from "@/lib/admin/url";
+import type { OfertaOficina } from "@/lib/validation/oficina";
 import { NOMBRE_RUBRO, RUBROS } from "@/lib/validation/rubros";
 
 type Props = {
   modo: ModoOfertas;
-  ruta: string;
   /** Every offer; the view filters it by mode and URL. */
   ofertas: OfertaOficina[];
   params: ParamsBusqueda;
-  /** Applications of the selected offer, loaded only for the "Postulaciones" tab. */
-  postulacionesDeSel?: PostulacionAdmin[];
 };
 
 const TITULOS: Record<ModoOfertas, { migas: string[]; titulo: string }> = {
@@ -35,18 +33,15 @@ const TITULOS: Record<ModoOfertas, { migas: string[]; titulo: string }> = {
 
 /**
  * One screen for the three offer views (02, 03, 04; D-042): header, status
- * strip (register only), toolbar and the split with table and detail panel.
- * Everything it shows comes from the URL, so each state can be shared.
+ * strip (register only), toolbar and the table, whose rows open the offer's
+ * page (D-062). Everything it shows comes from the URL, so each state can be shared.
  */
-export function VistaOfertas({ modo, ruta, ofertas, params, postulacionesDeSel }: Props) {
+export function VistaOfertas({ modo, ofertas, params }: Props) {
   const delModo = ofertasDelModo(ofertas, modo);
-  const filtradas = filtrarOfertas(delModo, params, modo);
+  const filtradas = aplicarOrden(filtrarOfertas(delModo, params, modo), params, CLAVES_ORDEN_OFERTAS);
   const pagina = paginar(filtradas, Number(leerParam(params, "pagina")));
+  const orden = leerOrden(params, CLAVES_ORDEN_OFERTAS) ?? ordenPorDefectoOfertas(modo);
   const conteo = contarPorEstado(ofertas);
-
-  const selId = leerParam(params, "sel");
-  const seleccionada = selId ? delModo.find((o) => o.id === selId) : undefined;
-  const tab = leerParam(params, "tab") === "postulaciones" ? "postulaciones" : "resumen";
 
   const filtros: FiltroToolbar[] = [
     { tipo: "select", param: "empresa", etiqueta: "Empresa", opciones: empresasDeOfertas(delModo) },
@@ -59,7 +54,7 @@ export function VistaOfertas({ modo, ruta, ofertas, params, postulacionesDeSel }
 
   return (
     <>
-      <PageHeader migas={migas} titulo={titulo} aside={modo === "registro" ? undefined : "Orden: más antiguas primero"} />
+      <PageHeader migas={migas} titulo={titulo} />
       {modo === "registro" && (
         <StatusStrip
           valorTodos="todas"
@@ -73,24 +68,7 @@ export function VistaOfertas({ modo, ruta, ofertas, params, postulacionesDeSel }
         />
       )}
       <Toolbar placeholder="Buscar puesto o empresa" filtros={filtros} />
-      <Split
-        tabla={<TablaOfertas modo={modo} ofertas={pagina.filas} conPanel={Boolean(seleccionada)} pager={pagina} hayFiltros={hayFiltros} />}
-        panel={
-          seleccionada && (
-            <PanelLateral>
-              <PanelOferta
-                oferta={seleccionada}
-                tab={tab}
-                postulaciones={postulacionesDeSel}
-                hrefTab={(t) => urlCon(ruta, params, { tab: t === "resumen" ? undefined : t })}
-                avanzar={modo !== "registro"}
-                siguienteId={siguienteId(filtradas.map((o) => o.id), seleccionada.id)}
-                conAvisoCierre={modo === "cierres"}
-              />
-            </PanelLateral>
-          )
-        }
-      />
+      <Split tabla={<TablaOfertas modo={modo} ofertas={pagina.filas} pager={pagina} hayFiltros={hayFiltros} orden={orden} />} />
     </>
   );
 }

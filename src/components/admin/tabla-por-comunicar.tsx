@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
-
 import { BotonDerivar } from "@/components/admin/acciones-postulacion";
 import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { Ausente, CeldaDoble, nombreCompleto } from "@/components/admin/celdas";
+import { EnlaceAccion } from "@/components/admin/enlace-accion";
+import { useUrlAdmin } from "@/hooks/useUrlAdmin";
+import type { OrdenTabla } from "@/lib/admin/orden";
 import { fechaCorta } from "@/lib/admin/fechas";
 import { enlaceLlamada, enlaceWhatsApp, formatearTelefonoAR } from "@/lib/telefonos";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
@@ -14,13 +15,17 @@ type Props = {
   postulaciones: PostulacionAdmin[];
   pager: { desde: number; hasta: number; total: number; pagina: number; paginas: number };
   hayFiltros: boolean;
+  /** The order the rows come in, to mark its column (D-063). */
+  orden: OrdenTabla;
 };
 
 /** Screen 07 table: pre-selected applications waiting to be communicated to the company. */
-export function TablaPorComunicar({ postulaciones, pager, hayFiltros }: Props) {
+export function TablaPorComunicar({ postulaciones, pager, hayFiltros, orden }: Props) {
+  const { detalle } = useUrlAdmin();
   const columnas: ColumnaAdmin<PostulacionAdmin>[] = [
     {
       id: "postulante",
+      ordenable: true,
       cabecera: "Postulante",
       celda: (p) => {
         const nombre = nombreCompleto(p.postulante);
@@ -34,6 +39,7 @@ export function TablaPorComunicar({ postulaciones, pager, hayFiltros }: Props) {
     },
     {
       id: "puesto",
+      ordenable: true,
       cabecera: "Puesto y empresa",
       celda: (p) => (
         <CeldaDoble
@@ -77,6 +83,7 @@ export function TablaPorComunicar({ postulaciones, pager, hayFiltros }: Props) {
     },
     {
       id: "fecha",
+      ordenable: true,
       cabecera: "Fecha",
       alinear: "derecha",
       celda: (p) => fechaCorta(p.postuladoEl),
@@ -88,12 +95,7 @@ export function TablaPorComunicar({ postulaciones, pager, hayFiltros }: Props) {
       celda: (p) => (
         <div className="flex items-center justify-end gap-2">
           <BotonDerivar id={p.id} />
-          <Link
-            href={`/admin/postulaciones/${p.id}`}
-            className="font-semibold text-primary hover:underline"
-          >
-            Ver
-          </Link>
+          <EnlaceAccion href={detalle(`/admin/postulaciones/${p.id}`)}>Ver</EnlaceAccion>
         </div>
       ),
     },
@@ -105,7 +107,7 @@ export function TablaPorComunicar({ postulaciones, pager, hayFiltros }: Props) {
         columnas={columnas}
         filas={postulaciones}
         idDe={(p) => p.id}
-        conPanel={false}
+        orden={orden}
         pager={pager}
         etiquetaFila={(p) =>
           `${nombreCompleto(p.postulante) ?? "Postulante"} para ${p.oferta.titulo}`
