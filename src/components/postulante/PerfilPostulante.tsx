@@ -68,6 +68,7 @@ export function PerfilPostulante() {
         nombre: perfil.nombre ?? "",
         apellido: perfil.apellido ?? "",
         telefono: perfil.telefono ?? "",
+        direccion: perfil.direccion ?? "",
         dni: perfil.dni ?? "",
         email: perfil.email ?? "",
         rubros: perfil.rubros.map((r: { slug: import("@/lib/validation/rubros").Rubro }) => r.slug),

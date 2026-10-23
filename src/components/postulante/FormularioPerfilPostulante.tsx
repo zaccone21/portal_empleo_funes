@@ -25,6 +25,7 @@ type Props = {
     apellido: string;
     dni: string;
     telefono: string;
+    direccion: string;
     rubros: Rubro[];
     experiencia: string;
   } | null;
@@ -49,6 +50,7 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
     
     const resultado = perfilPostulanteSchema.safeParse({
       telefono: formData.get("telefono"),
+      direccion: formData.get("direccion"),
       rubros: formData.getAll("rubros"),
       experiencia: formData.get("experiencia") ?? "",
     });
@@ -92,6 +94,18 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
             type="tel"
             autoComplete="tel"
             maxLength={30}
+            obligatorio
+          />
+
+          <CampoTexto
+            id="direccion"
+            label="Dirección"
+            descripcion="Calle y número, o la zona de Funes donde vivís. Por ejemplo: San José 1500."
+            defaultValue={perfil?.direccion}
+            error={errores.direccion?.[0]}
+            type="text"
+            autoComplete="street-address"
+            maxLength={100}
             obligatorio
           />
         </FieldGroup>

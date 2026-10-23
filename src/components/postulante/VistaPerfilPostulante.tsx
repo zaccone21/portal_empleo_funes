@@ -1,4 +1,4 @@
-import { FileTextIcon, MailIcon, PhoneIcon } from "lucide-react";
+import { FileTextIcon, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ type Props = {
     apellido: string;
     dni: string;
     telefono: string;
+    direccion: string;
     email?: string;
     rubros: Rubro[];
     tieneCv: boolean;
@@ -53,6 +54,23 @@ export function VistaPerfilPostulante({ perfil, onEditar }: Props) {
             ) : (
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground">No se agregó teléfono</span>
+                <Button variant="link" onClick={onEditar} className="h-auto p-0 text-sm font-medium text-primary">
+                  Agregar
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3">
+          <MapPinIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-muted-foreground">Dirección</span>
+            {perfil.direccion ? (
+              <span className="font-medium">{perfil.direccion}</span>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">No agregaste tu dirección</span>
                 <Button variant="link" onClick={onEditar} className="h-auto p-0 text-sm font-medium text-primary">
                   Agregar
                 </Button>

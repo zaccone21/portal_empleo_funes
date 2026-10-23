@@ -94,6 +94,7 @@ export function FichaPostulante({ postulante, postulaciones, seguimiento, oferta
         <DatosLista
           items={[
             { rotulo: "Teléfono", valor: postulante.telefono ? formatearTelefonoAR(postulante.telefono) : <Ausente /> },
+            { rotulo: "Dirección", valor: postulante.direccion ?? <Ausente /> },
             { rotulo: "Email", valor: postulante.email ?? <Ausente /> },
             {
               rotulo: "Rubros",
