@@ -71,8 +71,22 @@ export const perfilEmpresaSchema = z.object({
 
 export type PerfilEmpresa = z.infer<typeof perfilEmpresaSchema>;
 
-/** Answer of GET and PUT /api/empresa/perfil: `perfil` is null until the company fills it in. `cuitRegistrado` is sent to pre-fill it. */
+/**
+ * Where a company stands with the Office (D-068): "pendiente" until the Office
+ * approves it, and only an "aprobada" company can send offers. "rechazada"
+ * comes with a reason it reads (D-069).
+ */
+export const estadoEmpresaSchema = z.enum(["pendiente", "aprobada", "rechazada"]);
+
+export type EstadoEmpresa = z.infer<typeof estadoEmpresaSchema>;
+
+/**
+ * Answer of GET and PUT /api/empresa/perfil: `perfil` is null until the company fills it in. `cuit` is sent to pre-fill it.
+ * `estado` is where the company stands with the Office, and `motivoRechazo` is only set while it is "rechazada".
+ */
 export const respuestaPerfilEmpresaSchema = z.object({
   perfil: perfilEmpresaSchema.nullable(),
   cuit: z.string().nullable().optional(),
+  estado: estadoEmpresaSchema,
+  motivoRechazo: z.string().nullable(),
 });

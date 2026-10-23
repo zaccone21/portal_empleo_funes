@@ -44,6 +44,7 @@ import {
   verCandidatosDerivados,
   verMiOferta,
   verMisOfertas,
+  verPerfilEmpresa,
 } from "./empresa";
 
 const empresa: CurrentUser = { id: "empresa-1", rol: "empresa", email: "empresa@ejemplo.com" };
@@ -92,7 +93,7 @@ test("the company sees its offers, and the rejection reason only on rejected one
 test("a new offer starts pending, and an empty pay field is saved as no pay", async () => {
   dal.crearOferta.mockResolvedValue("oferta-nueva");
   dal.leerOferta.mockResolvedValue(oferta({ id: "oferta-nueva" }));
-  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {} });
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {}, estado: "aprobada" });
 
   const resultado = await publicarOferta(empresa, {
     titulo: "Cadete",
@@ -108,8 +109,41 @@ test("a new offer starts pending, and an empty pay field is saved as no pay", as
   expect(resultado.ok && resultado.datos.oferta.estado).toBe("pendiente");
 });
 
+test.each(["pendiente", "rechazada"] as const)("a %s company cannot send an offer (D-068)", async (estado) => {
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {}, estado });
+
+  const resultado = await publicarOferta(empresa, {
+    titulo: "Cadete",
+    descripcion: "Entregas",
+    requisitos: "Moto",
+    lugar: "Centro",
+    jornada: "Tardes",
+    sueldo: "",
+    rubros: ["transporte"],
+  });
+
+  expect(resultado.ok === false && resultado.falla).toBe("forbidden");
+  expect(dal.crearOferta).not.toHaveBeenCalled();
+});
+
+test("the message of a rejected company points to its data, not to waiting", async () => {
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {}, estado: "rechazada" });
+
+  const resultado = await publicarOferta(empresa, {
+    titulo: "Cadete",
+    descripcion: "Entregas",
+    requisitos: "Moto",
+    lugar: "Centro",
+    jornada: "Tardes",
+    sueldo: "",
+    rubros: ["transporte"],
+  });
+
+  expect(resultado.ok === false && resultado.mensaje).toContain("no aprobó");
+});
+
 test("cannot publish without a profile", async () => {
-  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: null });
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: null, estado: "pendiente" });
 
   const resultado = await publicarOferta(empresa, {
     titulo: "Cadete",
@@ -351,4 +385,45 @@ describe("abrirCvCandidato (RNF1, D-044)", () => {
     expect(dal.crearUrlFirmadaCvParaEmpresa).toHaveBeenCalledWith("postulante-1");
     expect(resultado).toEqual({ ok: true, datos: { url: "https://ejemplo.supabase.co/firmada" } });
   });
+});
+
+test("saving the data answers where the company stands after the database's own change (D-068)", async () => {
+  dal.guardarPerfilEmpresa.mockResolvedValue({
+    ok: true,
+    perfil: {
+      razonSocial: "Empresa (ejemplo)",
+      cuit: "30-71234567-1",
+      descripcion: "",
+      contactoNombre: "Persona",
+      contactoTelefono: "341 555-0000",
+      contactoEmail: "contacto@ejemplo.com",
+    },
+    estado: "pendiente",
+    motivoRechazo: null,
+  });
+
+  const resultado = await guardarPerfil(empresa, {
+    razonSocial: "Empresa (ejemplo)",
+    cuit: "30-71234567-1",
+    descripcion: "",
+    contactoNombre: "Persona",
+    contactoTelefono: "341 555-0000",
+    contactoEmail: "contacto@ejemplo.com",
+  });
+
+  expect(resultado.ok && resultado.datos.estado).toBe("pendiente");
+  expect(resultado.ok && resultado.datos.cuit).toBe("30-71234567-1");
+});
+
+test("the company sees why the Office rejected it", async () => {
+  dal.leerPerfilEmpresa.mockResolvedValue({
+    perfil: null,
+    cuit: null,
+    estado: "rechazada",
+    motivoRechazo: "Faltan datos de la empresa",
+  });
+
+  const resultado = await verPerfilEmpresa(empresa);
+
+  expect(resultado.ok && resultado.datos.motivoRechazo).toBe("Faltan datos de la empresa");
 });

@@ -89,9 +89,16 @@ export const GUIAS: Record<Publico, PasoGuia[]> = {
       enlace: { href: "/empresa/perfil", texto: "Ir a Mi empresa" },
     },
     {
+      titulo: "Esperá la aprobación de la Oficina",
+      texto:
+        "La Oficina de Empleo revisa tu empresa antes de que puedas publicar. Hasta entonces ves el aviso “Tu empresa está en revisión”. Si no la aprueba, te dice el motivo: corregí los datos y la revisa de nuevo.",
+      icono: BadgeCheckIcon,
+      enlace: { href: "/empresa", texto: "Ver cómo va mi empresa" },
+    },
+    {
       titulo: "Publicá una oferta",
       texto:
-        "En “Publicar”, completá el puesto, la descripción, los requisitos, el lugar, el horario y de 1 a 3 rubros. El sueldo es opcional. Tocá “Enviar oferta”: queda Pendiente.",
+        "En “Publicar”, completá el puesto, la descripción, los requisitos, la dirección del trabajo, el horario y de 1 a 3 rubros. El sueldo es opcional. Tocá “Enviar oferta”: queda Pendiente.",
       icono: PlusIcon,
       enlace: { href: "/empresa/ofertas/nueva", texto: "Publicar una oferta" },
     },
@@ -154,6 +161,11 @@ export const PREGUNTAS: Record<Publico, PreguntaFrecuente[]> = {
     },
   ],
   empresa: [
+    {
+      pregunta: "¿Por qué no puedo publicar una oferta?",
+      respuesta:
+        "Porque la Oficina de Empleo todavía no aprobó tu empresa. Mientras tanto ves “Tu empresa está en revisión”. Si la rechazó, en “Mi empresa” ves el motivo: corregí los datos y la Oficina la revisa de nuevo. Si cambiás el CUIT o la razón social, la revisa otra vez.",
+    },
     {
       pregunta: "¿Puedo buscar postulantes por mi cuenta?",
       respuesta:

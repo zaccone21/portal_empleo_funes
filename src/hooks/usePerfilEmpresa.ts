@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { esSinAcceso, getJson, mensajeDeError, sendJson } from "@/lib/http";
-import { respuestaPerfilEmpresaSchema, type PerfilEmpresa } from "@/lib/validation/empresa";
+import { respuestaPerfilEmpresaSchema, type EstadoEmpresa, type PerfilEmpresa } from "@/lib/validation/empresa";
 
 /**
  * The logged-in company's data (P10, RF1.3.2) through /api/empresa/perfil (D-027).
@@ -9,6 +9,8 @@ import { respuestaPerfilEmpresaSchema, type PerfilEmpresa } from "@/lib/validati
  * Loading (GET):
  * - `perfil`: the saved data, null if the company never filled it in,
  *   undefined while loading;
+ * - `estado` and `motivoRechazo`: where the company stands with the Office
+ *   (D-068). It cannot send offers until it is "aprobada";
  * - `sinAcceso`: 401 or 403, the screen asks to log in as a company;
  * - `loading`, `error`, `recargar`: as in useOfertasPublicadas.
  *
@@ -21,6 +23,9 @@ import { respuestaPerfilEmpresaSchema, type PerfilEmpresa } from "@/lib/validati
 export function usePerfilEmpresa() {
   const [perfil, setPerfil] = useState<PerfilEmpresa | null | undefined>(undefined);
   const [cuitRegistrado, setCuitRegistrado] = useState<string | null>(null);
+  // "pendiente" until loaded is the safe side: nothing that publishes is shown by mistake.
+  const [estado, setEstado] = useState<EstadoEmpresa>("pendiente");
+  const [motivoRechazo, setMotivoRechazo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sinAcceso, setSinAcceso] = useState(false);
   const [intento, setIntento] = useState(0);
@@ -35,6 +40,8 @@ export function usePerfilEmpresa() {
         if (vigente) {
           setPerfil(respuesta.perfil);
           setCuitRegistrado(respuesta.cuit ?? null);
+          setEstado(respuesta.estado);
+          setMotivoRechazo(respuesta.motivoRechazo);
         }
       })
       .catch((e: unknown) => {
@@ -70,6 +77,8 @@ export function usePerfilEmpresa() {
       });
       setPerfil(respuesta.perfil);
       setCuitRegistrado(respuesta.cuit ?? null);
+      setEstado(respuesta.estado);
+      setMotivoRechazo(respuesta.motivoRechazo);
       return true;
     } catch (e) {
       setErrorGuardado(mensajeDeError(e));
@@ -82,6 +91,8 @@ export function usePerfilEmpresa() {
   return {
     perfil,
     cuitRegistrado,
+    estado,
+    motivoRechazo,
     loading: perfil === undefined && error === null && !sinAcceso,
     error,
     sinAcceso,

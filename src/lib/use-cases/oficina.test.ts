@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { CurrentUser } from "@/lib/dal/auth";
+import type { EmpresaLista } from "@/lib/dal/empresas";
 import type { OfertaConEmpresa } from "@/lib/dal/ofertas";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
 
@@ -27,7 +28,9 @@ const dal = vi.hoisted(() => ({
   contarPostulantes: vi.fn(),
   leerPerfilPostulanteAdmin: vi.fn(),
   listarEmpresas: vi.fn(),
-  contarEmpresasRegistradasDesde: vi.fn(),
+  contarEmpresasPendientes: vi.fn(),
+  leerEmpresaParaOficina: vi.fn(),
+  actualizarEstadoEmpresa: vi.fn(),
   listarDerivacionesCurso: vi.fn(),
   crearDerivacionCurso: vi.fn(),
   contarDerivacionesCurso: vi.fn(),
@@ -57,7 +60,9 @@ vi.mock("@/lib/dal/postulantes", () => ({
 }));
 vi.mock("@/lib/dal/empresas", () => ({
   listarEmpresas: dal.listarEmpresas,
-  contarEmpresasRegistradasDesde: dal.contarEmpresasRegistradasDesde,
+  contarEmpresasPendientes: dal.contarEmpresasPendientes,
+  leerEmpresaParaOficina: dal.leerEmpresaParaOficina,
+  actualizarEstadoEmpresa: dal.actualizarEstadoEmpresa,
 }));
 vi.mock("@/lib/dal/cv", () => ({ leerCv: dal.leerCv, crearUrlFirmadaCv: dal.crearUrlFirmadaCv }));
 vi.mock("@/lib/dal/derivaciones-curso", () => ({
@@ -68,11 +73,13 @@ vi.mock("@/lib/dal/derivaciones-curso", () => ({
 
 import {
   abrirCvPostulante,
+  aprobarEmpresa,
   asociarPostulanteAOferta,
   buscarPostulantes,
   cerrarOferta,
   getConteosAdmin,
   publicarOfertaPendiente,
+  rechazarEmpresa,
   rechazarOferta,
   registrarDerivacionCurso,
   registrarPreentrevista,
@@ -155,22 +162,139 @@ test("only the Office gets the counters of its panel", async () => {
     postulacionesNuevas: 0,
     cierresSolicitados: 0,
     porDerivar: 0,
-    empresasNuevas: 0,
+    empresasPorAprobar: 0,
   });
   expect(dal.contarOfertas).not.toHaveBeenCalled();
   expect(dal.contarPostulaciones).not.toHaveBeenCalled();
-  expect(dal.contarEmpresasRegistradasDesde).not.toHaveBeenCalled();
+  expect(dal.contarEmpresasPendientes).not.toHaveBeenCalled();
 });
 
-test("the Office counts the companies of its first week as new (D-064)", async () => {
+test("the Office counts the companies waiting for its approval (D-068)", async () => {
   dal.contarOfertas.mockResolvedValue(0);
   dal.contarPostulaciones.mockResolvedValue(0);
-  dal.contarEmpresasRegistradasDesde.mockResolvedValue(2);
+  dal.contarEmpresasPendientes.mockResolvedValue(2);
 
   const conteos = await getConteosAdmin(oficina);
 
-  expect(conteos.empresasNuevas).toBe(2);
-  expect(dal.contarEmpresasRegistradasDesde).toHaveBeenCalledWith(expect.stringMatching(/T00:00:00-03:00$/));
+  expect(conteos.empresasPorAprobar).toBe(2);
+});
+
+function empresaLista(datos: Partial<EmpresaLista> = {}): EmpresaLista {
+  return {
+    id: "empresa-1",
+    razonSocial: "Empresa (ejemplo)",
+    cuit: "30-71234567-1",
+    contactoNombre: "Persona",
+    contactoEmail: "contacto@ejemplo.com",
+    contactoTelefono: "341 555-0000",
+    creadaEl: "2026-10-20T12:00:00.000Z",
+    estado: "pendiente",
+    motivoRechazo: null,
+    ...datos,
+  };
+}
+
+describe("aprobarEmpresa (D-068)", () => {
+  test("only the Office approves, and nothing is read for anyone else", async () => {
+    const resultado = await aprobarEmpresa(empresa, "empresa-1");
+
+    expect(resultado.ok === false && resultado.falla).toBe("forbidden");
+    expect(dal.leerEmpresaParaOficina).not.toHaveBeenCalled();
+  });
+
+  test("a company that does not exist is 'not found'", async () => {
+    dal.leerEmpresaParaOficina.mockResolvedValue(null);
+
+    const resultado = await aprobarEmpresa(oficina, "no-existe");
+
+    expect(resultado.ok === false && resultado.falla).toBe("not_found");
+  });
+
+  test("approves a pending company, only while it is still pending", async () => {
+    dal.leerEmpresaParaOficina
+      .mockResolvedValueOnce(empresaLista())
+      .mockResolvedValueOnce(empresaLista({ estado: "aprobada" }));
+    dal.actualizarEstadoEmpresa.mockResolvedValue(true);
+
+    const resultado = await aprobarEmpresa(oficina, "empresa-1");
+
+    expect(dal.actualizarEstadoEmpresa).toHaveBeenCalledWith("empresa-1", "pendiente", { estado: "aprobada" });
+    expect(resultado.ok && resultado.datos.empresa.estado).toBe("aprobada");
+  });
+
+  test("a rejected company can be approved later", async () => {
+    dal.leerEmpresaParaOficina
+      .mockResolvedValueOnce(empresaLista({ estado: "rechazada", motivoRechazo: "Faltan datos de la empresa" }))
+      .mockResolvedValueOnce(empresaLista({ estado: "aprobada" }));
+    dal.actualizarEstadoEmpresa.mockResolvedValue(true);
+
+    const resultado = await aprobarEmpresa(oficina, "empresa-1");
+
+    expect(dal.actualizarEstadoEmpresa).toHaveBeenCalledWith("empresa-1", "rechazada", { estado: "aprobada" });
+    expect(resultado.ok).toBe(true);
+  });
+
+  test("an approved company is a conflict", async () => {
+    dal.leerEmpresaParaOficina.mockResolvedValue(empresaLista({ estado: "aprobada" }));
+
+    const resultado = await aprobarEmpresa(oficina, "empresa-1");
+
+    expect(resultado.ok === false && resultado.falla).toBe("conflict");
+    expect(dal.actualizarEstadoEmpresa).not.toHaveBeenCalled();
+  });
+
+  test("a company without its data cannot be approved", async () => {
+    dal.leerEmpresaParaOficina.mockResolvedValue(empresaLista({ cuit: null, razonSocial: null }));
+
+    const resultado = await aprobarEmpresa(oficina, "empresa-1");
+
+    expect(resultado.ok === false && resultado.falla).toBe("conflict");
+    expect(dal.actualizarEstadoEmpresa).not.toHaveBeenCalled();
+  });
+
+  test("if another operator decided first, it says so", async () => {
+    dal.leerEmpresaParaOficina.mockResolvedValue(empresaLista());
+    dal.actualizarEstadoEmpresa.mockResolvedValue(false);
+
+    const resultado = await aprobarEmpresa(oficina, "empresa-1");
+
+    expect(resultado.ok === false && resultado.falla).toBe("conflict");
+  });
+});
+
+describe("rechazarEmpresa (D-068, D-069)", () => {
+  test("only the Office rejects", async () => {
+    const resultado = await rechazarEmpresa(empresa, "empresa-1", "Faltan datos de la empresa");
+
+    expect(resultado.ok === false && resultado.falla).toBe("forbidden");
+    expect(dal.actualizarEstadoEmpresa).not.toHaveBeenCalled();
+  });
+
+  test("rejects a pending company with the reason the company will read", async () => {
+    dal.leerEmpresaParaOficina
+      .mockResolvedValueOnce(empresaLista())
+      .mockResolvedValueOnce(empresaLista({ estado: "rechazada", motivoRechazo: "Faltan datos de la empresa" }));
+    dal.actualizarEstadoEmpresa.mockResolvedValue(true);
+
+    const resultado = await rechazarEmpresa(oficina, "empresa-1", "Faltan datos de la empresa");
+
+    expect(dal.actualizarEstadoEmpresa).toHaveBeenCalledWith("empresa-1", "pendiente", {
+      estado: "rechazada",
+      motivoRechazo: "Faltan datos de la empresa",
+    });
+    expect(resultado.ok && resultado.datos.empresa.motivoRechazo).toBe("Faltan datos de la empresa");
+  });
+
+  test.each(["aprobada", "rechazada"] as const)("a %s company was already reviewed", async (estado) => {
+    dal.leerEmpresaParaOficina.mockResolvedValue(
+      empresaLista({ estado, motivoRechazo: estado === "rechazada" ? "Otro motivo" : null }),
+    );
+
+    const resultado = await rechazarEmpresa(oficina, "empresa-1", "Otro motivo");
+
+    expect(resultado.ok === false && resultado.falla).toBe("conflict");
+    expect(dal.actualizarEstadoEmpresa).not.toHaveBeenCalled();
+  });
 });
 
 describe("publicarOfertaPendiente (RF1.5.3)", () => {

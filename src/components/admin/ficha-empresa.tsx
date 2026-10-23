@@ -1,12 +1,14 @@
+import { AccionesEmpresa } from "@/components/admin/acciones-empresa";
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { Ausente } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { FichaAdmin, FichaSeccion } from "@/components/admin/ficha";
 import { DatosLista } from "@/components/admin/panel-detalle";
-import { BadgeEstadoOferta, StatusBadge } from "@/components/admin/status-badge";
+import { BadgeEstadoEmpresa, BadgeEstadoOferta, StatusBadge } from "@/components/admin/status-badge";
 import { fechaCorta, fechaLarga } from "@/lib/admin/fechas";
 import { perfilEmpresaIncompleto, type FilaEmpresa } from "@/lib/admin/empresas";
 import { conDesde } from "@/lib/admin/url";
+import { ESTADOS_EMPRESA } from "@/features/empresas/domain/estados";
 import { enlaceLlamada, enlaceWhatsApp, formatearTelefonoAR } from "@/lib/telefonos";
 import type { OfertaOficina } from "@/lib/validation/oficina";
 
@@ -25,15 +27,22 @@ type Props = {
  */
 export function FichaEmpresa({ empresa, ofertas, volver, aqui }: Props) {
   const whatsapp = enlaceWhatsApp(empresa.contactoTelefono);
+  const incompleto = perfilEmpresaIncompleto(empresa);
 
   return (
     <FichaAdmin
       volver={volver}
-      badges={perfilEmpresaIncompleto(empresa) ? <StatusBadge etiqueta="Perfil incompleto" tono="attention" /> : undefined}
+      badges={
+        <>
+          <BadgeEstadoEmpresa estado={empresa.estado} />
+          {incompleto && <StatusBadge etiqueta="Perfil incompleto" tono="attention" />}
+        </>
+      }
       titulo={empresa.razonSocial?.trim() || "Sin razón social"}
       contexto={`${empresa.cuit ? `CUIT ${empresa.cuit}` : "Sin CUIT cargado"} · Registrada el ${fechaLarga(empresa.creadaEl)}`}
       acciones={
         <>
+          <AccionesEmpresa id={empresa.id} estado={empresa.estado} perfilIncompleto={incompleto} />
           {empresa.contactoTelefono && (
             <BotonAdmin render={<a href={enlaceLlamada(empresa.contactoTelefono)} />}>
               Llamar · {formatearTelefonoAR(empresa.contactoTelefono)}
@@ -62,6 +71,18 @@ export function FichaEmpresa({ empresa, ofertas, volver, aqui }: Props) {
         </FichaSeccion>
       }
     >
+      <FichaSeccion titulo="Aprobación">
+        <p>{ESTADOS_EMPRESA[empresa.estado].descripcion}</p>
+        {empresa.estado === "rechazada" && empresa.motivoRechazo && (
+          <p className="font-medium">Motivo: {empresa.motivoRechazo}</p>
+        )}
+        {empresa.estado !== "aprobada" && incompleto && (
+          <p className="text-muted-foreground">
+            Todavía no completó sus datos: no se la puede aprobar hasta que los cargue.
+          </p>
+        )}
+      </FichaSeccion>
+
       <FichaSeccion titulo={`Ofertas (${ofertas.length})`}>
         {ofertas.length === 0 ? (
           <p className="text-muted-foreground">Esta empresa todavía no envió ninguna oferta.</p>

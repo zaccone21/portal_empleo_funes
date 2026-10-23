@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LightbulbIcon } from "lucide-react";
 
-import { FormularioOferta } from "@/components/empresa/FormularioOferta";
+import { PublicarOferta } from "@/components/empresa/PublicarOferta";
 import { Seccion } from "@/components/marca/Seccion";
 import { getCurrentUser } from "@/lib/dal/auth";
 import { verMiOferta } from "@/lib/use-cases/empresa";
@@ -43,10 +43,10 @@ export default async function EmpresaNuevaOfertaPage({
   return (
     <Seccion
       titulo="Publicar una oferta"
-      bajada="Completá los datos del puesto. La Oficina de Empleo la revisa antes de publicarla."
+      bajada="Completá los datos del puesto. La Oficina de Empleo la revisa antes de publicarla. Para publicar, tu empresa tiene que estar aprobada."
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:items-start">
-        <FormularioOferta ofertaPrevia={ofertaPrevia} />
+        <PublicarOferta ofertaPrevia={ofertaPrevia} />
         <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 lg:sticky lg:top-4">
           <LightbulbIcon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
           <div className="flex flex-col gap-2">

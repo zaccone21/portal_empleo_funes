@@ -43,7 +43,8 @@ export function VistaEmpresas({ empresas, params }: Props) {
         param="vista"
         opciones={[
           { valor: "todas", etiqueta: "Todas", cantidad: conteo.todas },
-          { valor: "nuevas", etiqueta: "Nuevas (7 días)", cantidad: conteo.nuevas },
+          { valor: "pendientes", etiqueta: "Por aprobar", cantidad: conteo.pendientes },
+          { valor: "rechazadas", etiqueta: "Rechazadas", cantidad: conteo.rechazadas },
           { valor: "activas", etiqueta: "Con ofertas activas", cantidad: conteo.activas },
           { valor: "sin-ofertas", etiqueta: "Sin ofertas", cantidad: conteo.sinOfertas },
         ]}

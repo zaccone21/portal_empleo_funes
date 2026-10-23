@@ -138,7 +138,9 @@ export async function rechazarComoOficina(playwright: Playwright, id: string, mo
     await abrirOfertaEnOficina(page, id);
     await page.getByRole("button", { name: "Rechazar" }).click();
     const dialogo = page.getByRole("alertdialog");
-    await dialogo.getByLabel("Motivo del rechazo").fill(motivo);
+    // One of the fixed reasons (D-069), plus the note the company will read after it.
+    await dialogo.getByRole("radio", { name: "Falta información en la oferta" }).click();
+    await dialogo.getByLabel("Observación (opcional)").fill(motivo);
     await dialogo.getByRole("button", { name: "Rechazar oferta" }).click();
     await expect(page.getByText(/Rechazad[ao]/).first()).toBeVisible();
   });

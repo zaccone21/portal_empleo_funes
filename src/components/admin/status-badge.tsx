@@ -1,8 +1,10 @@
 import { cn } from "@/lib/utils";
 
+import { ESTADOS_EMPRESA } from "@/features/empresas/domain/estados";
 import { ESTADOS_OFERTA } from "@/features/ofertas/domain/estados";
 import { DECISIONES_EMPRESA, ESTADOS_POSTULACION } from "@/features/postulaciones/domain/estados";
 import type { DecisionEmpresa } from "@/lib/validation/candidatos";
+import type { EstadoEmpresa } from "@/lib/validation/empresa";
 import type { EstadoOferta } from "@/lib/validation/ofertas";
 import type { EstadoPostulacion } from "@/lib/validation/postulaciones";
 
@@ -44,6 +46,12 @@ export function StatusBadge({ etiqueta, tono, className }: Props) {
 /** Badge of an offer status. */
 export function BadgeOferta({ estado, className }: { estado: EstadoOferta; className?: string }) {
   const { etiqueta, tono } = ESTADOS_OFERTA[estado];
+  return <StatusBadge etiqueta={etiqueta} tono={tono} className={className} />;
+}
+
+/** Badge of where a company stands with the Office (D-068). */
+export function BadgeEstadoEmpresa({ estado, className }: { estado: EstadoEmpresa; className?: string }) {
+  const { etiqueta, tono } = ESTADOS_EMPRESA[estado];
   return <StatusBadge etiqueta={etiqueta} tono={tono} className={className} />;
 }
 

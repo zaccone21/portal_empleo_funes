@@ -6,7 +6,7 @@ import { crearUrlFirmadaCvParaEmpresa } from "@/lib/dal/cv";
 import { guardarPerfilEmpresa, leerPerfilEmpresa } from "@/lib/dal/empresas";
 import { crearOferta, leerOferta, listarOfertasDeEmpresa, marcarCierreSolicitado } from "@/lib/dal/ofertas";
 import type { CandidatoDerivado, DatosDecisionCandidato } from "@/lib/validation/candidatos";
-import type { PerfilEmpresa } from "@/lib/validation/empresa";
+import type { EstadoEmpresa, PerfilEmpresa } from "@/lib/validation/empresa";
 import type { DatosNuevaOferta, OfertaEmpresa } from "@/lib/validation/ofertas";
 
 import { aOfertaEmpresa } from "./dto-ofertas";
@@ -18,7 +18,15 @@ import { exito, falla, sinPermiso, type Resultado } from "./resultado";
  * checks the same again, RNF2).
  */
 
-export async function verPerfilEmpresa(usuario: CurrentUser): Promise<Resultado<{ perfil: PerfilEmpresa | null; cuit: string | null }>> {
+/** The company's data and where it stands with the Office: pending, approved or rejected with its reason (D-068). */
+export type DatosEmpresaPropia = {
+  perfil: PerfilEmpresa | null;
+  cuit: string | null;
+  estado: EstadoEmpresa;
+  motivoRechazo: string | null;
+};
+
+export async function verPerfilEmpresa(usuario: CurrentUser): Promise<Resultado<DatosEmpresaPropia>> {
   const negado = sinPermiso(usuario, "empresa");
   if (negado) return negado;
 
@@ -26,10 +34,16 @@ export async function verPerfilEmpresa(usuario: CurrentUser): Promise<Resultado<
   return exito(resultado);
 }
 
+/**
+ * Saves the company data (P10). Changing the CUIT or the business name of an
+ * approved company sends it back to "pendiente", and correcting a rejected one
+ * sends it back to review; the database decides it, so the answer carries the
+ * resulting status (D-068).
+ */
 export async function guardarPerfil(
   usuario: CurrentUser,
   datos: PerfilEmpresa,
-): Promise<Resultado<{ perfil: PerfilEmpresa }>> {
+): Promise<Resultado<DatosEmpresaPropia>> {
   const negado = sinPermiso(usuario, "empresa");
   if (negado) return negado;
 
@@ -37,7 +51,12 @@ export async function guardarPerfil(
   if (!resultado.ok) {
     return falla("conflict", "Ese CUIT ya está cargado en otra cuenta. Si es de tu empresa, escribile a la Oficina de Empleo.");
   }
-  return exito({ perfil: resultado.perfil });
+  return exito({
+    perfil: resultado.perfil,
+    cuit: resultado.perfil.cuit,
+    estado: resultado.estado,
+    motivoRechazo: resultado.motivoRechazo,
+  });
 }
 
 /** The company's offers in every status, newest first (P09, P12). Never applicant data. */
@@ -50,9 +69,9 @@ export async function verMisOfertas(usuario: CurrentUser): Promise<Resultado<Ofe
 }
 
 /**
- * Sends a new offer (P11, RF1.3.3). It is created "pendiente": there are no
- * drafts (D-007) and the Office reviews it before it is published. An empty
- * pay field means the offer shows no pay.
+ * Sends a new offer (P11, RF1.3.3). Only an approved company can (D-068). It is
+ * created "pendiente": there are no drafts (D-007) and the Office reviews it
+ * before it is published. An empty pay field means the offer shows no pay.
  */
 export async function publicarOferta(
   usuario: CurrentUser,
@@ -61,9 +80,18 @@ export async function publicarOferta(
   const negado = sinPermiso(usuario, "empresa");
   if (negado) return negado;
 
-  const { perfil } = await leerPerfilEmpresa(usuario.id);
+  const { perfil, estado } = await leerPerfilEmpresa(usuario.id);
   if (!perfil) {
     return falla("conflict", "Tenés que completar los datos de tu empresa antes de publicar una oferta.");
+  }
+  // The database refuses it too (policy ofertas_insert_propias): this is the clear message for the screen.
+  if (estado !== "aprobada") {
+    return falla(
+      "forbidden",
+      estado === "rechazada"
+        ? "La Oficina de Empleo no aprobó tu empresa. Revisá los datos y el motivo en \"Datos de la empresa\"."
+        : "Tu empresa todavía está en revisión. Cuando la Oficina de Empleo la apruebe, vas a poder publicar ofertas.",
+    );
   }
 
   const id = await crearOferta({ ...datos, sueldo: datos.sueldo || null });

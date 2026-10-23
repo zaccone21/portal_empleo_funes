@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePerfilEmpresa } from "@/hooks/usePerfilEmpresa";
 import type { PerfilEmpresa as Perfil } from "@/lib/validation/empresa";
 
+import { AvisoEstadoEmpresa } from "./AvisoEstadoEmpresa";
 import { FormularioPerfilEmpresa } from "./FormularioPerfilEmpresa";
 import { VistaPerfilEmpresa } from "./VistaPerfilEmpresa";
 
@@ -18,7 +19,7 @@ import { VistaPerfilEmpresa } from "./VistaPerfilEmpresa";
  * Shows a read-only view if data exists, or the form if it is empty or editing.
  */
 export function PerfilEmpresa() {
-  const { perfil, cuitRegistrado, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
+  const { perfil, cuitRegistrado, estado, motivoRechazo, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
     usePerfilEmpresa();
   const [editando, setEditando] = useState(false);
   const [version, setVersion] = useState(0);
@@ -62,6 +63,11 @@ export function PerfilEmpresa() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:items-start">
+      {perfil && estado !== "aprobada" && (
+        <div className="lg:col-span-2">
+          <AvisoEstadoEmpresa estado={estado} motivoRechazo={motivoRechazo} mostrarEnlace={false} />
+        </div>
+      )}
       {mostrarFormulario ? (
         <FormularioPerfilEmpresa
           key={version}

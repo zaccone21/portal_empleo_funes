@@ -13,7 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type ConteoMenu = "ofertasPendientes" | "postulacionesNuevas" | "cierresSolicitados" | "porDerivar" | "empresasNuevas";
+export type ConteoMenu = "ofertasPendientes" | "postulacionesNuevas" | "cierresSolicitados" | "porDerivar" | "empresasPorAprobar";
 
 export type NavItem = {
   titulo: string;
@@ -44,8 +44,8 @@ export const MENU_ADMIN: NavGroup[] = [
       { titulo: "Postulaciones nuevas", url: "/admin/postulaciones/por-evaluar", icono: ClipboardList, idConteo: "postulacionesNuevas" },
       { titulo: "Cierres solicitados", url: "/admin/ofertas/cierres-solicitados", icono: CircleAlert, idConteo: "cierresSolicitados" },
       { titulo: "Por comunicar / derivar", url: "/admin/por-comunicar", icono: Send, idConteo: "porDerivar" },
-      // D-064: companies of the last 7 days, to get to know them; they need no approval (D-052).
-      { titulo: "Empresas nuevas", url: "/admin/empresas?vista=nuevas", icono: Store, idConteo: "empresasNuevas" },
+      // D-068: a new company needs the Office's approval before it can send offers.
+      { titulo: "Empresas por aprobar", url: "/admin/empresas?vista=pendientes", icono: Store, idConteo: "empresasPorAprobar" },
     ],
   },
   {

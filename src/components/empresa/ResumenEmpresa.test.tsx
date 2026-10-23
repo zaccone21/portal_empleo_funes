@@ -2,7 +2,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
 import type { CandidatoDerivado } from "@/lib/validation/candidatos";
-import type { PerfilEmpresa } from "@/lib/validation/empresa";
+import type { EstadoEmpresa, PerfilEmpresa } from "@/lib/validation/empresa";
 import type { OfertaEmpresa } from "@/lib/validation/ofertas";
 
 import { ResumenEmpresa } from "./ResumenEmpresa";
@@ -10,8 +10,19 @@ import { ResumenEmpresa } from "./ResumenEmpresa";
 const mocks = vi.hoisted(() => ({
   ofertas: [] as OfertaEmpresa[],
   perfil: null as PerfilEmpresa | null,
+  estado: "aprobada" as EstadoEmpresa,
+  motivoRechazo: null as string | null,
   candidatos: [] as CandidatoDerivado[],
 }));
+
+const PERFIL: PerfilEmpresa = {
+  razonSocial: "Empresa (ejemplo)",
+  cuit: "30-71234567-1",
+  descripcion: "",
+  contactoNombre: "Persona",
+  contactoTelefono: "341 555-0000",
+  contactoEmail: "contacto@ejemplo.com",
+};
 
 vi.mock("@/hooks/useOfertasEmpresa", () => ({
   useOfertasEmpresa: () => ({
@@ -23,7 +34,14 @@ vi.mock("@/hooks/useOfertasEmpresa", () => ({
   }),
 }));
 vi.mock("@/hooks/usePerfilEmpresa", () => ({
-  usePerfilEmpresa: () => ({ perfil: mocks.perfil, loading: false, error: null, recargar: vi.fn() }),
+  usePerfilEmpresa: () => ({
+    perfil: mocks.perfil,
+    estado: mocks.estado,
+    motivoRechazo: mocks.motivoRechazo,
+    loading: false,
+    error: null,
+    recargar: vi.fn(),
+  }),
 }));
 vi.mock("@/hooks/useCandidatosDerivados", () => ({
   useCandidatosDerivados: () => ({
@@ -39,6 +57,8 @@ vi.mock("@/hooks/useCandidatosDerivados", () => ({
 beforeEach(() => {
   mocks.ofertas = [];
   mocks.perfil = null;
+  mocks.estado = "aprobada";
+  mocks.motivoRechazo = null;
   mocks.candidatos = [];
 });
 
@@ -98,10 +118,33 @@ test("says how many referred applicants wait for an answer and links to the olde
   expect(screen.getByRole("link", { name: "Ver candidatos" }).getAttribute("href")).toBe("/empresa/ofertas?oferta=o-2");
 });
 
-test("always offers to publish an offer", () => {
+test("offers to publish an offer once the Office approved the company (D-068)", () => {
+  mocks.perfil = PERFIL;
+  mocks.estado = "aprobada";
   render(<ResumenEmpresa />);
 
   expect(screen.getByRole("link", { name: "Publicar una oferta" }).getAttribute("href")).toBe(
     "/empresa/ofertas/nueva",
   );
+  expect(screen.queryByText("Tu empresa está en revisión")).toBeNull();
+});
+
+test("a company waiting for approval sees the notice and no way to publish (D-068)", () => {
+  mocks.perfil = PERFIL;
+  mocks.estado = "pendiente";
+  render(<ResumenEmpresa />);
+
+  expect(screen.getByText("Tu empresa está en revisión")).toBeDefined();
+  expect(screen.queryByRole("link", { name: "Publicar una oferta" })).toBeNull();
+});
+
+test("a rejected company reads the reason and is sent to its data (D-069)", () => {
+  mocks.perfil = PERFIL;
+  mocks.estado = "rechazada";
+  mocks.motivoRechazo = "Faltan datos de la empresa";
+  render(<ResumenEmpresa />);
+
+  expect(screen.getByText(/Motivo: Faltan datos de la empresa/)).toBeDefined();
+  expect(screen.getByRole("link", { name: "Revisar los datos" }).getAttribute("href")).toBe("/empresa/perfil");
+  expect(screen.queryByRole("link", { name: "Publicar una oferta" })).toBeNull();
 });

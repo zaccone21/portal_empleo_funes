@@ -4,8 +4,14 @@ import { puedeTransicionarPostulacion } from "@/features/postulaciones/domain/es
 import type { CurrentUser } from "@/lib/dal/auth";
 import { crearUrlFirmadaCv, leerCv } from "@/lib/dal/cv";
 import { contarDerivacionesCurso, crearDerivacionCurso, listarDerivacionesCurso } from "@/lib/dal/derivaciones-curso";
-import { inicioEmpresasNuevas } from "@/lib/admin/empresas";
-import { contarEmpresasRegistradasDesde, listarEmpresas, type EmpresaLista } from "@/lib/dal/empresas";
+import { perfilEmpresaIncompleto } from "@/lib/admin/empresas";
+import {
+  actualizarEstadoEmpresa,
+  contarEmpresasPendientes,
+  leerEmpresaParaOficina,
+  listarEmpresas,
+  type EmpresaLista,
+} from "@/lib/dal/empresas";
 import {
   actualizarEstadoOferta,
   contarOfertas,
@@ -51,21 +57,22 @@ import { exito, falla, sinPermiso, type Resultado } from "./resultado";
  */
 
 const NO_ENCONTRADA = "No encontramos esa oferta.";
+const EMPRESA_NO_ENCONTRADA = "No encontramos esa empresa.";
 
 /** Counters of the Office's side menu and dashboard (P14). */
 export async function getConteosAdmin(usuario: CurrentUser) {
   const negado = sinPermiso(usuario, "admin");
-  if (negado) return { ofertasPendientes: 0, postulacionesNuevas: 0, cierresSolicitados: 0, porDerivar: 0, empresasNuevas: 0 };
+  if (negado) return { ofertasPendientes: 0, postulacionesNuevas: 0, cierresSolicitados: 0, porDerivar: 0, empresasPorAprobar: 0 };
 
-  const [ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar, empresasNuevas] = await Promise.all([
+  const [ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar, empresasPorAprobar] = await Promise.all([
     contarOfertas("pendiente"),
     contarPostulaciones("postulado"),
     contarOfertas("publicada", true),
     contarPostulaciones("preseleccionado"),
-    contarEmpresasRegistradasDesde(inicioEmpresasNuevas()),
+    contarEmpresasPendientes(),
   ]);
 
-  return { ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar, empresasNuevas };
+  return { ofertasPendientes, postulacionesNuevas, cierresSolicitados, porDerivar, empresasPorAprobar };
 }
 
 export async function verOfertas(usuario: CurrentUser): Promise<Resultado<OfertaOficina[]>> {
@@ -157,6 +164,56 @@ export async function buscarEmpresas(usuario: CurrentUser, filtros: { q?: string
   if (negado) return negado;
 
   return exito(await listarEmpresas(filtros));
+}
+
+/** The company after a decision, as the Office sees it. */
+async function releerEmpresa(id: string): Promise<Resultado<{ empresa: EmpresaLista }>> {
+  const empresa = await leerEmpresaParaOficina(id);
+  if (!empresa) throw new Error("The company disappeared after the decision.");
+  return exito({ empresa });
+}
+
+/**
+ * Approves a company, so it can send offers (D-068). It must have filled in its
+ * data (without them the Office has nothing to check), and it must not be
+ * approved already. A rejected company can be approved later, for example after
+ * correcting its data. 409 if another operator decided first.
+ */
+export async function aprobarEmpresa(usuario: CurrentUser, id: string): Promise<Resultado<{ empresa: EmpresaLista }>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const empresa = await leerEmpresaParaOficina(id);
+  if (!empresa) return falla("not_found", EMPRESA_NO_ENCONTRADA);
+  if (empresa.estado === "aprobada") return falla("conflict", "Esta empresa ya está aprobada.");
+  if (perfilEmpresaIncompleto(empresa)) {
+    return falla("conflict", "Esta empresa todavía no completó sus datos. No se puede aprobar hasta que los cargue.");
+  }
+
+  const cambiada = await actualizarEstadoEmpresa(id, empresa.estado, { estado: "aprobada" });
+  if (!cambiada) return falla("conflict", "Otra persona de la Oficina ya revisó esta empresa.");
+  return releerEmpresa(id);
+}
+
+/**
+ * Rejects a pending company with its reason, which the company reads (D-068,
+ * D-069). An approved company is not taken back in this delivery.
+ */
+export async function rechazarEmpresa(
+  usuario: CurrentUser,
+  id: string,
+  motivo: string,
+): Promise<Resultado<{ empresa: EmpresaLista }>> {
+  const negado = sinPermiso(usuario, "admin");
+  if (negado) return negado;
+
+  const empresa = await leerEmpresaParaOficina(id);
+  if (!empresa) return falla("not_found", EMPRESA_NO_ENCONTRADA);
+  if (empresa.estado !== "pendiente") return falla("conflict", "Esta empresa ya fue revisada.");
+
+  const cambiada = await actualizarEstadoEmpresa(id, "pendiente", { estado: "rechazada", motivoRechazo: motivo });
+  if (!cambiada) return falla("conflict", "Otra persona de la Oficina ya revisó esta empresa.");
+  return releerEmpresa(id);
 }
 
 export async function verPostulante(usuario: CurrentUser, id: string): Promise<Resultado<ResultadoBusquedaPostulante>> {

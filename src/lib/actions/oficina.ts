@@ -6,16 +6,25 @@ import { z } from "zod";
 import { getCurrentUser } from "@/lib/dal/auth";
 import { crearCuentaOficina } from "@/lib/use-cases/equipo";
 import {
+  aprobarEmpresa,
   asociarPostulanteAOferta,
   cerrarOferta,
   publicarOfertaPendiente,
+  rechazarEmpresa,
   rechazarOferta,
   registrarDerivacionCurso,
   registrarPreentrevista,
   resolverPostulacion,
 } from "@/lib/use-cases/oficina";
 import { nuevaCuentaOficinaSchema } from "@/lib/validation/equipo";
-import { derivacionCursoSchema, preentrevistaSchema, rechazoSchema } from "@/lib/validation/oficina";
+import {
+  armarMotivoRechazo,
+  ETIQUETA_MOTIVO_EMPRESA,
+  ETIQUETA_MOTIVO_OFERTA,
+  rechazoEmpresaSchema,
+  rechazoOfertaSchema,
+} from "@/lib/validation/motivos-rechazo";
+import { derivacionCursoSchema, preentrevistaSchema } from "@/lib/validation/oficina";
 import { estadoPostulacionSchema } from "@/lib/validation/postulaciones";
 
 /*
@@ -76,19 +85,52 @@ export async function aprobarOfertasLoteAccion(ids: string[]): Promise<Respuesta
   return { ok: true, aprobadas, fallidas, mensaje };
 }
 
-/** Rejects a pending offer. The reason is required: the company reads it (RF1.3.5, RF1.5.3). */
-export async function rechazarOfertaAccion(id: string, motivo: string): Promise<RespuestaAccion> {
+/**
+ * Rejects a pending offer. The reason is one of the fixed ones, with an optional
+ * note; the company reads the resulting sentence (RF1.3.5, RF1.5.3, D-069).
+ */
+export async function rechazarOfertaAccion(id: string, motivo: string, observacion?: string): Promise<RespuestaAccion> {
   const parsedId = idSchema.safeParse(id);
-  const parsedMotivo = rechazoSchema.safeParse({ motivo });
+  const parsedRechazo = rechazoOfertaSchema.safeParse({ motivo, observacion });
   if (!parsedId.success) return DATOS_INVALIDOS;
-  if (!parsedMotivo.success) return { ok: false, mensaje: parsedMotivo.error.issues[0]?.message ?? DATOS_INVALIDOS.mensaje };
+  if (!parsedRechazo.success) return { ok: false, mensaje: parsedRechazo.error.issues[0]?.message ?? DATOS_INVALIDOS.mensaje };
   const usuario = await getCurrentUser();
   if (!usuario) return SIN_SESION;
 
-  const resultado = await rechazarOferta(usuario, parsedId.data, parsedMotivo.data.motivo);
+  const texto = armarMotivoRechazo(ETIQUETA_MOTIVO_OFERTA[parsedRechazo.data.motivo], parsedRechazo.data.observacion);
+  const resultado = await rechazarOferta(usuario, parsedId.data, texto);
   if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
   refrescarAdmin();
   return { ok: true, mensaje: `Rechazaste “${resultado.datos.oferta.titulo}”.` };
+}
+
+/** Approves a company so it can send offers (D-068). */
+export async function aprobarEmpresaAccion(id: string): Promise<RespuestaAccion> {
+  const parsed = idSchema.safeParse(id);
+  if (!parsed.success) return DATOS_INVALIDOS;
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const resultado = await aprobarEmpresa(usuario, parsed.data);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  refrescarAdmin();
+  return { ok: true, mensaje: `Aprobaste a ${resultado.datos.empresa.razonSocial ?? "la empresa"}.` };
+}
+
+/** Rejects a pending company with one of the fixed reasons and an optional note; the company reads it (D-068, D-069). */
+export async function rechazarEmpresaAccion(id: string, motivo: string, observacion?: string): Promise<RespuestaAccion> {
+  const parsedId = idSchema.safeParse(id);
+  const parsedRechazo = rechazoEmpresaSchema.safeParse({ motivo, observacion });
+  if (!parsedId.success) return DATOS_INVALIDOS;
+  if (!parsedRechazo.success) return { ok: false, mensaje: parsedRechazo.error.issues[0]?.message ?? DATOS_INVALIDOS.mensaje };
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const texto = armarMotivoRechazo(ETIQUETA_MOTIVO_EMPRESA[parsedRechazo.data.motivo], parsedRechazo.data.observacion);
+  const resultado = await rechazarEmpresa(usuario, parsedId.data, texto);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  refrescarAdmin();
+  return { ok: true, mensaje: `Rechazaste a ${resultado.datos.empresa.razonSocial ?? "la empresa"}.` };
 }
 
 /** Closes a published offer whose company asked for it (RF1.5.4). */

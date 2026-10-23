@@ -13,6 +13,7 @@ import {
   rechazarOfertaAccion,
   type RespuestaAccion,
 } from "@/lib/actions/oficina";
+import { OPCIONES_MOTIVO_OFERTA } from "@/lib/validation/motivos-rechazo";
 import type { EstadoOferta } from "@/lib/validation/ofertas";
 
 type Props = {
@@ -57,12 +58,11 @@ export function AccionesOferta({ id, estado, cierreSolicitado, destino }: Props)
         <ConfirmDialog
           trigger={<BotonAdmin variante="destructivo">Rechazar</BotonAdmin>}
           titulo="¿Rechazar esta oferta?"
-          descripcion="La empresa va a leer el motivo. Escribilo claro para que pueda corregir la oferta."
+          descripcion="Elegí el motivo. La empresa lo va a leer para poder corregir la oferta."
           textoConfirmar="Rechazar oferta"
           varianteConfirmar="destructive"
-          requiereMotivo
-          etiquetaMotivo="Motivo del rechazo"
-          onConfirmar={(motivo) => ejecutar(() => rechazarOfertaAccion(id, motivo ?? ""))}
+          motivos={OPCIONES_MOTIVO_OFERTA}
+          onConfirmar={(motivo) => ejecutar(() => rechazarOfertaAccion(id, motivo?.codigo ?? "", motivo?.observacion))}
         />
       </>
     );

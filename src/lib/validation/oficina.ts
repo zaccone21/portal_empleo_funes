@@ -37,11 +37,6 @@ export const ofertaOficinaSchema = ofertaEmpresaSchema.extend({
 
 export type OfertaOficina = z.infer<typeof ofertaOficinaSchema>;
 
-/** Body of the rejection (RF1.5.3): the reason is required and the company will read it (RF1.3.5). */
-export const rechazoSchema = z.object({
-  motivo: textoObligatorio("Escribí el motivo: la empresa lo va a leer", 500),
-});
-
 /** The pre-interview (RF1.6.1, D-045): the date is required, the notes are optional. Only the Office sees it. */
 export const preentrevistaSchema = z.object({
   fecha: z.iso.datetime({ offset: true, error: "Elegí la fecha de la preentrevista" }),
