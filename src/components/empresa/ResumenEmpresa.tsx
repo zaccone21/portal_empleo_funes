@@ -16,6 +16,7 @@ import { usePerfilEmpresa } from "@/hooks/usePerfilEmpresa";
 import { cn } from "@/lib/utils";
 import type { EstadoOferta as Estado, OfertaEmpresa } from "@/lib/validation/ofertas";
 
+import { AvisoEstadoEmpresa } from "./AvisoEstadoEmpresa";
 import { TarjetaOfertaEmpresa } from "./TarjetaOfertaEmpresa";
 
 const ORDEN_ESTADOS: Estado[] = ["pendiente", "publicada", "rechazada", "cerrada"];
@@ -34,6 +35,8 @@ function contarPorEstado(ofertas: OfertaEmpresa[]): Record<Estado, number> {
  *
  * What it shows:
  * - a reminder to fill in the company data while there is none (P10);
+ * - where the company stands with the Office while it is not approved
+ *   (D-068); the way to publish only shows once it is;
  * - how many referred applicants are waiting for its answer, with a shortcut
  *   to the offer of the oldest one (D-051, D-054);
  * - the main action, publishing an offer;
@@ -85,6 +88,7 @@ export function ResumenEmpresa() {
     );
   }
 
+  const aprobada = perfil.estado === "aprobada";
   const lista = ofertas.ofertas ?? [];
   const conteo = contarPorEstado(lista);
   // The list comes oldest referral first, so the first one without an answer is the most overdue.
@@ -111,6 +115,10 @@ export function ResumenEmpresa() {
             Ver candidatos
           </Link>
         </Alert>
+      )}
+
+      {perfil.perfil !== null && perfil.estado !== "aprobada" && (
+        <AvisoEstadoEmpresa estado={perfil.estado} motivoRechazo={perfil.motivoRechazo} />
       )}
 
       {perfil.perfil === null && (
@@ -140,16 +148,22 @@ export function ResumenEmpresa() {
           <p className="max-w-sm text-base text-primary-foreground/80">
             Publicá una oferta y la Oficina de Empleo te acerca candidatos de Funes.
           </p>
-          <Link
-            href="/empresa/ofertas/nueva"
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "bg-brand-mint text-brand-deep hover:bg-brand-mint/90",
-            )}
-          >
-            <PlusIcon data-icon="inline-start" aria-hidden="true" />
-            Publicar una oferta
-          </Link>
+          {aprobada ? (
+            <Link
+              href="/empresa/ofertas/nueva"
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "bg-brand-mint text-brand-deep hover:bg-brand-mint/90",
+              )}
+            >
+              <PlusIcon data-icon="inline-start" aria-hidden="true" />
+              Publicar una oferta
+            </Link>
+          ) : (
+            <p className="max-w-sm text-base font-medium">
+              Vas a poder publicar cuando la Oficina de Empleo apruebe tu empresa.
+            </p>
+          )}
         </section>
 
         <section

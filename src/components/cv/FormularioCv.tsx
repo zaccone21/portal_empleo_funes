@@ -81,7 +81,7 @@ export function FormularioCv({ tieneCv, onSubir, subiendo, error }: Props) {
             : "Lo necesitás para postularte a las ofertas."}
         </p>
       </div>
-      <Field data-invalid={errorArchivo ? true : undefined}>
+      <Field data-invalid={errorArchivo ? true : undefined} className="relative">
         <input
           id="archivo-cv"
           name="archivo"
@@ -90,7 +90,7 @@ export function FormularioCv({ tieneCv, onSubir, subiendo, error }: Props) {
           onChange={handleCambio}
           aria-invalid={errorArchivo ? true : undefined}
           aria-describedby={errorArchivo ? "archivo-cv-error" : undefined}
-          className="peer sr-only"
+          className="peer sr-only top-0 left-0 !h-px !w-px"
         />
         <label
           htmlFor="archivo-cv"

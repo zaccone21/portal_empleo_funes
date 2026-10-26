@@ -16,7 +16,7 @@ test("a company publishes an offer and finds it pending in 'Mis ofertas'", async
   await page.getByRole("checkbox", { name: "Comercio y ventas" }).check();
   await page.getByLabel("Qué va a hacer la persona").fill("Ordenar mercadería.");
   await page.getByLabel("Qué tiene que tener").fill("Ganas de trabajar.");
-  await page.getByLabel("Dónde es el trabajo").fill("Parque industrial (prueba)");
+  await page.getByLabel("Dirección del trabajo").fill("Parque industrial (prueba)");
   await page.getByLabel("Días y horario").fill("Lunes a viernes de 8 a 16");
   await page.getByRole("button", { name: "Enviar oferta" }).click();
 
@@ -38,7 +38,7 @@ test("a rejected offer shows the Office's reason (RF1.3.5)", async ({ page, play
   await page.goto(`/empresa/ofertas?oferta=${oferta.id}`);
   const detalle = page.getByRole("article", { name: oferta.titulo });
   await expect(detalle.getByText("Motivo del rechazo")).toBeVisible();
-  await expect(detalle.getByText("Falta el horario (prueba).")).toBeVisible();
+  await expect(detalle.getByText("Falta información en la oferta: Falta el horario (prueba).")).toBeVisible();
 });
 
 test("the form explains missing fields next to each one", async ({ page }) => {
@@ -46,6 +46,6 @@ test("the form explains missing fields next to each one", async ({ page }) => {
   await page.getByRole("button", { name: "Enviar oferta" }).click();
 
   await expect(page.getByText("Ingresá el puesto que buscás")).toBeVisible();
-  await expect(page.getByText("Indicá dónde es el trabajo")).toBeVisible();
+  await expect(page.getByText("Indicá la dirección del trabajo")).toBeVisible();
   await expect(page.getByText("Elegí al menos un rubro")).toBeVisible();
 });

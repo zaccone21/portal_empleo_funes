@@ -569,7 +569,7 @@ Decisión: no se implementan:
 - baja de cuenta y política de retención (Q-010);
 - carga asistida de postulantes sin cuenta (Q-011);
 - derivación automática al CIT y seguimiento a 60 días (Q-013): las derivaciones a cursos (D-047) las registra la Oficina a mano;
-- validación previa de empresas (Q-014): una empresa registrada publica enseguida, porque la Oficina modera cada oferta antes de publicarla;
+- ~~validación previa de empresas (Q-014): una empresa registrada publica enseguida, porque la Oficina modera cada oferta antes de publicarla~~ *(reemplazado por D-068, 2026-10-23: la empresa necesita aprobación)*;
 - historial de qué operadora hizo cada cambio y notas internas fuera de la preentrevista.
 Motivo: la consigna no los pide y priorizar flujos completos (consigna §8).
 
@@ -676,7 +676,7 @@ Decisión:
 - Una empresa es **nueva** durante sus primeros 7 días de calendario (hora argentina) desde que se registró.
 - En "Empresas", una vista "Nuevas (7 días)" en la tira de estados y la columna "Registrada" con la etiqueta "Nueva".
 - En el menú, dentro de "Tareas pendientes", "Empresas nuevas" con su contador (solo si hay alguna), que abre esa vista.
-- No cambia D-052: la empresa no necesita aprobación. Esto es para que la Oficina la conozca antes de que llegue su primera oferta. Sin cambios en la base: se cuenta por la fecha de alta del perfil.
+- ~~No cambia D-052: la empresa no necesita aprobación. Esto es para que la Oficina la conozca antes de que llegue su primera oferta. Sin cambios en la base: se cuenta por la fecha de alta del perfil.~~ *(Reemplazado por D-068, 2026-10-23: la empresa necesita aprobación, y "Empresas nuevas" pasa a ser "Empresas por aprobar".)*
 Motivo: el usuario preguntó dónde ve la Oficina las empresas nuevas y eligió sumarlas a Tareas pendientes.
 
 ### D-065 — Barra superior rediseñada: menú completo y "Mi cuenta"
@@ -707,6 +707,39 @@ Decisión:
 - El valor vive en `CONTRATACIONES_ANTES_DEL_PORTAL` (`src/lib/use-cases/inicio.ts`); la base no cambia (DT-021).
 - **Pendiente:** confirmar desde qué año cuenta la Oficina ese número, para poder decirlo si alguien pregunta en la demo.
 Motivo: pedido del usuario ("que el contador arranque desde 850"). Se confirmó que es un dato real y no un número de ejemplo (DESIGN §0, AGENTS §12).
+
+### D-068 — Las empresas necesitan la aprobación de la Oficina para publicar
+Fecha: 2026-10-23 · Reemplaza: la parte de D-052 sobre la validación previa de empresas y la frase "no necesita aprobación" de D-064 · Resuelve: Q-014
+Decisión:
+- Una empresa nueva queda **"pendiente"**. Puede registrarse, completar sus datos (P10) y entrar a su panel, pero **no puede enviar ofertas** hasta que la Oficina la apruebe. P09 y P11 muestran "Tu empresa está en revisión" en lugar del camino para publicar.
+- Estados de la empresa: `pendiente | aprobada | rechazada` (UI: Por aprobar, Aprobada, Rechazada). La Oficina decide desde la ficha de la empresa (`/admin/empresas/<id>`): "Aprobar empresa" (un clic) o "Rechazar" (con motivo, D-069).
+- Pasos permitidos: `pendiente → aprobada | rechazada` y `rechazada → aprobada`. **Una empresa aprobada no se revoca en esta entrega** (DT-022).
+- No se puede aprobar a una empresa que todavía no completó sus datos (sin CUIT ni contacto no hay nada que revisar).
+- Si una empresa **aprobada** cambia su CUIT o su razón social, vuelve a "pendiente" (si no, podría cambiar el CUIT por el de otra empresa y seguir publicando). Si una empresa **rechazada** corrige sus datos, vuelve a "pendiente" y se limpia el motivo, para que la Oficina la revise de nuevo.
+- Dos barreras: el caso de uso `publicarOferta` avisa con un mensaje claro, y la política `ofertas_insert_propias` exige `estado = 'aprobada'`. Solo la Oficina cambia el estado (trigger `antes_de_actualizar_empresa`; la empresa tiene permiso de actualizar solo sus datos, por columna).
+- Las empresas que ya tenían sus datos cargados quedan **aprobadas** al aplicar la migración, para no cortarles el servicio. Las que nunca completaron el perfil arrancan "pendientes".
+- La Oficina ve las empresas por aprobar en "Tareas pendientes → Empresas por aprobar" (con contador) y en la tira de estados de "Empresas". Reemplaza a "Empresas nuevas (7 días)" de D-064. Las cifras públicas del inicio cuentan solo empresas aprobadas.
+- Sigue valiendo que la Oficina modera **cada oferta** antes de publicarla (D-007).
+Motivo: pedido del usuario ("las empresas necesitan aprobación de la Oficina para postular, sí o sí"). La Oficina es intermediaria obligatoria (AGENTS §1): no puede haber una empresa sin verificar mandando ofertas.
+
+### D-069 — Motivos de rechazo fijos, para empresas y para ofertas
+Fecha: 2026-10-23 · Reemplaza: el motivo de texto libre de RF1.5.3 · Amplía: D-068
+Decisión:
+- Al rechazar una empresa o una oferta, la Oficina elige **un motivo de una lista fija** y puede sumar una **observación opcional** (hasta 400 caracteres). La empresa lee el motivo (RF1.3.5).
+- Empresas: "Faltan datos de la empresa", "No pudimos verificar el CUIT", "Los datos de contacto no son correctos", "El perfil no es adecuado para el portal", "Otro motivo".
+- Ofertas: "Falta información en la oferta", "Las condiciones del puesto no son claras", "La oferta está repetida", "El contenido no es adecuado para el portal", "Otro motivo".
+- Las listas viven en `src/lib/validation/motivos-rechazo.ts`; cambiarlas no necesita migración.
+- Se guarda **el texto final** en `motivo_rechazo` ("Motivo" o "Motivo: observación"), sin columna nueva. Contra: el motivo no queda como código para estadísticas (DT-022).
+- Las ofertas ya rechazadas con texto libre se muestran como estaban.
+Motivo: pedido del usuario ("quiero motivos fijos: falta de información, perfil inapropiado... Otro con observación no obligatoria. Lo mismo para las ofertas"). Las listas son una propuesta del agente y el usuario puede ajustarlas.
+
+### D-070 — Dirección del postulante y de la oferta
+Fecha: 2026-10-23
+Decisión:
+- El **postulante** carga su dirección (calle y número, o zona de Funes; hasta 100 caracteres) en P03. Es **obligatoria** para guardar el perfil y para postularse. Solo la ven el postulante y la Oficina: **la empresa no la ve** (D-044).
+- La columna `postulantes.direccion` es opcional en la base, porque las cuentas que ya existen no la tienen. Los postulantes anteriores la cargan la próxima vez que se postulan ("Completá tu perfil").
+- En la **oferta** no se agrega columna: el campo `lugar` pasa a llamarse **"Dirección del trabajo"** (calle y número, o barrio o zona de Funes). Los valores que ya hay (barrios) siguen siendo válidos.
+Motivo: pedido del usuario ("dirección en el perfil del postulante y en las ofertas"). Para las ofertas se eligió reusar `lugar` y cambiar el rótulo, el cambio más chico (esquema mínimo).
 
 ---
 
@@ -769,6 +802,7 @@ El relevamiento describe la derivación al CIT a la 3.ª postulación no exitosa
 ### Q-014 — Registro de empresas
 ¿Una empresa registrada puede cargar ofertas enseguida, o la Oficina tiene que validarla primero (por ejemplo, verificar el CUIT)?
 *Resuelta para el MVP por D-052 (2026-10-18): la empresa publica enseguida; la Oficina modera cada oferta.*
+*Reabierta y resuelta por D-068 (2026-10-23): la Oficina tiene que aprobar a la empresa antes de que pueda enviar ofertas.*
 
 ### Q-015 — Idioma de los nombres en la base de datos
 *Resuelta por D-031.* ¿Las tablas, columnas y valores de enum van en español (`ofertas`, `postulaciones`, `postulante`) o en inglés (`job_offers`, `applications`, `applicant`)? El usuario dijo que "seguramente" en español, pero no está decidido. La migración de `profiles` (`user_role`, `applicant | company | admin`) usa inglés y **no está aplicada**; se ajusta cuando se decida. *Por ahora no se aplica ninguna migración.*

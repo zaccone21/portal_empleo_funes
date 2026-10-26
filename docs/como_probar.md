@@ -69,18 +69,25 @@ E2E_OFICINA_EMAIL=…      E2E_OFICINA_PASSWORD=…
 Abrí `npm run dev` → `http://localhost:3000`. La portada es `/` (`/inicio` también lleva ahí). Con la base recién creada no hay ofertas publicadas, así que la portada y `/ofertas` aparecen vacías hasta el paso "La Oficina publica".
 
 ### Rama empresa: hasta que la oferta se publica
+*Desde D-068 una empresa nueva tiene que ser aprobada por la Oficina antes de enviar ofertas. Las cuentas de empresa que ya tenían el CUIT cargado quedan aprobadas al aplicar la migración.*
 1. En `/`, el bloque para empresas → **Registrar mi empresa** (`/empresa/registrarse`), o **Ingresar** con la cuenta de empresa (`/empresa/ingresar`).
-2. Entrás al inicio de la empresa (`/empresa`). Te recuerda completar los datos.
+2. Entrás al inicio de la empresa (`/empresa`). Te recuerda completar los datos y, una vez cargados, avisa que la empresa está en revisión.
 3. **Empresa** (`/empresa/perfil`): cargá razón social, CUIT (tiene que ser válido, por ejemplo `30-71234567-1`) y el contacto → Guardar.
-4. **Publicar** (`/empresa/ofertas/nueva`): completá la oferta (1 a 3 rubros; el sueldo es opcional) → Enviar oferta.
-5. **Mis ofertas** (`/empresa/ofertas`): la oferta aparece **Pendiente**.
-6. Salí (botón **Salir**).
+4. Con la empresa recién creada, **Publicar** (`/empresa/ofertas/nueva`) muestra "Tu empresa está en revisión" y no deja enviar nada. Salí (botón **Salir**) y seguí con "La Oficina aprueba la empresa".
+5. Ya aprobada, **Publicar**: completá la oferta (1 a 3 rubros; la dirección del trabajo es obligatoria; el sueldo es opcional) → Enviar oferta.
+6. **Mis ofertas** (`/empresa/ofertas`): la oferta aparece **Pendiente**.
+7. Salí (botón **Salir**).
+
+### La Oficina aprueba la empresa
+1. `/admin/ingresar` con la cuenta de la Oficina → menú **Empresas por aprobar** (o `/admin/empresas?vista=pendientes`).
+2. Abrí la empresa → **Aprobar empresa**. Para ver el rechazo, con otra empresa pendiente: **Rechazar**, elegí un motivo, sumá una observación si querés y confirmá.
+3. La empresa entra de nuevo: si la aprobaste, ya puede publicar; si la rechazaste, ve el motivo en su inicio y en **Empresa**. Si corrige sus datos, vuelve a quedar en revisión.
 
 ### La Oficina publica
 1. `/admin/ingresar` con la cuenta de la Oficina → Dashboard (`/admin`): "Ofertas por revisar: 1".
 2. Tocalo → `/admin/ofertas/por-revisar` → tocá la oferta → en el panel, **Aprobar**.
 3. La oferta pasa a Publicada y **ya aparece en `/` y en `/ofertas`**.
-4. Para ver el rechazo: con otra oferta pendiente, **Rechazar**, escribí el motivo y confirmá. La empresa lo ve en "Mis ofertas".
+4. Para ver el rechazo: con otra oferta pendiente, **Rechazar**, elegí un motivo de la lista (la observación es opcional) y confirmá. La empresa lo ve en "Mis ofertas".
 
 ### Rama postulante: hasta que se postula
 1. En `/` o en `/ofertas`, abrí la oferta publicada → **Postularme**.

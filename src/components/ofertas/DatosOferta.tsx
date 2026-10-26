@@ -22,7 +22,7 @@ type Props = {
 /**
  * What, where and when: the facts a person checks first to decide whether an
  * offer is for them. Shown on the cards and in the details. The icons are
- * decorative; a visually hidden label ("Rubro:", "Lugar:", "Horario:", "Sueldo:") gives
+ * decorative; a visually hidden label ("Rubro:", "Dirección:", "Horario:", "Sueldo:") gives
  * screen readers the same context the icon gives sighted users.
  *
  * Several trades go on one line, joined with "·" and with the first trade's
@@ -44,7 +44,7 @@ export function DatosOferta({ lugar, jornada, rubros, sueldo, compacto = false }
       <li className="flex items-start gap-2">
         <MapPinIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
         <span className={texto}>
-          <span className="sr-only">Lugar: </span>
+          <span className="sr-only">Dirección: </span>
           {lugar}
         </span>
       </li>

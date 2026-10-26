@@ -3,10 +3,10 @@
 import { AdminTable, type ColumnaAdmin } from "@/components/admin/admin-table";
 import { Ausente, CeldaDoble } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
-import { StatusBadge } from "@/components/admin/status-badge";
+import { BadgeEstadoEmpresa, StatusBadge } from "@/components/admin/status-badge";
 import { useUrlAdmin } from "@/hooks/useUrlAdmin";
 import type { OrdenTabla } from "@/lib/admin/orden";
-import { esEmpresaNueva, perfilEmpresaIncompleto, type FilaEmpresa } from "@/lib/admin/empresas";
+import { perfilEmpresaIncompleto, type FilaEmpresa } from "@/lib/admin/empresas";
 import { fechaCorta } from "@/lib/admin/fechas";
 import { NOMBRE_RUBRO, type Rubro } from "@/lib/validation/rubros";
 
@@ -47,15 +47,16 @@ export function TablaEmpresas({ empresas, pager, hayFiltros, orden }: Props) {
         e.rubros.length > 0 ? e.rubros.map((r) => NOMBRE_RUBRO[r as Rubro] ?? r).join(", ") : <Ausente />,
     },
     {
+      id: "estado",
+      cabecera: "Estado",
+      ordenable: true,
+      celda: (e) => <BadgeEstadoEmpresa estado={e.estado} />,
+    },
+    {
       id: "registrada",
       cabecera: "Registrada",
       ordenable: true,
-      celda: (e) => (
-        <div className="flex items-center gap-2 tabular-nums">
-          {fechaCorta(e.creadaEl)}
-          {esEmpresaNueva(e) && <StatusBadge etiqueta="Nueva" tono="attention" />}
-        </div>
-      ),
+      celda: (e) => <span className="tabular-nums">{fechaCorta(e.creadaEl)}</span>,
     },
     {
       id: "activas",

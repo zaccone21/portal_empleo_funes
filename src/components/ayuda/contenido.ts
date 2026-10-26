@@ -40,14 +40,14 @@ export const GUIAS: Record<Publico, PasoGuia[]> = {
     {
       titulo: "Creá tu cuenta",
       texto:
-        "Tocá “Crear cuenta” y escribí tu email y una contraseña de 8 caracteres o más. Te llega un email: abrilo y tocá el botón para activar la cuenta.",
+        "Tocá “Crear cuenta” y escribí tu email, tu DNI y una contraseña de 8 caracteres o más. Te llega un email: abrilo y tocá el botón para activar la cuenta.",
       icono: UserPlusIcon,
       enlace: { href: "/postulante/registrarse", texto: "Crear cuenta" },
     },
     {
       titulo: "Completá tu perfil",
       texto:
-        "En “Mi perfil”, tocá “Editar datos” y cargá tu nombre, apellido, DNI y teléfono. Elegí todos los rubros en los que sabés trabajar y, si querés, contá tu experiencia.",
+        "En “Mi perfil”, cargá tu nombre, apellido, teléfono y dirección. Elegí todos los rubros en los que sabés trabajar y, si querés, contá tu experiencia.",
       icono: UserRoundCheckIcon,
       enlace: { href: "/postulante/perfil", texto: "Ir a Mi perfil" },
     },
@@ -77,7 +77,7 @@ export const GUIAS: Record<Publico, PasoGuia[]> = {
     {
       titulo: "Registrá tu empresa",
       texto:
-        "Tocá “Registrar mi empresa” y escribí un email y una contraseña de 8 caracteres o más. Te llega un email: abrilo y tocá el botón para activar la cuenta.",
+        "Tocá “Registrar mi empresa” y escribí un email, el CUIT de tu empresa y una contraseña de 8 caracteres o más. Te llega un email: abrilo y tocá el botón para activar la cuenta.",
       icono: UserPlusIcon,
       enlace: { href: "/empresa/registrarse", texto: "Registrar mi empresa" },
     },
@@ -89,9 +89,16 @@ export const GUIAS: Record<Publico, PasoGuia[]> = {
       enlace: { href: "/empresa/perfil", texto: "Ir a Mi empresa" },
     },
     {
+      titulo: "Esperá la aprobación de la Oficina",
+      texto:
+        "La Oficina de Empleo revisa tu empresa antes de que puedas publicar. Hasta entonces ves el aviso “Tu empresa está en revisión”. Si no la aprueba, te dice el motivo: corregí los datos y la revisa de nuevo.",
+      icono: BadgeCheckIcon,
+      enlace: { href: "/empresa", texto: "Ver cómo va mi empresa" },
+    },
+    {
       titulo: "Publicá una oferta",
       texto:
-        "En “Publicar”, completá el puesto, la descripción, los requisitos, el lugar, el horario y de 1 a 3 rubros. El sueldo es opcional. Tocá “Enviar oferta”: queda Pendiente.",
+        "En “Publicar”, completá el puesto, la descripción, los requisitos, la dirección del trabajo, el horario y de 1 a 3 rubros. El sueldo es opcional. Tocá “Enviar oferta”: queda Pendiente.",
       icono: PlusIcon,
       enlace: { href: "/empresa/ofertas/nueva", texto: "Publicar una oferta" },
     },
@@ -127,12 +134,12 @@ export const PREGUNTAS: Record<Publico, PreguntaFrecuente[]> = {
     {
       pregunta: "¿Quién ve mis datos y mi CV?",
       respuesta:
-        "La Oficina de Empleo. Una empresa ve tu nombre, teléfono, email, rubros y CV solo si la Oficina te propone para una de sus ofertas. Nunca ve tu DNI ni el resto de tus postulaciones.",
+        "La Oficina de Empleo. Una empresa ve tu nombre, teléfono, email, rubros y CV solo si la Oficina te propone para una de sus ofertas. Nunca ve tu dirección, tu DNI ni el resto de tus postulaciones.",
     },
     {
       pregunta: "El portal no me deja postularme. ¿Qué hago?",
       respuesta:
-        "Para postularte necesitás el perfil completo (nombre, apellido, DNI, teléfono y al menos un rubro) y el CV en PDF. Al tocar “Postularme”, el portal te dice qué te falta y te lleva a completarlo.",
+        "Para postularte necesitás el perfil completo (nombre, apellido, DNI, teléfono, dirección y al menos un rubro) y el CV en PDF. Al tocar “Postularme”, el portal te dice qué te falta y te lleva a completarlo.",
     },
     {
       pregunta: "¿Puedo cambiar mi CV?",
@@ -154,6 +161,11 @@ export const PREGUNTAS: Record<Publico, PreguntaFrecuente[]> = {
     },
   ],
   empresa: [
+    {
+      pregunta: "¿Por qué no puedo publicar una oferta?",
+      respuesta:
+        "Porque la Oficina de Empleo todavía no aprobó tu empresa. Mientras tanto ves “Tu empresa está en revisión”. Si la rechazó, en “Mi empresa” ves el motivo: corregí los datos y la Oficina la revisa de nuevo. Si cambiás el CUIT o la razón social, la revisa otra vez.",
+    },
     {
       pregunta: "¿Puedo buscar postulantes por mi cuenta?",
       respuesta:

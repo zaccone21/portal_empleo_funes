@@ -54,7 +54,7 @@ test("sends the offer and opens it in 'Mis ofertas'", async () => {
     Puesto: "Cadete (ejemplo)",
     "Qué va a hacer la persona": "Entregas.",
     "Qué tiene que tener": "Moto.",
-    "Dónde es el trabajo": "Centro",
+    "Dirección del trabajo": "Centro",
     "Días y horario": "Lunes a viernes de 9 a 13",
   });
 

@@ -1,40 +1,53 @@
 import { describe, expect, it } from "vitest";
 
-import { contarVistasEmpresas, esEmpresaNueva, filtrarEmpresas, inicioEmpresasNuevas, type FilaEmpresa } from "./empresas";
+import { contarVistasEmpresas, filtrarEmpresas, perfilEmpresaIncompleto, type FilaEmpresa } from "./empresas";
 
-// 2026-10-22 at 10:00 in Argentina.
-const AHORA = new Date("2026-10-22T13:00:00Z");
-
-function empresa(id: string, creadaEl: string): FilaEmpresa {
+function empresa(id: string, estado: FilaEmpresa["estado"], datos: Partial<FilaEmpresa> = {}): FilaEmpresa {
   return {
     id,
     razonSocial: `Empresa ${id}`,
-    cuit: null,
-    contactoNombre: null,
-    contactoEmail: null,
-    contactoTelefono: null,
-    creadaEl,
+    cuit: "30-71234567-1",
+    contactoNombre: "Persona",
+    contactoEmail: "contacto@ejemplo.com",
+    contactoTelefono: "341 555-0000",
+    creadaEl: "2026-10-20T12:00:00.000Z",
+    estado,
+    motivoRechazo: estado === "rechazada" ? "Otro motivo" : null,
     rubros: [],
     ofertasActivas: 0,
     ofertasTotales: 0,
+    ...datos,
   };
 }
 
-describe("empresas nuevas (D-064)", () => {
-  it("counts a company as new during its first 7 calendar days in Argentina", () => {
-    expect(esEmpresaNueva(empresa("hoy", "2026-10-22T09:00:00-03:00"), AHORA)).toBe(true);
-    expect(esEmpresaNueva(empresa("6d", "2026-10-16T00:30:00-03:00"), AHORA)).toBe(true);
-    expect(esEmpresaNueva(empresa("7d", "2026-10-15T23:30:00-03:00"), AHORA)).toBe(false);
+describe("empresas por aprobar (D-068)", () => {
+  const empresas = [empresa("a", "pendiente"), empresa("b", "aprobada"), empresa("c", "rechazada")];
+
+  it("filters the queue of companies waiting for the Office", () => {
+    expect(filtrarEmpresas(empresas, { vista: "pendientes" }).map((e) => e.id)).toEqual(["a"]);
   });
 
-  it("counts in the database from the same day the view uses", () => {
-    expect(inicioEmpresasNuevas(AHORA)).toBe("2026-10-16T00:00:00-03:00");
+  it("filters the rejected ones", () => {
+    expect(filtrarEmpresas(empresas, { vista: "rechazadas" }).map((e) => e.id)).toEqual(["c"]);
   });
 
-  it("filters and counts the 'Nuevas' view", () => {
-    const empresas = [empresa("a", "2026-10-21T10:00:00-03:00"), empresa("b", "2026-09-01T10:00:00-03:00")];
+  it("counts every view of the strip", () => {
+    expect(contarVistasEmpresas(empresas)).toMatchObject({ todas: 3, pendientes: 1, rechazadas: 1 });
+  });
 
-    expect(filtrarEmpresas(empresas, { vista: "nuevas" }, AHORA).map((e) => e.id)).toEqual(["a"]);
-    expect(contarVistasEmpresas(empresas, AHORA).nuevas).toBe(1);
+  it("combines the view with the text search", () => {
+    const conBusqueda = [empresa("a", "pendiente", { razonSocial: "Panadería Sol" }), empresa("d", "pendiente")];
+
+    expect(filtrarEmpresas(conBusqueda, { vista: "pendientes", q: "panad" }).map((e) => e.id)).toEqual(["a"]);
+  });
+});
+
+describe("perfilEmpresaIncompleto", () => {
+  it("is true while the company has not loaded its CUIT", () => {
+    expect(perfilEmpresaIncompleto(empresa("a", "pendiente", { cuit: null }))).toBe(true);
+  });
+
+  it("is false once the required data is there", () => {
+    expect(perfilEmpresaIncompleto(empresa("a", "pendiente"))).toBe(false);
   });
 });

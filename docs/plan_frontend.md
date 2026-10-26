@@ -20,12 +20,12 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 | Cualquier persona | **P20 Ayuda** | `/ayuda` | Hecha (2026-10-20), revisada en el navegador con sesión de empresa |
 | Cualquier persona | P05 y P06 Ofertas y su detalle | `/ofertas` | Lista |
 | Postulante | P02 Ingresar, crear cuenta, recuperar contraseña | `/postulante/…` | Lista |
-| Postulante | P03 Mi perfil (con el CV, P04) | `/postulante/perfil` | Hecha, falta revisarla en el navegador con sesión de postulante |
+| Postulante | P03 Mi perfil (con el CV, P04) | `/postulante/perfil` | Hecha; suma la **dirección** obligatoria (D-070, 2026-10-23, falta aplicar la migración y revisarla con sesión de postulante) |
 | Postulante | P07 Mis postulaciones | `/postulante/postulaciones` | Lista |
 | Empresa | P08 Ingresar, registrarse, recuperar contraseña | `/empresa/…` | Lista |
-| Empresa | P09 Inicio de la empresa | `/empresa` | Hecha, falta revisarla en el navegador con sesión de empresa |
+| Empresa | P09 Inicio de la empresa | `/empresa` | Hecha; avisa si la empresa está en revisión o rechazada (D-068, 2026-10-23); falta revisarla con sesión de empresa |
 | Empresa | P10 Datos de la empresa | `/empresa/perfil` | Lista |
-| Empresa | P11 Publicar una oferta | `/empresa/ofertas/nueva` | Hecha (precarga rechazadas y cerradas), falta revisarla con sesión de empresa |
+| Empresa | P11 Publicar una oferta | `/empresa/ofertas/nueva` | Hecha (precarga rechazadas y cerradas); solo para empresas aprobadas (D-068); falta revisarla con sesión de empresa |
 | Empresa | P12 Mis ofertas | `/empresa/ofertas` | Hecha ("Duplicar" en cerradas), falta revisarla con sesión de empresa |
 | Empresa | **P17 Candidatos derivados** | (dentro de "Mis ofertas") | Hecha, falta revisarla con sesión de empresa |
 | Oficina de Empleo | P13 Ingresar | `/admin/ingresar` | Lista |
@@ -63,7 +63,7 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 - **Falta:** que el link del email funcione en otro dispositivo (configuración de Supabase). *Ref.: D-034, DT-011.*
 
 ### P03 — Mi perfil (`/postulante/perfil`), con el CV (P04)
-- **Qué hace:** datos personales (nombre, apellido, DNI, teléfono), rubros sin tope y el CV en PDF (se revisa que sea un PDF de verdad y que pese hasta 5 MB). Se ve en modo lectura con "Editar datos".
+- **Qué hace:** datos personales (nombre, apellido, DNI, teléfono, dirección), rubros sin tope y el CV en PDF (se revisa que sea un PDF de verdad y que pese hasta 5 MB). Se ve en modo lectura con "Editar datos".
 - **Falta para la entrega:**
   - un campo de **experiencia laboral** (la consigna pide información "personal y laboral");
   - cambiar los textos que dicen "las empresas nunca ven tus datos": ahora la empresa los ve **solo si la Oficina te deriva**.
@@ -78,16 +78,16 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 ## Empresa
 
 ### P08 — Ingresar, registrarse y recuperar la contraseña (`/empresa/…`)
-- **Qué hace:** igual que P02; el registro pide CUIT. Una empresa registrada publica enseguida: la Oficina modera cada oferta.
-- **Falta:** lo mismo que P02. *Ref.: D-034, D-052.*
+- **Qué hace:** igual que P02; el registro pide CUIT. Una empresa registrada queda **pendiente** y publica recién cuando la Oficina la aprueba (D-068).
+- **Falta:** lo mismo que P02. *Ref.: D-034, D-068.*
 
 ### P09 — Inicio de la empresa (`/empresa`)
 - **Qué hace:** cuántas ofertas tiene en cada estado, acceso directo a publicar y las últimas ofertas.
 - **Falta:** mostrar cuántos **candidatos derivados esperan su decisión**, con un acceso directo. *Ref.: D-051.*
 
 ### P10 — Datos de la empresa (`/empresa/perfil`)
-- **Qué hace:** razón social, CUIT (con dígito verificador), descripción y persona de contacto; lectura con "Editar datos".
-- **Falta:** nada para la entrega. *Ref.: D-027, D-041.*
+- **Qué hace:** razón social, CUIT (con dígito verificador), descripción y persona de contacto; lectura con "Editar datos". Muestra el aviso de revisión o de rechazo con su motivo (D-068, D-069). Cambiar el CUIT o la razón social de una empresa aprobada la manda de nuevo a revisión.
+- **Falta:** nada para la entrega. *Ref.: D-027, D-041, D-068.*
 
 ### P11 — Publicar una oferta (`/empresa/ofertas/nueva`)
 - **Qué hace:** formulario con validación al lado de cada campo, de 1 a 3 rubros y sueldo opcional. La oferta queda Pendiente; no hay borradores.

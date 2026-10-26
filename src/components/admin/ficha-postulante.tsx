@@ -94,6 +94,7 @@ export function FichaPostulante({ postulante, postulaciones, seguimiento, oferta
         <DatosLista
           items={[
             { rotulo: "Teléfono", valor: postulante.telefono ? formatearTelefonoAR(postulante.telefono) : <Ausente /> },
+            { rotulo: "Dirección", valor: postulante.direccion ?? <Ausente /> },
             { rotulo: "Email", valor: postulante.email ?? <Ausente /> },
             {
               rotulo: "Rubros",
@@ -187,7 +188,7 @@ function CursosPostulante({
       )}
       <FormularioDerivacionCurso postulanteId={postulanteId} />
       {seguimiento.derivacionesCurso.length === 0 ? (
-        <p className="text-muted-foreground">Todavía no se la derivó a ningún curso.</p>
+        <p className="text-muted-foreground">Todavía no se derivó a ningún curso.</p>
       ) : (
         <ul className="flex flex-col divide-y divide-border rounded-[10px] border border-border">
           {seguimiento.derivacionesCurso.map((d) => (

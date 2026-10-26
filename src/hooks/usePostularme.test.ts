@@ -39,6 +39,17 @@ test("401 means nobody is logged in", async () => {
   expect((await postularse()).resultado).toEqual({ tipo: "sin_sesion" });
 });
 
+test("409 for incomplete profile returns falta_perfil with the server's message", async () => {
+  mockFetch(409, {
+    error: "Para postularte tenés que completar tus datos personales (con tu dirección) y elegir al menos un rubro en Mi perfil.",
+  });
+
+  expect((await postularse()).resultado).toEqual({
+    tipo: "falta_perfil",
+    mensaje: "Para postularte tenés que completar tus datos personales (con tu dirección) y elegir al menos un rubro en Mi perfil.",
+  });
+});
+
 test("409 means the CV is missing and keeps the server's message (RF1.4.4)", async () => {
   mockFetch(409, { error: "Para postularte tenés que subir tu CV." });
 

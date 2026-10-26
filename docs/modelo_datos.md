@@ -153,6 +153,7 @@ Los datos personales (P03, RF1.2.1) y el CV (P04, RF1.2.3). La fila la crea el t
 | `cv_tamano_bytes` | `integer` | sí | Mayor que 0 | Lo muestran P04 y la Oficina |
 | `cv_subido_el` | `timestamptz` | sí | — | Lo muestra P04 |
 | `experiencia` | `text` | sí | Hasta 2000 (nuevo) | La información laboral que carga en P03 (RF1.6.7) |
+| `direccion` | `text` | sí | Entre 1 y 100 (nuevo, D-070) | Dónde vive: calle y número, o zona de Funes. Obligatoria en P03 (la exige la pantalla y el caso de uso; la base la deja vacía para las cuentas que ya existían). La empresa no la ve |
 
 - Las cuatro columnas `cv_*` tienen valor todas juntas o ninguna (`check (num_nulls(...) in (0, 4))`). "Tiene CV" (RF1.4.4) es `cv_ruta is not null`.
 - La ruta es siempre `{id}/cv.pdf`: subir otro CV reemplaza el anterior (DT-004). El `check` impide que alguien apunte su fila al archivo de otra persona.
@@ -160,7 +161,7 @@ Los datos personales (P03, RF1.2.1) y el CV (P04, RF1.2.3). La fila la crea el t
 
 ### `empresas`: datos de la empresa
 
-Razón social, CUIT, descripción y la persona de contacto (P10, RF1.3.2). La fila la crea el trigger al registrarse; los datos quedan vacíos hasta que la empresa completa P10. Puede publicar antes de completarlos (D-027, Q-014).
+Razón social, CUIT, descripción y la persona de contacto (P10, RF1.3.2). La fila la crea el trigger al registrarse; los datos quedan vacíos hasta que la empresa completa P10. Arranca **pendiente** y solo puede enviar ofertas cuando la Oficina la aprueba (D-068).
 
 | Columna | Tipo | ¿Vacía? | Reglas | Para qué |
 |---|---|---|---|---|
@@ -171,8 +172,12 @@ Razón social, CUIT, descripción y la persona de contacto (P10, RF1.3.2). La fi
 | `contacto_nombre` | `text` | sí | Hasta 120 | Con quién habla la Oficina |
 | `contacto_telefono` | `text` | sí | Solo números, espacios y `+ - ( )`; hasta 30 (nuevo) | Contacto |
 | `contacto_email` | `text` | sí | Hasta 254 (nuevo) | Contacto; puede ser distinto del email de la cuenta (por ejemplo, RR.HH.) |
+| `estado` | `estado_empresa` | no | `pendiente` (por defecto), `aprobada` o `rechazada` (D-068) | Si la Oficina la aprobó. Solo la Oficina lo cambia (trigger) |
+| `motivo_rechazo` | `text` | sí | Hasta 500; tiene valor si y solo si `estado = 'rechazada'` (D-069) | El motivo que lee la empresa |
 
-Quién puede qué: la empresa lee y edita su fila; la Oficina lee todas. Los postulantes no ven nada de la empresa (DT-002).
+Quién puede qué: la empresa lee su fila y edita **solo sus datos** (permiso por columna); la Oficina lee todas y es la única que cambia `estado` y `motivo_rechazo`. Los postulantes no ven nada de la empresa (DT-002).
+
+El trigger `antes_de_actualizar_empresa` aplica las reglas de D-068: pasos permitidos `pendiente → aprobada | rechazada` y `rechazada → aprobada`; si una empresa aprobada cambia su CUIT o su razón social, vuelve a `pendiente`; si una rechazada corrige sus datos, vuelve a `pendiente` y se limpia el motivo. La política `ofertas_insert_propias` pide `estado = 'aprobada'` para crear ofertas.
 
 ### `rubros`: la lista de rubros
 
@@ -368,7 +373,7 @@ La regla de negocio está en el caso de uso (D-018). La base repite las que prot
 | Q-006 contenido de la lista de rubros | Las filas de `rubros`; si la Oficina la edita desde la app, políticas de escritura para admin |
 | Q-010 baja de cuenta | Qué hacer con las ofertas de una empresa que se va |
 | Q-012 indicadores | Consultas; quizás un índice |
-| Q-014 validar empresas | Una columna en `empresas` (por ejemplo, `validada_el`) |
+| Q-014 validar empresas | Resuelta por D-068: `empresas.estado` y `empresas.motivo_rechazo` |
 
 ## De la base a la pantalla
 

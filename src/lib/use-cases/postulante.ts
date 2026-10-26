@@ -89,7 +89,7 @@ export async function postularme(usuario: CurrentUser, ofertaId: string): Promis
   }
   
   if (!(await perfilCompletoPostulante(usuario.id))) {
-    return falla("conflict", "Para postularte tenés que completar tus datos personales y elegir al menos un rubro en Mi perfil.");
+    return falla("conflict", "Para postularte tenés que completar tus datos personales (con tu dirección) y elegir al menos un rubro en Mi perfil.");
   }
   
   if (!(await leerCv(usuario.id))) {

@@ -252,3 +252,15 @@ Qué:
 - No está confirmado desde qué año cuenta la Oficina ese número.
 Por qué quedó: es un solo valor que no cambia en el día a día; guardarlo en la base sumaba una tabla y una pantalla para editarlo (memoria "mvp-minimal-schema").
 Cómo se salda: si la Oficina necesita actualizarlo seguido, una fila de configuración en la base (migración) y un campo en el panel de la Oficina para editarlo.
+
+### DT-022 — Aprobación de empresas y motivos de rechazo: atajos de esta entrega
+Fecha: 2026-10-23 · Origen: D-068, D-069, D-070
+Qué:
+- **Motivo de rechazo como texto:** el rechazo de empresas y de ofertas elige un motivo de una lista fija, pero la base guarda la oración final en `motivo_rechazo` ("Motivo: observación"). No queda un código por motivo, así que no se puede contar "cuántas ofertas se rechazaron por falta de información" sin leer el texto.
+- **Una empresa aprobada no se revoca:** el trigger no permite `aprobada → rechazada`. Si una empresa aprobada resulta ser un problema, hoy se resuelve a mano en el SQL Editor (el trigger deja pasar las actualizaciones sin sesión) y sus ofertas publicadas no se tocan.
+- **La Oficina puede aprobar las ofertas pendientes de una empresa que volvió a "pendiente"** (por cambiar su CUIT): moderar ofertas y aprobar empresas son dos decisiones separadas.
+- **`lugar` hace de "dirección":** la oferta no tiene una columna `direccion`; el campo `lugar` cambió de rótulo (D-070). Si algún día hace falta separar la calle de la zona (por ejemplo, para un mapa), es una migración.
+- **Las pruebas de la base no se corrieron:** `supabase/tests/empresas_aprobacion_rls.test.sql` (y el ajuste de `ofertas_rls.test.sql`) necesitan la CLI de Supabase, que el usuario no usa (como el resto de `supabase/tests/`).
+- **La evaluación de postulación no muestra la dirección:** solo la ficha del postulante; la pantalla de evaluación sigue como estaba.
+Por qué quedó: son el cambio mínimo que cumple el pedido del usuario a dos semanas de la entrega, sin sumar tablas ni columnas que no se usan todavía.
+Cómo se salda: una columna `motivo_rechazo_codigo` (o una tabla de motivos) si la Oficina quiere estadísticas; agregar la transición `aprobada → rechazada` con una pantalla de confirmación si la Oficina necesita revocar; correr los pgTAP cuando haya CLI.

@@ -27,7 +27,7 @@ test("an admin page without a session sends to the Office login", async ({ brows
   await contexto.close();
 });
 
-test("rejecting an offer requires a reason", async ({ page, playwright }) => {
+test("rejecting an offer requires one of the fixed reasons", async ({ page, playwright }) => {
   const oferta = await crearOfertaPendiente(playwright);
   try {
     await page.goto(`/admin/ofertas/${oferta.id}`);
@@ -38,7 +38,7 @@ test("rejecting an offer requires a reason", async ({ page, playwright }) => {
     const confirmar = dialogo.getByRole("button", { name: "Rechazar oferta" });
     await expect(confirmar).toBeDisabled();
 
-    await dialogo.getByLabel("Motivo del rechazo").fill("Faltan los requisitos (e2e).");
+    await dialogo.getByRole("radio", { name: "Falta información en la oferta" }).click();
     await expect(confirmar).toBeEnabled();
     await confirmar.click();
     await expect(page.getByText(/Rechazad[ao]/).first()).toBeVisible();
