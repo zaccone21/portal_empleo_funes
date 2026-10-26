@@ -21,6 +21,8 @@ Todo en el panel del proyecto de **testing** (supabase.com).
 ### 1.1 Aplicar la migración nueva
 SQL Editor → New query → pegá todo `supabase/migrations/20260929130000_ofertas_visibles_para_postulados.sql` → Run. Tiene que decir "Success". Avisame y la anoto en `docs/migraciones.md`.
 
+**Pendiente (2026-10-20):** `supabase/migrations/20261020220000_estadisticas_publicas.sql`, igual que la anterior. Sin ella, el inicio no muestra "El portal en números" (el resto anda igual). Para comprobarla: abrí `http://localhost:3000/api/estadisticas`, que tiene que devolver los cinco totales.
+
 ### 1.2 Configurar el acceso (Authentication)
 1. **URL Configuration:**
    - Site URL: `http://localhost:3000`.
@@ -29,9 +31,11 @@ SQL Editor → New query → pegá todo `supabase/migrations/20260929130000_ofer
 3. **Confirmar el email:** en el proyecto de testing ya está prendido, con el SMTP propio (Gmail) configurado el 2026-09-29. Si algún día hay que armarlo de nuevo: el servicio de email que trae Supabase solo manda a los miembros del equipo del proyecto, y como máximo 2 por hora. Hay dos caminos:
    - **Para probar ya (recomendado en testing):** apagá "Confirm email". Al registrarse, la persona entra directo a su inicio.
    - **Para que se parezca a producción:** dejalo prendido y configurá un SMTP propio (Authentication → Emails → SMTP). Sin eso, el registro responde "No pudimos enviarte el email…".
-4. **Recomendado con emails reales:** para que el link del email funcione en cualquier dispositivo (por ejemplo, registrarse en la computadora y abrir el email en el celular, DT-011), en Authentication → Emails:
-   - plantilla "Confirm signup": cambiá el link por `{{ .SiteURL }}/acceso/confirmar?token_hash={{ .TokenHash }}&type=email`;
-   - plantilla "Reset password": cambiá el link por `{{ .SiteURL }}/acceso/confirmar?token_hash={{ .TokenHash }}&type=recovery`.
+4. **Plantillas de email (DT-011):** para que el link del email funcione en cualquier dispositivo (por ejemplo, registrarse en la computadora y abrir el email en el celular), en Authentication → Emails:
+   - **"Confirm signup":** asunto `Activá tu cuenta del Portal de Empleo de Funes`; en el cuerpo, pegá todo `docs/plantillas-email/confirmar-registro.html`.
+   - **"Reset password":** asunto `Elegí una contraseña nueva para el Portal de Empleo de Funes`; en el cuerpo, pegá todo `docs/plantillas-email/recuperar-contrasena.html`.
+   - Las dos usan `{{ .RedirectTo }}`, la dirección que manda el portal, en vez de `{{ .SiteURL }}`. Así el mismo proyecto de Supabase sirve para `localhost` y para Vercel (D-050). Para que Supabase la acepte, esa dirección tiene que estar en **Redirect URLs** (paso 1). Si no está, Supabase usa la Site URL y el link no funciona.
+   - Para probarlo: registrate con un email tuyo en la computadora y abrí el email en el celular. Tiene que entrar a la cuenta. Lo mismo con "¿Olvidaste tu contraseña?", que tiene que llevar a elegir una nueva.
 
 ### 1.3 Crear las tres cuentas de prueba
 Authentication → Users → **Add user → Create new user**. Poné email y contraseña, y tildá **Auto Confirm User**. Los emails pueden ser inventados, porque no se manda nada; por ejemplo `postulante@ejemplo.com`, `empresa@ejemplo.com` y `oficina@ejemplo.com`.
@@ -65,31 +69,37 @@ E2E_OFICINA_EMAIL=…      E2E_OFICINA_PASSWORD=…
 Abrí `npm run dev` → `http://localhost:3000`. La portada es `/` (`/inicio` también lleva ahí). Con la base recién creada no hay ofertas publicadas, así que la portada y `/ofertas` aparecen vacías hasta el paso "La Oficina publica".
 
 ### Rama empresa: hasta que la oferta se publica
+*Desde D-068 una empresa nueva tiene que ser aprobada por la Oficina antes de enviar ofertas. Las cuentas de empresa que ya tenían el CUIT cargado quedan aprobadas al aplicar la migración.*
 1. En `/`, el bloque para empresas → **Registrar mi empresa** (`/empresa/registrarse`), o **Ingresar** con la cuenta de empresa (`/empresa/ingresar`).
-2. Entrás al inicio de la empresa (`/empresa`). Te recuerda completar los datos.
+2. Entrás al inicio de la empresa (`/empresa`). Te recuerda completar los datos y, una vez cargados, avisa que la empresa está en revisión.
 3. **Empresa** (`/empresa/perfil`): cargá razón social, CUIT (tiene que ser válido, por ejemplo `30-71234567-1`) y el contacto → Guardar.
-4. **Publicar** (`/empresa/ofertas/nueva`): completá la oferta (1 a 3 rubros; el sueldo es opcional) → Enviar oferta.
-5. **Mis ofertas** (`/empresa/ofertas`): la oferta aparece **Pendiente**.
-6. Salí (botón **Salir**).
+4. Con la empresa recién creada, **Publicar** (`/empresa/ofertas/nueva`) muestra "Tu empresa está en revisión" y no deja enviar nada. Salí (botón **Salir**) y seguí con "La Oficina aprueba la empresa".
+5. Ya aprobada, **Publicar**: completá la oferta (1 a 3 rubros; la dirección del trabajo es obligatoria; el sueldo es opcional) → Enviar oferta.
+6. **Mis ofertas** (`/empresa/ofertas`): la oferta aparece **Pendiente**.
+7. Salí (botón **Salir**).
+
+### La Oficina aprueba la empresa
+1. `/admin/ingresar` con la cuenta de la Oficina → menú **Empresas por aprobar** (o `/admin/empresas?vista=pendientes`).
+2. Abrí la empresa → **Aprobar empresa**. Para ver el rechazo, con otra empresa pendiente: **Rechazar**, elegí un motivo, sumá una observación si querés y confirmá.
+3. La empresa entra de nuevo: si la aprobaste, ya puede publicar; si la rechazaste, ve el motivo en su inicio y en **Empresa**. Si corrige sus datos, vuelve a quedar en revisión.
 
 ### La Oficina publica
-1. `/admin/ingresar` con la cuenta de la Oficina → Panel (`/admin`): "1 oferta para revisar".
-2. Tocalo → `/admin/ofertas?estado=pendiente` → abrí la oferta → **Publicar** y confirmá.
-3. La oferta pasa a Publicadas y **ya aparece en `/` y en `/ofertas`**.
-4. Para ver el rechazo: con otra oferta pendiente, **Rechazar** con un motivo. La empresa lo ve en "Mis ofertas".
+1. `/admin/ingresar` con la cuenta de la Oficina → Dashboard (`/admin`): "Ofertas por revisar: 1".
+2. Tocalo → `/admin/ofertas/por-revisar` → tocá la oferta → en el panel, **Aprobar**.
+3. La oferta pasa a Publicada y **ya aparece en `/` y en `/ofertas`**.
+4. Para ver el rechazo: con otra oferta pendiente, **Rechazar**, elegí un motivo de la lista (la observación es opcional) y confirmá. La empresa lo ve en "Mis ofertas".
 
 ### Rama postulante: hasta que se postula
 1. En `/` o en `/ofertas`, abrí la oferta publicada → **Postularme**.
 2. Sin sesión te ofrece **Ingresar** o **Crear cuenta**. Las dos vuelven a la oferta después.
-3. Si no subiste CV, te lo pide → **Subir mi CV** (`/postulante/cv`). Subí un PDF de hasta 5 MB y volvé a la oferta.
+3. Si no subiste CV, te lo pide → **Subir mi CV** (`/postulante/perfil#cv`). Subí un PDF de hasta 5 MB y volvé a la oferta.
 4. **Postularme** → "Te postulaste a esta oferta".
 5. **Postulaciones** (`/postulante/postulaciones`): aparece la oferta con la fecha, sin estado (RF1.2.4).
 
 ### La Oficina ve a quien se postuló
-`/admin/ofertas?estado=publicada` → la oferta → **Postulantes**:
-- el email de la persona;
-- **Ver CV**: se abre el PDF con un link que vence en un minuto;
-- el estado (Postulado, Pre-seleccionado, Derivado, No apto).
+`/admin/postulaciones/por-evaluar` ("Postulaciones nuevas") → tocá la postulación → **Evaluación**:
+- la oferta a la izquierda; a la derecha, la persona con sus datos, sus rubros y el CV en un visor (link firmado que vence en un minuto);
+- **Preseleccionar** o **Marcar no apto**. Las preseleccionadas pasan a **Por comunicar / derivar**, donde se marcan como **derivadas** después de hablar con la empresa.
 
 ### Dónde verlo en Supabase
 - Table Editor: `ofertas`, `oferta_rubros`, `postulaciones`, `postulantes` (el CV en las columnas `cv_*`), `empresas`, `perfiles`.

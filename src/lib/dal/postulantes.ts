@@ -7,13 +7,15 @@ import type { PerfilPostulante } from "@/lib/validation/postulante-perfil";
 import { rubroSchema } from "@/lib/validation/rubros";
 
 /** Columns of `postulantes` behind PerfilPostulante (P03). */
-const COLUMNAS_POSTULANTE = "nombre, apellido, telefono, dni, cv_ruta, cv_nombre, cv_tamano_bytes, cv_subido_el";
+const COLUMNAS_POSTULANTE = "nombre, apellido, telefono, direccion, dni, experiencia, cv_ruta, cv_nombre, cv_tamano_bytes, cv_subido_el";
 
 const filaPostulanteSchema = z.object({
   nombre: z.string().nullable(),
   apellido: z.string().nullable(),
   telefono: z.string().nullable(),
+  direccion: z.string().nullable(),
   dni: z.string().nullable(),
+  experiencia: z.string().nullable(),
   cv_ruta: z.string().nullable(),
   cv_nombre: z.string().nullable(),
   cv_tamano_bytes: z.number().nullable(),
@@ -31,7 +33,9 @@ export type ResultadoLeerPerfilPostulante = {
   nombre: string | null;
   apellido: string | null;
   telefono: string | null;
+  direccion: string | null;
   dni: string | null;
+  experiencia: string | null;
   rubros: { slug: string; nombre: string }[];
   tieneCv: boolean;
 };
@@ -69,7 +73,9 @@ export async function leerPerfilPostulante(postulanteId: string): Promise<Result
     nombre: fila.nombre,
     apellido: fila.apellido,
     telefono: fila.telefono,
+    direccion: fila.direccion,
     dni: fila.dni,
+    experiencia: fila.experiencia,
     rubros,
     tieneCv: fila.cv_ruta !== null,
   };
@@ -77,14 +83,24 @@ export async function leerPerfilPostulante(postulanteId: string): Promise<Result
 
 export type ResultadoGuardarPostulante = { ok: true };
 
-export async function guardarPerfilPostulante(postulanteId: string, perfil: PerfilPostulante): Promise<ResultadoGuardarPostulante> {
+/** What P03 saves. `experiencia` undefined leaves it as it is; null erases it. */
+export type DatosGuardarPerfilPostulante = Omit<PerfilPostulante, "experiencia"> & { experiencia?: string | null };
+
+export async function guardarPerfilPostulante(
+  postulanteId: string,
+  perfil: DatosGuardarPerfilPostulante,
+): Promise<ResultadoGuardarPostulante> {
   const supabase = await createClient();
 
   // 1. Update personal data
   const { error: errUpdate } = await supabase
     .from("postulantes")
     .update({
+      nombre: perfil.nombre,
+      apellido: perfil.apellido,
       telefono: perfil.telefono,
+      direccion: perfil.direccion,
+      ...(perfil.experiencia !== undefined ? { experiencia: perfil.experiencia } : {}),
     })
     .eq("id", postulanteId);
 
@@ -125,7 +141,7 @@ export async function guardarPerfilPostulante(postulanteId: string, perfil: Perf
 
 /**
  * Checks if the applicant has filled in all mandatory fields to apply to an offer.
- * The applicant must have nombre, apellido, telefono, dni, and at least one rubro.
+ * The applicant must have nombre, apellido, telefono, direccion, dni, and at least one rubro (D-070).
  */
 export async function perfilCompletoPostulante(postulanteId: string): Promise<boolean> {
   const perfil = await leerPerfilPostulante(postulanteId);
@@ -135,6 +151,7 @@ export async function perfilCompletoPostulante(postulanteId: string): Promise<bo
     perfil.nombre !== null &&
     perfil.apellido !== null &&
     perfil.telefono !== null &&
+    perfil.direccion !== null &&
     perfil.dni !== null &&
     perfil.rubros.length > 0
   );
@@ -150,10 +167,14 @@ export type ResultadoBusquedaPostulante = {
   nombre: string | null;
   apellido: string | null;
   telefono: string | null;
+  /** Street and number or area of Funes (D-070); only the Office sees it. */
+  direccion: string | null;
   dni: string | null;
   email: string | null;
   rubros: string[];
   cvSubidoEl: string | null;
+  /** Work experience (RF1.6.7); only the Office sees it. */
+  experiencia: string | null;
 };
 
 const filaBusquedaSchema = z.object({
@@ -161,7 +182,9 @@ const filaBusquedaSchema = z.object({
   nombre: z.string().nullable(),
   apellido: z.string().nullable(),
   telefono: z.string().nullable().optional(),
+  direccion: z.string().nullable().optional(),
   dni: z.string().nullable().optional(),
+  experiencia: z.string().nullable(),
   cv_subido_el: z.string().nullable(),
   perfiles: z.object({ email: z.string().nullable() }).nullable().optional(),
   postulante_rubros: z.array(
@@ -188,7 +211,9 @@ export async function buscarPostulantes(
     nombre,
     apellido,
     telefono,
+    direccion,
     dni,
+    experiencia,
     cv_subido_el,
     perfiles ( email ),
     postulante_rubros (
@@ -222,9 +247,11 @@ export async function buscarPostulantes(
       nombre: row.nombre,
       apellido: row.apellido,
       telefono: row.telefono ?? null,
+      direccion: row.direccion ?? null,
       dni: row.dni ?? null,
       email: row.perfiles?.email ?? null,
       cvSubidoEl: row.cv_subido_el,
+      experiencia: row.experiencia,
       rubros,
     };
   });
@@ -244,7 +271,9 @@ export async function leerPerfilPostulanteAdmin(postulanteId: string): Promise<R
     nombre,
     apellido,
     telefono,
+    direccion,
     dni,
+    experiencia,
     cv_subido_el,
     perfiles ( email ),
     postulante_rubros (
@@ -267,9 +296,20 @@ export async function leerPerfilPostulanteAdmin(postulanteId: string): Promise<R
     nombre: row.nombre,
     apellido: row.apellido,
     telefono: row.telefono ?? null,
+    direccion: row.direccion ?? null,
     dni: row.dni ?? null,
     email: row.perfiles?.email ?? null,
     cvSubidoEl: row.cv_subido_el,
+    experiencia: row.experiencia,
     rubros,
   };
+}
+
+/** How many applicants have an account (P14, D-051). Office accounts have no row here (docs/modelo_datos.md). */
+export async function contarPostulantes(): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase.from("postulantes").select("id", { count: "exact", head: true });
+
+  if (error) throw new Error("Could not count the applicants.");
+  return count ?? 0;
 }

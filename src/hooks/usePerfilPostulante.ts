@@ -20,6 +20,7 @@ export function usePerfilPostulante() {
   const [errorGuardado, setErrorGuardado] = useState<string | null>(null);
 
   const perfil = datos && datos.nombre ? datos : null;
+  const dni = datos?.dni ?? null;
 
   async function guardar(perfilData: PerfilPostulante): Promise<boolean> {
     setGuardando(true);
@@ -42,6 +43,7 @@ export function usePerfilPostulante() {
 
   return {
     perfil,
+    dni,
     loading,
     error,
     sinAcceso,

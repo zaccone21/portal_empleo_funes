@@ -1,35 +1,34 @@
 import { expect, test } from "@playwright/test";
 
-import { completarIngreso, credenciales, ingresarComo } from "./ayudas";
+import { completarIngreso, ingresarComo } from "./ayudas";
 
 // Session-aware navigation (D-028) with Supabase Auth and the test accounts.
 
-test("a company lands on its home, sees its menu and can log out", async ({ page, isMobile }) => {
+test("a company lands on its home, sees its menu and can log out", async ({ page }) => {
   await ingresarComo(page, "empresa");
   await expect(page).toHaveURL("/empresa");
 
   // On phones the menu is the bottom bar; on desktop, the top bar. Only one is visible.
   await expect(page.getByRole("link", { name: "Publicar", exact: true }).filter({ visible: true })).toHaveCount(1);
-  if (!isMobile) {
-    await expect(page.getByText(credenciales("empresa").email)).toBeVisible();
-  }
 
-  await page.getByRole("button", { name: "Salir" }).click();
+  // "Salir" is in "Mi cuenta", on the top bar on phones too (D-065).
+  await page.getByRole("button", { name: "Mi cuenta" }).click();
+  await page.getByRole("menuitem", { name: "Salir" }).click();
   await expect(page).toHaveURL("/empresa/ingresar");
   await expect(page.getByText("Saliste de tu cuenta.")).toBeVisible();
 });
 
 test("a private screen without a session asks to log in and comes back afterwards", async ({ page }) => {
-  await page.goto("/postulante/cv");
-  await expect(page.getByText("Ingresá para subir tu CV")).toBeVisible();
+  await page.goto("/postulante/postulaciones");
+  await expect(page.getByText("Ingresá para ver tus postulaciones")).toBeVisible();
 
   await page.getByRole("main").getByRole("link", { name: "Ingresar" }).click();
   await expect(page).toHaveURL(/\/postulante\/ingresar\?volver=/);
 
   await completarIngreso(page, "postulante");
 
-  await expect(page).toHaveURL("/postulante/cv");
-  await expect(page.getByRole("heading", { name: /Subí tu CV|Reemplazar tu CV/ })).toBeVisible();
+  await expect(page).toHaveURL("/postulante/postulaciones");
+  await expect(page.getByRole("heading", { name: "Mis postulaciones" })).toBeVisible();
 });
 
 test("a wrong email is rejected without saying whether the account exists", async ({ page }) => {

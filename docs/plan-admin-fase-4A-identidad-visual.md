@@ -1,3 +1,5 @@
+> **Documento histórico (2026-10-18).** Sirvió para el rediseño de la Oficina (D-042) y ya no describe el código actual. No son reglas vigentes: las reglas están en `AGENTS.md` y `.agents/rules/`, las decisiones en `docs/DECISIONS.md` y el diseño en `docs/DESIGN.md`.
+
 Vas a recibir dos instrucciones seguidas. Tratalas como un solo encargo:
 primero las decisiones vigentes y la Fase 4 (Ofertas), después la Fase 4A
 (identidad visual y correcciones). Ejecutá en este orden: 4A → Fase 4 → Fase 5.

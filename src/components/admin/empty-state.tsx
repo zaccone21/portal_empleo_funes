@@ -1,24 +1,21 @@
-import { ReactNode } from "react";
-import { FolderSearch } from "lucide-react";
+import { SearchX } from "lucide-react";
+import type { ReactNode } from "react";
 
 type Props = {
   titulo: string;
   descripcion: string;
+  /** Next step for the person (a link or a button). */
   children?: ReactNode;
 };
 
-/**
- * Estado vacío para las tablas y colas de trabajo cuando no hay resultados.
- */
+/** Sober empty state for a table or queue: gray icon, message and next step (D-042). */
 export function EmptyState({ titulo, descripcion, children }: Props) {
   return (
-    <div className="flex flex-col items-center justify-center p-8 text-center min-h-[300px] border border-dashed rounded-lg bg-card text-card-foreground">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-secondary-foreground mb-4">
-        <FolderSearch className="size-6" />
-      </div>
-      <h3 className="text-lg font-semibold tracking-tight">{titulo}</h3>
-      <p className="text-sm text-muted-foreground mt-1 max-w-sm">{descripcion}</p>
-      {children && <div className="mt-6">{children}</div>}
+    <div className="flex flex-col items-center justify-center gap-1 px-6 py-14 text-center">
+      <SearchX className="mb-2 size-8 text-muted-foreground/60" aria-hidden="true" />
+      <h3 className="text-[14px] font-bold text-foreground">{titulo}</h3>
+      <p className="max-w-sm text-[13px] text-muted-foreground">{descripcion}</p>
+      {children && <div className="mt-3">{children}</div>}
     </div>
   );
 }

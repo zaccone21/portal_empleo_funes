@@ -11,7 +11,7 @@ test("an applicant uploads a CV, applies to an offer and sees it in their applic
   try {
     await ingresarComo(page, "postulante");
 
-    await page.goto("/postulante/cv");
+    await page.goto("/postulante/perfil#cv");
     await page.locator("#archivo-cv").setInputFiles(PDF_DE_PRUEBA);
     await page.getByRole("button", { name: /^(Subir|Reemplazar) CV$/ }).click();
     await expect(page.getByText("Listo, subiste tu CV.")).toBeVisible();

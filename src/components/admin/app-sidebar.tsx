@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
+import { LogoMunicipalidad } from "@/components/marca/LogoMunicipalidad";
 import {
   Sidebar,
   SidebarContent,
@@ -12,76 +13,63 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { MENU_ADMIN } from "@/features/navegacion/config";
+import { itemActivo, MENU_ADMIN, type ConteoMenu } from "@/features/navegacion/config";
 
 import { NavUser } from "./nav-user";
 
 type Props = {
-  conteos: {
-    ofertasPendientes: number;
-    postulacionesNuevas: number;
-    cierresSolicitados: number;
-    porDerivar: number;
-  };
+  conteos: Record<ConteoMenu, number>;
   emailUsuario: string;
 };
 
-import { LogoMunicipalidad } from "@/components/marca/LogoMunicipalidad";
-
+/**
+ * Sidebar of the Office (D-042): 232 px, collapsible to a 56 px icon rail,
+ * group labels, one active item and attention counters that only show when
+ * the value is greater than 0.
+ */
 export function AppSidebar({ conteos, emailUsuario }: Props) {
-  const rutaActual = usePathname();
-  const parametros = useSearchParams();
-  const queryStr = parametros.toString();
-  const urlActualCompleta = queryStr ? `${rutaActual}?${queryStr}` : rutaActual;
+  const activo = itemActivo(usePathname());
 
   return (
-    <Sidebar variant="inset" className="bg-primary/5">
-      <SidebarHeader>
-        <div className="flex flex-col gap-4 px-4 py-4 border-b border-primary/10 mb-2">
-          <LogoMunicipalidad variante="color" className="h-6 w-auto object-contain" />
-          <div className="flex flex-col leading-tight">
-            <span className="font-semibold text-primary text-sm uppercase tracking-wide">Oficina de Empleo</span>
-          </div>
+    <Sidebar collapsible="icon" className="border-r border-border">
+      <SidebarHeader className="px-2.5 pt-3.5 pb-0 group-data-[collapsible=icon]:hidden">
+        {/* The logo already says "Gobierno de la Ciudad de Funes": under it, only the area's name. */}
+        <div className="flex flex-col gap-2.5 px-2 pt-0.5 pb-3">
+          <LogoMunicipalidad variante="color" className="h-8 w-auto self-start" />
+          <span className="border-t border-border pt-2.5 font-heading text-[15px] leading-tight font-semibold text-foreground">
+            Oficina de Empleo
+          </span>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="px-2.5 group-data-[collapsible=icon]:pt-3.5">
         {MENU_ADMIN.map((grupo) => (
-          <SidebarGroup key={grupo.titulo}>
-            <SidebarGroupLabel>{grupo.titulo}</SidebarGroupLabel>
+          <SidebarGroup key={grupo.titulo} className="p-0">
+            <SidebarGroupLabel className="h-auto px-2 pt-3 pb-1 text-[10px] font-medium tracking-[0.09em] text-muted-foreground uppercase">
+              {grupo.titulo}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className="gap-px">
                 {grupo.items.map((item) => {
-                  let activo = false;
-                  if (item.url === "/admin") {
-                    activo = urlActualCompleta === "/admin";
-                  } else if (item.url.includes("?")) {
-                    activo = urlActualCompleta === item.url;
-                  } else {
-                    // For base routes like /admin/ofertas, we want it active on exact match 
-                    // or subroutes, BUT only if it's the exact same menu item (since multiple items point to /admin/ofertas).
-                    // This is tricky if multiple links go to the same base url.
-                    // For now, require exact match if there's multiple, or just let them be highlighted.
-                    // Actually, if urlActualCompleta === item.url, it's a direct match.
-                    activo = urlActualCompleta === item.url || (rutaActual.startsWith(item.url + "/") && queryStr === "");
-                  }
-                  const cantidad = item.idConteo ? conteos[item.idConteo] : undefined;
+                  const cantidad = item.idConteo ? conteos[item.idConteo] : 0;
                   return (
-                    <SidebarMenuItem key={item.titulo}>
-                      <SidebarMenuButton 
-                        render={<Link href={item.url} />} 
-                        isActive={activo} 
+                    <SidebarMenuItem key={item.url}>
+                      <SidebarMenuButton
+                        render={<Link href={item.url} />}
+                        isActive={activo?.url === item.url}
                         tooltip={item.titulo}
+                        className="h-auto gap-[9px] rounded-[7px] px-2 py-[7px] text-[13px] text-sidebar-foreground hover:bg-sidebar-accent/50 data-active:font-semibold data-active:hover:bg-sidebar-accent [&_svg]:opacity-60 data-active:[&_svg]:opacity-100"
                       >
-                        <item.icono className="size-4" />
+                        <item.icono className="size-4" aria-hidden="true" />
                         <span>{item.titulo}</span>
+                        {cantidad > 0 && (
+                          <span className="ml-auto shrink-0 rounded-full bg-attention px-[7px] text-[11px] font-bold text-attention-foreground tabular-nums group-data-[collapsible=icon]:hidden">
+                            {cantidad}
+                          </span>
+                        )}
                       </SidebarMenuButton>
-                      {cantidad !== undefined && cantidad > 0 && (
-                        <SidebarMenuBadge>{cantidad}</SidebarMenuBadge>
-                      )}
                     </SidebarMenuItem>
                   );
                 })}
@@ -90,7 +78,7 @@ export function AppSidebar({ conteos, emailUsuario }: Props) {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="px-2.5 pb-3.5">
         <NavUser email={emailUsuario} />
       </SidebarFooter>
     </Sidebar>

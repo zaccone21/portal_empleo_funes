@@ -47,23 +47,9 @@ Cómo se salda:
 - Reemplazar el cuerpo de todas las rutas simuladas por Route Handler → caso de uso → DAL (D-018), con `getCurrentUser()` y 401 sin sesión, respetando los contratos de D-020, D-024, D-026, D-027 y D-028. En `/api/auth/*`, usar Supabase Auth.
 - Crear los usuarios de prueba en el proyecto de desarrollo de Supabase para los e2e (`e2e/ayudas.ts`).
 - Agregar RLS y sus tests.
-
-### DT-013 — "Paso 0" omitido (Policies de RLS para Admin)
-Fecha: 2026-10-02
-Qué: El plan de rediseño original pedía crear una migración de base de datos ("Paso 0") para agregar políticas de RLS `SELECT` que permitieran a la Oficina de Empleo ver los perfiles, rubros y datos personales de todos los postulantes.
-Por qué no se hizo: Al revisar las migraciones existentes (`20260929120100`, `20260929120200`, `20260929120400`), se descubrió que ya existían políticas de lectura basadas en `private.es_admin()` para `postulantes`, `postulante_rubros`, `postulaciones` y `perfiles`. El "Paso 0" era redundante, por lo que se salteó intencionalmente.
-Cómo se salda: Nada. Se registra aquí como evidencia de un descubrimiento del modelo de datos actual.
-
-### DT-014 — Fallos en tests de Vitest de los Formularios (Testing Library, labels y Base UI)
-Fecha: 2026-10-02
-Qué: Los tests de `FormularioPerfilEmpresa`, `FormularioRegistro`, `FormularioRecuperarContrasena` y `FormularioOferta` dejaron de pasar en `vitest` porque `TestingLibraryElementError: Unable to find a label with the text...`
-Por qué quedó así: Al agregar `maxLength` y `type` a `CampoTexto`, el componente `<Input>` (de Base UI) dejó de ser localizable por su label *exacto* en ciertos tests, sumado a problemas de codificación de caracteres en los archivos de test (p.ej. `Razón social` escrito como `Razn social`). Se intentó parchear `FormularioPerfilEmpresa.test.tsx` y `FormularioRegistro.test.tsx` con expresiones regulares (`new RegExp`), pero por limitaciones en cómo se aplicaron o por la forma en que Testing Library matchea los spans internos (`*` de campo obligatorio), los errores persistieron. Además, se introdujeron dependencias de `cookies()` en tests de `use-cases` que no estaban bien mockeadas en `empresa.test.ts` y `postulante.test.ts`. 
-Cómo se salda: 
-1. Limpiar los archivos de tests de errores de codificación (`Razn social` -> `Razón social`).
-2. Actualizar las querys a Testing Library (p.ej. usar `getByRole('textbox', { name: /CUIT/i })` en vez de `getByLabelText`).
-3. En `postulante.test.ts` y `empresa.test.ts`, refinar los mocks del DAL (`perfilCompletoPostulante` y `leerPerfilEmpresa`) para evitar llamadas a `cookies()` en todos los escenarios.
 - Borrar `src/mocks/` y `src/app/playground/ofertas/page.tsx` (previa consulta).
 - Revisar los e2e (`postulacion.spec.ts`, `empresa.spec.ts`, `sesion.spec.ts`, `catalogo.spec.ts`, `oficina.spec.ts`): hoy asumen la memoria compartida del servidor simulado y los datos de ejemplo (por ejemplo, las ofertas `ejemplo-1` y `ejemplo-2`, o que haya una sola oferta de jardinería).
+*(Las dos últimas líneas estaban pegadas por error en DT-014; se devolvieron acá el 2026-10-18.)*
 
 ### DT-004 — Reglas provisorias del CV
 Fecha: 2026-09-28 · Origen: D-026
@@ -94,6 +80,7 @@ Cómo se salda:
 - Cuando exista P03, sumar los datos del postulante (D-032) a `PostulacionOficina` y a `PostulantesDeOferta`, sin exponerlos a la empresa.
 - Si más adelante hace falta auditoría o transiciones fijas, es una decisión nueva que reemplaza esa parte de D-032.
 - **Saldado parcialmente (2026-10-06):** P16 se construyó y se sumó "Postulantes" al menú.
+- **Saldado parcialmente (2026-10-18):** con la "Mesa de trabajo" (D-042) la Oficina ve nombre, apellido, DNI, teléfono, rubros y CV de cada postulante, y las transiciones son fijas (`puedeTransicionarPostulacion`). Los indicadores se resuelven con D-051. Queda abierto solo el registro de qué operadora hizo cada cambio (fuera de la entrega, D-052).
 
 ### DT-007 — El estado de la postulación está en la tabla que lee el postulante
 Fecha: 2026-09-29 · Origen: D-032
@@ -108,6 +95,7 @@ Cómo se salda, con una de dos opciones:
 - mover `estado` a una tabla aparte (por ejemplo `evaluaciones`, 1 a 1 con `postulaciones`) que solo lee y escribe la Oficina;
 - o dar permiso de lectura por columna sin `estado` y que la Oficina lo lea con una función propia.
 En los dos casos hay que ajustar el DAL de la Oficina y sumar un test pgTAP que pruebe que el postulante no puede leer el estado.
+*Nota 2026-10-18:* la migración de la Etapa 2 suma a la misma fila la preentrevista y la decisión de la empresa (D-045, D-044). Se aplica la misma regla: el DTO del postulante no las trae (AGENTS §7). Se resuelve junto con esta deuda si hay tiempo; si no, queda documentado para la defensa.
 
 ### DT-008 — La base no tiene tipos generados; el DAL valida cada fila con Zod
 Fecha: 2026-09-29 · Origen: D-035
@@ -139,6 +127,7 @@ Qué:
 
 Por qué quedó: es la forma más directa de probar el flujo real sin otra infraestructura.
 Cómo se salda: usar un proyecto de Supabase solo para los e2e (o la base local con la CLI), y una función de limpieza que borre las ofertas de prueba.
+*Nota 2026-10-18:* desde DT-015 la Oficina publica, rechaza y cierra **por su pantalla** (un navegador aparte con la cuenta de prueba), no por la API. Las ofertas de prueba se siguen acumulando como rechazadas o cerradas.
 
 ### DT-011 — El link del email se abre en el mismo navegador
 Fecha: 2026-09-29 · Origen: D-034
@@ -149,6 +138,7 @@ Qué:
 
 Por qué quedó: cambiar las plantillas es configuración del panel de Supabase.
 Cómo se salda: en Authentication → Emails, cambiar el link de las plantillas "Confirm signup" y "Reset password" por `{{ .SiteURL }}/acceso/confirmar?token_hash={{ .TokenHash }}&type=email` y `…&type=recovery` (ver `docs/como_probar.md`).
+*Nota 2026-10-20:* las plantillas listas para pegar, en español y con el link `token_hash`, están en `docs/plantillas-email/`. Usan `{{ .RedirectTo }}` en vez de `{{ .SiteURL }}`, para que el mismo proyecto sirva para `localhost` y Vercel (D-050). Se salda cuando el usuario las pegue en Supabase y pruebe abrir el email en otro dispositivo (`docs/como_probar.md`, paso 1.2.4).
 
 ### DT-012 — Documentos que quedan solo en la máquina del usuario
 Fecha: 2026-09-29 · Origen: pedido del usuario ("así no cargamos tanto el repo"), D-036
@@ -170,8 +160,46 @@ Qué se pierde:
 Por qué quedó: el usuario pidió dejar en local los documentos que no hacen falta en el repositorio.
 Cómo se salda: si el equipo necesita alguno, sacarlo de `.gitignore` y volver a agregarlo (o moverlo a una carpeta compartida fuera del repo). Si Antigravity no carga las notas ignoradas, llevar las preferencias a `~/.gemini/config/rules/`, que es global y no está en el repositorio.
 
+### DT-013 — "Paso 0" omitido (Policies de RLS para Admin)
+Fecha: 2026-10-02
+Qué: El plan de rediseño original pedía crear una migración de base de datos ("Paso 0") para agregar políticas de RLS `SELECT` que permitieran a la Oficina de Empleo ver los perfiles, rubros y datos personales de todos los postulantes.
+Por qué no se hizo: Al revisar las migraciones existentes (`20260929120100`, `20260929120200`, `20260929120400`), se descubrió que ya existían políticas de lectura basadas en `private.es_admin()` para `postulantes`, `postulante_rubros`, `postulaciones` y `perfiles`. El "Paso 0" era redundante, por lo que se salteó intencionalmente.
+Cómo se salda: Nada. Se registra aquí como evidencia de un descubrimiento del modelo de datos actual.
 
-### DT-013 — Problemas de codificación en tests y uso estricto del render prop en botones Base UI
+### DT-014 — Fallos en tests de Vitest de los Formularios (Testing Library, labels y Base UI)
+Fecha: 2026-10-02
+Qué: Los tests de `FormularioPerfilEmpresa`, `FormularioRegistro`, `FormularioRecuperarContrasena` y `FormularioOferta` dejaron de pasar en `vitest` porque `TestingLibraryElementError: Unable to find a label with the text...`
+Por qué quedó así: Al agregar `maxLength` y `type` a `CampoTexto`, el componente `<Input>` (de Base UI) dejó de ser localizable por su label *exacto* en ciertos tests, sumado a problemas de codificación de caracteres en los archivos de test (p.ej. `Razón social` escrito como `Razn social`). Se intentó parchear `FormularioPerfilEmpresa.test.tsx` y `FormularioRegistro.test.tsx` con expresiones regulares (`new RegExp`), pero por limitaciones en cómo se aplicaron o por la forma en que Testing Library matchea los spans internos (`*` de campo obligatorio), los errores persistieron. Además, se introdujeron dependencias de `cookies()` en tests de `use-cases` que no estaban bien mockeadas en `empresa.test.ts` y `postulante.test.ts`. 
+Cómo se salda: 
+1. Limpiar los archivos de tests de errores de codificación (`Razn social` -> `Razón social`).
+2. Actualizar las querys a Testing Library (p.ej. usar `getByRole('textbox', { name: /CUIT/i })` en vez de `getByLabelText`).
+3. En `postulante.test.ts` y `empresa.test.ts`, refinar los mocks del DAL (`perfilCompletoPostulante` y `leerPerfilEmpresa`) para evitar llamadas a `cookies()` en todos los escenarios.
+**Saldada (comprobado el 2026-10-18):** los tests de los cuatro formularios pasan; `npm run verify` está en verde.
+
+### DT-015 — Limpieza de código sin uso tras el rediseño de la Oficina (Etapa 0)
+Fecha: 2026-10-18 · Origen: pedido del usuario ("todo lo que estrictamente no aporte nada al proyecto, pero no borres nada por una causa temporal; no tomes e2e como fuente de verdad"), `docs/diagnostico-flujo.md`
+Qué se borró (37 archivos y código muerto dentro de otros):
+- **UI vieja de la Oficina:** `src/components/oficina/` entera (`AccionesOferta`, `DetalleOfertaOficina`, `EstadoPostulacion`, `GestionOfertas`, `PestanasEstado`, `PostulantesDeOferta`, `ResumenOficina`, `TarjetaOfertaOficina` y los tests `AccionesOferta.test.tsx` y `PostulantesDeOferta.test.tsx`) y su hook `src/hooks/useOficina.ts`.
+- **Restos del primer rediseño del admin:** `src/features/{empresas,ofertas,postulantes}/ui/*` (7 archivos), `src/components/admin/admin-breadcrumb.tsx`, `filter-bar.tsx`, `rubro-tile.tsx`, `table-skeleton.tsx` y `data-table/data-table.tsx` (tenía un cambio del usuario sin commitear, sobre un componente que ya nadie usaba).
+- **Campos de nombre y apellido del registro:** `src/components/formularios/CampoNombre.tsx`, `CampoApellido.tsx` y `nombreSchema`/`apellidoSchema` de `lib/validation/auth.ts`. Salieron del registro en el commit `1497d11`; el nombre y el apellido se cargan en Mi perfil (D-037).
+- **Copias sueltas de las plantillas de Supabase:** `src/lib/client.ts`, `src/lib/server.ts` y `src/lib/middleware.ts` (esta redirigía a `/auth/login`, que no existe). Las que se usan son las de `src/lib/supabase/`.
+- **Rutas de la API de la Oficina que no usaba la app:** `api/admin/resumen`, `api/admin/ofertas` (GET), `api/admin/ofertas/[id]/{publicacion,rechazo,cierre,postulaciones}`, `api/admin/postulaciones/[id]` (PATCH) y su `/cv`, y `api/admin/postulantes` (GET). La Oficina hace todo eso con Server Actions (`src/lib/actions/oficina.ts`, D-042). Queda solo `api/admin/postulantes/[id]/cv`, que abre el CV.
+- **Código muerto que solo usaban esas rutas:** los casos de uso `verResumen`, `verPostulantes`, `cambiarEstadoPostulacion`, `abrirCv` y `verEmpresa`; del DAL, `listarPostulacionesDeOferta`, `leerRutaCvDePostulacion` y `listarUltimasPostulaciones` (esta usaba `as unknown as`, prohibido por AGENTS §12); de la validación, `resumenOficinaSchema`, `postulacionOficinaSchema` y `cambioEstadoPostulacionSchema`; y las fechas `formatearFechaCorta`, `antiguedad` y `fechaConHora`.
+
+Qué se conservó a propósito: `src/lib/supabase/admin.ts` y `client.ts`, que hoy nadie importa pero son la infraestructura prevista (AGENTS §7; el plan de la consigna usa el cliente admin para mostrarle a la empresa sus candidatos derivados).
+
+Qué lo reemplaza:
+- La Oficina: las pantallas de `src/app/(admin)/admin/` con `components/admin/*`, Server Components que leen con `lib/admin/datos.ts` y deciden con Server Actions.
+- Los e2e ya no usan la API de la Oficina: `e2e/ayudas.ts` publica, rechaza y cierra **por la pantalla**, con una sesión de la Oficina en un navegador aparte (`publicarComoOficina`, `rechazarComoOficina`).
+
+Pérdida de cobertura: ninguna sobre código vivo. Los tests de los casos de uso borrados se reemplazaron por tests equivalentes de los que los reemplazan (`resolverPostulacion`, `abrirCvPostulante`, `getConteosAdmin`) en `use-cases/oficina.test.ts`. Los e2e actualizados **no se corrieron todavía** (ver `docs/diagnostico-flujo.md`).
+
+Deuda que queda abierta:
+- **Dos caminos para la misma arquitectura:** postulante y empresa siguen el camino hook → Route Handler → caso de uso (D-017, D-018). La Oficina usa Server Components que llaman al caso de uso y Server Actions (D-042), aunque AGENTS §5 y §6 dicen que las Server Actions se usan solo si el usuario las pide. Se ordena en la Etapa 1 (documentación): o AGENTS acepta las dos formas, o se unifica.
+- **`lib/admin/datos.ts` tapa errores:** si un caso de uso falla, muestra una lista vacía (`resultado.ok ? datos : []`) en vez de mostrar el error (AGENTS §12).
+
+### DT-016 — Problemas de codificación en tests y uso estricto del render prop en botones Base UI
+*Renumerada el 2026-10-18: antes era la segunda DT-013.*
 Fecha: 2026-10-02
 Qué: 
 - Algunos archivos de tests (como `FormularioNuevaContrasena.test.tsx`, `FormularioIngreso.test.tsx`, etc.) tenían caracteres corruptos por problemas de encoding al escribirse o modificarse en el sistema, lo que rompía las aserciones de Testing Library (`screen.getByLabelText("Contraseña")`). Se reescribieron los strings y expresiones regulares para esquivarlos o se corrigió su codificación con scripts de node `fs`.
@@ -179,16 +207,60 @@ Qué:
 Por qué quedó: Por el traspaso de configuraciones y diferencias de entorno/LLM; además, la skill de `shadcn` especifica Base UI pero componentes estándar a veces traían la sintaxis Radix `asChild` que rompía.
 Cómo se salda: Revisar de forma proactiva la sintaxis `render` en cualquier componente shadcn que dependa de `@base-ui` al instanciarse. Mantener precaución al editar archivos `.test.tsx` a través de CLI/PowerShell para evitar corrupciones de caracteres con ñ o tildes.
 
-### Pantalla Mi CV movida a Mi Perfil
+### DT-017 — Pantalla Mi CV movida a Mi Perfil
+*Renumerada el 2026-10-18: no tenía número.*
 Fecha: 2026-10-06
 Qué: Se borró la pantalla independiente `/postulante/cv` (`src/app/(postulante)/postulante/cv/page.tsx`).
 Por qué: El usuario solicitó unificar la gestión del CV dentro de la pantalla "Mi perfil" (`/postulante/perfil/page.tsx`) para que no aparezca en la barra de navegación sino como un complemento del perfil.
 Qué lo reemplaza: El componente `<MiCv>` ahora se renderiza directamente al final de la página `/postulante/perfil/page.tsx`. Los atajos que redirigían a la carga del CV (`AvisoPostulacion.tsx`, `AvisoCvFaltante.tsx`, `BotonPostularme.test.tsx` y `VistaPerfilPostulante.tsx`) ahora apuntan a `/postulante/perfil#cv` o `/postulante/perfil?oferta=<id>#cv`.
 Pérdida de cobertura: Ninguna. El comportamiento se mantiene y los tests de `BotonPostularme` fueron actualizados. Se puede probar entrando a Mi Perfil y viendo la sección Curriculum Vitae al final, o simulando una postulación sin CV para ver la redirección.
 
-### DT-014 � Eliminaci�n de pantalla y l�gica vieja de b�squeda de postulantes
+### DT-018 — Eliminación de pantalla y lógica vieja de búsqueda de postulantes
+*Renumerada el 2026-10-18: antes era la segunda DT-014.*
 Fecha: 2026-10-07
-Qu�: Se eliminaron los componentes de la vista vieja de postulantes (BusquedaPostulantes.tsx, FiltrosPostulantes.tsx, ListaPostulantes.tsx, ResumenPostulantes.tsx), su hook de cliente (useBusquedaPostulantes.ts), su l�gica de b�squeda (lib/busqueda-postulantes.ts) y sus tests asociados (BusquedaPostulantes.test.tsx, usqueda-postulantes.test.ts).
-Por qu�: El admin hizo la transici�n a un est�ndar SaaS (Fase 5) utilizando DataTable (con los componentes nuevos RegistroPostulantes.tsx y ColumnasPostulantes.tsx) y una ruta de detalle individual (/[id]), por lo que estos componentes de la interfaz de pantalla dividida quedaron hu�rfanos.
-Qu� lo reemplaza: dmin/postulantes/page.tsx usando RegistroPostulantes (Server Component que llama a uscarPostulantes).
-P�rdida de cobertura: Se perdieron las pruebas unitarias que apuntaban a los componentes viejos. Esto se salda testeando de manera unificada (idealmente con e2e) el nuevo RegistroPostulantes.
+Qué: Se eliminaron los componentes de la vista vieja de postulantes (BusquedaPostulantes.tsx, FiltrosPostulantes.tsx, ListaPostulantes.tsx, ResumenPostulantes.tsx), su hook de cliente (useBusquedaPostulantes.ts), su lógica de búsqueda (lib/busqueda-postulantes.ts) y sus tests asociados (BusquedaPostulantes.test.tsx, busqueda-postulantes.test.ts).
+Por qué: El admin hizo la transición a un estándar SaaS (Fase 5) utilizando DataTable (con los componentes nuevos RegistroPostulantes.tsx y ColumnasPostulantes.tsx) y una ruta de detalle individual (/[id]), por lo que estos componentes de la interfaz de pantalla dividida quedaron huérfanos.
+Qué lo reemplaza: admin/postulantes/page.tsx usando RegistroPostulantes (Server Component que llama a buscarPostulantes).
+Pérdida de cobertura: Se perdieron las pruebas unitarias que apuntaban a los componentes viejos. Esto se salda testeando de manera unificada (idealmente con e2e) el nuevo RegistroPostulantes.
+*Nota 2026-10-18: `RegistroPostulantes` también quedó sin uso y se borró (DT-015). Este archivo tenía líneas en Windows-1252 y caracteres de control que rompían los textos; se pasó entero a UTF-8.*
+
+### DT-019 — La empresa ve a sus derivados con el cliente admin, sin RLS propia
+Fecha: 2026-10-18 · Origen: D-044, migración `20261018200000`
+**Prioridad (2026-10-22): bloqueante. Se salda en la fase de seguridad, antes de los refactors del frontend y de la entrega.** El usuario descartó dejarla como excepción: no puede haber filtración de datos en ningún lugar del portal, y toda lectura o escritura de datos personales necesita dos barreras. Hoy no hay una fuga conocida (el caso de uso comprueba rol, dueño de la oferta y estado `derivado`, con tests), pero esa comprobación es la única barrera y nunca se probó con sesiones reales de dos empresas.
+Qué:
+- La empresa no tiene políticas RLS sobre `postulaciones` ni `postulantes`, ni sobre el bucket `cvs`. Para mostrarle sus candidatos derivados (P17), informar su decisión y abrir el CV, el caso de uso (`src/lib/use-cases/empresa.ts`) verifica el rol, que la oferta sea suya y que la postulación esté derivada, y el DAL usa el cliente admin (`src/lib/supabase/admin.ts`), que saltea RLS: `src/lib/dal/candidatos.ts` y `crearUrlFirmadaCvParaEmpresa` en `src/lib/dal/cv.ts`. Como segunda línea, la lista de candidatos filtra por empresa en la misma consulta.
+- Si el caso de uso se equivoca en ese control, la base no lo frena: es la única barrera para esas lecturas y escrituras (AGENTS §7 pide dos).
+- La decisión "una sola vez" la controla el caso de uso, y el `update` del DAL solo toca filas sin decisión (así dos respuestas a la vez no ganan las dos). La base no lo impide por sí sola.
+Por qué quedó: una política para la empresa tendría que exponer solo algunas columnas de `postulantes` y de `postulaciones` (no el DNI, la preentrevista ni el estado interno), y RLS filtra filas, no columnas (ver DT-007). Hacerlo bien lleva vistas o funciones propias, y no entra en el plazo de la entrega.
+Cómo se salda: una función `security definer` por operación (por ejemplo `candidatos_derivados(oferta_id)` y `decidir_candidato(postulacion_id, decision, motivo)`) que controle en la base que la oferta es de la empresa con sesión y devuelva o cambie solo las columnas permitidas; el DAL las llama con `rpc` y deja de usar el cliente admin. Sumar su test pgTAP.
+
+### DT-020 — Las cuentas de la Oficina se crean con el cliente admin y una contraseña temporal a la vista
+Fecha: 2026-10-20 · Origen: D-058
+**Prioridad (2026-10-22): entra en la fase de seguridad** junto con DT-019, por el mismo motivo (una sola barrera sobre una operación sensible: crear cuentas con rol `admin`). Las plantillas con `token_hash` ya están pegadas en el panel (2026-10-22), así que la invitación por email deja de estar bloqueada.
+Qué:
+- "Equipo" (P21) crea la cuenta de una operadora con el cliente admin (`src/lib/dal/equipo.ts`): `auth.admin.createUser`, después cambia `perfiles.rol` a `admin` y borra la fila de `postulantes` que crea el trigger `crear_perfil`. El único control es el caso de uso (`src/lib/use-cases/equipo.ts`), que exige el rol `admin`; la base no lo repite (AGENTS §7 pide dos barreras).
+- Son tres pasos sin transacción. Si falla el segundo o el tercero, el DAL borra el usuario recién creado; si también falla ese borrado, queda una cuenta a medias que hay que arreglar a mano en Supabase.
+- La contraseña temporal viaja en la respuesta de la Server Action y se muestra una vez en pantalla. No se obliga a cambiarla: la operadora lo hace desde "Cambiar mi contraseña".
+- No queda registro de qué operadora creó cada cuenta (como DT-006).
+Por qué quedó: el usuario pidió que la Oficina pueda crear cuentas sin borrarlas, a dos semanas de la entrega. Mandar una invitación por email depende de las plantillas con `token_hash` (DT-011), que todavía no están en el panel.
+Cómo se salda: una función `security definer` `crear_cuenta_oficina(email)` que controle en la base que quien la llama es admin y haga los pasos en una transacción; invitación por email en vez de contraseña temporal, cuando las plantillas estén pegadas; una columna `creada_por` en `perfiles`, y un test pgTAP.
+
+### DT-021 — Las 850 ubicaciones previas de la Oficina están fijas en el código
+Fecha: 2026-10-22 · Origen: D-067
+Qué:
+- La cifra de la portada suma `CONTRATACIONES_ANTES_DEL_PORTAL = 850` (`src/lib/use-cases/inicio.ts`) a las contrataciones que cuenta la base. Si la Oficina corrige ese número, hay que cambiar el código y volver a desplegar.
+- No está confirmado desde qué año cuenta la Oficina ese número.
+Por qué quedó: es un solo valor que no cambia en el día a día; guardarlo en la base sumaba una tabla y una pantalla para editarlo (memoria "mvp-minimal-schema").
+Cómo se salda: si la Oficina necesita actualizarlo seguido, una fila de configuración en la base (migración) y un campo en el panel de la Oficina para editarlo.
+
+### DT-022 — Aprobación de empresas y motivos de rechazo: atajos de esta entrega
+Fecha: 2026-10-23 · Origen: D-068, D-069, D-070
+Qué:
+- **Motivo de rechazo como texto:** el rechazo de empresas y de ofertas elige un motivo de una lista fija, pero la base guarda la oración final en `motivo_rechazo` ("Motivo: observación"). No queda un código por motivo, así que no se puede contar "cuántas ofertas se rechazaron por falta de información" sin leer el texto.
+- **Una empresa aprobada no se revoca:** el trigger no permite `aprobada → rechazada`. Si una empresa aprobada resulta ser un problema, hoy se resuelve a mano en el SQL Editor (el trigger deja pasar las actualizaciones sin sesión) y sus ofertas publicadas no se tocan.
+- **La Oficina puede aprobar las ofertas pendientes de una empresa que volvió a "pendiente"** (por cambiar su CUIT): moderar ofertas y aprobar empresas son dos decisiones separadas.
+- **`lugar` hace de "dirección":** la oferta no tiene una columna `direccion`; el campo `lugar` cambió de rótulo (D-070). Si algún día hace falta separar la calle de la zona (por ejemplo, para un mapa), es una migración.
+- **Las pruebas de la base no se corrieron:** `supabase/tests/empresas_aprobacion_rls.test.sql` (y el ajuste de `ofertas_rls.test.sql`) necesitan la CLI de Supabase, que el usuario no usa (como el resto de `supabase/tests/`).
+- **La evaluación de postulación no muestra la dirección:** solo la ficha del postulante; la pantalla de evaluación sigue como estaba.
+Por qué quedó: son el cambio mínimo que cumple el pedido del usuario a dos semanas de la entrega, sin sumar tablas ni columnas que no se usan todavía.
+Cómo se salda: una columna `motivo_rechazo_codigo` (o una tabla de motivos) si la Oficina quiere estadísticas; agregar la transición `aprobada → rechazada` con una pantalla de confirmación si la Oficina necesita revocar; correr los pgTAP cuando haya CLI.

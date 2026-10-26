@@ -1,11 +1,26 @@
+﻿import type { DecisionEmpresa } from "@/lib/validation/candidatos";
 import type { EstadoPostulacion } from "@/lib/validation/postulaciones";
+
+/**
+ * The company's answer about a referred application (D-044), as the Office
+ * sees it. "Sin respuesta" is a referral the company has not answered yet:
+ * the Office follows it up (D-054).
+ */
+export const DECISIONES_EMPRESA: Record<DecisionEmpresa | "sin_respuesta", {
+  etiqueta: string;
+  tono: "neutral" | "attention" | "success" | "danger";
+}> = {
+  contratado: { etiqueta: "Contratado", tono: "success" },
+  no_contratado: { etiqueta: "No contratado", tono: "danger" },
+  sin_respuesta: { etiqueta: "Sin respuesta de la empresa", tono: "attention" },
+};
 
 /** Acciones posibles sobre una postulación desde la Oficina de Empleo */
 export type AccionPostulacion = "preseleccionar" | "derivar" | "descartar" | "ver";
 
 export const ESTADOS_POSTULACION: Record<EstadoPostulacion, {
   etiqueta: string;
-  tono: "neutral" | "warning" | "success" | "danger";
+  tono: "neutral" | "attention" | "success" | "danger";
   descripcion: string;
   acciones: AccionPostulacion[];
 }> = {
@@ -17,7 +32,7 @@ export const ESTADOS_POSTULACION: Record<EstadoPostulacion, {
   },
   preseleccionado: {
     etiqueta: "Pre-seleccionado",
-    tono: "warning",
+    tono: "success",
     descripcion: "Perfil compatible, en proceso de contacto/evaluación",
     acciones: ["derivar", "descartar", "ver"],
   },

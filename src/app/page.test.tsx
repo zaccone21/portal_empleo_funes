@@ -38,11 +38,13 @@ test("the search works as a plain form to the catalog (even before JavaScript lo
   expect(screen.getByLabelText("¿Qué trabajo buscás?").getAttribute("name")).toBe("q");
 });
 
-test("offers a shortcut per trade and a way in for companies and the Office", async () => {
+// D-066: there is no "Para empresas" block any more; companies find their way in through the help.
+test("offers a shortcut per trade, the help (also for companies) and the Office's way in", async () => {
   render(await Home());
 
   expect(screen.getByRole("link", { name: "Gastronomía" }).getAttribute("href")).toBe("/ofertas?rubro=gastronomia");
-  expect(screen.getByRole("link", { name: "Registrar mi empresa" }).getAttribute("href")).toBe("/empresa/registrarse");
+  expect(screen.queryByRole("link", { name: "Registrar mi empresa" })).toBeNull();
+  expect(screen.getByRole("link", { name: "Ayuda y preguntas frecuentes" }).getAttribute("href")).toBe("/ayuda");
   expect(screen.getByRole("link", { name: "Ingreso para la Oficina de Empleo" }).getAttribute("href")).toBe(
     "/admin/ingresar",
   );

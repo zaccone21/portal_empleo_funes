@@ -5,11 +5,12 @@ import { PanelDetalle } from "@/components/marca/PanelDetalle";
 import { DatosOferta } from "@/components/ofertas/DatosOferta";
 import { EstadoOferta } from "@/components/ofertas/EstadoOferta";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { formatearDia } from "@/lib/fechas";
 import type { EstadoOferta as Estado, OfertaEmpresa } from "@/lib/validation/ofertas";
 
 import { BotonSolicitarCierre } from "./BotonSolicitarCierre";
+import { CandidatosDerivados } from "./CandidatosDerivados";
 
 /** What each status means for the company, in its words. */
 const EXPLICACION: Record<Estado, string> = {
@@ -36,16 +37,24 @@ type Props = {
  *    this field from the server.
  * 3. If the company asked to close it, that the offer stays published until
  *    the Office closes it (RF1.3.6).
- * 4. The offer as it was sent.
- * 5. A button to duplicate rejected offers (User Request).
+ * 4. On published and closed offers, the applicants the Office referred, with
+ *    the company's answer about each one (P17, D-044).
+ * 5. The offer as it was sent.
+ * 6. A button to duplicate rejected and closed offers (D-048).
  */
 export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) {
   const puedePedirCierre = oferta.estado === "publicada" && !oferta.cierreSolicitado;
+  const tieneCandidatos = oferta.estado === "publicada" || oferta.estado === "cerrada";
+  const hrefDuplicar = `/empresa/ofertas/nueva?duplicar=${encodeURIComponent(oferta.id)}`;
 
   const pie = puedePedirCierre ? (
     <BotonSolicitarCierre ofertaId={oferta.id} onSolicitado={onActualizada} />
   ) : oferta.estado === "rechazada" ? (
-    <Button nativeButton={false} render={<Link href={`/empresa/ofertas/nueva?duplicar=${oferta.id}`} />}>Modificar y volver a enviar</Button>
+    <Button nativeButton={false} render={<Link href={hrefDuplicar} />}>Modificar y volver a enviar</Button>
+  ) : oferta.estado === "cerrada" ? (
+    <Link href={hrefDuplicar} className={buttonVariants({ variant: "outline" })}>
+      Duplicar para buscar de nuevo
+    </Link>
   ) : undefined;
 
   return (
@@ -79,6 +88,7 @@ export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) 
           </AlertDescription>
         </Alert>
       )}
+      {tieneCandidatos && <CandidatosDerivados ofertaId={oferta.id} />}
       <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
       <section className="flex flex-col gap-2">
         <h3 className="text-lg font-semibold">Descripción del puesto</h3>

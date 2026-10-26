@@ -47,6 +47,7 @@ export function aOfertaOficina(oferta: OfertaConEmpresa): OfertaOficina {
     ...aOfertaEmpresa(oferta),
     motivoRechazo: oferta.motivoRechazo,
     publicadaEl: oferta.publicadaEl,
+    empresaId: oferta.empresaId,
     emailEmpresa: oferta.emailEmpresa,
     empresa: oferta.empresa && {
       razonSocial: oferta.empresa.razonSocial,

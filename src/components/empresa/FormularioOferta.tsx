@@ -158,8 +158,8 @@ export function FormularioOferta({ ofertaPrevia }: { ofertaPrevia?: DatosNuevaOf
         />
         <CampoTexto
           id="lugar"
-          label="Dónde es el trabajo"
-          descripcion="Barrio o zona de Funes."
+          label="Dirección del trabajo"
+          descripcion="Calle y número, o el barrio o la zona de Funes. Por ejemplo: San José 1500."
           defaultValue={ofertaPrevia?.lugar}
           error={errores.lugar?.[0]}
           maxLength={120}

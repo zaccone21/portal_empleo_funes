@@ -9,6 +9,7 @@ import { ErrorHttp, esSinAcceso, mensajeDeError, sendJson } from "@/lib/http";
 export type ResultadoPostulacion =
   | { tipo: "postulado" }
   | { tipo: "sin_sesion" }
+  | { tipo: "falta_perfil"; mensaje: string }
   | { tipo: "falta_cv"; mensaje: string }
   | { tipo: "error"; mensaje: string };
 
@@ -21,8 +22,8 @@ export type ResultadoPostulacion =
  *   is the same.
  * - 401 (nobody logged in) or 403 (logged in as a company or the Office) →
  *   "sin_sesion": the screen offers to log in as an applicant.
- * - 409: the applicant has no CV (RF1.4.4) → "falta_cv" with the server's
- *   message (the screen links to the CV upload, P04).
+ * - 409: either the applicant's profile is incomplete ("falta_perfil", links
+ *   to P03) or they have no CV ("falta_cv", RF1.4.4, links to P04 #cv).
  * - anything else → "error" with the message (D-013).
  *
  * `postularme` resolves to the result too, so the caller can react (for
@@ -56,6 +57,9 @@ function clasificarError(e: unknown): ResultadoPostulacion {
     return { tipo: "sin_sesion" };
   }
   if (e instanceof ErrorHttp && e.status === 409) {
+    if (/datos personales|mi perfil/i.test(e.message)) {
+      return { tipo: "falta_perfil", mensaje: e.message };
+    }
     return { tipo: "falta_cv", mensaje: e.message };
   }
   return { tipo: "error", mensaje: mensajeDeError(e) };

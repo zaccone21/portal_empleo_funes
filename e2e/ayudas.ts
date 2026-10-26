@@ -100,16 +100,69 @@ export async function crearOfertaPendiente(
   return { id: oferta.id, titulo };
 }
 
+/**
+ * Runs `pasos` as the test Office account in a browser of its own. The Office
+ * decides through its screens (Server Actions, D-042), like an operator does:
+ * there is no API for it.
+ */
+async function comoOficina(playwright: Playwright, pasos: (page: Page) => Promise<void>) {
+  const navegador = await playwright.chromium.launch();
+  try {
+    const contexto = await navegador.newContext({ baseURL: test.info().project.use.baseURL });
+    const page = await contexto.newPage();
+    await ingresarComo(page, "oficina");
+    await pasos(page);
+  } finally {
+    await navegador.close();
+  }
+}
+
+/** Opens the full page of an offer in the Office and waits until it shows its title. */
+async function abrirOfertaEnOficina(page: Page, id: string) {
+  await page.goto(`/admin/ofertas/${id}`);
+  await expect(page.getByRole("heading", { level: 2 })).toBeVisible({ timeout: 20_000 });
+}
+
+/** The Office publishes a pending offer (RF1.5.3). */
+export async function publicarComoOficina(playwright: Playwright, id: string) {
+  await comoOficina(playwright, async (page) => {
+    await abrirOfertaEnOficina(page, id);
+    await page.getByRole("button", { name: "Aprobar" }).click();
+    await expect(page.getByText(/Publicad[ao]/).first()).toBeVisible();
+  });
+}
+
+/** The Office rejects a pending offer with a reason the company will read (RF1.3.5, RF1.5.3). */
+export async function rechazarComoOficina(playwright: Playwright, id: string, motivo: string) {
+  await comoOficina(playwright, async (page) => {
+    await abrirOfertaEnOficina(page, id);
+    await page.getByRole("button", { name: "Rechazar" }).click();
+    const dialogo = page.getByRole("alertdialog");
+    // One of the fixed reasons (D-069), plus the note the company will read after it.
+    await dialogo.getByRole("radio", { name: "Falta información en la oferta" }).click();
+    await dialogo.getByLabel("Observación (opcional)").fill(motivo);
+    await dialogo.getByRole("button", { name: "Rechazar oferta" }).click();
+    await expect(page.getByText(/Rechazad[ao]/).first()).toBeVisible();
+  });
+}
+
+/** The Office closes a published offer whose company asked for it (RF1.5.4). */
+async function cerrarComoOficina(playwright: Playwright, id: string) {
+  await comoOficina(playwright, async (page) => {
+    await abrirOfertaEnOficina(page, id);
+    await page.getByRole("button", { name: "Cerrar oferta" }).click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Cerrar oferta" }).click();
+    await expect(page.getByText(/Cerrad[ao]/).first()).toBeVisible();
+  });
+}
+
 /** Creates an offer and has the test Office account publish it. */
 export async function crearOfertaPublicada(
   playwright: Playwright,
   datos: { titulo?: string; rubros?: string[] } = {},
 ): Promise<OfertaDePrueba> {
   const oferta = await crearOfertaPendiente(playwright, datos);
-  const oficina = await sesionApi(playwright, "oficina");
-  const respuesta = await oficina.post(`/api/admin/ofertas/${oferta.id}/publicacion`);
-  expect(respuesta.ok(), "publish the test offer").toBe(true);
-  await oficina.dispose();
+  await publicarComoOficina(playwright, oferta.id);
   return oferta;
 }
 
@@ -120,25 +173,19 @@ export async function crearOfertaPublicada(
  * closes). Rejected or closed ones are left as they are.
  */
 export async function retirarOferta(playwright: Playwright, id: string) {
-  const oficina = await sesionApi(playwright, "oficina");
+  const empresa = await sesionApi(playwright, "empresa");
   const ofertas = z
     .array(z.object({ id: z.string(), estado: z.string() }))
-    .parse(await (await oficina.get("/api/admin/ofertas")).json());
+    .parse(await (await empresa.get("/api/empresa/ofertas")).json());
   const estado = ofertas.find((oferta) => oferta.id === id)?.estado;
 
-  if (estado === "pendiente") {
-    const rechazo = await oficina.post(`/api/admin/ofertas/${id}/rechazo`, {
-      data: { motivo: "Oferta de un test automático." },
-    });
-    expect(rechazo.ok(), "reject the test offer").toBe(true);
-  }
   if (estado === "publicada") {
-    const empresa = await sesionApi(playwright, "empresa");
     expect((await empresa.post(`/api/empresa/ofertas/${id}/solicitud-cierre`)).ok(), "ask to close").toBe(true);
-    await empresa.dispose();
-    expect((await oficina.post(`/api/admin/ofertas/${id}/cierre`)).ok(), "close the test offer").toBe(true);
   }
-  await oficina.dispose();
+  await empresa.dispose();
+
+  if (estado === "pendiente") await rechazarComoOficina(playwright, id, "Oferta de un test automático.");
+  if (estado === "publicada") await cerrarComoOficina(playwright, id);
 }
 
 /** A tiny valid PDF (it starts with %PDF-, which the server checks). */

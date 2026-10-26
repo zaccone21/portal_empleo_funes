@@ -1,22 +1,35 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getCurrentUser } from "@/lib/dal/auth";
-import { verOferta } from "@/lib/use-cases/oficina";
-import { OfertaDetalleWrapper } from "@/features/ofertas/ui/OfertaDetalleWrapper";
 
-export const metadata: Metadata = { title: "Detalle de oferta" };
+import { FichaOferta } from "@/components/admin/ficha-oferta";
+import { operadorActual } from "@/lib/admin/datos";
+import { destinoEnCola } from "@/lib/admin/ofertas";
+import { leerDesde, urlCon, type ParamsBusqueda } from "@/lib/admin/url";
+import { verOferta, verOfertas, verPostulacionesAdmin } from "@/lib/use-cases/oficina";
 
-type Params = {
-  params: Promise<{ id: string }>;
-};
+export const metadata: Metadata = { title: "Oferta · Oficina de Empleo" };
 
-export default async function AdminOfertaDetallePage(props: Params) {
-  const params = await props.params;
-  const usuario = await getCurrentUser();
-  if (!usuario) return null; // El layout ya redirige
+/** Full page of one offer (D-062), with its applications and, from a queue, the way to the next one. */
+export default async function AdminOfertaPage(props: { params: Promise<{ id: string }>; searchParams: Promise<ParamsBusqueda> }) {
+  const { id } = await props.params;
+  const params = await props.searchParams;
+  const usuario = await operadorActual();
+  const desde = leerDesde(params);
 
-  const resultado = await verOferta(usuario, params.id);
-  if (!resultado.ok) return notFound();
+  const [resultado, resPostulaciones, resOfertas] = await Promise.all([
+    verOferta(usuario, id),
+    verPostulacionesAdmin(usuario),
+    verOfertas(usuario),
+  ]);
+  if (!resultado.ok) notFound();
 
-  return <OfertaDetalleWrapper oferta={resultado.datos} />;
+  return (
+    <FichaOferta
+      oferta={resultado.datos}
+      postulaciones={resPostulaciones.ok ? resPostulaciones.datos.filter((p) => p.oferta.id === id) : []}
+      volver={desde ?? "/admin/ofertas"}
+      aqui={urlCon(`/admin/ofertas/${id}`, params, {})}
+      destinoTrasDecidir={resOfertas.ok ? destinoEnCola(resOfertas.datos, id, desde) : undefined}
+    />
+  );
 }

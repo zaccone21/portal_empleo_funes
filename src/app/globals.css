@@ -50,6 +50,19 @@
   --color-brand-leaf: var(--brand-leaf);
   --color-brand-mint: var(--brand-mint);
   --color-brand-sun: var(--brand-sun);
+  --color-attention: var(--attention);
+  --color-attention-foreground: var(--attention-foreground);
+  --color-attention-card: var(--attention-card);
+  --color-attention-card-border: var(--attention-card-border);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-soft-foreground: var(--danger-soft-foreground);
+  --color-danger-soft-border: var(--danger-soft-border);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-neutral-soft-foreground: var(--neutral-soft-foreground);
+  --color-mint-soft: var(--mint-soft);
+  --color-row-hover: var(--row-hover);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -98,7 +111,7 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: #f3f4f6;
   --sidebar-foreground: #262b35;
   --sidebar-primary: #074a1f;
   --sidebar-primary-foreground: #ffffff;
@@ -115,6 +128,24 @@
   --brand-leaf: #3c8c4f;
   --brand-mint: #cfe6d3;
   --brand-sun: #f2c230;
+  /*
+   * Admin "Mesa de trabajo" (D-042): soft tones for status badges, counters and
+   * rows. Each pair keeps text/background contrast above 4.5:1. Surfaces reuse
+   * the municipal tokens (surface = muted, mint = accent, border, input).
+   */
+  --attention: #fbf0bd;
+  --attention-foreground: #6b5a05;
+  --attention-card: #fffdf3;
+  --attention-card-border: #e6d58a;
+  --success-soft: #dcefe2;
+  --success-soft-foreground: #0b4a25;
+  --danger-soft: #f6dfdb;
+  --danger-soft-foreground: #8a2a1f;
+  --danger-soft-border: #e3bdb7;
+  --neutral-soft: #eceef1;
+  --neutral-soft-foreground: #3d4350;
+  --mint-soft: #f0f6f2;
+  --row-hover: #f5f8f6;
 }
 
 .dark {

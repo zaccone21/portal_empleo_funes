@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 
-import { RegistroEmpresas } from "@/features/empresas/ui/RegistroEmpresas";
-import { getCurrentUser } from "@/lib/dal/auth";
-import { buscarEmpresas } from "@/lib/use-cases/oficina";
+import { VistaEmpresas } from "@/components/admin/vista-empresas";
+import { datosEmpresas } from "@/lib/admin/datos";
+import type { ParamsBusqueda } from "@/lib/admin/url";
 
-export const metadata: Metadata = { title: "Registro de empresas" };
+export const metadata: Metadata = { title: "Empresas · Oficina de Empleo" };
 
-export default async function AdminEmpresasPage(props: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const searchParams = await props.searchParams;
-  const usuario = await getCurrentUser();
-  if (!usuario) return null;
+export default async function AdminEmpresasPage(props: { searchParams: Promise<ParamsBusqueda> }) {
+  const params = await props.searchParams;
+  const { empresas } = await datosEmpresas();
 
-  const q = typeof searchParams.q === "string" ? searchParams.q : undefined;
-  
-  const resultado = await buscarEmpresas(usuario, { q });
-  if (!resultado.ok) return notFound();
-
-  return <RegistroEmpresas empresas={resultado.datos} />;
+  return <VistaEmpresas empresas={empresas} params={params} />;
 }

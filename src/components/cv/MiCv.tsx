@@ -67,7 +67,7 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
       <div className="flex flex-col gap-4">
-        {ofertaId && !recienSubido && (
+        {ofertaId && !recienSubido && !cv && (
           <Alert>
             <InfoIcon aria-hidden="true" />
             <AlertTitle className="text-base">Para postularte necesitás tu CV</AlertTitle>
@@ -97,8 +97,8 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold">¿Quién ve tu CV?</h2>
           <p className="text-base text-muted-foreground">
-            Solo la Oficina de Empleo. Las empresas no ven tus datos: la Oficina te contacta si tu
-            perfil encaja con una búsqueda.
+            La Oficina de Empleo. Si tu perfil encaja con una búsqueda, la Oficina te propone a esa
+            empresa, y entonces la empresa también puede verlo.
           </p>
         </div>
       </aside>

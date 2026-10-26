@@ -31,7 +31,7 @@ export const PASSWORD_MAX_LENGTH = 72;
  * only checks the format when the value is not empty, so an empty field shows
  * "Ingresá tu email" instead of "email inválido".
  */
-const emailSchema = z
+export const emailSchema = z
   .string({ error: "Ingresá tu email" })
   .trim()
   .min(1, "Ingresá tu email")
@@ -94,16 +94,6 @@ export const cuitSchema = z
     const nums = val.replace(/\D/g, "");
     return `${nums.slice(0, 2)}-${nums.slice(2, 10)}-${nums.slice(10, 11)}`;
   });
-
-export const nombreSchema = z
-  .string({ error: "Ingresá tu nombre" })
-  .trim()
-  .min(1, "Ingresá tu nombre");
-
-export const apellidoSchema = z
-  .string({ error: "Ingresá tu apellido" })
-  .trim()
-  .min(1, "Ingresá tu apellido");
 
 /** Body of POST /api/auth/registro. Discriminates between applicant (needs DNI) and company (needs CUIT). */
 export const registroPostulanteSchema = z.object({

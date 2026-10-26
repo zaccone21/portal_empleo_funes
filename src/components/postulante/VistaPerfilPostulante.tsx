@@ -1,4 +1,4 @@
-import { FileTextIcon, MailIcon, PhoneIcon } from "lucide-react";
+import { FileTextIcon, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,11 @@ type Props = {
     apellido: string;
     dni: string;
     telefono: string;
+    direccion: string;
     email?: string;
     rubros: Rubro[];
     tieneCv: boolean;
+    experiencia: string;
   };
   onEditar: () => void;
 };
@@ -52,6 +54,23 @@ export function VistaPerfilPostulante({ perfil, onEditar }: Props) {
             ) : (
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground">No se agregó teléfono</span>
+                <Button variant="link" onClick={onEditar} className="h-auto p-0 text-sm font-medium text-primary">
+                  Agregar
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3">
+          <MapPinIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-muted-foreground">Dirección</span>
+            {perfil.direccion ? (
+              <span className="font-medium">{perfil.direccion}</span>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">No agregaste tu dirección</span>
                 <Button variant="link" onClick={onEditar} className="h-auto p-0 text-sm font-medium text-primary">
                   Agregar
                 </Button>
@@ -107,6 +126,20 @@ export function VistaPerfilPostulante({ perfil, onEditar }: Props) {
             <span className="text-sm">No elegiste rubros todavía.</span>
             <Button variant="link" onClick={onEditar} className="h-auto p-0 text-sm font-medium text-primary">
               Elegir rubros
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-sm font-medium text-muted-foreground">Experiencia laboral</h3>
+        {perfil.experiencia ? (
+          <p className="text-base whitespace-pre-line text-foreground">{perfil.experiencia}</p>
+        ) : (
+          <div className="flex items-center gap-3 rounded-lg border border-dashed border-border/60 bg-muted/20 p-4 text-muted-foreground">
+            <span className="text-sm">Todavía no contaste dónde trabajaste.</span>
+            <Button variant="link" onClick={onEditar} className="h-auto p-0 text-sm font-medium text-primary">
+              Agregar experiencia
             </Button>
           </div>
         )}

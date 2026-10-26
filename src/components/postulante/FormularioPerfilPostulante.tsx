@@ -7,6 +7,7 @@ import { BotonEnviar } from "@/components/auth/BotonEnviar";
 import { ErrorDelServidor } from "@/components/auth/ErrorDelServidor";
 import { CampoTexto } from "@/components/formularios/CampoTexto";
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
@@ -25,18 +26,25 @@ type Props = {
     apellido: string;
     dni: string;
     telefono: string;
+    direccion: string;
     rubros: Rubro[];
+    experiencia: string;
   } | null;
+  /** DNI from the database row even when the profile has not been saved yet. */
+  dni?: string | null;
   onGuardar: (datos: PerfilPostulante) => Promise<boolean>;
+  /** Present when editing an already saved profile, so the user can cancel without saving. */
+  onCancelar?: () => void;
   guardando: boolean;
   error: string | null;
 };
 
 type Errores = Partial<Record<keyof PerfilPostulante, string[]>>;
 
-export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error }: Props) {
+export function FormularioPerfilPostulante({ perfil, dni, onGuardar, onCancelar, guardando, error }: Props) {
   const [errores, setErrores] = useState<Errores>({});
   const [rubrosElegidos, setRubrosElegidos] = useState<Rubro[]>(perfil?.rubros ?? []);
+  const dniVisible = perfil?.dni || dni;
 
   function cambiarRubro(rubro: Rubro, elegido: boolean) {
     setRubrosElegidos((actuales) => (elegido ? [...actuales, rubro] : actuales.filter((r) => r !== rubro)));
@@ -45,10 +53,14 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    
+
     const resultado = perfilPostulanteSchema.safeParse({
+      nombre: formData.get("nombre"),
+      apellido: formData.get("apellido"),
       telefono: formData.get("telefono"),
+      direccion: formData.get("direccion"),
       rubros: formData.getAll("rubros"),
+      experiencia: formData.get("experiencia") ?? "",
     });
 
     if (!resultado.success) {
@@ -68,19 +80,37 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
     >
       <FieldSet>
         <FieldLegend className="mb-4 font-heading font-semibold data-[variant=legend]:text-xl">Datos personales</FieldLegend>
-        
-        <div className="mb-6 flex flex-col gap-4 rounded-xl border bg-muted/40 p-4 sm:flex-row sm:gap-8">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-muted-foreground">Nombre completo</span>
-            <span className="text-base font-medium text-foreground">{perfil?.nombre} {perfil?.apellido}</span>
+
+        {dniVisible && (
+          <div className="mb-6 flex flex-col gap-0.5 rounded-xl border bg-muted/40 p-4">
+            <span className="text-sm font-medium text-muted-foreground">DNI registrado</span>
+            <span className="text-base font-medium text-foreground">{dniVisible}</span>
           </div>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-muted-foreground">DNI</span>
-            <span className="text-base font-medium text-foreground">{perfil?.dni}</span>
-          </div>
-        </div>
+        )}
 
         <FieldGroup className="gap-6">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <CampoTexto
+              id="nombre"
+              label="Nombre"
+              defaultValue={perfil?.nombre}
+              error={errores.nombre?.[0]}
+              autoComplete="given-name"
+              maxLength={80}
+              obligatorio
+            />
+
+            <CampoTexto
+              id="apellido"
+              label="Apellido"
+              defaultValue={perfil?.apellido}
+              error={errores.apellido?.[0]}
+              autoComplete="family-name"
+              maxLength={80}
+              obligatorio
+            />
+          </div>
+
           <CampoTexto
             id="telefono"
             label="Teléfono de contacto"
@@ -90,6 +120,18 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
             type="tel"
             autoComplete="tel"
             maxLength={30}
+            obligatorio
+          />
+
+          <CampoTexto
+            id="direccion"
+            label="Dirección"
+            descripcion="Calle y número, o la zona de Funes donde vivís. Por ejemplo: San José 1500."
+            defaultValue={perfil?.direccion}
+            error={errores.direccion?.[0]}
+            type="text"
+            autoComplete="street-address"
+            maxLength={100}
             obligatorio
           />
         </FieldGroup>
@@ -103,12 +145,12 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
           </span>
         </FieldLegend>
         <p className="mb-4 text-sm text-muted-foreground">Podés elegir todos los que quieras.</p>
-        
+
         <FieldGroup className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {RUBROS.map((rubro) => {
             const elegido = rubrosElegidos.includes(rubro);
             const id = `rubro-${rubro}`;
-            
+
             return (
               <Field
                 key={rubro}
@@ -143,9 +185,33 @@ export function FormularioPerfilPostulante({ perfil, onGuardar, guardando, error
         )}
       </FieldSet>
 
+      <FieldSet>
+        <FieldLegend className="mb-4 font-heading font-semibold data-[variant=legend]:text-xl">Experiencia laboral</FieldLegend>
+        <FieldGroup className="gap-6">
+          <CampoTexto
+            id="experiencia"
+            label="¿Dónde trabajaste y qué hacías? (opcional)"
+            descripcion="Por ejemplo: 2 años como ayudante de cocina en un restaurante del centro."
+            defaultValue={perfil?.experiencia}
+            error={errores.experiencia?.[0]}
+            multilinea
+            maxLength={2000}
+          />
+        </FieldGroup>
+      </FieldSet>
+
       <div className="flex flex-col gap-3">
         {error && <ErrorDelServidor error={error} />}
-        <BotonEnviar loading={guardando} texto="Guardar datos" textoCargando="Guardando..." />
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex-1">
+            <BotonEnviar loading={guardando} texto="Guardar datos" textoCargando="Guardando..." />
+          </div>
+          {onCancelar && (
+            <Button type="button" variant="outline" size="lg" onClick={onCancelar} disabled={guardando}>
+              Cancelar
+            </Button>
+          )}
+        </div>
       </div>
     </form>
   );

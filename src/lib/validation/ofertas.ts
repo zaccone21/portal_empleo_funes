@@ -38,7 +38,7 @@ export const ofertaPublicaSchema = z.object({
   descripcion: z.string(),
   /** What the person needs (experience, license, schedule availability…). */
   requisitos: z.string(),
-  /** Where the job is, as free text (neighborhood or area of Funes). */
+  /** Where the job is, as free text: street and number, or neighborhood or area of Funes (D-070). */
   lugar: z.string(),
   /** Working hours as free text, for example "Lunes a viernes de 8 a 16". */
   jornada: z.string(),
@@ -74,7 +74,7 @@ export const nuevaOfertaSchema = z.object({
   titulo: textoObligatorio("Ingresá el puesto que buscás", 120),
   descripcion: textoObligatorio("Contá qué tareas incluye el puesto", 3000),
   requisitos: textoObligatorio("Contá qué necesita tener la persona", 2000),
-  lugar: textoObligatorio("Indicá dónde es el trabajo", 120),
+  lugar: textoObligatorio("Indicá la dirección del trabajo", 120),
   jornada: textoObligatorio("Indicá los días y el horario", 120),
   /** Optional (D-032): an empty field means the offer shows no pay. */
   sueldo: z.string().trim().max(120, "Puede tener hasta 120 caracteres").optional(),

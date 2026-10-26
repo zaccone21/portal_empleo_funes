@@ -32,11 +32,16 @@ export async function obtenerPerfilPostulante(
   });
 }
 
+/** Saves P03. An empty experience field erases it; leaving it out keeps it (RF1.6.7). */
 export async function actualizarPerfilPostulante(usuario: CurrentUser, perfil: PerfilPostulante): Promise<Resultado<undefined>> {
   const negado = sinPermiso(usuario, "postulante");
   if (negado) return negado;
 
-  await guardarPerfilPostulante(usuario.id, perfil);
+  const { experiencia, ...resto } = perfil;
+  await guardarPerfilPostulante(usuario.id, {
+    ...resto,
+    ...(experiencia !== undefined ? { experiencia: experiencia || null } : {}),
+  });
   return exito(undefined);
 }
 
@@ -84,7 +89,7 @@ export async function postularme(usuario: CurrentUser, ofertaId: string): Promis
   }
   
   if (!(await perfilCompletoPostulante(usuario.id))) {
-    return falla("conflict", "Para postularte tenés que completar tus datos personales y elegir al menos un rubro en Mi perfil.");
+    return falla("conflict", "Para postularte tenés que completar tus datos personales (con tu dirección) y elegir al menos un rubro en Mi perfil.");
   }
   
   if (!(await leerCv(usuario.id))) {

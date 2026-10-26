@@ -21,14 +21,15 @@ type Props = {
  * publication date, plus "Te postulaste" when the logged-in applicant already
  * applied (D-028). The card is a link that opens the detail on the same page
  * (D-025) and keeps the search and filters in the URL, so going back returns
- * to the same results.
+ * to the same results. The title takes two lines and the facts one each, so
+ * every card is the same height (D-066).
  */
 export function TarjetaOferta({ oferta, href, seleccionada, soloEnEscritorio }: Props) {
   return (
     <TarjetaSeleccionable href={href} seleccionada={seleccionada} soloEnEscritorio={soloEnEscritorio}>
-      <h2 className="font-heading text-lg leading-snug font-semibold sm:text-xl">{oferta.titulo}</h2>
-      <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <h2 className="line-clamp-2 min-h-[2lh] font-heading text-lg leading-snug font-semibold sm:text-xl">{oferta.titulo}</h2>
+      <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} compacto />
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">Publicada el {formatearDia(oferta.publicadaEl)}</p>
         {oferta.yaTePostulaste && (
           <p className="flex items-center gap-1.5 text-sm font-semibold text-primary">

@@ -453,6 +453,293 @@ Decisión:
 - **Solo en la máquina del usuario:** las preferencias y el traspaso están en `.gitignore` (DT-012). Son del usuario, no del equipo, así que no se suben al repositorio.
 
 Motivo: que el cambio de herramienta no pierda reglas, decisiones ni la forma de trabajar acordada con el usuario.
+*2026-10-18: `AGENTS.md` volvió a pasar los 24 KB; las reglas de diseño de §10 ("Design System Compliance" a "UI Definition of Done") se movieron sin cambios a `.agents/rules/ui-y-accesibilidad.md`.*
+
+### D-037 — Para postularse hace falta el perfil completo
+Fecha: 2026-10-02 · Resuelve: la parte abierta de Q-009
+Decisión: para postularse, el postulante necesita su perfil completo (nombre, apellido, teléfono, DNI y al menos un rubro) y el CV. Si falta algo, `POST /api/postulaciones` responde 409 con un mensaje que dice qué completar en "Mi perfil".
+Motivo: la Oficina necesita poder contactar y evaluar a la persona; un CV solo no alcanza.
+*Registrada el 2026-10-18: estaba anotada al final de "Abiertas", sin formato.*
+
+### D-038 — Rubros del postulante sin tope
+Fecha: 2026-10-02
+Decisión: el postulante elige todos los rubros que quiera (RF1.2.2). La oferta sigue teniendo de 1 a 3 (D-032).
+*Registrada el 2026-10-18: estaba anotada al final de "Abiertas", sin formato.*
+
+### D-039 — Listas accionables en el panel de la Oficina
+Fecha: 2026-10-02
+Decisión: el panel de la Oficina (P14) muestra, además de los indicadores, las tareas pendientes más antiguas (ofertas por revisar, pedidos de cierre y postulaciones nuevas). Con la "Mesa de trabajo" (D-042) quedaron en la lista "Para resolver hoy".
+*Registrada el 2026-10-18: estaba anotada al final de "Abiertas" como "Dashboard P13"; es P14.*
+
+### D-040 — Menú de la cuenta
+*Reemplazada por D-056 (2026-10-20).*
+Fecha: 2026-10-02 · Reemplaza: en D-028, que "Salir" es un botón siempre visible.
+Decisión: en desktop, la barra superior tiene un botón con el nombre del área ("Mi perfil", "Mi empresa") que abre un menú con el perfil y "Salir". En el celular el perfil sigue en la barra de abajo.
+*Registrada el 2026-10-18: estaba anotada al final de "Abiertas", sin formato.*
+
+### D-041 — Datos de la empresa: lectura y edición separadas
+Fecha: 2026-10-02
+Decisión: "Datos de la empresa" (P10) se muestra en modo lectura con "Editar datos"; el formulario aparece al tocarlo. Lo mismo vale para "Mi perfil" del postulante (P03).
+*Registrada el 2026-10-18: estaba anotada como P08; es P10.*
+
+### D-042 — Oficina de Empleo: "Mesa de trabajo"
+Fecha: 2026-10-15 · Reemplaza: la parte de pantallas de D-030 (URLs, pestañas, panel de 4 números).
+Decisión:
+- Rediseño completo de las pantallas de la Oficina según los mocks de `docs/admin-view-mocks/` (pantallas 01 a 10): menú lateral plegable, colas de tareas (ofertas por revisar, postulaciones nuevas, cierres solicitados, por comunicar/derivar), registros (ofertas, postulaciones, postulantes, empresas), panel de detalle al lado de la tabla y pantalla de evaluación con el CV.
+- Detalle visual en `docs/DESIGN.md` (§10 y §11 del 2026-10-15).
+- Cómo llegan y se guardan los datos: D-049.
+*Registrada el 2026-10-18: estaba anotada al final de "Abiertas", sin formato. El código la citaba como "D-037"; se corrigió a D-042.*
+
+### D-043 — La consigna final define el alcance de la entrega
+Fecha: 2026-10-18 · Amplía: D-006 y `AGENTS.md` §2
+Decisión:
+- La consigna de Beex (`docs/Beex_Funes_Tech_Lab_Proyecto_Final.md`, entrega el 2026-11-02) es la primera fuente de alcance. Lo que pide y no estaba en los requerimientos se sumó a `docs/Requerimientos.md` como **RF1.6.x** (intermediación y seguimiento) y **RNF5** (entrega).
+- Si la consigna y un requerimiento anterior chocan, gana la consigna, y se registra con una decisión (D-044 en adelante).
+Motivo: es lo que se evalúa. El cliente (la Municipalidad) elige el proyecto ganador, y Beex califica el cumplimiento del MVP.
+
+### D-044 — La empresa ve a sus candidatos derivados y decide
+Fecha: 2026-10-18 · Reemplaza: en D-023, "la empresa no ve nada de las postulaciones"; en D-027, "nunca trae datos de postulantes"; en `AGENTS.md` §1 y §7, la regla de que las empresas nunca ven postulantes.
+Decisión:
+- La empresa ve **solo** las postulaciones **derivadas** por la Oficina a **sus** ofertas. Nunca ve las que están en otro estado, ni el padrón, ni las de otras empresas.
+- De cada candidato derivado ve: nombre y apellido, teléfono, email, rubros y el CV, que se abre con una URL firmada de corta duración generada en el servidor (RNF1). No ve el DNI, la preentrevista ni el estado interno.
+- La empresa informa **Contrata** o **No contrata**. Si no contrata, el motivo es obligatorio (RF1.6.4). La decisión se informa **una sola vez** (confirmado por el usuario): si hay que corregirla, se pide a la Oficina.
+- La Oficina sigue siendo la que deriva: la empresa no busca ni contacta postulantes por su cuenta en el portal.
+- Los textos que dicen "las empresas nunca ven tus datos" (Mi perfil, CV) se cambian por lo que pasa ahora: la empresa los ve solo si la Oficina te deriva.
+Motivo: la consigna lo pide (flujo obligatorio, pasos 5 y 6). El usuario eligió qué datos ve la empresa.
+
+### D-045 — Preentrevista opcional
+Fecha: 2026-10-18
+Decisión:
+- La Oficina puede registrar una preentrevista de una postulación: fecha y notas. Queda guardada en la misma postulación (`preentrevista_el`, `preentrevista_notas`), así está asociada a la postulación y, por ella, al postulante.
+- No es obligatoria: la Oficina puede derivar directamente (consigna §4).
+- Solo la ve la Oficina.
+Motivo: consigna §4 y §5 (paso 4), con el modelo más simple que la cumple (pedido del usuario: "algo más MVP").
+
+### D-046 — Seguimiento del postulante y cantidad de rechazos
+Fecha: 2026-10-18
+Decisión:
+- El seguimiento de una persona (ficha del postulante en la Oficina) muestra todas sus postulaciones, con la oferta, el estado, si tuvo preentrevista, si fue derivada y la decisión de la empresa con su motivo; y sus derivaciones a cursos.
+- **Rechazo** = postulación en la que la empresa informó "No contrata". La cantidad de rechazos se calcula contándolas; no se guarda aparte.
+- No hay tabla de historial: el seguimiento se arma con las postulaciones y las derivaciones a cursos.
+Motivo: consigna §5 (paso 7) y sus reglas de seguimiento, sin duplicar datos.
+
+### D-047 — Derivaciones a cursos de capacitación
+Fecha: 2026-10-18
+Decisión:
+- Una tabla `derivaciones_curso`: postulante, nombre del curso (texto), fecha y notas. La registra y la ve solo la Oficina.
+- Es independiente de las postulaciones. No hay catálogo de cursos ni gestión académica.
+- Se registra y se consulta **solo desde la ficha del postulante** (`/admin/postulantes/[id]`), junto al seguimiento (P18). No hay ítem "Cursos" en el menú.
+Motivo: consigna §4 y §5 (paso 8): "alcanza con registrar el curso, el postulante y la derivación".
+
+### D-048 — "Duplicar oferta" en lugar de editarla
+Fecha: 2026-10-18 · Resuelve: Q-002
+Decisión:
+- Una oferta enviada no se edita. La empresa puede **duplicarla**: se abre "Publicar una oferta" con los datos precargados, la corrige y la envía como una oferta nueva (queda Pendiente).
+- Se ofrece en las ofertas **rechazadas** (para corregir lo que dijo la Oficina) y en las **cerradas** (para volver a buscar a alguien). Para cambiar una publicada, se pide el cierre y se duplica.
+- Ninguna oferta se borra.
+Motivo: idea del usuario. Evita estados intermedios (¿qué pasa con los postulantes si cambian los requisitos?) y cumple "administrar sus ofertas" de la consigna.
+
+### D-049 — Cómo leen y guardan datos las pantallas de la Oficina
+Fecha: 2026-10-18 · Amplía: D-012, D-017 y D-018; `AGENTS.md` §5 y §6
+Decisión:
+- **Postulante y empresa:** siguen como estaban: hook → Route Handler → caso de uso → DAL.
+- **Oficina:** sus pantallas son Server Components que leen con `src/lib/admin/datos.ts` (que llama a los casos de uso) y deciden con **Server Actions** (`src/lib/actions/oficina.ts`). Una Server Action sigue las mismas reglas que un Route Handler: valida con Zod, toma el usuario de la sesión, llama a un solo caso de uso y devuelve un mensaje corto. Las reglas de negocio y los permisos siguen en el caso de uso.
+- La única ruta HTTP de la Oficina es la que abre un CV (`/api/admin/postulantes/[id]/cv`), porque el navegador la abre como link.
+Motivo: es lo que se construyó con la "Mesa de trabajo" (D-042). Las pantallas de la Oficina son de escritorio, tienen muchos filtros en la URL y no necesitan estado de cliente. Volver a hooks y rutas sería rehacer el trabajo sin beneficio para la entrega.
+
+### D-050 — Entrega: un solo proyecto de Supabase y Vercel
+Fecha: 2026-10-18 · Reemplaza: en D-001, que se usa un proyecto separado para producción.
+Decisión:
+- Para la entrega, el portal publicado en Vercel usa el mismo proyecto de Supabase que el desarrollo (el de testing).
+- Se cargan datos de demostración **inventados** y tres cuentas de demostración (postulante, empresa y Municipalidad). Los datos personales reales que haya en el proyecto se reemplazan antes de la entrega (consigna §2, Ley 25.326).
+- Las contraseñas de las cuentas de demostración no van al repositorio. Se entregan como pide la consigna.
+Motivo: menos configuración y menos riesgo a dos semanas de la entrega. Un proyecto de producción aparte queda para cuando la Municipalidad lo adopte.
+
+### D-051 — Indicadores del panel de la Oficina
+Fecha: 2026-10-18 · Resuelve: Q-012 para el panel de la Oficina (P14)
+Decisión:
+- El panel muestra indicadores calculados con datos reales: postulantes, ofertas activas (publicadas), postulaciones, derivaciones a empresas, contrataciones, rechazos y derivaciones a cursos (los del bonus de la consigna §9), además de las tareas pendientes de D-039.
+- El inicio de la empresa (P09) sigue con sus ofertas por estado; se le suman sus candidatos derivados pendientes de decisión.
+- Las notificaciones por email (bonus) se hacen solo si sobra tiempo después del MVP; mientras tanto, Q-001 sigue fuera del alcance.
+Motivo: consigna §9 (bonus de dashboard) y pedido del usuario: dashboard primero, correo si sobra tiempo.
+
+### D-052 — Qué queda fuera de la entrega
+Fecha: 2026-10-18 · Resuelve: Q-010, Q-011, Q-013 y Q-014 (para el MVP)
+Decisión: no se implementan:
+- baja de cuenta y política de retención (Q-010);
+- carga asistida de postulantes sin cuenta (Q-011);
+- derivación automática al CIT y seguimiento a 60 días (Q-013): las derivaciones a cursos (D-047) las registra la Oficina a mano;
+- ~~validación previa de empresas (Q-014): una empresa registrada publica enseguida, porque la Oficina modera cada oferta antes de publicarla~~ *(reemplazado por D-068, 2026-10-23: la empresa necesita aprobación)*;
+- historial de qué operadora hizo cada cambio y notas internas fuera de la preentrevista.
+Motivo: la consigna no los pide y priorizar flujos completos (consigna §8).
+
+### D-053 — Lista de rubros para la entrega
+Fecha: 2026-10-18 · Resuelve: Q-006 (para el MVP)
+Decisión: los 11 rubros cargados en `rubros` (`src/lib/validation/rubros.ts`) son la lista definitiva de la entrega. Cambiarla después es una migración nueva (D-033) más el cambio de la constante (DT-009).
+Motivo: el usuario lo confirmó; no hay otra lista de la Municipalidad.
+
+### D-054 — Trazabilidad sin totales guardados y sin topes a la empresa
+Fecha: 2026-10-18 · Amplía: D-044 y D-046
+Decisión:
+- **Se cuenta, no se guarda.** Rechazos, contrataciones, veces que pasó la preselección, derivados por empresa y decisiones pendientes se calculan sobre `postulaciones` cuando se piden. No hay columnas de totales (`cant_rechazos`, etc.) ni tabla de historial.
+- **Una sola fecha nueva:** `postulaciones.derivada_el`, que pone la base cuando la Oficina deriva. Ordena la cola de pendientes y el historial del postulante.
+- **Sin topes ni bloqueos a la empresa:** no se limita cuántos candidatos ve ni cuántas ofertas tiene abiertas. Las derivaciones sin decisión son una **cola de trabajo de la Oficina** en su panel (P14), de la más vieja a la más nueva, y al derivar a una oferta con candidatos sin respuesta la Oficina ve un aviso que no bloquea.
+- Rechazo sigue siendo solo el "No contrata" de la empresa (D-046). El "No apto" de la Oficina se muestra aparte en el seguimiento.
+- Descartado: una fecha de "visto por la empresa", porque no hay una definición clara de qué cuenta como verla.
+Motivo: debate con el usuario. Un total guardado es una copia que se desincroniza, y contar es inmediato con el volumen del municipio; si una pantalla se pone lenta, se mide y se resuelve con una vista. Un tope de candidatos corta al que podía ser el elegido, y bloquear ofertas nuevas no sirve si la empresa busca siempre el mismo puesto. La Oficina insiste con la empresa desde el panel.
+
+### D-055 — No se pide el cierre con candidatos sin respuesta
+Fecha: 2026-10-18 · Resuelve: Q-016 · Amplía: D-054
+Decisión:
+- La empresa **no puede** pedir el cierre de una oferta mientras tenga candidatos derivados sin "Contrata / No contrata".
+- El caso de uso de la solicitud de cierre responde 409 con un mensaje que dice a cuántas personas les falta respuesta; la pantalla lo muestra y lleva a responder.
+Motivo: el usuario lo decidió ("claramente no puede"). Es el momento natural para pedir el feedback: al cerrar, la búsqueda terminó y la empresa ya sabe qué pasó con cada persona.
+*Implementada el 2026-10-20 en `pedirCierre` (`src/lib/use-cases/empresa.ts`), con tests. El mensaje dice a cuántas personas les falta respuesta y dónde responder: la lista de candidatos está en el mismo detalle de la oferta.*
+
+### D-056 — Barra de navegación con el menú completo y "Salir" a la vista
+Fecha: 2026-10-20 · Reemplaza: D-040 (menú de la cuenta) · Amplía: D-028
+Decisión:
+- **Computadora:** la barra superior, alineada con el contenido, muestra el menú completo del rol: postulante "Inicio, Ofertas, Postulaciones, Mi perfil, Ayuda"; empresa "Inicio, Mis ofertas, Publicar (botón menta), Mi empresa, Ayuda". Sin sesión: "Inicio, Ofertas, Para empresas, Ayuda", con "Ingresar" y "Crear cuenta" (o "Registrar mi empresa") a la derecha. Desde `lg` queda fija arriba al hacer scroll.
+- **Cuenta:** ya no hay menú desplegable. A la derecha, quién ingresó (inicial, rol y email, desde `xl`) y "Salir" con ícono y palabra, siempre visible, también en el celular (vuelve a la regla de D-028).
+- **Celular:** la barra de abajo sigue con 4 opciones como máximo: postulante "Ofertas, Postulaciones, Mi perfil, Ayuda"; empresa "Inicio, Mis ofertas, Publicar, Mi empresa" (su ayuda está en la barra de la computadora y en `/ayuda`); sin sesión "Ofertas, Ingresar, Crear cuenta, Ayuda".
+Motivo: el usuario dijo que la barra era "malísima, con 2 botones cualquiera": en la computadora el postulante veía solo "Ofertas" y "Postulaciones", y el perfil y "Salir" quedaban escondidos en un menú. La Oficina no cambia: usa su menú lateral (D-042).
+
+### D-057 — Ayuda para postulantes y empresas (P20)
+Fecha: 2026-10-20
+Decisión:
+- Nueva pantalla pública `/ayuda` (P20) con dos públicos que se eligen con tarjetas-link (`?para=empresa`): una guía numerada paso a paso, con un link a la pantalla de cada paso, y preguntas frecuentes en acordeón. Una empresa con sesión entra directo a su guía.
+- La Oficina no tiene guía ni ve "Ayuda" en su menú.
+- Las respuestas describen lo que el portal hace hoy, con los nombres de los botones, y salen de decisiones registradas (D-023, D-037, D-044, D-048, D-055, Q-005). No se publican teléfono, dirección ni horario de la Oficina hasta que la Municipalidad los confirme.
+- El texto vive en `src/components/ayuda/contenido.ts`: si cambia una de esas reglas, se actualiza ahí.
+Motivo: pedido del usuario ("una sección de FAQ con guías para que el usuario sepa cómo operar, cualquier usuario menos admin"). Muchas personas usan el portal con poca práctica digital (RNF3).
+
+### D-058 — La Oficina crea cuentas de operadoras y no las borra ("pseudo superadmin")
+Fecha: 2026-10-20 · Amplía: RF1.1.4 (sigue sin haber registro público para la Oficina)
+Decisión:
+- Nueva pantalla **"Equipo"** (P21, `/admin/equipo`, grupo "Oficina" del menú lateral): la lista de cuentas de la Oficina y "Crear una cuenta de operadora".
+- **Cualquier cuenta de la Oficina** puede crear otra cuenta de la Oficina. Solo se pide el email; la cuenta queda activa y el portal arma una contraseña temporal (4 grupos de 4 letras y números) que se muestra **una sola vez** para entregarla en persona.
+- **Nadie borra cuentas desde el portal**, ni la propia. No hay botón ni ruta para hacerlo; una baja se hace a mano en Supabase.
+- Solo se crean cuentas de la Oficina. Crear cuentas de postulantes o empresas sería carga asistida (Q-011), que sigue fuera de la entrega (D-052).
+- Cada operadora puede cambiar su contraseña desde "Cambiar mi contraseña" (abajo en el menú lateral), que usa la pantalla de contraseña nueva.
+- Deuda aceptada: DT-020.
+Motivo: pedido del usuario ("que el admin pueda crear roles pero no borrarlos, o sea que haya un pseudo superadmin"). Se interpretó como "el rol admin es el pseudo superadmin". **Para confirmar con el usuario:** si prefiere que solo una cuenta (el superadmin) pueda crear, se marca esa cuenta en `app_metadata` y el caso de uso lo controla; no hace falta migración.
+
+### D-059 — Inicio con cifras reales, carrusel de ofertas, rubros y confianza
+Fecha: 2026-10-20 · Amplía: D-029
+Decisión:
+- **"El portal en números":** cuatro totales reales (ofertas abiertas, empresas registradas, personas buscando trabajo y contrataciones logradas), con un contador que sube al aparecer en pantalla (salvo con "reducir movimiento"). Los da la función `estadisticas_publicas()` de la migración `20261020220000`, que devuelve **solo totales** y se puede llamar sin sesión; las tablas siguen cerradas por RLS. Ruta `GET /api/estadisticas` → `verEstadisticasPublicas` → `contarEstadisticasPublicas`.
+- Si los totales no se pueden contar (por ejemplo, antes de aplicar la migración), el bloque no aparece: el inicio sigue igual sin él.
+- **Ofertas recientes como carrusel:** hasta 8, con deslizamiento y botones anterior/siguiente; en el celular se ve una tarjeta y el borde de la siguiente.
+- **"Buscá por rubro":** los 11 rubros con cuántas ofertas tiene cada uno, primero los que más tienen. Sale de la misma lista de ofertas (una sola consulta).
+- **"Un servicio de la Municipalidad de Funes":** cuatro garantías que el portal ya cumple (ofertas revisadas, CV privado, acompañamiento de la Oficina, cursos), con el logo. Solo para quien no ingresó, como "Cómo postularte".
+- **Sin testimonios inventados ni números de ejemplo:** todo lo que se muestra es real o es una regla del sistema.
+Motivo: pedido del usuario ("la landing está muy vacía; estadísticas, contadores, sliders, cosas que aporten seguridad").
+
+### D-060 — El pedido de cierre no se cancela; para seguir buscando se duplica la oferta
+Fecha: 2026-10-22 · Resuelve: Q-003
+Decisión:
+- La empresa **no puede cancelar** un pedido de cierre ya enviado.
+- Si quiere seguir buscando gente, usa "Duplicar" (D-048): crea una oferta nueva, que pasa otra vez por la moderación de la Oficina.
+- Una oferta cerrada **no se vuelve a publicar**.
+Motivo: el usuario lo decidió. Mantiene una regla única (una oferta cerrada es definitiva) y reutiliza "Duplicar", sin estados nuevos.
+*Sin cambios de código: es lo que el portal hace hoy (DECISIONS D-027, D-048). Si la Oficina debe poder rechazar un pedido de cierre, no está decidido.*
+
+### D-061 — Ningún dato personal se lee ni se escribe con una sola barrera
+Fecha: 2026-10-22 · Reemplaza: la excepción de D-044/DT-019 (cliente admin para la empresa)
+Decisión:
+- No puede haber filtración de datos personales en ningún lugar del portal. Toda lectura o escritura de datos personales tiene **dos barreras**: el caso de uso y la base de datos (RLS o función `security definer` que repite el control).
+- El acceso de la empresa a sus candidatos derivados (P17, decisión, CV) y la creación de cuentas de la Oficina dejan de depender solo del cliente admin (DT-019, DT-020).
+- Se agrega una **fase de seguridad** antes de la entrega y antes de los refactors del frontend: auditoría de los usos del cliente admin y de las respuestas de la API, y pruebas de fuga entre cuentas con sesiones reales.
+Motivo: el usuario lo exigió ("no puede pasar esto de ninguna manera, en ningún lugar del portal"). Es la regla de AGENTS §7, que DT-019 incumplía de forma documentada.
+
+### D-062 — La Oficina abre cada registro en una página completa, sin panel lateral
+Fecha: 2026-10-22 · Reemplaza: en D-042, el panel de detalle de 500 px al lado de la tabla y "Abrir página completa"
+Decisión:
+- En todas las tablas de la Oficina (ofertas, colas de ofertas, postulaciones, postulantes, empresas), tocar la fila o "Ver" abre la **página completa** del registro. No hay panel lateral.
+- Cada página completa tiene arriba una **flecha para volver** que dice adónde vuelve ("Volver a Ofertas por revisar") y lleva a la misma lista, con sus filtros, orden y página. La lista de origen viaja en la URL (`?desde=`) y solo se acepta una ruta de la Oficina.
+- La página usa todo el ancho: título con su estado y acciones, y el contenido en dos columnas desde `lg` (lo principal a la izquierda; empresa, contacto y herramientas a la derecha). Sin pestañas: las secciones se leen de corrido.
+- Desde una cola, después de aprobar, rechazar o cerrar una oferta, la página pasa sola a la siguiente de esa cola (o vuelve a la cola si no quedan).
+Motivo: pedido del usuario. El panel lateral era angosto ("mucha info en muy poco lugar") y "Abrir página completa" mostraba el mismo panel encajonado.
+
+### D-063 — Las tablas de la Oficina se ordenan por columna y tienen filas de 56 px
+Fecha: 2026-10-22 · Amplía: D-042
+Decisión:
+- Cada columna con dato se ordena tocando su encabezado; otro toque invierte el sentido. Una flecha marca la columna y el sentido. El orden va en la URL (`?orden=<columna>&dir=asc|desc`), se aplica en el servidor a toda la lista antes de paginar y se conserva al volver de una página completa.
+- Sin orden elegido, cada pantalla sigue como antes: colas por antigüedad (la más vieja primero), registros con lo más nuevo primero. El encabezado de esa columna lo muestra.
+- Las filas pasan de 40 a **56 px** y los botones "Ver"/"Resolver" de 28 a 36 px.
+- Se saca el texto "Orden: más antiguas primero", que solo informaba.
+Motivo: pedido del usuario. El orden "no existía, solo se informaba", y las filas angostas eran "propensas a missclicks e incómodas para el operador".
+
+### D-064 — "Empresas nuevas": las de los últimos 7 días, en Tareas pendientes
+Fecha: 2026-10-22 · Responde: dónde ve la Oficina las empresas nuevas
+Decisión:
+- Una empresa es **nueva** durante sus primeros 7 días de calendario (hora argentina) desde que se registró.
+- En "Empresas", una vista "Nuevas (7 días)" en la tira de estados y la columna "Registrada" con la etiqueta "Nueva".
+- En el menú, dentro de "Tareas pendientes", "Empresas nuevas" con su contador (solo si hay alguna), que abre esa vista.
+- ~~No cambia D-052: la empresa no necesita aprobación. Esto es para que la Oficina la conozca antes de que llegue su primera oferta. Sin cambios en la base: se cuenta por la fecha de alta del perfil.~~ *(Reemplazado por D-068, 2026-10-23: la empresa necesita aprobación, y "Empresas nuevas" pasa a ser "Empresas por aprobar".)*
+Motivo: el usuario preguntó dónde ve la Oficina las empresas nuevas y eligió sumarlas a Tareas pendientes.
+
+### D-065 — Barra superior rediseñada: menú completo y "Mi cuenta"
+Fecha: 2026-10-22 · Reemplaza: en D-056, el bloque de la cuenta (inicial, rol, email y "Salir" sueltos) y el menú sin sesión
+Decisión:
+- Barra verde monte de 64 px (72 px desde `lg`), con el logo nuevo en blanco a la izquierda. Las pantallas del rol van como texto; la actual en blanco con una barra menta sobre el borde inferior.
+- **Con sesión:** el menú completo sigue a la vista (D-056): postulante "Ofertas, Postulaciones, Mi perfil, Ayuda" (el "Inicio" es el logo); empresa "Inicio, Mis ofertas, Mi empresa, Ayuda" y "Publicar" como botón menta a la derecha. A la derecha, **"Mi cuenta"**: la inicial en un azulejo menta que abre quién ingresó (rol y email) y "Salir". En el celular, solo la inicial (con su nombre para lectores de pantalla); la barra de abajo no cambia.
+- **Sin sesión:** "Ofertas" y "Ayuda", con "Ingresar" y "Crear cuenta" (o "Registrar mi empresa") a la derecha. Se sacan "Inicio" (es el logo) y "Para empresas": las empresas entran por "Ayuda" y por los links cruzados de los ingresos.
+Motivo: el usuario dijo que la barra parecía "hecha por un niño de 5 años" y que el bloque del usuario estaba "muy mal dispuesto"; pidió simplificarlo para todas las sesiones. Eligió mantener el menú completo a la vista (lo que había pedido en D-056) y llevar solo la cuenta a "Mi cuenta".
+*Actualizada el 2026-10-22: vuelve "Inicio" al menú de la computadora para el postulante y para quien no ingresó ("Inicio, Ofertas, Postulaciones, Mi perfil, Ayuda" y "Inicio, Ofertas, Ayuda"), por si alguien no sabe que el logo lleva al inicio. En el celular no se suma: la barra de abajo mantiene 4 opciones (D-028).*
+
+### D-066 — Inicio: contrataciones en vivo en la portada, cifras con más peso y menos bloques
+Fecha: 2026-10-22 · Amplía: D-059
+Decisión:
+- **Portada:** a la derecha (abajo en el celular), la cifra grande de **contrataciones logradas** (las respuestas "Contrata" de las empresas, D-044). Cuenta al aparecer y **se actualiza sola**: el inicio vuelve a preguntar cada 60 segundos solo mientras la pestaña está a la vista, y una vez más al volver a ella; si sube, cuenta desde el número que había.
+- **Costo:** la respuesta de `GET /api/estadisticas` lleva `Cache-Control: public, s-maxage=60, stale-while-revalidate=60`, así la CDN de Vercel la reparte y la base cuenta como mucho una vez por minuto, sin importar cuántas visitas haya. Son solo totales, sin datos personales.
+- **"El portal en números":** banda verde monte con cifras grandes en blanco: ofertas abiertas, empresas, personas buscando trabajo y personas presentadas a empresas por la Oficina (las contrataciones pasan a la portada). Va después de las ofertas recientes.
+- **Se sacan** "Buscá por rubro" (repetía los atajos de rubro de la portada) y "Para empresas" (las empresas llegan por "Ayuda", D-057).
+- **"Un servicio de la Municipalidad de Funes":** el sello municipal grande sobre verde a la izquierda y las cuatro garantías en una grilla de celdas iguales.
+- **Misma altura:** las tarjetas de una misma lista o carrusel tienen el mismo alto: el título ocupa siempre dos líneas, cada dato una línea (con "…") y se reserva el lugar del sueldo aunque no esté.
+Motivo: pedidos del usuario: "el portal en números es muy tímido", una estadística grande de contrataciones en la portada "que aumente como un contador siempre que entra una nueva" (si el costo no es alto), "no quiero diferencias en alturas de cards", "Buscá por rubro es una sección repetida", "Para empresas no me sirve" y "Un servicio de la Municipalidad no tiene un logro visual".
+
+### D-067 — El contador de la portada suma las 850 personas que la Oficina ubicó antes del portal
+Fecha: 2026-10-22 · Amplía: D-066
+Decisión:
+- La cifra grande de la portada es **850 + las contrataciones contadas en el portal**. El 850 es un dato real de la Oficina de Empleo: personas que ubicó en un trabajo antes de que existiera el portal (informado por el usuario el 2026-10-22).
+- El texto lo dice: "personas consiguieron trabajo con la Oficina de Empleo" y "Cuenta a quienes la Oficina ubicó antes del portal y se suma solo con cada contratación nueva". Cuenta de 0 a la cifra al aparecer, como las demás.
+- El valor vive en `CONTRATACIONES_ANTES_DEL_PORTAL` (`src/lib/use-cases/inicio.ts`); la base no cambia (DT-021).
+- **Pendiente:** confirmar desde qué año cuenta la Oficina ese número, para poder decirlo si alguien pregunta en la demo.
+Motivo: pedido del usuario ("que el contador arranque desde 850"). Se confirmó que es un dato real y no un número de ejemplo (DESIGN §0, AGENTS §12).
+
+### D-068 — Las empresas necesitan la aprobación de la Oficina para publicar
+Fecha: 2026-10-23 · Reemplaza: la parte de D-052 sobre la validación previa de empresas y la frase "no necesita aprobación" de D-064 · Resuelve: Q-014
+Decisión:
+- Una empresa nueva queda **"pendiente"**. Puede registrarse, completar sus datos (P10) y entrar a su panel, pero **no puede enviar ofertas** hasta que la Oficina la apruebe. P09 y P11 muestran "Tu empresa está en revisión" en lugar del camino para publicar.
+- Estados de la empresa: `pendiente | aprobada | rechazada` (UI: Por aprobar, Aprobada, Rechazada). La Oficina decide desde la ficha de la empresa (`/admin/empresas/<id>`): "Aprobar empresa" (un clic) o "Rechazar" (con motivo, D-069).
+- Pasos permitidos: `pendiente → aprobada | rechazada` y `rechazada → aprobada`. **Una empresa aprobada no se revoca en esta entrega** (DT-022).
+- No se puede aprobar a una empresa que todavía no completó sus datos (sin CUIT ni contacto no hay nada que revisar).
+- Si una empresa **aprobada** cambia su CUIT o su razón social, vuelve a "pendiente" (si no, podría cambiar el CUIT por el de otra empresa y seguir publicando). Si una empresa **rechazada** corrige sus datos, vuelve a "pendiente" y se limpia el motivo, para que la Oficina la revise de nuevo.
+- Dos barreras: el caso de uso `publicarOferta` avisa con un mensaje claro, y la política `ofertas_insert_propias` exige `estado = 'aprobada'`. Solo la Oficina cambia el estado (trigger `antes_de_actualizar_empresa`; la empresa tiene permiso de actualizar solo sus datos, por columna).
+- Las empresas que ya tenían sus datos cargados quedan **aprobadas** al aplicar la migración, para no cortarles el servicio. Las que nunca completaron el perfil arrancan "pendientes".
+- La Oficina ve las empresas por aprobar en "Tareas pendientes → Empresas por aprobar" (con contador) y en la tira de estados de "Empresas". Reemplaza a "Empresas nuevas (7 días)" de D-064. Las cifras públicas del inicio cuentan solo empresas aprobadas.
+- Sigue valiendo que la Oficina modera **cada oferta** antes de publicarla (D-007).
+Motivo: pedido del usuario ("las empresas necesitan aprobación de la Oficina para postular, sí o sí"). La Oficina es intermediaria obligatoria (AGENTS §1): no puede haber una empresa sin verificar mandando ofertas.
+
+### D-069 — Motivos de rechazo fijos, para empresas y para ofertas
+Fecha: 2026-10-23 · Reemplaza: el motivo de texto libre de RF1.5.3 · Amplía: D-068
+Decisión:
+- Al rechazar una empresa o una oferta, la Oficina elige **un motivo de una lista fija** y puede sumar una **observación opcional** (hasta 400 caracteres). La empresa lee el motivo (RF1.3.5).
+- Empresas: "Faltan datos de la empresa", "No pudimos verificar el CUIT", "Los datos de contacto no son correctos", "El perfil no es adecuado para el portal", "Otro motivo".
+- Ofertas: "Falta información en la oferta", "Las condiciones del puesto no son claras", "La oferta está repetida", "El contenido no es adecuado para el portal", "Otro motivo".
+- Las listas viven en `src/lib/validation/motivos-rechazo.ts`; cambiarlas no necesita migración.
+- Se guarda **el texto final** en `motivo_rechazo` ("Motivo" o "Motivo: observación"), sin columna nueva. Contra: el motivo no queda como código para estadísticas (DT-022).
+- Las ofertas ya rechazadas con texto libre se muestran como estaban.
+Motivo: pedido del usuario ("quiero motivos fijos: falta de información, perfil inapropiado... Otro con observación no obligatoria. Lo mismo para las ofertas"). Las listas son una propuesta del agente y el usuario puede ajustarlas.
+
+### D-070 — Dirección del postulante y de la oferta
+Fecha: 2026-10-23
+Decisión:
+- El **postulante** carga su dirección (calle y número, o zona de Funes; hasta 100 caracteres) en P03. Es **obligatoria** para guardar el perfil y para postularse. Solo la ven el postulante y la Oficina: **la empresa no la ve** (D-044).
+- La columna `postulantes.direccion` es opcional en la base, porque las cuentas que ya existen no la tienen. Los postulantes anteriores la cargan la próxima vez que se postulan ("Completá tu perfil").
+- En la **oferta** no se agrega columna: el campo `lugar` pasa a llamarse **"Dirección del trabajo"** (calle y número, o barrio o zona de Funes). Los valores que ya hay (barrios) siguen siendo válidos.
+Motivo: pedido del usuario ("dirección en el perfil del postulante y en las ofertas"). Para las ofertas se eligió reusar `lugar` y cambiar el rótulo, el cambio más chico (esquema mínimo).
 
 ---
 
@@ -460,15 +747,19 @@ Motivo: que el cambio de herramienta no pierda reglas, decisiones ni la forma de
 
 ### Q-001 — Notificaciones
 ¿Se avisa a la empresa cuando su oferta se aprueba o rechaza? ¿Y al postulante cuando cambia algo? ¿Por qué canal (email, WhatsApp)? *Por ahora está fuera del MVP: no se implementa.*
+*Fuera del MVP. Las notificaciones por email son un bonus de la consigna: se hacen solo si sobra tiempo (D-051).*
 
 ### Q-002 — Oferta rechazada
 ¿La empresa puede editar una oferta rechazada y reenviarla (vuelve a `pending`), o tiene que crear una nueva? ¿El admin puede eliminar ofertas?
+*Resuelta por D-048 (2026-10-18): no se edita; se duplica.*
 
 ### Q-003 — Solicitud de cierre
 ¿La empresa puede cancelar una solicitud de cierre? ¿El admin puede rechazarla (vuelve `close_requested = false`)? ¿Una oferta cerrada se puede volver a publicar?
+*Resuelta por D-060 (2026-10-22): el pedido no se cancela y la oferta cerrada no se republica; se duplica. Sigue sin decidir si la Oficina puede rechazar un pedido de cierre.*
 
 ### Q-004 — "Cargar/Crear CV" (P04)
 `pantallas.md` y el diagrama mencionan **crear** un CV online además de subirlo, pero RF1.2.3 solo pide subir 1 PDF. ¿El MVP es solo subida? *Por ahora solo subida.*
+*Resuelta (2026-10-18): solo subida de PDF; la consigna pide "acceso al CV", no crearlo online.*
 
 ### Q-005 — Límite de tamaño del CV ✅
 ¿Cuál es el tamaño máximo del PDF? (Propuesta: 5 MB.) ¿Reemplazar el CV borra el anterior?
@@ -477,42 +768,45 @@ Motivo: que el cambio de herramienta no pierda reglas, decisiones ni la forma de
 ### Q-006 — Lista de etiquetas/rubros
 ¿Quién mantiene la lista predefinida (RF1.2.2)? ¿Un seed fijo en una migración, o un CRUD para el admin? ¿Cuál es la lista inicial?
 *D-032 decidió la estructura: una tabla `rubros` compartida por postulantes y ofertas, cargada en la migración con los 11 provisorios. Siguen abiertos el contenido definitivo y quién lo mantiene.*
+*Resuelta para el MVP por D-053 (2026-10-18): quedan los 11.*
 
 ### Q-007 — Asociación manual desde P16 (RF1.5.8)
 *Resuelta por D-032.* Cuando el admin asocia un candidato a una oferta, ¿la postulación registra el origen (`self` / `admin`)? ¿Le aparece al postulante en "Mis postulaciones"?
 
 ### Q-008 — Retiro de postulación
 *Resuelta por D-023.* ¿El postulante puede retirar una postulación? ¿La empresa ve algo de las postulaciones? (Por la regla de negocio, la respuesta asumida es no.)
+*La segunda parte cambió con D-044 (2026-10-18): la empresa ve las postulaciones derivadas a sus ofertas.*
 
 ### Q-009 — Datos personales del postulante
 ¿Qué campos exactos lleva el perfil (RF1.2.1)? ¿DNI, fecha de nacimiento, dirección, barrio? Solo se piden los necesarios (Ley 25.326).
 *D-032 decidió los campos: nombre, apellido, teléfono y DNI. Sigue abierto si hace falta el perfil completo para postularse (hoy alcanza con el CV, RF1.4.4).*
+*Resuelta por D-037: para postularse hace falta el perfil completo y el CV.*
 
 ### Q-010 — Baja de cuenta y retención de datos
 ¿Cómo pide un usuario la baja o la eliminación de sus datos? ¿Cuánto tiempo se conservan los CVs y las postulaciones?
+*Fuera de la entrega (D-052).*
 
 ### Q-011 — Carga asistida por operadoras
 El relevamiento (§4.2) habla de operadoras que cargan perfiles de personas sin acceso digital. ¿Entra en el MVP? ¿El admin puede crear postulantes?
 *D-032 lo deja fuera del MVP: cada postulante es una cuenta. Si entra después, `postulantes` necesita un id propio (migración).*
+*Fuera de la entrega (D-052).*
 
 ### Q-012 — KPIs de los dashboards
 ¿Qué indicadores exactos muestran P09 (empresa) y P14 (admin)? RF1.5.1 da ejemplos ("ofertas pendientes", "postulantes activos"). ¿Qué cuenta como "postulante activo"?
+*Resuelta para el panel de la Oficina por D-051 (2026-10-18).*
 
 ### Q-013 — CIT y seguimiento a 60 días
 El relevamiento describe la derivación al CIT a la 3.ª postulación no exitosa y el seguimiento a los 60 días. No están en los RF. *Fuera del MVP salvo que se decida lo contrario.*
+*Fuera de la entrega (D-052); las derivaciones a cursos se registran a mano (D-047).*
 
 ### Q-014 — Registro de empresas
 ¿Una empresa registrada puede cargar ofertas enseguida, o la Oficina tiene que validarla primero (por ejemplo, verificar el CUIT)?
+*Resuelta para el MVP por D-052 (2026-10-18): la empresa publica enseguida; la Oficina modera cada oferta.*
+*Reabierta y resuelta por D-068 (2026-10-23): la Oficina tiene que aprobar a la empresa antes de que pueda enviar ofertas.*
 
 ### Q-015 — Idioma de los nombres en la base de datos
 *Resuelta por D-031.* ¿Las tablas, columnas y valores de enum van en español (`ofertas`, `postulaciones`, `postulante`) o en inglés (`job_offers`, `applications`, `applicant`)? El usuario dijo que "seguramente" en español, pero no está decidido. La migración de `profiles` (`user_role`, `applicant | company | admin`) usa inglés y **no está aplicada**; se ajusta cuando se decida. *Por ahora no se aplica ninguna migración.*
 
-
-### Interfaz y Navegación (D-039 - D-041)
-- **D-039**: El panel de la Oficina (Dashboard P13) muestra 3 listas accionables (ofertas pendientes más antiguas, pedidos de cierre, y últimas postulaciones recibidas) además de los 4 indicadores numéricos (2026-10-02).
-- **D-040**: En Desktop, la navegación tiene un botón de usuario a la derecha de la barra superior que abre un Dropdown con "Mi perfil" (o equivalente) y "Cerrar sesión". En Mobile, el botón no se muestra arriba y el perfil sigue existiendo como ítem en la barra inferior (2026-10-02).
-- **D-041**: El perfil de la empresa (P08) separa la vista de lectura y la de edición (2026-10-02).
-
-### Reglas de Negocio Postulante (D-037 - D-038)
-- **D-037**: Para postularse se requiere perfil completo (nombre, apellido, teléfono, DNI) + CV.
-- **D-038**: Los rubros u oficios que puede seleccionar el postulante no tienen límite máximo (2026-10-02).
+### Q-016 — Cerrar una oferta con candidatos sin decisión
+¿La empresa puede pedir el cierre de una oferta que tiene candidatos derivados sin "Contrata / No contrata"? Propuesta: no; primero informa las decisiones pendientes, porque es el momento natural para pedir ese feedback (D-054). No cambia el esquema: es una regla del caso de uso de la solicitud de cierre.
+*Resuelta por D-055 (2026-10-18): no puede.*
