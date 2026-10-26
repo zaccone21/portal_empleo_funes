@@ -4,6 +4,16 @@ import { rubroSchema } from "./rubros";
 
 /** Schema del formulario y del body del PUT. */
 export const perfilPostulanteSchema = z.object({
+  nombre: z
+    .string()
+    .trim()
+    .min(1, "Ingresá tu nombre")
+    .max(80, "El nombre puede tener hasta 80 caracteres"),
+  apellido: z
+    .string()
+    .trim()
+    .min(1, "Ingresá tu apellido")
+    .max(80, "El apellido puede tener hasta 80 caracteres"),
   telefono: z
     .string()
     .trim()

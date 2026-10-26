@@ -2,7 +2,28 @@ import { describe, expect, test } from "vitest";
 
 import { perfilPostulanteSchema } from "./postulante-perfil";
 
-const VALIDO = { telefono: "341 555-1234", direccion: "San José 1500", rubros: ["comercio"] };
+const VALIDO = {
+  nombre: "Juan",
+  apellido: "Pérez",
+  telefono: "341 555-1234",
+  direccion: "San José 1500",
+  rubros: ["comercio"],
+};
+
+describe("perfilPostulanteSchema: nombre y apellido", () => {
+  test("requires nombre and apellido and trims spaces", () => {
+    expect(perfilPostulanteSchema.safeParse({ ...VALIDO, nombre: "   " }).error?.issues[0]?.message).toBe(
+      "Ingresá tu nombre",
+    );
+    expect(perfilPostulanteSchema.safeParse({ ...VALIDO, apellido: "" }).error?.issues[0]?.message).toBe(
+      "Ingresá tu apellido",
+    );
+
+    const resultado = perfilPostulanteSchema.parse({ ...VALIDO, nombre: "  Ana  ", apellido: "  Gómez  " });
+    expect(resultado.nombre).toBe("Ana");
+    expect(resultado.apellido).toBe("Gómez");
+  });
+});
 
 describe("perfilPostulanteSchema: dirección (D-070)", () => {
   test("accepts a street and number", () => {

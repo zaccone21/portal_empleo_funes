@@ -43,7 +43,7 @@ export function BarraInferior({ area }: { area: Role }) {
                 href={href}
                 aria-current={actual ? "page" : undefined}
                 className={cn(
-                  "flex h-full flex-col items-center justify-center gap-1 px-1 text-[0.8125rem] leading-tight font-medium text-muted-foreground outline-none",
+                  "flex h-full flex-col items-center justify-center gap-1 px-0.5 text-xs leading-tight font-medium text-muted-foreground outline-none sm:px-1 sm:text-[0.8125rem]",
                   "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset",
                   "aria-[current=page]:font-semibold aria-[current=page]:text-primary",
                 )}

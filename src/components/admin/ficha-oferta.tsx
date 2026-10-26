@@ -102,7 +102,7 @@ export function FichaOferta({ oferta, postulaciones, volver, aqui, destinoTrasDe
                   <Ausente />
                 ),
             },
-            { rotulo: "Ubicación", valor: oferta.lugar },
+            { rotulo: "Dirección del trabajo", valor: oferta.lugar },
             { rotulo: "Horario", valor: oferta.jornada },
             { rotulo: "Remuneración", valor: oferta.sueldo ?? <Ausente /> },
             ...(oferta.estado === "rechazada" && oferta.motivoRechazo

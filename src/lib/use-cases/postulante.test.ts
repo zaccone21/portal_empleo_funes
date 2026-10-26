@@ -215,9 +215,18 @@ const DIRECCION = "San José 1500";
 
 describe("actualizarPerfilPostulante: work experience (RF1.6.7)", () => {
   test("saves the experience written in the profile", async () => {
-    await actualizarPerfilPostulante(postulante, { telefono: "3411234567", direccion: DIRECCION, rubros: ["comercio"], experiencia: "Dos años en un almacén" });
+    await actualizarPerfilPostulante(postulante, {
+      nombre: "Juan",
+      apellido: "Pérez",
+      telefono: "3411234567",
+      direccion: DIRECCION,
+      rubros: ["comercio"],
+      experiencia: "Dos años en un almacén",
+    });
 
     expect(dal.guardarPerfilPostulante).toHaveBeenCalledWith("postulante-1", {
+      nombre: "Juan",
+      apellido: "Pérez",
       telefono: "3411234567",
       direccion: DIRECCION,
       rubros: ["comercio"],
@@ -226,15 +235,30 @@ describe("actualizarPerfilPostulante: work experience (RF1.6.7)", () => {
   });
 
   test("an empty field erases it", async () => {
-    await actualizarPerfilPostulante(postulante, { telefono: "3411234567", direccion: DIRECCION, rubros: ["comercio"], experiencia: "" });
+    await actualizarPerfilPostulante(postulante, {
+      nombre: "Juan",
+      apellido: "Pérez",
+      telefono: "3411234567",
+      direccion: DIRECCION,
+      rubros: ["comercio"],
+      experiencia: "",
+    });
 
     expect(dal.guardarPerfilPostulante).toHaveBeenCalledWith("postulante-1", expect.objectContaining({ experiencia: null }));
   });
 
   test("leaving it out keeps what was saved", async () => {
-    await actualizarPerfilPostulante(postulante, { telefono: "3411234567", direccion: DIRECCION, rubros: ["comercio"] });
+    await actualizarPerfilPostulante(postulante, {
+      nombre: "Juan",
+      apellido: "Pérez",
+      telefono: "3411234567",
+      direccion: DIRECCION,
+      rubros: ["comercio"],
+    });
 
     expect(dal.guardarPerfilPostulante).toHaveBeenCalledWith("postulante-1", {
+      nombre: "Juan",
+      apellido: "Pérez",
       telefono: "3411234567",
       direccion: DIRECCION,
       rubros: ["comercio"],

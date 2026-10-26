@@ -96,6 +96,8 @@ export async function guardarPerfilPostulante(
   const { error: errUpdate } = await supabase
     .from("postulantes")
     .update({
+      nombre: perfil.nombre,
+      apellido: perfil.apellido,
       telefono: perfil.telefono,
       direccion: perfil.direccion,
       ...(perfil.experiencia !== undefined ? { experiencia: perfil.experiencia } : {}),

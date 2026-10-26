@@ -73,15 +73,16 @@ export function PerfilEmpresa() {
           key={version}
           perfil={perfil ?? null}
           cuitRegistrado={cuitRegistrado}
-          // FormularioPerfilEmpresa's onGuardar expects (datos: PerfilEmpresa) => Promise<boolean>
+          estado={estado}
           onGuardar={handleGuardar}
+          onCancelar={perfil ? () => setEditando(false) : undefined}
           guardando={guardando}
           error={errorGuardado}
         />
       ) : (
         <VistaPerfilEmpresa perfil={perfil} onEditar={() => setEditando(true)} />
       )}
-      
+
       <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 lg:sticky lg:top-4">
         <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
         <div className="flex flex-col gap-1">

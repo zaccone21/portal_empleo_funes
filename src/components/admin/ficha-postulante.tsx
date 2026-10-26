@@ -188,7 +188,7 @@ function CursosPostulante({
       )}
       <FormularioDerivacionCurso postulanteId={postulanteId} />
       {seguimiento.derivacionesCurso.length === 0 ? (
-        <p className="text-muted-foreground">Todavía no se la derivó a ningún curso.</p>
+        <p className="text-muted-foreground">Todavía no se derivó a ningún curso.</p>
       ) : (
         <ul className="flex flex-col divide-y divide-border rounded-[10px] border border-border">
           {seguimiento.derivacionesCurso.map((d) => (

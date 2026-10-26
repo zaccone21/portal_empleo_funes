@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircleAlertIcon, CircleCheckIcon, FileUpIcon, LogInIcon } from "lucide-react";
+import { CircleAlertIcon, CircleCheckIcon, FileUpIcon, LogInIcon, UserRoundCheckIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
  * - sin_sesion: log in (or register) to apply. "Ingresar" carries ?volver=
  *   with this offer, so after logging in the person is back here, one tap
  *   away from applying;
+ * - falta_perfil: the server's message and a link to complete personal data
+ *   in "Mi perfil" (P03, D-070), carrying the offer id to come back;
  * - falta_cv: the server's message and a link to upload the CV (RF1.4.4, P04).
  *   The link carries the offer id, so after uploading the CV page offers to
  *   go back to this same offer and finish applying;
@@ -59,6 +61,22 @@ export function AvisoPostulacion({ resultado, ofertaId }: { resultado: Resultado
             className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full")}
           >
             Crear cuenta
+          </Link>
+        </div>
+      );
+    case "falta_perfil":
+      return (
+        <div className="flex flex-col gap-3">
+          <Alert>
+            <UserRoundCheckIcon aria-hidden="true" />
+            <AlertTitle className="text-base">Completá tu perfil</AlertTitle>
+            <AlertDescription className="text-base">{resultado.mensaje}</AlertDescription>
+          </Alert>
+          <Link
+            href={`/postulante/perfil?oferta=${encodeURIComponent(ofertaId)}`}
+            className={cn(buttonVariants({ size: "lg" }), "w-full")}
+          >
+            Completar mi perfil
           </Link>
         </div>
       );

@@ -40,14 +40,14 @@ export const GUIAS: Record<Publico, PasoGuia[]> = {
     {
       titulo: "Creá tu cuenta",
       texto:
-        "Tocá “Crear cuenta” y escribí tu email y una contraseña de 8 caracteres o más. Te llega un email: abrilo y tocá el botón para activar la cuenta.",
+        "Tocá “Crear cuenta” y escribí tu email, tu DNI y una contraseña de 8 caracteres o más. Te llega un email: abrilo y tocá el botón para activar la cuenta.",
       icono: UserPlusIcon,
       enlace: { href: "/postulante/registrarse", texto: "Crear cuenta" },
     },
     {
       titulo: "Completá tu perfil",
       texto:
-        "En “Mi perfil”, tocá “Editar datos” y cargá tu nombre, apellido, DNI y teléfono. Elegí todos los rubros en los que sabés trabajar y, si querés, contá tu experiencia.",
+        "En “Mi perfil”, cargá tu nombre, apellido, teléfono y dirección. Elegí todos los rubros en los que sabés trabajar y, si querés, contá tu experiencia.",
       icono: UserRoundCheckIcon,
       enlace: { href: "/postulante/perfil", texto: "Ir a Mi perfil" },
     },
@@ -77,7 +77,7 @@ export const GUIAS: Record<Publico, PasoGuia[]> = {
     {
       titulo: "Registrá tu empresa",
       texto:
-        "Tocá “Registrar mi empresa” y escribí un email y una contraseña de 8 caracteres o más. Te llega un email: abrilo y tocá el botón para activar la cuenta.",
+        "Tocá “Registrar mi empresa” y escribí un email, el CUIT de tu empresa y una contraseña de 8 caracteres o más. Te llega un email: abrilo y tocá el botón para activar la cuenta.",
       icono: UserPlusIcon,
       enlace: { href: "/empresa/registrarse", texto: "Registrar mi empresa" },
     },
@@ -134,12 +134,12 @@ export const PREGUNTAS: Record<Publico, PreguntaFrecuente[]> = {
     {
       pregunta: "¿Quién ve mis datos y mi CV?",
       respuesta:
-        "La Oficina de Empleo. Una empresa ve tu nombre, teléfono, email, rubros y CV solo si la Oficina te propone para una de sus ofertas. Nunca ve tu DNI ni el resto de tus postulaciones.",
+        "La Oficina de Empleo. Una empresa ve tu nombre, teléfono, email, rubros y CV solo si la Oficina te propone para una de sus ofertas. Nunca ve tu dirección, tu DNI ni el resto de tus postulaciones.",
     },
     {
       pregunta: "El portal no me deja postularme. ¿Qué hago?",
       respuesta:
-        "Para postularte necesitás el perfil completo (nombre, apellido, DNI, teléfono y al menos un rubro) y el CV en PDF. Al tocar “Postularme”, el portal te dice qué te falta y te lleva a completarlo.",
+        "Para postularte necesitás el perfil completo (nombre, apellido, DNI, teléfono, dirección y al menos un rubro) y el CV en PDF. Al tocar “Postularme”, el portal te dice qué te falta y te lleva a completarlo.",
     },
     {
       pregunta: "¿Puedo cambiar mi CV?",

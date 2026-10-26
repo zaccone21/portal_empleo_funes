@@ -67,7 +67,7 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
       <div className="flex flex-col gap-4">
-        {ofertaId && !recienSubido && (
+        {ofertaId && !recienSubido && !cv && (
           <Alert>
             <InfoIcon aria-hidden="true" />
             <AlertTitle className="text-base">Para postularte necesitás tu CV</AlertTitle>

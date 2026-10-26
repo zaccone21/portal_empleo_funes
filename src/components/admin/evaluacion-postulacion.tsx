@@ -143,7 +143,7 @@ export function EvaluacionPostulacion({
 
           <div className="grid grid-cols-2 gap-3 text-[12.5px]">
             <div>
-              <span className="text-muted-foreground block text-[11px]">Ubicación</span>
+              <span className="text-muted-foreground block text-[11px]">Dirección del trabajo</span>
               <span className="font-medium text-foreground">{postulacion.oferta.lugar || "Funes"}</span>
             </div>
             <div>
