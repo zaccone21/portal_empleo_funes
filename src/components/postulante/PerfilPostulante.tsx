@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { InfoIcon, ShieldCheckIcon } from "lucide-react";
+import { InfoIcon, PencilIcon, ShieldCheckIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { PedirIngreso } from "@/components/estados/PedirIngreso";
+import { EsqueletoPerfilLaboral } from "@/components/marca/animaciones";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { usePerfilPostulante } from "@/hooks/usePerfilPostulante";
 import { cn } from "@/lib/utils";
 import type { PerfilPostulante as Perfil } from "@/lib/validation/postulante-perfil";
@@ -19,8 +19,10 @@ import { VistaPerfilPostulante } from "./VistaPerfilPostulante";
 
 /**
  * "Datos del postulante" (P03). Loads the saved data with usePerfilPostulante.
- * If empty or incomplete when coming from an offer (`ofertaId`), shows the form
- * directly. If it has data, shows the read-only view with a button to edit.
+ * Always stays in View Mode (`VistaPerfilPostulante`) by default when a profile
+ * exists, switching to Edit Mode (`FormularioPerfilPostulante`) only when the
+ * user explicitly clicks "Editar perfil" (or "Editar mis datos").
+ * Uses the exact same 8fr/4fr non-sticky grid as `MiCv` so cards align cleanly.
  */
 export function PerfilPostulante({ ofertaId }: { ofertaId?: string }) {
   const { perfil, dni, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } = usePerfilPostulante();
@@ -41,11 +43,11 @@ export function PerfilPostulante({ ofertaId }: { ofertaId?: string }) {
 
   if (loading) {
     return (
-      <div aria-busy="true" className="lg:max-w-[64%]">
+      <div aria-busy="true" className="grid gap-6 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)] lg:items-start">
         <span className="sr-only" role="status">
           Cargando los datos de tu perfil…
         </span>
-        <Skeleton className="h-[36rem] rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card" />
+        <EsqueletoPerfilLaboral />
       </div>
     );
   }
@@ -72,11 +74,8 @@ export function PerfilPostulante({ ofertaId }: { ofertaId?: string }) {
       perfil.direccion &&
       perfil.rubros.length > 0,
   );
-  const mostrarFormulario = editando || !perfil || Boolean(ofertaId && !completo);
+  const mostrarFormulario = editando || !perfil;
 
-  // The type of perfil from usePerfilPostulante has { slug, nombre } for rubros,
-  // but Formulario/Vista expect just the slugs array for the `rubros` field,
-  // so we adapt it here.
   const perfilAdaptado = perfil
     ? {
         nombre: perfil.nombre ?? "",
@@ -92,14 +91,27 @@ export function PerfilPostulante({ ofertaId }: { ofertaId?: string }) {
     : null;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:items-start">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)] lg:items-start">
       <div className="flex flex-col gap-4">
         {ofertaId && !completo && !recienGuardado && (
           <Alert>
             <InfoIcon aria-hidden="true" />
             <AlertTitle className="text-base">Completá tu perfil para postularte</AlertTitle>
-            <AlertDescription className="text-base">
-              Cargá tu nombre, apellido, teléfono, dirección y al menos un rubro, y después volvé a la oferta.
+            <AlertDescription className="flex flex-col gap-3 text-base sm:flex-row sm:items-center sm:justify-between">
+              <span>
+                Cargá tu nombre, apellido, teléfono, dirección y al menos un rubro, y después volvé a la oferta.
+              </span>
+              {!editando ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setEditando(true)}
+                  className="shrink-0 self-start sm:self-center"
+                >
+                  <PencilIcon data-icon="inline-start" aria-hidden="true" />
+                  Editar mis datos
+                </Button>
+              ) : null}
             </AlertDescription>
           </Alert>
         )}
@@ -108,7 +120,7 @@ export function PerfilPostulante({ ofertaId }: { ofertaId?: string }) {
             <p className="font-heading text-lg font-semibold text-secondary-foreground">
               {perfil?.tieneCv
                 ? "Ya podés postularte a la oferta"
-                : "Tus datos quedaron guardados. Si todavía no subiste tu CV en PDF, subilo más abajo antes de volver."}
+                : "Tus datos quedaron guardados. Si todavía no subiste tu CV (PDF o imagen PNG), subilo más abajo antes de volver."}
             </p>
             <Link
               href={`/ofertas?oferta=${encodeURIComponent(ofertaId)}`}
@@ -133,13 +145,17 @@ export function PerfilPostulante({ ofertaId }: { ofertaId?: string }) {
         )}
       </div>
 
-      <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 lg:sticky lg:top-4">
+      <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 sm:p-6">
         <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">¿Quién ve estos datos?</h2>
-          <p className="text-base text-muted-foreground">
-            La Oficina de Empleo. Si la Oficina te propone para un trabajo, esa empresa ve tu nombre, tu
-            teléfono, tu email, tus rubros y tu CV. Tu dirección y tu DNI <strong>nunca</strong>.
+        <div className="flex flex-col gap-1.5">
+          <h2 className="font-heading text-lg font-semibold text-foreground">¿Quién ve estos datos?</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            La Oficina de Empleo de la Municipalidad de Funes. Si la Oficina te propone para un trabajo, esa empresa ve tu nombre, tu
+            teléfono, tu email, tus rubros y tu CV. Tu dirección y tu DNI <strong>nunca</strong>.{" "}
+            <Link href="/privacidad" className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80">
+              Ver privacidad y uso de datos
+            </Link>
+            .
           </p>
         </div>
       </aside>
