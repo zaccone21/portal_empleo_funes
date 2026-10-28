@@ -15,6 +15,7 @@ import {
 
 import { AvisoRevisaTuCorreo } from "./AvisoRevisaTuCorreo";
 import { BotonEnviar } from "./BotonEnviar";
+import { CampoConsentimiento } from "./CampoConsentimiento";
 import { CampoContrasena } from "./CampoContrasena";
 import { CampoEmail } from "./CampoEmail";
 import { CampoDni } from "./CampoDni";
@@ -28,7 +29,7 @@ type Props = {
   volver?: string;
 };
 
-type Errores = Partial<Record<"email" | "password" | "repetirPassword" | "dni" | "cuit", string[]>>;
+type Errores = Partial<Record<"email" | "password" | "repetirPassword" | "dni" | "cuit" | "aceptaPrivacidad", string[]>>;
 
 /**
  * Registration form for applicants (P02) and companies (P08).
@@ -37,13 +38,14 @@ type Errores = Partial<Record<"email" | "password" | "repetirPassword" | "dni" |
  * On submit:
  * 1. Validates with formularioRegistroSchema.
  * 2. Sends data with useRegistro.
- * 3. On success: shows "Revisá tu correo" or redirects.
+ * 3. On success: shows "Revisá tu correo" (with both link instructions and 6-digit PIN verification) or redirects.
  */
 export function FormularioRegistro({ rol, volver }: Props) {
   const router = useRouter();
   const { registrar, loading, error } = useRegistro();
   const [errores, setErrores] = useState<Errores>({});
   const [emailRegistrado, setEmailRegistrado] = useState<string | null>(null);
+  const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,6 +57,7 @@ export function FormularioRegistro({ rol, volver }: Props) {
       repetirPassword: formData.get("repetirPassword"),
       dni: formData.get("dni"),
       cuit: formData.get("cuit"),
+      aceptaPrivacidad,
     });
 
     if (!resultado.success) {
@@ -69,12 +72,14 @@ export function FormularioRegistro({ rol, volver }: Props) {
           email: resultado.data.email,
           password: resultado.data.password,
           dni: resultado.data.dni,
+          aceptaPrivacidad: true as const,
         }
       : {
           role: "empresa" as const,
           email: resultado.data.email,
           password: resultado.data.password,
           cuit: resultado.data.cuit,
+          aceptaPrivacidad: true as const,
         };
     const respuesta = await registrar(datosRegistro);
     if (!respuesta) return;
@@ -87,9 +92,9 @@ export function FormularioRegistro({ rol, volver }: Props) {
 
   if (emailRegistrado) {
     return (
-      <AvisoRevisaTuCorreo>
+      <AvisoRevisaTuCorreo email={emailRegistrado} volver={volver}>
         Te mandamos un email a <strong className="break-all">{emailRegistrado}</strong>. Abrilo y
-        tocá el enlace para activar tu cuenta.
+        tocá el botón para activar tu cuenta, o escribí abajo el código de 6 dígitos que incluye el correo.
       </AvisoRevisaTuCorreo>
     );
   }
@@ -116,6 +121,11 @@ export function FormularioRegistro({ rol, volver }: Props) {
           autoComplete="new-password"
           error={errores.repetirPassword?.[0]}
           obligatorio
+        />
+        <CampoConsentimiento
+          marcado={aceptaPrivacidad}
+          onCambio={setAceptaPrivacidad}
+          error={errores.aceptaPrivacidad?.[0]}
         />
       </FieldGroup>
       <ErrorDelServidor error={error} />

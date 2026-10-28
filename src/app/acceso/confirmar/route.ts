@@ -15,8 +15,8 @@ const tipoSchema = z.enum(TIPOS_DE_ENLACE);
  * - activation → the role's home, already logged in.
  * Accepts both link formats: `?code=` (Supabase's default) and
  * `?token_hash=&type=` (if the email templates are changed to it). An expired
- * or broken link sends to the login (or to /nueva-contrasena, which explains
- * that the link expired when the person tries to save).
+ * or broken link sends to `/postulante/ingresar?error=enlace_vencido` (or to
+ * `/nueva-contrasena` for password recovery).
  */
 export async function GET(request: NextRequest) {
   const parametros = request.nextUrl.searchParams;
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const tokenHash = parametros.get("token_hash");
   const tipo = tipoSchema.safeParse(parametros.get("type"));
   const esRecuperacion = parametros.get("tipo") === "recuperacion" || (tipo.success && tipo.data === "recovery");
-  const siFalla = esRecuperacion ? "/nueva-contrasena" : "/postulante/ingresar";
+  const siFalla = esRecuperacion ? "/nueva-contrasena" : "/postulante/ingresar?error=enlace_vencido";
 
   const enlace = code ? { code } : tokenHash && tipo.success ? { tokenHash, tipo: tipo.data } : null;
   if (!enlace) redirect(siFalla);

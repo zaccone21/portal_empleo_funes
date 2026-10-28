@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { z } from "zod";
 
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { roleSchema, type Role } from "@/lib/validation/role";
 import type { DatosRegistro } from "@/lib/validation/auth";
@@ -49,11 +50,91 @@ export type ResultadoIngreso =
   | { ok: false; motivo: "credenciales" | "sin_confirmar" };
 
 /**
- * Signs in with email and password. The session cookies go out with the
- * response. The role is read with the same client, which already holds the
- * new session, so RLS lets it read the user's own profile.
+ * Resolves a login identifier (Email, 7-8 digit DNI, or 11-digit CUIT) into the
+ * account's email address for Supabase Auth.
+ * Uses the database RPC `resolver_email_por_documento` first, with a server-side
+ * admin client fallback if migration 20261028180000 has not been run yet.
  */
-export async function ingresarConContrasena(email: string, password: string): Promise<ResultadoIngreso> {
+async function resolverEmailDeIdentificador(identificador: string): Promise<string | null> {
+  const limpio = identificador.trim();
+  if (limpio.includes("@")) {
+    return limpio;
+  }
+
+  const soloNumeros = limpio.replace(/\D/g, "");
+  if (soloNumeros.length !== 7 && soloNumeros.length !== 8 && soloNumeros.length !== 11) {
+    return null;
+  }
+
+  const supabase = await createClient();
+  try {
+    const { data: emailRpc, error: errorRpc } = await supabase.rpc(
+      "resolver_email_por_documento",
+      { p_documento: soloNumeros },
+    );
+    if (!errorRpc && typeof emailRpc === "string" && emailRpc.includes("@")) {
+      return emailRpc;
+    }
+  } catch {
+    // Fallback below if the RPC does not exist yet
+  }
+
+  if (!process.env.SUPABASE_SECRET_KEY) {
+    return null;
+  }
+
+  try {
+    const admin = createAdminClient();
+    if (soloNumeros.length === 7 || soloNumeros.length === 8) {
+      const { data: postulante } = await admin
+        .from("postulantes")
+        .select("id")
+        .eq("dni", soloNumeros)
+        .maybeSingle();
+
+      if (!postulante?.id) return null;
+
+      const { data: perfil } = await admin
+        .from("perfiles")
+        .select("email")
+        .eq("id", postulante.id)
+        .maybeSingle();
+
+      return typeof perfil?.email === "string" ? perfil.email : null;
+    }
+
+    const cuitConGuiones = `${soloNumeros.slice(0, 2)}-${soloNumeros.slice(2, 10)}-${soloNumeros.slice(10, 11)}`;
+    const { data: empresa } = await admin
+      .from("empresas")
+      .select("id")
+      .in("cuit", [cuitConGuiones, soloNumeros])
+      .maybeSingle();
+
+    if (!empresa?.id) return null;
+
+    const { data: perfil } = await admin
+      .from("perfiles")
+      .select("email")
+      .eq("id", empresa.id)
+      .maybeSingle();
+
+    return typeof perfil?.email === "string" ? perfil.email : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Signs in with email (or DNI / CUIT) and password. The session cookies go out
+ * with the response. The role is read with the same client, which already holds
+ * the new session, so RLS lets it read the user's own profile.
+ */
+export async function ingresarConContrasena(identificador: string, password: string): Promise<ResultadoIngreso> {
+  const email = await resolverEmailDeIdentificador(identificador);
+  if (!email) {
+    return { ok: false, motivo: "credenciales" };
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -90,7 +171,11 @@ export async function registrar(
   urlConfirmacion: string,
 ): Promise<ResultadoRegistro> {
   const supabase = await createClient();
-  const metadata: Record<string, string> = { rol: datos.role };
+  const metadata: Record<string, string> = {
+    rol: datos.role,
+    // Moment the person accepted the privacy notice (/privacidad).
+    consentimiento_privacidad_el: new Date().toISOString(),
+  };
   if (datos.role === "postulante") {
     metadata.dni = datos.dni;
   }
@@ -190,4 +275,63 @@ export async function abrirSesionConEnlace(enlace: EnlaceDelEmail): Promise<Role
   if (errorPerfil) throw new Error("Could not load the user profile after opening the link.");
 
   return roleSchema.parse(perfil.rol);
+}
+
+/**
+ * Verifies the 6-digit OTP code (`{{ .Token }}`) sent in the signup confirmation
+ * email and opens the user's session immediately. Tries `type: "signup"` first,
+ * falling back to `type: "email"` for compatibility with Supabase Auth templates.
+ * Returns the authenticated user's role or null if the code is invalid/expired.
+ */
+export async function verificarCodigoEmail(email: string, codigo: string): Promise<Role | null> {
+  const supabase = await createClient();
+
+  let respuesta = await supabase.auth.verifyOtp({
+    email,
+    token: codigo,
+    type: "signup",
+  });
+
+  if (respuesta.error || !respuesta.data.user) {
+    respuesta = await supabase.auth.verifyOtp({
+      email,
+      token: codigo,
+      type: "email",
+    });
+  }
+
+  if (respuesta.error || !respuesta.data.user) return null;
+
+  const { data: perfil, error: errorPerfil } = await supabase
+    .from("perfiles")
+    .select("rol")
+    .eq("id", respuesta.data.user.id)
+    .single();
+
+  if (errorPerfil) throw new Error("Could not load the user profile after verifying OTP code.");
+
+  return roleSchema.parse(perfil.rol);
+}
+
+/**
+ * Resends the signup confirmation email via Supabase Auth.
+ * Unknown or already-confirmed emails are treated as success so the endpoint
+ * never leaks whether an account exists (AGENTS §7).
+ */
+export async function reenviarConfirmacionRegistro(
+  email: string,
+  urlConfirmacion: string,
+): Promise<{ ok: boolean }> {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: urlConfirmacion },
+  });
+
+  if (error) {
+    if (error.code && ERRORES_DE_ENVIO.has(error.code)) return { ok: false };
+    return { ok: true };
+  }
+  return { ok: true };
 }
