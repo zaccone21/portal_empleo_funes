@@ -1,19 +1,23 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/dal/auth";
 import { crearCuentaOficina } from "@/lib/use-cases/equipo";
 import {
+  alternarCursoAdmin,
   aprobarEmpresa,
   asociarPostulanteAOferta,
   cerrarOferta,
+  crearCursoAdmin,
   publicarOfertaPendiente,
   rechazarEmpresa,
   rechazarOferta,
   registrarDerivacionCurso,
   registrarPreentrevista,
+  reprogramarPreentrevista,
   resolverPostulacion,
 } from "@/lib/use-cases/oficina";
 import { nuevaCuentaOficinaSchema } from "@/lib/validation/equipo";
@@ -24,7 +28,7 @@ import {
   rechazoEmpresaSchema,
   rechazoOfertaSchema,
 } from "@/lib/validation/motivos-rechazo";
-import { derivacionCursoSchema, preentrevistaSchema } from "@/lib/validation/oficina";
+import { cursoCatalogoSchema, derivacionCursoSchema, preentrevistaSchema } from "@/lib/validation/oficina";
 import { estadoPostulacionSchema } from "@/lib/validation/postulaciones";
 
 /*
@@ -46,6 +50,13 @@ const idSchema = z.string().min(1).max(100);
 /** Refreshes every Office screen so counters, queues and panels show the new state. */
 function refrescarAdmin() {
   revalidatePath("/admin", "layout");
+}
+
+async function obtenerUrlBasePedido(): Promise<string> {
+  const encabezados = await headers();
+  const host = encabezados.get("x-forwarded-host") ?? encabezados.get("host");
+  const proto = encabezados.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
+  return host ? `${proto}://${host}` : "http://localhost:3000";
 }
 
 /** Approves one pending offer with a single click (RF1.5.3). */
@@ -167,7 +178,7 @@ export async function resolverPostulacionAccion(id: string, estado: string): Pro
   return { ok: true, mensaje: MENSAJE_ESTADO[parsedEstado.data] };
 }
 
-/** Saves the optional pre-interview of an application: date and notes (RF1.6.1, D-045). */
+/** Saves the pre-interview of an application and notifies the candidate by email (RF1.6.1, D-045). */
 export async function registrarPreentrevistaAccion(id: string, datos: unknown): Promise<RespuestaAccion> {
   const parsedId = idSchema.safeParse(id);
   const parsedDatos = preentrevistaSchema.safeParse(datos);
@@ -176,13 +187,71 @@ export async function registrarPreentrevistaAccion(id: string, datos: unknown): 
   const usuario = await getCurrentUser();
   if (!usuario) return SIN_SESION;
 
-  const resultado = await registrarPreentrevista(usuario, parsedId.data, parsedDatos.data);
+  const urlBase = await obtenerUrlBasePedido();
+  const resultado = await registrarPreentrevista(usuario, parsedId.data, parsedDatos.data, urlBase);
   if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
   refrescarAdmin();
-  return { ok: true, mensaje: "Guardaste la preentrevista." };
+
+  if (parsedDatos.data.confirmarDirecto) {
+    return { ok: true, mensaje: "Guardaste la pre-entrevista como agendada." };
+  }
+  return {
+    ok: true,
+    mensaje: resultado.datos.emailEnviado
+      ? "Pre-entrevista registrada (pendiente de confirmación). Se envió el mail al candidato."
+      : "Pre-entrevista registrada como pendiente de confirmación.",
+  };
 }
 
-/** Registers a course referral from the applicant's page (P19, RF1.6.6, D-047). */
+/** Proactively reschedules a pre-interview from the Office calendar or evaluation screen. */
+export async function reprogramarPreentrevistaAccion(id: string, datos: unknown): Promise<RespuestaAccion> {
+  const parsedId = idSchema.safeParse(id);
+  const parsedDatos = preentrevistaSchema.safeParse(datos);
+  if (!parsedId.success) return DATOS_INVALIDOS;
+  if (!parsedDatos.success) return { ok: false, mensaje: parsedDatos.error.issues[0]?.message ?? DATOS_INVALIDOS.mensaje };
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const urlBase = await obtenerUrlBasePedido();
+  const resultado = await reprogramarPreentrevista(usuario, parsedId.data, parsedDatos.data, urlBase);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  refrescarAdmin();
+
+  return {
+    ok: true,
+    mensaje: resultado.datos.emailEnviado
+      ? "Reprogramaste la pre-entrevista y se envió el aviso por mail."
+      : "Reprogramaste la pre-entrevista.",
+  };
+}
+
+/** Creates a new training course in the Office catalog (`public.cursos`). */
+export async function crearCursoAccion(datos: unknown): Promise<RespuestaAccion> {
+  const parsedDatos = cursoCatalogoSchema.safeParse(datos);
+  if (!parsedDatos.success) return { ok: false, mensaje: parsedDatos.error.issues[0]?.message ?? DATOS_INVALIDOS.mensaje };
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const resultado = await crearCursoAdmin(usuario, parsedDatos.data);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  refrescarAdmin();
+  return { ok: true, mensaje: `Cargaste el curso “${resultado.datos.curso.nombre}”.` };
+}
+
+/** Activates or pauses a course in the Office catalog. */
+export async function alternarCursoAccion(cursoId: string, activo: boolean): Promise<RespuestaAccion> {
+  const parsedId = idSchema.safeParse(cursoId);
+  if (!parsedId.success) return DATOS_INVALIDOS;
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const resultado = await alternarCursoAdmin(usuario, parsedId.data, Boolean(activo));
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  refrescarAdmin();
+  return { ok: true, mensaje: activo ? "Activaste el curso." : "Pausaste el curso." };
+}
+
+/** Registers a course referral and sends an email notification to the applicant (P19, RF1.6.6, D-047). */
 export async function registrarDerivacionCursoAccion(postulanteId: string, datos: unknown): Promise<RespuestaAccion> {
   const parsedId = idSchema.safeParse(postulanteId);
   const parsedDatos = derivacionCursoSchema.safeParse(datos);
@@ -194,7 +263,12 @@ export async function registrarDerivacionCursoAccion(postulanteId: string, datos
   const resultado = await registrarDerivacionCurso(usuario, parsedId.data, parsedDatos.data);
   if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
   refrescarAdmin();
-  return { ok: true, mensaje: `Registraste la derivación a “${resultado.datos.derivacion.curso}”.` };
+  return {
+    ok: true,
+    mensaje: resultado.datos.emailEnviado
+      ? `Asignaste el curso “${resultado.datos.derivacion.curso}” y se le envió el correo al postulante.`
+      : `Registraste la derivación a “${resultado.datos.derivacion.curso}”.`,
+  };
 }
 
 /** Links an applicant to a published offer from the pool, as if they had applied (P16, RF1.5.8). */
