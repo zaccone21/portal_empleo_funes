@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 
 import { ErrorDelServidor } from "@/components/auth/ErrorDelServidor";
@@ -73,36 +74,54 @@ export function DecisionCandidato({ candidato, nombre, onDecidido }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-base font-medium">¿Contrataste a esta persona?</p>
-      {escribiendoMotivo ? (
-        <form onSubmit={enviarMotivo} noValidate className="flex flex-col gap-4">
-          <CampoTexto
-            id={idMotivo}
-            label="¿Por qué no la contratás?"
-            descripcion="Lo lee solo la Oficina de Empleo, para seguir ayudando a esta persona."
-            error={errorMotivo}
-            multilinea
-            maxLength={500}
-            obligatorio
-          />
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button type="submit" size="lg">
-              Enviar respuesta
+      <AnimatePresence initial={false}>
+        {escribiendoMotivo ? (
+          <motion.form
+            key="formulario-motivo"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+            onSubmit={enviarMotivo}
+            noValidate
+            className="flex flex-col gap-4"
+          >
+            <CampoTexto
+              id={idMotivo}
+              label="¿Por qué no la contratás?"
+              descripcion="Lo lee solo la Oficina de Empleo, para seguir ayudando a esta persona."
+              error={errorMotivo}
+              multilinea
+              maxLength={500}
+              obligatorio
+            />
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button type="submit" size="lg">
+                Enviar respuesta
+              </Button>
+              <Button type="button" variant="ghost" size="lg" onClick={() => setEscribiendoMotivo(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </motion.form>
+        ) : (
+          <motion.div
+            key="botones-decision"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+            className="flex flex-col gap-2 sm:flex-row"
+          >
+            <Button size="lg" onClick={() => setPorConfirmar({ decision: "contratado" })}>
+              Sí, la contraté
             </Button>
-            <Button type="button" variant="ghost" size="lg" onClick={() => setEscribiendoMotivo(false)}>
-              Cancelar
+            <Button variant="outline" size="lg" onClick={() => setEscribiendoMotivo(true)}>
+              No la contraté
             </Button>
-          </div>
-        </form>
-      ) : (
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button size="lg" onClick={() => setPorConfirmar({ decision: "contratado" })}>
-            Sí, la contraté
-          </Button>
-          <Button variant="outline" size="lg" onClick={() => setEscribiendoMotivo(true)}>
-            No la contraté
-          </Button>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AlertDialog open={porConfirmar !== null} onOpenChange={(abierto) => !abierto && setPorConfirmar(null)}>
         <AlertDialogContent>

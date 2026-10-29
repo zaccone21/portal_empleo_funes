@@ -10,6 +10,7 @@ import { nombreCompleto } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { AnimarColapsable } from "@/components/marca/animaciones";
 import { SelectorNativo } from "@/components/formularios/SelectorNativo";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -96,15 +97,16 @@ function AsignadorRapidoCurso({
             <option value="__manual__">Otro curso (escribir nombre)…</option>
           </SelectorNativo>
         )}
-        {usaManual && (
+        <AnimarColapsable abierto={usaManual}>
           <Input
             placeholder="Nombre del curso a asignar"
             value={nombreManual}
             onChange={(e) => setNombreManual(e.target.value)}
             maxLength={120}
             aria-label="Nombre del curso"
+            className="mt-1"
           />
-        )}
+        </AnimarColapsable>
         {error && <span className="text-[11.5px] font-medium text-destructive">{error}</span>}
       </div>
       <BotonAdmin type="submit" variante="primario" disabled={pendiente}>

@@ -5,6 +5,7 @@ import { CalendarClockIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { BotonAdmin } from "@/components/admin/boton-admin";
+import { SelectorFechaHora } from "@/components/admin/selector-fecha-hora";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { reprogramarPreentrevistaAccion } from "@/lib/actions/oficina";
 import { aValorFechaHora, desdeValorFechaHora } from "@/lib/admin/fechas";
@@ -30,9 +30,9 @@ type Props = {
 };
 
 /**
- * Proactive manual rescheduling dialog for the Office (Item 3).
+ * Proactive manual rescheduling dialog for the Office.
  * Can be opened at any time from the pre-interview calendar, collapsible list,
- * or the application evaluation screen.
+ * or the application evaluation screen. Uses custom shadcn/ui calendar.
  */
 export function DialogoReprogramarPreentrevista({
   postulacionId,
@@ -94,20 +94,27 @@ export function DialogoReprogramarPreentrevista({
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
           <FieldGroup className="gap-3">
             <Field data-invalid={errorFecha ? true : undefined}>
-              <FieldLabel htmlFor={`reprogramar-fecha-${postulacionId}`}>Nueva fecha y hora</FieldLabel>
-              <Input
+              <FieldLabel htmlFor={`reprogramar-fecha-${postulacionId}`}>
+                Nueva fecha y hora
+              </FieldLabel>
+              <SelectorFechaHora
                 id={`reprogramar-fecha-${postulacionId}`}
                 name="reprogramar-fecha"
-                type="datetime-local"
                 defaultValue={fechaActual ? aValorFechaHora(fechaActual) : undefined}
                 aria-invalid={errorFecha ? true : undefined}
-                aria-describedby={errorFecha ? `reprogramar-fecha-error-${postulacionId}` : undefined}
+                aria-describedby={
+                  errorFecha ? `reprogramar-fecha-error-${postulacionId}` : undefined
+                }
               />
-              <FieldError id={`reprogramar-fecha-error-${postulacionId}`}>{errorFecha}</FieldError>
+              <FieldError id={`reprogramar-fecha-error-${postulacionId}`}>
+                {errorFecha}
+              </FieldError>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor={`reprogramar-notas-${postulacionId}`}>Notas o motivo (opcional)</FieldLabel>
+              <FieldLabel htmlFor={`reprogramar-notas-${postulacionId}`}>
+                Notas o motivo (opcional)
+              </FieldLabel>
               <Textarea
                 id={`reprogramar-notas-${postulacionId}`}
                 name="reprogramar-notas"

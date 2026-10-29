@@ -18,7 +18,7 @@ import { TarjetaEmpresa } from "@/components/admin/panel-detalle";
 import { ResultadoEmpresa } from "@/components/admin/resultado-empresa";
 import { BadgePostulacion } from "@/components/admin/status-badge";
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
-import { fechaLarga } from "@/lib/admin/fechas";
+import { fechaHora, fechaLarga } from "@/lib/admin/fechas";
 import { conDesde } from "@/lib/admin/url";
 import { enlaceLlamada, enlaceWhatsApp, formatearTelefonoAR } from "@/lib/telefonos";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
@@ -207,18 +207,6 @@ export function EvaluacionPostulacion({
               </div>
               <div className="flex flex-wrap items-center justify-end gap-1.5">
                 <EnlaceAccion href={conDesde(`/admin/postulantes/${postulacion.postulante.id}`, aqui)}>Ver ficha</EnlaceAccion>
-                {postulacion.postulante.cvNombre && (
-                  <BotonAdmin
-                    variante="primario"
-                    render={
-                      <a
-                        href={`/api/admin/postulantes/${postulacion.postulante.id}/cv?descargar=1`}
-                      />
-                    }
-                  >
-                    Descargar CV
-                  </BotonAdmin>
-                )}
               </div>
             </div>
 
@@ -269,13 +257,30 @@ export function EvaluacionPostulacion({
             </section>
           )}
 
-          <FormularioPreentrevista
-            postulacionId={postulacion.id}
-            preentrevista={postulacion.preentrevista}
-            preentrevistaEstado={postulacion.preentrevistaEstado}
-            nombrePostulante={nombre}
-            tituloOferta={postulacion.oferta.titulo}
-          />
+          {/* Si ya fue derivado a la empresa, se quita el formulario de pre-entrevista */}
+          {postulacion.derivadaEl || postulacion.estado === "derivado" ? (
+            postulacion.preentrevista ? (
+              <div className="flex flex-col gap-1 rounded-[10px] border border-border bg-surface p-3 text-[12.5px]">
+                <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                  Pre-entrevista realizada
+                </span>
+                <span className="font-heading font-bold text-foreground">
+                  {fechaHora(postulacion.preentrevista.fecha)} hs
+                </span>
+                {postulacion.preentrevista.notas && (
+                  <p className="text-muted-foreground">{postulacion.preentrevista.notas}</p>
+                )}
+              </div>
+            ) : null
+          ) : (
+            <FormularioPreentrevista
+              postulacionId={postulacion.id}
+              preentrevista={postulacion.preentrevista}
+              preentrevistaEstado={postulacion.preentrevistaEstado}
+              nombrePostulante={nombre}
+              tituloOferta={postulacion.oferta.titulo}
+            />
+          )}
 
           {/* CV Document preview or message */}
           <div className="flex min-h-[350px] flex-1 flex-col gap-2">

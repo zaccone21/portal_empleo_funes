@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { InfoIcon, PencilIcon, ShieldCheckIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
@@ -130,19 +131,37 @@ export function PerfilPostulante({ ofertaId }: { ofertaId?: string }) {
             </Link>
           </div>
         )}
-        {mostrarFormulario ? (
-          <FormularioPerfilPostulante
-            key={version}
-            perfil={perfilAdaptado}
-            dni={dni}
-            onGuardar={handleGuardar}
-            onCancelar={perfilAdaptado ? () => setEditando(false) : undefined}
-            guardando={guardando}
-            error={errorGuardado}
-          />
-        ) : (
-          <VistaPerfilPostulante perfil={perfilAdaptado!} onEditar={() => setEditando(true)} />
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          {mostrarFormulario ? (
+            <motion.div
+              key={`form-${version}`}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18 }}
+            >
+              <FormularioPerfilPostulante
+                key={version}
+                perfil={perfilAdaptado}
+                dni={dni}
+                onGuardar={handleGuardar}
+                onCancelar={perfilAdaptado ? () => setEditando(false) : undefined}
+                guardando={guardando}
+                error={errorGuardado}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="vista"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18 }}
+            >
+              <VistaPerfilPostulante perfil={perfilAdaptado!} onEditar={() => setEditando(true)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 sm:p-6">

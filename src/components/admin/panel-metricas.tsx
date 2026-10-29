@@ -6,6 +6,7 @@ import {
   AwardIcon,
   BarChart3Icon,
   BriefcaseIcon,
+  CalendarIcon,
   CalendarRangeIcon,
   FileDownIcon,
   GraduationCapIcon,
@@ -17,10 +18,14 @@ import {
   UserXIcon,
 } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
+import { AnimatePresence, motion } from "motion/react";
+import { es } from "date-fns/locale";
 
-import { AnimarElemento, AnimarEntrada, AnimarGrupo } from "@/components/marca/animaciones";
+import { AnimarColapsable, AnimarElemento, AnimarEntrada, AnimarGrupo } from "@/components/marca/animaciones";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   ChartContainer,
   ChartLegend,
@@ -29,7 +34,6 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fechaCorta, hoyArgentino } from "@/lib/admin/fechas";
 import type { DatosMetricasPortal } from "@/lib/use-cases/oficina";
@@ -375,65 +379,120 @@ export function PanelMetricas({ datos }: Props) {
                 <p className="text-xs text-muted-foreground">Cambia las cifras, los gráficos, las tablas y el PDF.</p>
               </div>
             </div>
-            <Badge variant="outline" className="border-brand-leaf/30 bg-brand-mint/25 px-3 py-1 text-xs font-semibold text-brand-deep">
-              {rango.etiqueta}
-            </Badge>
+            <div className="overflow-hidden">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={rango.etiqueta}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <Badge variant="outline" className="border-brand-leaf/30 bg-brand-mint/25 px-3 py-1 text-xs font-semibold text-brand-deep">
+                    {rango.etiqueta}
+                  </Badge>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
 
-          <div role="group" aria-label="Elegir período" className="flex flex-wrap items-center gap-2">
-            {(Object.keys(ETIQUETAS_PERIODO) as ModoPeriodo[]).map((modo) => (
-              <button
-                key={modo}
-                type="button"
-                aria-pressed={modoPeriodo === modo}
-                onClick={() => setModoPeriodo(modo)}
-                className={cn(
-                  "inline-flex min-h-10 items-center rounded-xl border px-3.5 text-sm font-semibold transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-                  modoPeriodo === modo
-                    ? "border-brand-deep bg-brand-deep text-primary-foreground"
-                    : "border-border bg-background text-foreground hover:border-brand-leaf/50 hover:bg-brand-mint/20",
-                )}
-              >
-                {ETIQUETAS_PERIODO[modo]}
-              </button>
-            ))}
+          <div role="group" aria-label="Elegir período" className="relative flex flex-wrap items-center gap-2">
+            {(Object.keys(ETIQUETAS_PERIODO) as ModoPeriodo[]).map((modo) => {
+              const activo = modoPeriodo === modo;
+              return (
+                <button
+                  key={modo}
+                  type="button"
+                  aria-pressed={activo}
+                  onClick={() => setModoPeriodo(modo)}
+                  className={cn(
+                    "relative z-10 inline-flex min-h-10 items-center rounded-xl px-3.5 text-sm font-semibold transition-colors duration-200 outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                    activo
+                      ? "text-primary-foreground"
+                      : "border border-border bg-background text-foreground hover:border-brand-leaf/50 hover:bg-brand-mint/20",
+                  )}
+                >
+                  {activo && (
+                    <motion.span
+                      layoutId="indicador-periodo-metricas"
+                      className="absolute inset-0 -z-10 rounded-xl bg-brand-deep shadow-2xs"
+                      transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                    />
+                  )}
+                  {ETIQUETAS_PERIODO[modo]}
+                </button>
+              );
+            })}
           </div>
 
-          {modoPeriodo === "personalizado" && (
-            <div className="grid gap-3 rounded-xl border border-brand-leaf/25 bg-brand-mint/10 p-3.5 sm:grid-cols-2 md:max-w-lg">
+          <AnimarColapsable abierto={modoPeriodo === "personalizado"}>
+            <div className="mt-1 grid gap-3 rounded-xl border border-brand-leaf/25 bg-brand-mint/10 p-3.5 sm:grid-cols-2 md:max-w-lg">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="metricas-desde" className="text-xs font-semibold text-foreground">
-                  Desde
-                </label>
-                <Input
-                  id="metricas-desde"
-                  type="date"
-                  value={desdeCustom}
-                  max={hastaCustom || hoy}
-                  onChange={(e) => setDesdeCustom(e.target.value)}
-                  className="h-10 bg-background text-sm"
-                />
+                <span className="text-xs font-semibold text-foreground">Desde</span>
+                <Popover>
+                  <PopoverTrigger
+                    render={
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-10 w-full justify-start gap-2 bg-background text-left text-sm font-normal"
+                      >
+                        <CalendarIcon className="size-4 text-primary" aria-hidden="true" />
+                        <span>{fechaCorta(desdeCustom)}</span>
+                      </Button>
+                    }
+                  />
+                  <PopoverContent align="start" className="w-auto p-3">
+                    <Calendar
+                      mode="single"
+                      selected={aFecha(desdeCustom)}
+                      onSelect={(d) => d && setDesdeCustom(aIso(d))}
+                      locale={es}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
+
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="metricas-hasta" className="text-xs font-semibold text-foreground">
-                  Hasta
-                </label>
-                <Input
-                  id="metricas-hasta"
-                  type="date"
-                  value={hastaCustom}
-                  min={desdeCustom}
-                  max={hoy}
-                  onChange={(e) => setHastaCustom(e.target.value)}
-                  className="h-10 bg-background text-sm"
-                />
+                <span className="text-xs font-semibold text-foreground">Hasta</span>
+                <Popover>
+                  <PopoverTrigger
+                    render={
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-10 w-full justify-start gap-2 bg-background text-left text-sm font-normal"
+                      >
+                        <CalendarIcon className="size-4 text-primary" aria-hidden="true" />
+                        <span>{fechaCorta(hastaCustom)}</span>
+                      </Button>
+                    }
+                  />
+                  <PopoverContent align="start" className="w-auto p-3">
+                    <Calendar
+                      mode="single"
+                      selected={aFecha(hastaCustom)}
+                      onSelect={(d) => d && setHastaCustom(aIso(d))}
+                      locale={es}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
-          )}
+          </AnimarColapsable>
         </section>
       </AnimarEntrada>
 
-      <AnimarGrupo className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 print:grid-cols-3">
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={`${rango.desde}-${rango.hasta}`}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col gap-6"
+        >
+          <AnimarGrupo className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 print:grid-cols-3">
         <TarjetaCifra
           tono="emerald"
           Icono={ActivityIcon}
@@ -728,6 +787,8 @@ export function PanelMetricas({ datos }: Props) {
           </div>
         )}
       </TarjetaGrafico>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

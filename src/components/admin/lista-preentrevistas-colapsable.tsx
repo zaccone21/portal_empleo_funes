@@ -14,7 +14,7 @@ import { fechaHora } from "@/lib/admin/fechas";
 import { conDesde } from "@/lib/admin/url";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
 
-export type VistaCalendarioPre = "dia" | "semana" | "mes";
+export type VistaCalendarioPre = "dia" | "semana" | "mes" | "periodo";
 
 type Props = {
   preentrevistas: PostulacionAdmin[];
@@ -33,7 +33,14 @@ export function ListaPreentrevistasColapsable({
   etiquetaPeriodo,
 }: Props) {
   const [abierto, setAbierto] = useState(true);
-  const textoVista = vista === "dia" ? "del día" : vista === "semana" ? "de la semana" : "del mes";
+  const textoVista =
+    vista === "dia"
+      ? "del día"
+      : vista === "semana"
+        ? "de la semana"
+        : vista === "periodo"
+          ? "del período seleccionado"
+          : "del mes";
   const agendadasCount = preentrevistas.filter((p) => p.preentrevistaEstado === "agendada").length;
   const pendientesCount = preentrevistas.length - agendadasCount;
 

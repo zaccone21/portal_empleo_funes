@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
@@ -17,21 +20,28 @@ export function SelectorPublico({ elegido }: { elegido: Publico }) {
           const { titulo, texto, icono: Icono } = PUBLICOS[publico];
           const actual = publico === elegido;
           return (
-            <li key={publico}>
+            <li key={publico} className="relative">
               <Link
                 href={publico === "postulante" ? "/ayuda" : "/ayuda?para=empresa"}
                 scroll={false}
                 aria-current={actual ? "page" : undefined}
                 className={cn(
-                  "flex min-h-11 items-center gap-4 rounded-tl-2xl rounded-tr-md rounded-br-2xl rounded-bl-md bg-card p-4 ring-1 ring-foreground/10 outline-none transition-colors",
+                  "relative z-10 flex min-h-11 items-center gap-4 rounded-tl-2xl rounded-tr-md rounded-br-2xl rounded-bl-md p-4 outline-none transition-colors",
                   "hover:ring-primary/40 focus-visible:ring-3 focus-visible:ring-ring/50",
-                  "aria-[current=page]:bg-secondary aria-[current=page]:ring-2 aria-[current=page]:ring-primary",
+                  !actual && "bg-card ring-1 ring-foreground/10",
                 )}
               >
+                {actual && (
+                  <motion.span
+                    layoutId="selector-publico-activo"
+                    className="absolute inset-0 -z-10 rounded-tl-2xl rounded-tr-md rounded-br-2xl rounded-bl-md bg-secondary ring-2 ring-primary"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "flex size-12 shrink-0 items-center justify-center rounded-tl-xl rounded-tr-sm rounded-br-xl rounded-bl-sm",
+                    "flex size-12 shrink-0 items-center justify-center rounded-tl-xl rounded-tr-sm rounded-br-xl rounded-bl-sm transition-colors",
                     actual ? "bg-primary text-primary-foreground" : "bg-secondary text-primary",
                   )}
                 >
