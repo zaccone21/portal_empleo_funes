@@ -1,83 +1,31 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { CheckCircle2Icon, KeyRoundIcon, MailCheckIcon, RefreshCwIcon } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { MailCheckIcon, RefreshCwIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { esRutaInterna } from "@/lib/rutas";
-import {
-  respuestaConDestinoSchema,
-  verificarCodigoEmailSchema,
-} from "@/lib/validation/auth";
 
 type Props = {
-  children: ReactNode;
+  children?: ReactNode;
   /**
    * When provided (after account registration or unconfirmed login), displays
-   * the 6-digit OTP verification input and the "Reenviar correo" button.
+   * the email and the "Reenviar correo" button.
    */
   email?: string;
-  /** Optional internal path to return to once verified. */
+  /** Optional callback to return to the form and edit the email */
+  onCambiarEmail?: () => void;
   volver?: string;
 };
 
 /**
- * Message that replaces a form after it sends an email (registration and
- * password recovery). When `email` is provided, also renders an interactive
- * 6-digit PIN input (`POST /api/auth/verificar-codigo`) and a button to resend
- * the confirmation email (`POST /api/auth/reenviar-confirmacion`), so the user
- * can activate their account either via the link or via the code.
+ * Mensaje simple y claro tras enviar el correo de confirmación (P02, P08).
+ * Elimina cualquier código PIN o verificación compleja: la activación se realiza
+ * exclusivamente tocando el botón del email.
  */
-export function AvisoRevisaTuCorreo({ children, email, volver }: Props) {
-  const router = useRouter();
-  const [codigo, setCodigo] = useState("");
-  const [errorCodigo, setErrorCodigo] = useState<string | null>(null);
-  const [verificando, setVerificando] = useState(false);
+export function AvisoRevisaTuCorreo({ children, email, onCambiarEmail }: Props) {
   const [reenviando, setReenviando] = useState(false);
   const [mensajeReenvio, setMensajeReenvio] = useState<string | null>(null);
   const [errorReenvio, setErrorReenvio] = useState<string | null>(null);
-
-  async function manejarVerificarCodigo(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!email) return;
-
-    const validacion = verificarCodigoEmailSchema.safeParse({ email, codigo });
-    if (!validacion.success) {
-      setErrorCodigo("Ingresá los 6 números del código que recibiste por email.");
-      return;
-    }
-
-    setErrorCodigo(null);
-    setVerificando(true);
-    try {
-      const res = await fetch("/api/auth/verificar-codigo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(validacion.data),
-      });
-
-      if (!res.ok) {
-        const cuerpo = (await res.json().catch(() => null)) as { error?: string } | null;
-        setErrorCodigo(
-          cuerpo?.error ?? "El código es incorrecto o venció. Probá con uno nuevo.",
-        );
-        return;
-      }
-
-      const datos = respuestaConDestinoSchema.safeParse(await res.json());
-      if (datos.success) {
-        router.replace(esRutaInterna(volver) ? volver : datos.data.destino);
-      }
-    } catch {
-      setErrorCodigo("No pudimos verificar el código. Revisá tu conexión e intentá de nuevo.");
-    } finally {
-      setVerificando(false);
-    }
-  }
 
   async function manejarReenviar() {
     if (!email) return;
@@ -97,7 +45,7 @@ export function AvisoRevisaTuCorreo({ children, email, volver }: Props) {
         );
         return;
       }
-      setMensajeReenvio("Te enviamos un nuevo correo con enlace y código actualizado.");
+      setMensajeReenvio("Te volvimos a enviar el correo de confirmación. Revisá tu casilla.");
     } catch {
       setErrorReenvio("No pudimos conectar con el servidor. Intentá de nuevo.");
     } finally {
@@ -106,72 +54,71 @@ export function AvisoRevisaTuCorreo({ children, email, volver }: Props) {
   }
 
   return (
-    <div role="status" className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <MailCheckIcon aria-hidden="true" className="size-10 text-primary" />
-        <h2 className="text-xl font-semibold">Revisá tu correo</h2>
-        <p className="text-base">{children}</p>
-        <p className="text-sm text-muted-foreground">
-          Si no lo ves en tu bandeja principal, buscalo en la carpeta de correo no deseado (spam).
+    <div role="status" className="flex flex-col gap-3.5 py-1">
+      <div className="flex flex-col items-start gap-2">
+        <span
+          aria-hidden="true"
+          className="flex size-10 items-center justify-center rounded-xl bg-secondary text-primary"
+        >
+          <MailCheckIcon className="size-5" />
+        </span>
+        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+          Revisá tu correo
+        </h2>
+      </div>
+
+      <div className="flex flex-col gap-2 text-sm text-foreground leading-relaxed">
+        {children ? (
+          <p>{children}</p>
+        ) : email ? (
+          <p>
+            Te enviamos un enlace de confirmación a <strong className="break-all font-semibold text-primary">{email}</strong>.
+            Hacé clic en el botón del correo para activar tu cuenta y acceder directamente.
+          </p>
+        ) : (
+          <p>Te enviamos un enlace de confirmación a tu casilla de correo.</p>
+        )}
+        <p className="text-xs text-muted-foreground">
+          Si no lo encontrás en unos minutos, revisá la carpeta de correo no deseado (spam).
         </p>
       </div>
 
-      {email ? (
-        <>
-          <Separator />
+      {email && (
+        <div className="flex flex-col items-start gap-2 border-t border-border/70 pt-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={manejarReenviar}
+            disabled={reenviando}
+            className="h-9 gap-2 text-xs font-semibold"
+          >
+            <RefreshCwIcon
+              aria-hidden="true"
+              className={`size-3.5 ${reenviando ? "animate-spin" : ""}`}
+            />
+            {reenviando ? "Reenviando correo…" : "Reenviar correo de confirmación"}
+          </Button>
 
-          <form onSubmit={manejarVerificarCodigo} noValidate className="flex flex-col gap-3">
-            <Field data-invalid={ Boolean(errorCodigo) || undefined }>
-              <FieldLabel htmlFor="codigo-otp" className="flex items-center gap-1.5 font-medium">
-                <KeyRoundIcon aria-hidden="true" className="size-4 text-primary" />
-                ¿Tenés el código de 6 dígitos del correo?
-              </FieldLabel>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Input
-                  id="codigo-otp"
-                  name="codigo"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
-                  placeholder="Ej: 123456"
-                  value={codigo}
-                  onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  aria-invalid={Boolean(errorCodigo)}
-                  className="font-mono text-lg tracking-widest sm:max-w-44"
-                />
-                <Button type="submit" disabled={verificando || codigo.length < 6}>
-                  {verificando ? "Activando…" : "Activar con código"}
-                </Button>
-              </div>
-              {errorCodigo ? <FieldError>{errorCodigo}</FieldError> : null}
-            </Field>
-          </form>
+          {mensajeReenvio && (
+            <p className="text-xs font-medium text-primary">{mensajeReenvio}</p>
+          )}
 
-          <div className="flex flex-col items-start gap-2 pt-1">
-            <Button
+          {errorReenvio && (
+            <p className="text-xs font-medium text-destructive">{errorReenvio}</p>
+          )}
+
+          {onCambiarEmail && (
+            <button
               type="button"
-              variant="outline"
-              size="sm"
-              disabled={reenviando}
-              onClick={manejarReenviar}
+              onClick={onCambiarEmail}
+              className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 pt-1"
             >
-              <RefreshCwIcon data-icon="inline-start" className={reenviando ? "animate-spin" : undefined} />
-              {reenviando ? "Reenviando correo…" : "Reenviar correo de confirmación"}
-            </Button>
-
-            {mensajeReenvio ? (
-              <p className="flex items-center gap-1.5 text-sm font-medium text-primary">
-                <CheckCircle2Icon aria-hidden="true" className="size-4 shrink-0" />
-                {mensajeReenvio}
-              </p>
-            ) : null}
-
-            {errorReenvio ? (
-              <p className="text-sm font-medium text-destructive">{errorReenvio}</p>
-            ) : null}
-          </div>
-        </>
-      ) : null}
+              ¿Te equivocaste de correo? Crear cuenta con otra dirección
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

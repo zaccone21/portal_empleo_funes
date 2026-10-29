@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { z } from "zod";
 
 import { TIPOS_DE_ENLACE } from "@/lib/dal/auth";
+import { esRutaInterna } from "@/lib/rutas";
 import { abrirEnlace } from "@/lib/use-cases/acceso";
 
 const tipoSchema = z.enum(TIPOS_DE_ENLACE);
@@ -12,7 +13,7 @@ const tipoSchema = z.enum(TIPOS_DE_ENLACE);
  * land (account activation and password recovery). It opens the session and
  * redirects:
  * - recovery → /nueva-contrasena, to choose the new password;
- * - activation → the role's home, already logged in.
+ * - activation → the role's home or destination in ?volver=, already logged in.
  * Accepts both link formats: `?code=` (Supabase's default) and
  * `?token_hash=&type=` (if the email templates are changed to it). An expired
  * or broken link sends to `/postulante/ingresar?error=enlace_vencido` (or to
@@ -30,5 +31,9 @@ export async function GET(request: NextRequest) {
   if (!enlace) redirect(siFalla);
 
   const resultado = await abrirEnlace(enlace, esRecuperacion);
-  redirect(resultado.ok ? resultado.datos.destino : siFalla);
+  if (!resultado.ok) redirect(siFalla);
+
+  const volver = parametros.get("volver");
+  const destino = volver && esRutaInterna(volver) ? volver : resultado.datos.destino;
+  redirect(destino);
 }

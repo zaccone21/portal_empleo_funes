@@ -12,29 +12,27 @@ type Props = {
 };
 
 /**
- * Required consent box of the registration forms. The form keeps
- * its state.
- * The text says in one sentence what the data is for and links to the full
- * notice (`/privacidad`) in a new tab, so the person does not lose the form.
+ * Required consent box of the registration forms.
+ * Compact layout that links to the privacy policy without cluttering the screen.
  */
 export function CampoConsentimiento({ error, marcado, onCambio }: Props) {
   return (
     <Field data-invalid={error ? true : undefined}>
-      <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-3.5">
+      <div className="flex items-start gap-2.5 rounded-lg border border-border bg-muted/40 p-2.5 sm:p-3">
         <Checkbox
           id="aceptaPrivacidad"
           checked={marcado}
           onCheckedChange={onCambio}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "aceptaPrivacidad-error" : undefined}
-          className="mt-0.5 size-6 rounded-md"
+          className="mt-0.5 size-5 shrink-0 rounded"
         />
-        <label htmlFor="aceptaPrivacidad" className="flex flex-col gap-1 text-base leading-snug text-foreground">
-          <span className="inline-flex items-center gap-1.5 font-semibold">
-            <ShieldCheckIcon aria-hidden="true" className="size-4 text-primary" />
+        <label htmlFor="aceptaPrivacidad" className="flex flex-col gap-0.5 text-xs sm:text-[12.5px] leading-snug text-foreground">
+          <span className="inline-flex items-center gap-1 font-semibold">
+            <ShieldCheckIcon aria-hidden="true" className="size-3.5 text-primary" />
             Acepto el uso de mis datos
           </span>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-[11.5px] text-muted-foreground">
             La Oficina de Empleo usa tus datos solo para ayudarte a conseguir trabajo.{" "}
             <Link
               href="/privacidad"

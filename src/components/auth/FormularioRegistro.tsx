@@ -33,12 +33,7 @@ type Errores = Partial<Record<"email" | "password" | "repetirPassword" | "dni" |
 
 /**
  * Registration form for applicants (P02) and companies (P08).
- * Asks for email, password, and an identifier (DNI for applicants, CUIT for companies).
- *
- * On submit:
- * 1. Validates with formularioRegistroSchema.
- * 2. Sends data with useRegistro.
- * 3. On success: shows "Revisá tu correo" (with both link instructions and 6-digit PIN verification) or redirects.
+ * Optimized with compact vertical spacing to fit on a single screen without scroll.
  */
 export function FormularioRegistro({ rol, volver }: Props) {
   const router = useRouter();
@@ -92,16 +87,17 @@ export function FormularioRegistro({ rol, volver }: Props) {
 
   if (emailRegistrado) {
     return (
-      <AvisoRevisaTuCorreo email={emailRegistrado} volver={volver}>
-        Te mandamos un email a <strong className="break-all">{emailRegistrado}</strong>. Abrilo y
-        tocá el botón para activar tu cuenta, o escribí abajo el código de 6 dígitos que incluye el correo.
-      </AvisoRevisaTuCorreo>
+      <AvisoRevisaTuCorreo
+        email={emailRegistrado}
+        volver={volver}
+        onCambiarEmail={() => setEmailRegistrado(null)}
+      />
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
-      <FieldGroup className="gap-5">
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3.5 sm:gap-4">
+      <FieldGroup className="gap-2.5 sm:gap-3">
         <CampoEmail error={errores.email?.[0]} obligatorio />
         {rol === "postulante" && <CampoDni error={errores.dni?.[0]} obligatorio />}
         {rol === "empresa" && <CampoCuit error={errores.cuit?.[0]} obligatorio />}
@@ -110,7 +106,7 @@ export function FormularioRegistro({ rol, volver }: Props) {
           name="password"
           label="Contraseña"
           autoComplete="new-password"
-          descripcion={`Tiene que tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`}
+          descripcion={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres.`}
           error={errores.password?.[0]}
           obligatorio
         />

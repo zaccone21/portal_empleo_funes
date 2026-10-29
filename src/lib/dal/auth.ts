@@ -188,13 +188,26 @@ export async function registrar(
   });
 
   if (error) {
-    if (error.code === "user_already_exists" || error.code === "email_exists") return { ok: true, sesionIniciada: false };
-    if (error.code === "weak_password") return { ok: false, motivo: "contrasena_debil" };
-    // The trigger will fail if DNI/CUIT is not unique, throwing a Database error.
-    // We map generic database errors to a failed sign-up for now.
-    if (error.code && ERRORES_DE_ENVIO.has(error.code)) return { ok: false, motivo: "envio_fallido" };
-    // Catch-all for trigger exceptions that surface through GoTrue
-    if (error.message?.includes("Database error saving new user")) {
+    console.error("[supabase.auth.signUp error]:", error.message, error.code, error.status);
+    if (error.code === "user_already_exists" || error.code === "email_exists") {
+      return { ok: true, sesionIniciada: false };
+    }
+    if (error.code === "weak_password") {
+      return { ok: false, motivo: "contrasena_debil" };
+    }
+    if (error.message?.includes("postulantes_dni") || error.message?.includes("dni")) {
+      return { ok: false, motivo: "dni_duplicado" };
+    }
+    if (error.message?.includes("empresas_cuit") || error.message?.includes("cuit")) {
+      return { ok: false, motivo: "cuit_duplicado" };
+    }
+    // Failures when sending the confirmation email via SMTP/provider or GoTrue database triggers
+    if (
+      (error.code && ERRORES_DE_ENVIO.has(error.code)) ||
+      error.message?.toLowerCase().includes("email") ||
+      error.message?.includes("Database error saving new user") ||
+      error.status === 500
+    ) {
       return { ok: false, motivo: "envio_fallido" };
     }
     throw new Error(`Sign-up failed unexpectedly: ${error.message}`);
@@ -212,6 +225,7 @@ export async function enviarRecuperacion(email: string, urlConfirmacion: string)
   const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: urlConfirmacion });
 
   if (error) {
+    console.error("[supabase.auth.resend error]:", error.message, error.code, error.status);
     if (error.code && ERRORES_DE_ENVIO.has(error.code)) return { ok: false };
     throw new Error("Password recovery failed unexpectedly.");
   }
@@ -330,7 +344,14 @@ export async function reenviarConfirmacionRegistro(
   });
 
   if (error) {
-    if (error.code && ERRORES_DE_ENVIO.has(error.code)) return { ok: false };
+    console.error("[supabase.auth.resend error]:", error.message, error.code, error.status);
+    if (
+      (error.code && ERRORES_DE_ENVIO.has(error.code)) ||
+      error.message?.toLowerCase().includes("email") ||
+      error.status === 500
+    ) {
+      return { ok: false };
+    }
     return { ok: true };
   }
   return { ok: true };
