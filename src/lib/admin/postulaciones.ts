@@ -17,37 +17,38 @@ export const CLAVES_ORDEN_POSTULACIONES: ClavesOrden<PostulacionAdmin> = {
   estado: (p) => ESTADOS_POSTULACION[p.estado].etiqueta,
   resultado: (p) => (p.decisionEmpresa ? DECISIONES_EMPRESA[p.decisionEmpresa].etiqueta : null),
   cv: (p) => (p.postulante.cvNombre ? 1 : 0),
-  fecha: (p) => p.postuladoEl,
+  fecha: (p) => p.actualizadaEl ?? p.postuladoEl,
   // Ascending means the shortest wait first: the newest application.
-  espera: (p) => -Date.parse(p.postuladoEl),
+  espera: (p) => -Date.parse(p.actualizadaEl ?? p.postuladoEl),
 };
 
-/** The order each application screen comes in without ?orden (see `postulacionesDelModo`). */
+/** The order each application screen comes in without ?orden: newest actions first across all views. */
 export const ORDEN_POR_DEFECTO_POSTULACIONES: Record<ModoPostulaciones, OrdenTabla> = {
-  "por-evaluar": { columna: "espera", direccion: "desc" },
-  "por-comunicar": { columna: "fecha", direccion: "asc" },
+  "por-evaluar": { columna: "espera", direccion: "asc" },
+  "por-comunicar": { columna: "fecha", direccion: "desc" },
   registro: { columna: "fecha", direccion: "desc" },
 };
 
-/** Returns the applications that belong to this mode, sorted correctly. */
+function fechaDeOrden(p: PostulacionAdmin): string {
+  return p.actualizadaEl ?? p.postuladoEl;
+}
+
+/** Returns the applications that belong to this mode, sorted with the most recent first. */
 export function postulacionesDelModo(
   postulaciones: PostulacionAdmin[],
   modo: ModoPostulaciones,
 ): PostulacionAdmin[] {
   switch (modo) {
     case "por-evaluar":
-      // Oldest first for resolution queue
       return postulaciones
         .filter((p) => p.estado === "postulado")
-        .sort((a, b) => a.postuladoEl.localeCompare(b.postuladoEl));
+        .sort((a, b) => fechaDeOrden(b).localeCompare(fechaDeOrden(a)));
     case "por-comunicar":
-      // Oldest first for communication queue
       return postulaciones
         .filter((p) => p.estado === "preseleccionado")
-        .sort((a, b) => a.postuladoEl.localeCompare(b.postuladoEl));
+        .sort((a, b) => fechaDeOrden(b).localeCompare(fechaDeOrden(a)));
     case "registro":
-      // Newest first for general register
-      return [...postulaciones].sort((a, b) => b.postuladoEl.localeCompare(a.postuladoEl));
+      return [...postulaciones].sort((a, b) => fechaDeOrden(b).localeCompare(fechaDeOrden(a)));
   }
 }
 

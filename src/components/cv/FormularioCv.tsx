@@ -21,15 +21,15 @@ type Props = {
 };
 
 /**
- * Picks and uploads the CV (P04, RF1.2.3).
+ * Picks and uploads the CV in PDF or PNG format (P04, RF1.2.3).
  *
  * Flow:
  * 1. The big dashed box is the <label> of a visually hidden file input, so
  *    tapping anywhere on it opens the phone's file picker, and keyboards
  *    reach the input itself (its focus ring is drawn on the box).
  * 2. When a file is chosen it is checked at once with validarArchivoCv
- *    (PDF, size, "%PDF-" bytes). A bad file is rejected before uploading, with
- *    the reason under the box; the server checks again anyway.
+ *    (PDF or PNG, size, "%PDF-" or PNG magic bytes). A bad file is rejected
+ *    before uploading, with the reason under the box; the server checks again.
  * 3. "Subir CV" sends it. While it uploads the button is disabled. On success
  *    the form clears, ready for a future replacement.
  */
@@ -58,7 +58,7 @@ export function FormularioCv({ tieneCv, onSubir, subiendo, error }: Props) {
     event.preventDefault();
     const formulario = event.currentTarget;
     if (!archivo) {
-      setErrorArchivo("Elegí un archivo PDF.");
+      setErrorArchivo("Elegí un archivo PDF o una imagen PNG.");
       return;
     }
     if (await onSubir(archivo)) {
@@ -77,8 +77,8 @@ export function FormularioCv({ tieneCv, onSubir, subiendo, error }: Props) {
         <h2 className="text-xl font-semibold">{tieneCv ? "Reemplazar tu CV" : "Subí tu CV"}</h2>
         <p className="text-base text-muted-foreground">
           {tieneCv
-            ? "El archivo nuevo reemplaza al anterior."
-            : "Lo necesitás para postularte a las ofertas."}
+            ? "El archivo nuevo reemplaza al anterior. Podés subir un PDF o una imagen PNG."
+            : "Lo necesitás para postularte a las ofertas. Podés subir un PDF o una imagen PNG."}
         </p>
       </div>
       <Field data-invalid={errorArchivo ? true : undefined} className="relative">
@@ -86,7 +86,7 @@ export function FormularioCv({ tieneCv, onSubir, subiendo, error }: Props) {
           id="archivo-cv"
           name="archivo"
           type="file"
-          accept="application/pdf,.pdf"
+          accept="application/pdf,image/png,.pdf,.png"
           onChange={handleCambio}
           aria-invalid={errorArchivo ? true : undefined}
           aria-describedby={errorArchivo ? "archivo-cv-error" : undefined}
@@ -107,12 +107,12 @@ export function FormularioCv({ tieneCv, onSubir, subiendo, error }: Props) {
             <UploadIcon className="size-7" />
           </span>
           <span className="max-w-full truncate font-heading text-lg font-semibold">
-            {archivo ? archivo.name : "Elegí tu CV en PDF"}
+            {archivo ? archivo.name : "Elegí tu CV en PDF o imagen PNG"}
           </span>
           <span className="text-base text-muted-foreground">
             {archivo
               ? `${formatearTamano(archivo.size)}. Tocá acá para elegir otro.`
-              : `Solo PDF, hasta ${formatearTamano(CV_TAMANO_MAXIMO_BYTES)}.`}
+              : `Formato PDF o PNG, hasta ${formatearTamano(CV_TAMANO_MAXIMO_BYTES)}.`}
           </span>
         </label>
         <FieldError id="archivo-cv-error" className="text-base">

@@ -51,8 +51,8 @@ export function filtrarOfertas(
       coincideBusqueda(q, [o.titulo, o.empresa?.razonSocial]),
   );
 
-  // Queues: the oldest first, so nothing waits forever. Register: the newest first.
-  return [...filtradas].sort((a, b) => (modo === "registro" ? b.creadaEl.localeCompare(a.creadaEl) : a.creadaEl.localeCompare(b.creadaEl)));
+  // Most recent first across all views so newer offers never appear below older ones.
+  return [...filtradas].sort((a, b) => b.creadaEl.localeCompare(a.creadaEl));
 }
 
 /** What each sortable column of the offers table sorts by (D-063); the keys are the column ids. */
@@ -65,9 +65,9 @@ export const CLAVES_ORDEN_OFERTAS: ClavesOrden<OfertaOficina> = {
   postulaciones: (o) => o.cantidadPostulaciones,
 };
 
-/** The order each offers screen comes in without ?orden: queues oldest first, the register newest first. */
-export function ordenPorDefectoOfertas(modo: ModoOfertas): OrdenTabla {
-  return { columna: "enviada", direccion: modo === "registro" ? "desc" : "asc" };
+/** The order each offers screen comes in without ?orden: newest first across queues and register. */
+export function ordenPorDefectoOfertas(modo?: ModoOfertas): OrdenTabla {
+  return { columna: "enviada", direccion: modo ? "desc" : "desc" };
 }
 
 const COLAS: Record<string, ModoOfertas> = {

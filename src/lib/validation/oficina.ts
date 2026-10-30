@@ -37,16 +37,42 @@ export const ofertaOficinaSchema = ofertaEmpresaSchema.extend({
 
 export type OfertaOficina = z.infer<typeof ofertaOficinaSchema>;
 
+export const ESTADOS_PREENTREVISTA = ["no_agendada", "pendiente_confirmacion", "agendada"] as const;
+export const estadoPreentrevistaSchema = z.enum(ESTADOS_PREENTREVISTA);
+export type EstadoPreentrevista = z.infer<typeof estadoPreentrevistaSchema>;
+
 /** The pre-interview (RF1.6.1, D-045): the date is required, the notes are optional. Only the Office sees it. */
 export const preentrevistaSchema = z.object({
   fecha: z.iso.datetime({ offset: true, error: "Elegí la fecha de la preentrevista" }),
   notas: z.string().trim().max(2000, "Puede tener hasta 2000 caracteres").optional(),
+  confirmarDirecto: z.boolean().optional(),
 });
 
 export type DatosPreentrevista = z.infer<typeof preentrevistaSchema>;
 
+/** Course in the Office's catalog (`public.cursos`). */
+export const cursoCatalogoSchema = z.object({
+  nombre: textoObligatorio("Ingresá el nombre del curso", 120),
+  descripcion: z.string().trim().max(1000, "Puede tener hasta 1000 caracteres").optional(),
+  modalidad: z.string().trim().max(100, "Puede tener hasta 100 caracteres").optional(),
+  horario: z.string().trim().max(120, "Puede tener hasta 120 caracteres").optional(),
+});
+
+export type DatosCursoCatalogo = z.infer<typeof cursoCatalogoSchema>;
+
+export type CursoOficina = {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  modalidad: string | null;
+  horario: string | null;
+  activo: boolean;
+  creadoEl: string;
+};
+
 /** A course referral (RF1.6.6, D-047). Without a date, the database takes today's. */
 export const derivacionCursoSchema = z.object({
+  cursoId: z.string().uuid().optional(),
   curso: textoObligatorio("Escribí el nombre del curso", 120),
   fecha: z.iso.date({ error: "Elegí una fecha válida" }).optional(),
   notas: z.string().trim().max(1000, "Puede tener hasta 1000 caracteres").optional(),
@@ -57,9 +83,23 @@ export type DatosDerivacionCurso = z.infer<typeof derivacionCursoSchema>;
 /** One course referral of an applicant (P19). `fecha` is a day, YYYY-MM-DD. */
 export type DerivacionCurso = {
   id: string;
+  cursoId?: string | null;
   curso: string;
   fecha: string;
   notas: string | null;
+};
+
+/** Applicant with 3 or more company rejections, ready for the Office to assign a training course. */
+export type PostulanteConRechazos = {
+  postulanteId: string;
+  nombre: string | null;
+  apellido: string | null;
+  dni: string | null;
+  email: string | null;
+  telefono: string | null;
+  cantidadRechazos: number;
+  ultimoRechazoEl: string;
+  cursosAsignados: string[];
 };
 
 /**
@@ -101,6 +141,10 @@ export type PostulacionAdmin = {
   id: string;
   estado: z.infer<typeof estadoPostulacionSchema>;
   postuladoEl: string;
+  /** Timestamp of the latest modification on this application (falls back to `postuladoEl`). */
+  actualizadaEl?: string;
+  /** Current pre-interview state: `no_agendada | pendiente_confirmacion | agendada`. */
+  preentrevistaEstado?: EstadoPreentrevista;
   /** Null when there was no pre-interview (it is optional, D-045). */
   preentrevista: { fecha: string; notas: string | null } | null;
   /** When the Office referred it to the company; the database stamps it. */

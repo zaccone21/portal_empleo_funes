@@ -50,8 +50,8 @@ describe("ingresar", () => {
 });
 
 describe("registrarse", () => {
-  const datosPostulante: DatosRegistro = { email: "persona@ejemplo.com", password: "12345678", role: "postulante", dni: "38123456" };
-  const datosEmpresa: DatosRegistro = { email: "empresa@ejemplo.com", password: "12345678", role: "empresa", cuit: "30-12345678-9" };
+  const datosPostulante: DatosRegistro = { email: "persona@ejemplo.com", password: "12345678", role: "postulante", dni: "38123456", aceptaPrivacidad: true };
+  const datosEmpresa: DatosRegistro = { email: "empresa@ejemplo.com", password: "12345678", role: "empresa", cuit: "30-12345678-9", aceptaPrivacidad: true };
 
   test("with email confirmation on, there is no destination: the screen asks to check the email", async () => {
     dal.registrar.mockResolvedValue({ ok: true, sesionIniciada: false });

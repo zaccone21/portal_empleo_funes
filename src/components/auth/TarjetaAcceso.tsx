@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 
-import { Separator } from "@/components/ui/separator";
-
 type Props = {
   titulo: string;
   descripcion?: string;
@@ -11,24 +9,28 @@ type Props = {
 };
 
 /**
- * Content of the white tile on every access screen (P02, P08, P13). The title
- * is the page's only h1, so screen readers announce where the user is. It
- * keeps one primary action per screen (RNF3): the form in the middle and the
- * secondary links below a separator. Text is left-aligned, like the form.
+ * Content of the card on every access screen (P02, P08, P13). The title
+ * is the page's only h1, so screen readers announce where the user is.
+ * Designed with a compact vertical profile to avoid page scrolling.
  */
 export function TarjetaAcceso({ titulo, descripcion, children, pie }: Props) {
   return (
-    <div className="flex flex-col gap-7">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-[1.75rem] leading-tight font-semibold tracking-[-0.02em]">{titulo}</h1>
-        {descripcion && <p className="text-base text-muted-foreground">{descripcion}</p>}
+    <div className="flex flex-col gap-3.5 sm:gap-4">
+      <header className="flex flex-col gap-0.5">
+        <h1 className="text-xl sm:text-[1.375rem] font-bold tracking-tight text-foreground">
+          {titulo}
+        </h1>
+        {descripcion && (
+          <p className="text-xs sm:text-[13px] text-muted-foreground leading-snug">
+            {descripcion}
+          </p>
+        )}
       </header>
       {children}
       {pie && (
-        <>
-          <Separator />
+        <div className="border-t border-border/70 pt-2.5">
           {pie}
-        </>
+        </div>
       )}
     </div>
   );

@@ -264,3 +264,12 @@ Qué:
 - **La evaluación de postulación no muestra la dirección:** solo la ficha del postulante; la pantalla de evaluación sigue como estaba.
 Por qué quedó: son el cambio mínimo que cumple el pedido del usuario a dos semanas de la entrega, sin sumar tablas ni columnas que no se usan todavía.
 Cómo se salda: una columna `motivo_rechazo_codigo` (o una tabla de motivos) si la Oficina quiere estadísticas; agregar la transición `aprobada → rechazada` con una pantalla de confirmación si la Oficina necesita revocar; correr los pgTAP cuando haya CLI.
+
+
+### DT-023 — Remoción de bloques reemplazados en Inicio, Mi Perfil y Panel de Oficina
+Fecha: 2026-10-28 · Origen: D-079, D-082
+Qué se quitó:
+- **`CifrasPortal` ("El portal en números") en `src/app/page.tsx`:** dejado de renderizar en la landing pública por pedido del usuario; el contador en vivo de contrataciones permanece en `PortadaInicio` y las métricas detalladas pasaron a `/admin/metricas` (`src/components/admin/panel-metricas.tsx`).
+- **Recuadro de iniciales/foto en `src/components/postulante/VistaPerfilPostulante.tsx`:** eliminado para no insinuar que existe carga de foto de perfil.
+- **Columna `"Accesos de gestión"` en `src/components/admin/dashboard.tsx`:** eliminada porque duplicaba los enlaces ya presentes en el menú lateral (`app-sidebar.tsx`) y comprimía la tabla de `"Acciones y tareas más recientes"`, que ahora ocupa el 100 % del ancho.
+Cómo probarlo: abrir `/` (sin `"El portal en números"`), `/postulante/perfil` (cabecera limpia sin cuadro de iniciales) y `/admin` (tabla de actividad reciente a ancho completo y métricas completas en `/admin/metricas`).

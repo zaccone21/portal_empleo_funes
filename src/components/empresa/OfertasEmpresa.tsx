@@ -93,6 +93,7 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
   return (
     <ListaConDetalle
       eligio={eligio}
+      detalleKey={enDetalle?.id ?? "no-disponible"}
       resumen={ofertas.length === 1 ? "Tenés 1 oferta." : `Tenés ${ofertas.length} ofertas.`}
       accion={
         <Link href="/empresa/ofertas/nueva" className={buttonVariants({ variant: "outline" })}>

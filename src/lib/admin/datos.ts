@@ -3,7 +3,14 @@ import "server-only";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser, type CurrentUser } from "@/lib/dal/auth";
-import { buscarEmpresas, buscarPostulantes, verOfertas, verPostulacionesAdmin } from "@/lib/use-cases/oficina";
+import {
+  buscarEmpresas,
+  buscarPostulantes,
+  verDatosMetricasAdmin,
+  verOfertas,
+  verPostulacionesAdmin,
+  type DatosMetricasPortal,
+} from "@/lib/use-cases/oficina";
 import type { ParamsBusqueda } from "@/lib/admin/url";
 import type { FilaEmpresa } from "@/lib/admin/empresas";
 import type { FilaPostulante } from "@/lib/admin/postulantes";
@@ -86,3 +93,16 @@ export async function datosPostulaciones(_params?: ParamsBusqueda): Promise<{
   return { postulaciones: res.ok ? res.datos : [] };
 }
 
+/** Everything the Metrics & Reports screen (`/admin/metricas`) needs. */
+export async function datosMetricas(): Promise<DatosMetricasPortal> {
+  const usuario = await operadorActual();
+  const res = await verDatosMetricasAdmin(usuario);
+  if (res.ok) return res.datos;
+  return {
+    visitasDiarias: [],
+    totalPostulantesPadron: 0,
+    ofertas: [],
+    postulaciones: [],
+    derivacionesCurso: [],
+  };
+}

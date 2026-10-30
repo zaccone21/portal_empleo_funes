@@ -9,8 +9,18 @@ export type FilaEmpresa = EmpresaLista & {
   ofertasTotales: number;
 };
 
-export function perfilEmpresaIncompleto(e: Pick<FilaEmpresa, "razonSocial" | "cuit" | "contactoNombre" | "contactoEmail">): boolean {
-  return !e.razonSocial || !e.cuit || !e.contactoNombre || !e.contactoEmail;
+export function perfilEmpresaIncompleto(
+  e: Pick<FilaEmpresa, "razonSocial" | "cuit" | "contactoNombre" | "contactoEmail"> & {
+    contactoTelefono?: string | null;
+  },
+): boolean {
+  return (
+    !e.razonSocial?.trim() ||
+    !e.cuit?.trim() ||
+    !e.contactoNombre?.trim() ||
+    !e.contactoEmail?.trim() ||
+    (e.contactoTelefono !== undefined && !e.contactoTelefono?.trim())
+  );
 }
 
 /**

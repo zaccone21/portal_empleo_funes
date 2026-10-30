@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 
 import { EmptyState } from "@/components/admin/empty-state";
+import { AnimarColapsable } from "@/components/marca/animaciones";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useUrlAdmin } from "@/hooks/useUrlAdmin";
@@ -109,22 +111,38 @@ export function AdminTable<T>({ columnas, filas, idDe, hrefFila, masiva, pager, 
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      {masiva && idsMarcadas.length > 0 && (
+      <AnimarColapsable abierto={Boolean(masiva && idsMarcadas.length > 0)}>
         <div className="flex items-center gap-2.5 border-b border-border bg-mint-soft px-3 py-2" role="status">
           <span className="text-[13px] font-bold">
             {idsMarcadas.length} {idsMarcadas.length === 1 ? "seleccionada" : "seleccionadas"}
           </span>
-          {masiva(idsMarcadas, () => setMarcadas(new Set()))}
+          {masiva && masiva(idsMarcadas, () => setMarcadas(new Set()))}
         </div>
-      )}
+      </AnimarColapsable>
 
       <div className="min-h-0 flex-1 overflow-auto">
-        {filas.length === 0 ? (
-          <EmptyState titulo={vacio.titulo} descripcion={vacio.descripcion}>
-            {vacio.accion}
-          </EmptyState>
-        ) : (
-          <Table className="border-collapse">
+        <AnimatePresence mode="wait" initial={false}>
+          {filas.length === 0 ? (
+            <motion.div
+              key="vacio"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18 }}
+            >
+              <EmptyState titulo={vacio.titulo} descripcion={vacio.descripcion}>
+                {vacio.accion}
+              </EmptyState>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={`tabla-${pager.pagina}-${orden?.columna ?? ""}-${orden?.direccion ?? ""}`}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18 }}
+            >
+              <Table className="border-collapse">
             <TableHeader>
               <TableRow className="border-b border-border hover:bg-muted">
                 {masiva && (
@@ -223,7 +241,9 @@ export function AdminTable<T>({ columnas, filas, idDe, hrefFila, masiva, pager, 
               })}
             </TableBody>
           </Table>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-border px-[10px] py-2 text-[12px] text-muted-foreground tabular-nums">

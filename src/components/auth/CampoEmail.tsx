@@ -5,31 +5,42 @@ type Props = {
   /** Message to show under the field; the field is marked invalid while it is set. */
   error?: string;
   obligatorio?: boolean;
+  /** Optional custom label (e.g. "Email o DNI", "Email o CUIT"). Defaults to "Email". */
+  label?: string;
+  /** Optional placeholder example. */
+  placeholder?: string;
+  /** When true, uses `type="text"` so the user can enter either an email or a DNI/CUIT. */
+  permitirDocumento?: boolean;
 };
 
 /**
- * Email field of the access forms. It is uncontrolled (the form reads it with
- * FormData under the name "email"). The attributes help on cheap phones:
- * `type="email"` and `inputMode` open the keyboard with "@", and
- * `autoCapitalize="none"` stops the first letter from becoming uppercase.
+ * Email (or document) field of the access forms. It is uncontrolled (the form
+ * reads it with FormData under the name "email").
  * The error is linked with aria-describedby so screen readers read it with
  * the field.
  */
-export function CampoEmail({ error, obligatorio = false }: Props) {
+export function CampoEmail({
+  error,
+  obligatorio = false,
+  label = "Email",
+  placeholder,
+  permitirDocumento = false,
+}: Props) {
   return (
     <Field data-invalid={error ? true : undefined}>
       <FieldLabel htmlFor="email" className="text-base">
-        Email
+        {label}
         {obligatorio && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
       <Input
         id="email"
         name="email"
-        type="email"
-        inputMode="email"
-        autoComplete="email"
+        type={permitirDocumento ? "text" : "email"}
+        inputMode={permitirDocumento ? "text" : "email"}
+        autoComplete="username"
         autoCapitalize="none"
         spellCheck={false}
+        placeholder={placeholder}
         required={obligatorio ? true : undefined}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? "email-error" : undefined}

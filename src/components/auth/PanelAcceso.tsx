@@ -10,27 +10,23 @@ type Props = {
 
 /**
  * Content of an access screen inside MarcoAcceso: the portal's slogan and the
- * white "leaf" tile that holds the screen (title, form and links). The tile
- * is the page's <main> (id="contenido", the target of "Saltar al contenido").
- *
- * Phone: a short slogan on top, a strip of mosaic, then the tile, which must
- * show the first field without scrolling. Desktop: slogan on the left, tile
- * on the right floating over the mosaic. The slogan is a <p>, not a heading:
- * the page's only h1 is the screen title inside the tile.
- * The tile slides in once on page load (skipped with reduced motion).
+ * white tile that holds the screen (title, form and links).
+ * Compact layout designed to fit on a single screen without vertical scrolling.
  */
 export function PanelAcceso({ lema, bajada, children }: Props) {
   return (
-    <div className="grid flex-1 content-start gap-10 lg:grid-cols-[minmax(0,1fr)_27rem] lg:content-center lg:items-center lg:gap-16">
-      <div className="flex flex-col gap-5">
-        <p className="max-w-xl font-heading text-[1.875rem] leading-[1.08] font-semibold tracking-[-0.025em] text-balance sm:text-[2.25rem] lg:text-7xl">
+    <div className="grid flex-1 content-center items-center gap-6 lg:grid-cols-[minmax(0,1.15fr)_26rem] lg:gap-10 xl:gap-16">
+      <div className="flex flex-col gap-2.5 sm:gap-3.5">
+        <p className="max-w-xl font-heading text-2xl font-bold tracking-tight text-balance sm:text-3xl lg:text-4xl xl:text-5xl leading-tight">
           {lema}
         </p>
-        <p className="hidden max-w-md text-lg text-primary-foreground/80 sm:block">{bajada}</p>
+        <p className="hidden max-w-md text-sm text-primary-foreground/80 sm:block sm:text-base leading-relaxed">
+          {bajada}
+        </p>
       </div>
       <main
         id="contenido"
-        className="rounded-tl-[1.75rem] rounded-br-[1.75rem] rounded-tr-lg rounded-bl-lg bg-background p-6 text-foreground shadow-2xl sm:p-8 lg:p-10 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-6 motion-safe:duration-500"
+        className="rounded-2xl bg-card p-5 sm:p-6 text-foreground shadow-2xl ring-1 ring-black/5 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-300"
       >
         {children}
       </main>

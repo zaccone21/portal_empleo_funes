@@ -21,7 +21,7 @@ type Props = {
  */
 export function ItemNoDisponible({ titulo, descripcion, volverHref, volverTexto }: Props) {
   return (
-    <Empty className="rounded-tl-2xl rounded-br-2xl bg-card">
+    <Empty className="rounded-tl-2xl rounded-br-2xl bg-card lg:h-full lg:flex lg:flex-col lg:justify-center">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <SearchXIcon aria-hidden="true" />

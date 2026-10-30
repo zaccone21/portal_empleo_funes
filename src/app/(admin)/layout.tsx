@@ -8,9 +8,10 @@ import { getCurrentUser } from "@/lib/dal/auth";
 import { getConteosAdmin } from "@/lib/use-cases/oficina";
 
 /**
- * Shell of the Employment Office's screens (D-030, D-042): a 232 px sidebar
- * (56 px when collapsed, state kept in a cookie) and the content column.
- * Each screen owns its header and fills the remaining height.
+ * Shell of the Employment Office's screens (D-030, D-042): a 244 px sidebar
+ * (60 px when collapsed, state kept in a cookie) and a full-width, full-height
+ * scrollable content column so long views like the Calendar or Metrics never
+ * get clipped at the bottom of the screen.
  */
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const usuario = await getCurrentUser();
@@ -24,10 +25,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   return (
     <SidebarProvider
       defaultOpen={abierto}
-      style={{ "--sidebar-width": "232px", "--sidebar-width-icon": "56px" } as CSSProperties}
+      style={{ "--sidebar-width": "244px", "--sidebar-width-icon": "60px" } as CSSProperties}
     >
       <AppSidebar conteos={conteos} emailUsuario={usuario.email} />
-      <main className="flex min-h-svh min-w-0 flex-1 flex-col gap-3 px-[22px] py-3.5 text-[13px] md:h-svh md:overflow-hidden">
+      <main className="flex min-h-svh w-full min-w-0 flex-1 flex-col gap-4 px-4 py-4 text-[13px] sm:px-6 md:h-svh md:overflow-y-auto print:h-auto print:overflow-visible">
         {children}
       </main>
     </SidebarProvider>
