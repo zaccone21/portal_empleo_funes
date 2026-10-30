@@ -1,13 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { MegaphoneIcon, PlusIcon } from "lucide-react";
+import { MegaphoneIcon, PlusIcon, FilterIcon } from "lucide-react";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { PedirIngreso } from "@/components/estados/PedirIngreso";
 import { ListaConDetalle } from "@/components/marca/ListaConDetalle";
 import { ItemNoDisponible } from "@/components/ofertas/ItemNoDisponible";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -23,17 +24,11 @@ import { cn } from "@/lib/utils";
 import { DetalleOfertaEmpresa } from "./DetalleOfertaEmpresa";
 import { TarjetaOfertaEmpresa } from "./TarjetaOfertaEmpresa";
 
-/**
- * "Mis ofertas" (P12): the company's offers with their status, in a list with
- * the detail on the same page (D-025). Loads them with useOfertasEmpresa; the
- * page passes the offer selected in the URL.
- *
- * States: loading, error with "Probar de nuevo", empty (with the way to
- * publish the first offer) and the list. Asking to close an offer updates it
- * in place through `reemplazar`, without loading the list again.
- */
+type EstadoFiltro = "todas" | "publicada" | "pendiente" | "rechazada" | "cerrada";
+
 export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) {
   const { ofertas, loading, error, sinAcceso, recargar, reemplazar } = useOfertasEmpresa();
+  const [filtroEstado, setFiltroEstado] = useState<EstadoFiltro>("todas");
 
   if (loading) {
     return (
@@ -87,41 +82,100 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
     );
   }
 
+  // Filtrar ofertas según el estado seleccionado para dar visibilidad directa a rechazadas, pendientes, etc.
+  const ofertasFiltradas = ofertas.filter((oferta) => {
+    if (filtroEstado === "todas") return true;
+    return oferta.estado === filtroEstado;
+  });
+
   const eligio = seleccionadaId !== undefined;
-  const enDetalle = eligio ? ofertas.find((oferta) => oferta.id === seleccionadaId) : ofertas[0];
+  const enDetalle = eligio
+    ? ofertas.find((oferta) => oferta.id === seleccionadaId)
+    : ofertasFiltradas[0] ?? ofertas[0];
 
   return (
-    <ListaConDetalle
-      eligio={eligio}
-      resumen={ofertas.length === 1 ? "Tenés 1 oferta." : `Tenés ${ofertas.length} ofertas.`}
-      accion={
-        <Link href="/empresa/ofertas/nueva" className={buttonVariants({ variant: "outline" })}>
+    <div className="flex flex-col gap-6">
+      {/* Barra superior de botones rápidos para filtrar por estado (soluciona el acceso a rechazadas/pendientes) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-4 rounded-xl ring-1 ring-foreground/5 shadow-xs">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium text-muted-foreground flex items-center gap-1.5 mr-1">
+            <FilterIcon className="size-4" /> Filtrar:
+          </span>
+          <Button
+            variant={filtroEstado === "todas" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFiltroEstado("todas")}
+          >
+            Todas ({ofertas.length})
+          </Button>
+          <Button
+            variant={filtroEstado === "publicada" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFiltroEstado("publicada")}
+          >
+            Publicadas
+          </Button>
+          <Button
+            variant={filtroEstado === "pendiente" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFiltroEstado("pendiente")}
+          >
+            Pendientes
+          </Button>
+          <Button
+            variant={filtroEstado === "rechazada" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFiltroEstado("rechazada")}
+          >
+            Rechazadas
+          </Button>
+        </div>
+
+        <Link href="/empresa/ofertas/nueva" className={buttonVariants({ variant: "default", size: "sm" })}>
           <PlusIcon data-icon="inline-start" aria-hidden="true" />
           Publicar oferta
         </Link>
-      }
-      detalle={
-        enDetalle ? (
-          <DetalleOfertaEmpresa oferta={enDetalle} elegida={eligio} onActualizada={reemplazar} />
+      </div>
+
+      {/* Zona de listado y detalle con separación limpia */}
+      <ListaConDetalle
+        eligio={eligio}
+        resumen={
+          filtroEstado === "todas"
+            ? ofertas.length === 1
+              ? "Tenés 1 oferta en total."
+              : `Tenés ${ofertas.length} ofertas en total.`
+            : `Mostrando ${ofertasFiltradas.length} ofertas con estado "${filtroEstado}".`
+        }
+        detalle={
+          enDetalle ? (
+            <DetalleOfertaEmpresa oferta={enDetalle} elegida={eligio} onActualizada={reemplazar} />
+          ) : (
+            <ItemNoDisponible
+              titulo="No hay ofertas en este filtro"
+              descripcion="Probá seleccionando otro estado o creando una nueva."
+              volverHref="/empresa/ofertas"
+              volverTexto="Ver todas las ofertas"
+            />
+          )
+        }
+      >
+        {ofertasFiltradas.length === 0 ? (
+          <li className="p-6 text-center text-muted-foreground">
+            No tenés ofertas que coincidan con este filtro.
+          </li>
         ) : (
-          <ItemNoDisponible
-            titulo="No encontramos esa oferta"
-            descripcion="Elegí una de la lista."
-            volverHref="/empresa/ofertas"
-            volverTexto="Ver mis ofertas"
-          />
-        )
-      }
-    >
-      {ofertas.map((oferta) => (
-        <li key={oferta.id}>
-          <TarjetaOfertaEmpresa
-            oferta={oferta}
-            seleccionada={oferta.id === enDetalle?.id}
-            soloEnEscritorio={!eligio}
-          />
-        </li>
-      ))}
-    </ListaConDetalle>
+          ofertasFiltradas.map((oferta) => (
+            <li key={oferta.id}>
+              <TarjetaOfertaEmpresa
+                oferta={oferta}
+                seleccionada={oferta.id === enDetalle?.id}
+                soloEnEscritorio={!eligio}
+              />
+            </li>
+          ))
+        )}
+      </ListaConDetalle>
+    </div>
   );
 }
