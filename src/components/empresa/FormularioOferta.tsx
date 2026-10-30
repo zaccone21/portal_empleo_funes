@@ -24,27 +24,8 @@ import { useCrearOferta } from "@/hooks/useCrearOferta";
 import { MAXIMO_RUBROS_OFERTA, nuevaOfertaSchema, type DatosNuevaOferta } from "@/lib/validation/ofertas";
 import { NOMBRE_RUBRO, RUBROS, type Rubro } from "@/lib/validation/rubros";
 
-type Errores = Partial<Record<keyof DatosNuevaOferta, string[]>>;
+type Errores = Partial<Record<keyof DatosNuevaOferta | "horaInicio" | "horaFin", string[]>>;
 
-/**
- * "Publicar una oferta" (P11, RF1.3.3). Every field is required except the
- * pay (D-032), and there are no drafts (D-007): the offer is either sent or not.
- *
- * Trades are checkboxes, 1 to 3 (D-032). Once three are checked the rest are
- * dimmed and disabled, and a line right under the instructions (where the
- * person is looking, not after the eleventh option) says how to change one,
- * so the limit is never an error after the fact.
- *
- * On submit:
- * 1. Reads the fields with FormData and validates them with nuevaOfertaSchema
- *    (the same schema the server uses). Each missing field gets its message
- *    underneath.
- * 2. Sends them with useCrearOferta. The button is disabled while sending.
- * 3. On success: a toast says the Office will review it, and the page goes to
- *    "Mis ofertas" with the new offer open, where it shows as "Pendiente".
- * 4. On failure: the server's message above the button, and the form keeps
- *    what was typed.
- */
 export function FormularioOferta({ ofertaPrevia }: { ofertaPrevia?: DatosNuevaOferta | null }) {
   const router = useRouter();
   const { crear, loading, error } = useCrearOferta();
@@ -167,13 +148,40 @@ export function FormularioOferta({ ofertaPrevia }: { ofertaPrevia?: DatosNuevaOf
         />
         <CampoTexto
           id="jornada"
-          label="Días y horario"
-          descripcion="Por ejemplo: Lunes a viernes de 8 a 16."
+          label="Días y descripción horaria"
+          descripcion="Por ejemplo: Lunes a viernes."
           defaultValue={ofertaPrevia?.jornada}
           error={errores.jornada?.[0]}
           maxLength={120}
           obligatorio
         />
+
+        {/* Selectores de horario específicos de entrada y salida */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="horaInicio" className="text-sm font-semibold text-foreground">
+              Hora de entrada <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="time"
+              id="horaInicio"
+              name="horaInicio"
+              className="flex h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="horaFin" className="text-sm font-semibold text-foreground">
+              Hora de salida <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="time"
+              id="horaFin"
+              name="horaFin"
+              className="flex h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+        </div>
+
         <CampoTexto
           id="sueldo"
           label="Sueldo (opcional)"
