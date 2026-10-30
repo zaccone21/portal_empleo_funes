@@ -36,7 +36,7 @@ export function PortadaInicio() {
       />
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 pt-4 pb-12 sm:pt-8 lg:px-10 lg:pt-14 lg:pb-24">
         <div className="flex max-w-2xl flex-col gap-3">
-          <h1 className="font-heading text-[2.125rem] leading-[1.05] font-semibold tracking-[-0.025em] text-balance sm:text-5xl lg:text-7xl">
+          <h1 className="font-heading text-3xl leading-tight font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
             Tu próximo trabajo está en Funes.
           </h1>
           <p className="max-w-xl text-lg text-primary-foreground/80">
@@ -56,12 +56,21 @@ export function PortadaInicio() {
               enterKeyHint="search"
               className="border-transparent bg-background text-foreground"
             />
-            <Button type="submit" size="lg" className="shrink-0 bg-brand-mint text-brand-deep hover:bg-brand-mint/90">
+            <Button type="submit" size="lg" className="shrink-0 bg-brand-mint text-brand-deep font-bold shadow-md transition-transform hover:scale-105 hover:bg-brand-mint/90">
               <SearchIcon data-icon="inline-start" aria-hidden="true" />
               Buscar
             </Button>
           </div>
         </form>
+
+        <div className="pt-1">
+          <Link
+            href="/ofertas"
+            className="inline-flex items-center gap-2 text-base font-bold underline decoration-brand-mint underline-offset-4 hover:text-brand-mint"
+          >
+            Ver todas las ofertas disponibles →
+          </Link>
+        </div>
 
         <nav aria-label="Buscar por rubro" className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0">
           <ul className="flex w-max gap-2 pb-1 lg:w-auto lg:max-w-3xl lg:flex-wrap">
