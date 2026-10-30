@@ -74,6 +74,7 @@ export function ListaOfertas({ ofertas, filtros = FILTROS_VACIOS, seleccionadaId
   return (
     <ListaConDetalle
       eligio={eligio}
+      detalleKey={enDetalle?.id ?? "no-disponible"}
       resumen={describirResultados(resultados.length, filtros)}
       detalle={
         enDetalle ? (

@@ -15,6 +15,7 @@ import {
 
 import { AvisoRevisaTuCorreo } from "./AvisoRevisaTuCorreo";
 import { BotonEnviar } from "./BotonEnviar";
+import { CampoConsentimiento } from "./CampoConsentimiento";
 import { CampoContrasena } from "./CampoContrasena";
 import { CampoEmail } from "./CampoEmail";
 import { CampoDni } from "./CampoDni";
@@ -28,22 +29,18 @@ type Props = {
   volver?: string;
 };
 
-type Errores = Partial<Record<"email" | "password" | "repetirPassword" | "dni" | "cuit", string[]>>;
+type Errores = Partial<Record<"email" | "password" | "repetirPassword" | "dni" | "cuit" | "aceptaPrivacidad", string[]>>;
 
 /**
  * Registration form for applicants (P02) and companies (P08).
- * Asks for email, password, and an identifier (DNI for applicants, CUIT for companies).
- *
- * On submit:
- * 1. Validates with formularioRegistroSchema.
- * 2. Sends data with useRegistro.
- * 3. On success: shows "Revisá tu correo" or redirects.
+ * Optimized with compact vertical spacing to fit on a single screen without scroll.
  */
 export function FormularioRegistro({ rol, volver }: Props) {
   const router = useRouter();
   const { registrar, loading, error } = useRegistro();
   const [errores, setErrores] = useState<Errores>({});
   const [emailRegistrado, setEmailRegistrado] = useState<string | null>(null);
+  const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,6 +52,7 @@ export function FormularioRegistro({ rol, volver }: Props) {
       repetirPassword: formData.get("repetirPassword"),
       dni: formData.get("dni"),
       cuit: formData.get("cuit"),
+      aceptaPrivacidad,
     });
 
     if (!resultado.success) {
@@ -69,12 +67,14 @@ export function FormularioRegistro({ rol, volver }: Props) {
           email: resultado.data.email,
           password: resultado.data.password,
           dni: resultado.data.dni,
+          aceptaPrivacidad: true as const,
         }
       : {
           role: "empresa" as const,
           email: resultado.data.email,
           password: resultado.data.password,
           cuit: resultado.data.cuit,
+          aceptaPrivacidad: true as const,
         };
     const respuesta = await registrar(datosRegistro);
     if (!respuesta) return;
@@ -87,16 +87,17 @@ export function FormularioRegistro({ rol, volver }: Props) {
 
   if (emailRegistrado) {
     return (
-      <AvisoRevisaTuCorreo>
-        Te mandamos un email a <strong className="break-all">{emailRegistrado}</strong>. Abrilo y
-        tocá el enlace para activar tu cuenta.
-      </AvisoRevisaTuCorreo>
+      <AvisoRevisaTuCorreo
+        email={emailRegistrado}
+        volver={volver}
+        onCambiarEmail={() => setEmailRegistrado(null)}
+      />
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
-      <FieldGroup className="gap-5">
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3.5 sm:gap-4">
+      <FieldGroup className="gap-2.5 sm:gap-3">
         <CampoEmail error={errores.email?.[0]} obligatorio />
         {rol === "postulante" && <CampoDni error={errores.dni?.[0]} obligatorio />}
         {rol === "empresa" && <CampoCuit error={errores.cuit?.[0]} obligatorio />}
@@ -105,7 +106,7 @@ export function FormularioRegistro({ rol, volver }: Props) {
           name="password"
           label="Contraseña"
           autoComplete="new-password"
-          descripcion={`Tiene que tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`}
+          descripcion={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres.`}
           error={errores.password?.[0]}
           obligatorio
         />
@@ -116,6 +117,11 @@ export function FormularioRegistro({ rol, volver }: Props) {
           autoComplete="new-password"
           error={errores.repetirPassword?.[0]}
           obligatorio
+        />
+        <CampoConsentimiento
+          marcado={aceptaPrivacidad}
+          onCambio={setAceptaPrivacidad}
+          error={errores.aceptaPrivacidad?.[0]}
         />
       </FieldGroup>
       <ErrorDelServidor error={error} />

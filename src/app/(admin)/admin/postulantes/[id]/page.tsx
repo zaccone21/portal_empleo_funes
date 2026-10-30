@@ -5,7 +5,7 @@ import { FichaPostulante } from "@/components/admin/ficha-postulante";
 import { operadorActual } from "@/lib/admin/datos";
 import { ofertasParaAsociar } from "@/lib/admin/postulantes";
 import { leerDesde, urlCon, type ParamsBusqueda } from "@/lib/admin/url";
-import { verOfertas, verSeguimientoPostulante } from "@/lib/use-cases/oficina";
+import { verCursosAdmin, verOfertas, verSeguimientoPostulante } from "@/lib/use-cases/oficina";
 
 export const metadata: Metadata = { title: "Postulante · Oficina de Empleo" };
 
@@ -21,7 +21,11 @@ export default async function AdminPostulanteDetallePage(props: {
   const params = await props.searchParams;
   const usuario = await operadorActual();
 
-  const [resSeguimiento, resOfertas] = await Promise.all([verSeguimientoPostulante(usuario, id), verOfertas(usuario)]);
+  const [resSeguimiento, resOfertas, resCursos] = await Promise.all([
+    verSeguimientoPostulante(usuario, id),
+    verOfertas(usuario),
+    verCursosAdmin(usuario),
+  ]);
 
   if (!resSeguimiento.ok) notFound();
 
@@ -33,6 +37,7 @@ export default async function AdminPostulanteDetallePage(props: {
       postulaciones={postulaciones}
       seguimiento={{ resumen, derivacionesCurso }}
       ofertasParaAsociar={resOfertas.ok ? ofertasParaAsociar(resOfertas.datos, postulaciones) : []}
+      cursosDisponibles={resCursos.ok ? resCursos.datos : []}
       volver={leerDesde(params) ?? "/admin/postulantes"}
       aqui={urlCon(`/admin/postulantes/${id}`, params, {})}
     />

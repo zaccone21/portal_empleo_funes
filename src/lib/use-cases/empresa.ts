@@ -69,9 +69,8 @@ export async function verMisOfertas(usuario: CurrentUser): Promise<Resultado<Ofe
 }
 
 /**
- * Sends a new offer (P11, RF1.3.3). Only an approved company can (D-068). It is
- * created "pendiente": there are no drafts (D-007) and the Office reviews it
- * before it is published. An empty pay field means the offer shows no pay.
+ * Sends a new offer (P11, RF1.3.3). Only an approved company with a complete
+ * profile (CUIT, business name, and contact data) can publish (D-068).
  */
 export async function publicarOferta(
   usuario: CurrentUser,
@@ -81,8 +80,18 @@ export async function publicarOferta(
   if (negado) return negado;
 
   const { perfil, estado } = await leerPerfilEmpresa(usuario.id);
-  if (!perfil) {
-    return falla("conflict", "Tenés que completar los datos de tu empresa antes de publicar una oferta.");
+  if (
+    !perfil ||
+    !perfil.cuit.trim() ||
+    !perfil.razonSocial.trim() ||
+    !perfil.contactoNombre.trim() ||
+    !perfil.contactoTelefono.trim() ||
+    !perfil.contactoEmail.trim()
+  ) {
+    return falla(
+      "conflict",
+      "Tenés que completar todos los datos de tu empresa (incluyendo el CUIT y la razón social) antes de publicar una oferta.",
+    );
   }
   // The database refuses it too (policy ofertas_insert_propias): this is the clear message for the screen.
   if (estado !== "aprobada") {

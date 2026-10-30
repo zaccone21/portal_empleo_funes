@@ -1,10 +1,13 @@
 import {
+  BarChart3,
   Briefcase,
   Building2,
+  Calendar,
   CircleAlert,
   ClipboardCheck,
   ClipboardList,
   FileUser,
+  GraduationCap,
   LayoutDashboard,
   Send,
   Store,
@@ -13,7 +16,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type ConteoMenu = "ofertasPendientes" | "postulacionesNuevas" | "cierresSolicitados" | "porDerivar" | "empresasPorAprobar";
+export type ConteoMenu =
+  | "ofertasPendientes"
+  | "postulacionesNuevas"
+  | "cierresSolicitados"
+  | "porDerivar"
+  | "empresasPorAprobar";
 
 export type NavItem = {
   titulo: string;
@@ -35,7 +43,10 @@ export type NavGroup = {
 export const MENU_ADMIN: NavGroup[] = [
   {
     titulo: "Resumen",
-    items: [{ titulo: "Dashboard", url: "/admin", icono: LayoutDashboard }],
+    items: [
+      { titulo: "Dashboard", url: "/admin", icono: LayoutDashboard },
+      { titulo: "Métricas", url: "/admin/metricas", icono: BarChart3 },
+    ],
   },
   {
     titulo: "Tareas pendientes",
@@ -53,7 +64,9 @@ export const MENU_ADMIN: NavGroup[] = [
     items: [
       { titulo: "Ofertas", url: "/admin/ofertas", icono: Briefcase },
       { titulo: "Postulaciones", url: "/admin/postulaciones", icono: FileUser },
+      { titulo: "Pre-entrevistas", url: "/admin/preentrevistas", icono: Calendar },
       { titulo: "Postulantes", url: "/admin/postulantes", icono: Users },
+      { titulo: "Cursos", url: "/admin/cursos", icono: GraduationCap },
       { titulo: "Empresas", url: "/admin/empresas", icono: Building2 },
     ],
   },
@@ -99,4 +112,3 @@ export function migasDeRuta(pathname: string): string[] | null {
   const grupo = MENU_ADMIN.find((g) => g.items.includes(item));
   return grupo ? [grupo.titulo, item.titulo] : null;
 }
-

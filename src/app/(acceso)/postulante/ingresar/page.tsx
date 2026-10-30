@@ -7,16 +7,17 @@ import { TarjetaAcceso } from "@/components/auth/TarjetaAcceso";
 export const metadata: Metadata = { title: "Ingresar" };
 
 /**
- * P02: applicant login. ?volver= brings the person back to the screen that
- * asked them to log in (for example the offer they wanted to apply to).
+ * P02: applicant login (accepts Email or DNI). ?volver= brings the person back
+ * to the screen that asked them to log in (for example the offer they wanted to
+ * apply to). ?error=enlace_vencido informs when an activation link from email expired.
  */
 export default async function PostulanteIngresarPage({ searchParams }: PageProps<"/postulante/ingresar">) {
-  const { volver } = await searchParams;
+  const { volver, error } = await searchParams;
 
   return (
     <TarjetaAcceso
       titulo="Ingresá a tu cuenta"
-      descripcion="Para ver ofertas de trabajo y postularte."
+      descripcion="Ingresá con tu email o tu DNI para ver ofertas de trabajo y postularte."
       pie={
         <EnlacesAcceso
           enlaces={[
@@ -27,7 +28,11 @@ export default async function PostulanteIngresarPage({ searchParams }: PageProps
         />
       }
     >
-      <FormularioIngreso volver={typeof volver === "string" ? volver : undefined} />
+      <FormularioIngreso
+        modoAcceso="postulante"
+        volver={typeof volver === "string" ? volver : undefined}
+        enlaceVencido={error === "enlace_vencido"}
+      />
     </TarjetaAcceso>
   );
 }

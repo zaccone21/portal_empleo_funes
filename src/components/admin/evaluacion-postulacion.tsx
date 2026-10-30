@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,7 @@ import { TarjetaEmpresa } from "@/components/admin/panel-detalle";
 import { ResultadoEmpresa } from "@/components/admin/resultado-empresa";
 import { BadgePostulacion } from "@/components/admin/status-badge";
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
-import { fechaLarga } from "@/lib/admin/fechas";
+import { fechaHora, fechaLarga } from "@/lib/admin/fechas";
 import { conDesde } from "@/lib/admin/url";
 import { enlaceLlamada, enlaceWhatsApp, formatearTelefonoAR } from "@/lib/telefonos";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
@@ -60,11 +61,9 @@ function textoParaEmpresa(postulacion: PostulacionAdmin, nombre: string): string
  * Left: Offer detail with how it is going (applications, referrals, hires),
  * its requirements, and the company card with one-tap contact and a link to
  * its file.
- * Right: White CV sheet with contact buttons, the optional pre-interview
- * (RF1.6.1), the result with the company once referred, and the document preview.
- * Footer: Keyboard shortcuts (J/K/P/N) and evaluation actions; a pre-selected
- * application is referred from here (RF1.6.2), with a warning that does not
- * block when the company has not answered for others of the same offer (D-054).
+ * Right: White CV sheet with contact buttons, the pre-interview
+ * (RF1.6.1), the result with the company once referred, and the document preview
+ * (supports both PDF and PNG CVs).
  */
 export function EvaluacionPostulacion({
   postulacion,
@@ -81,6 +80,7 @@ export function EvaluacionPostulacion({
   const nombre = nombreCompleto(postulacion.postulante) ?? "Sin nombre cargado";
   const whatsapp = enlaceWhatsApp(postulacion.postulante.telefono);
   const destinoSiguiente = hrefSiguiente ?? volver;
+  const esCvPng = Boolean(postulacion.postulante.cvNombre?.toLowerCase().endsWith(".png"));
 
   // Keyboard navigation shortcuts (J = previous, K = next)
   useEffect(() => {
@@ -106,7 +106,7 @@ export function EvaluacionPostulacion({
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-3 min-h-0">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
       <EnlaceVolver href={volver} />
       <PageHeader
         migas={["Tareas pendientes", "Postulaciones nuevas", nombre]}
@@ -124,7 +124,7 @@ export function EvaluacionPostulacion({
               </span>
               <EnlaceAccion href={conDesde(`/admin/ofertas/${postulacion.oferta.id}`, aqui)}>Ver oferta</EnlaceAccion>
             </div>
-            <h2 className="text-[20px] font-bold text-foreground leading-snug">{postulacion.oferta.titulo}</h2>
+            <h2 className="text-[20px] leading-snug font-bold text-foreground">{postulacion.oferta.titulo}</h2>
             {resumenOferta && (
               <p className="text-[12.5px] text-muted-foreground tabular-nums">
                 {resumenOferta.postulaciones === 1 ? "1 postulación" : `${resumenOferta.postulaciones} postulaciones`}
@@ -143,16 +143,16 @@ export function EvaluacionPostulacion({
 
           <div className="grid grid-cols-2 gap-3 text-[12.5px]">
             <div>
-              <span className="text-muted-foreground block text-[11px]">Dirección del trabajo</span>
+              <span className="block text-[11px] text-muted-foreground">Dirección del trabajo</span>
               <span className="font-medium text-foreground">{postulacion.oferta.lugar || "Funes"}</span>
             </div>
             <div>
-              <span className="text-muted-foreground block text-[11px]">Jornada</span>
+              <span className="block text-[11px] text-muted-foreground">Jornada</span>
               <span className="font-medium text-foreground">{postulacion.oferta.jornada || <Ausente />}</span>
             </div>
             {postulacion.oferta.sueldo && (
               <div className="col-span-2">
-                <span className="text-muted-foreground block text-[11px]">Remuneración</span>
+                <span className="block text-[11px] text-muted-foreground">Remuneración</span>
                 <span className="font-medium text-foreground">{postulacion.oferta.sueldo}</span>
               </div>
             )}
@@ -177,14 +177,14 @@ export function EvaluacionPostulacion({
 
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] font-medium text-muted-foreground uppercase">Descripción del puesto</span>
-            <div className="whitespace-pre-line text-[13px] leading-relaxed text-foreground">
+            <div className="text-[13px] leading-relaxed whitespace-pre-line text-foreground">
               {postulacion.oferta.descripcion}
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] font-medium text-muted-foreground uppercase">Requisitos</span>
-            <div className="whitespace-pre-line text-[13px] leading-relaxed text-foreground">
+            <div className="text-[13px] leading-relaxed whitespace-pre-line text-foreground">
               {postulacion.oferta.requisitos}
             </div>
           </div>
@@ -207,18 +207,6 @@ export function EvaluacionPostulacion({
               </div>
               <div className="flex flex-wrap items-center justify-end gap-1.5">
                 <EnlaceAccion href={conDesde(`/admin/postulantes/${postulacion.postulante.id}`, aqui)}>Ver ficha</EnlaceAccion>
-                {postulacion.postulante.cvNombre && (
-                  <BotonAdmin
-                    variante="primario"
-                    render={
-                      <a
-                        href={`/api/admin/postulantes/${postulacion.postulante.id}/cv?descargar=1`}
-                      />
-                    }
-                  >
-                    Descargar PDF
-                  </BotonAdmin>
-                )}
               </div>
             </div>
 
@@ -269,20 +257,56 @@ export function EvaluacionPostulacion({
             </section>
           )}
 
-          <FormularioPreentrevista postulacionId={postulacion.id} preentrevista={postulacion.preentrevista} />
+          {/* Si ya fue derivado a la empresa, se quita el formulario de pre-entrevista */}
+          {postulacion.derivadaEl || postulacion.estado === "derivado" ? (
+            postulacion.preentrevista ? (
+              <div className="flex flex-col gap-1 rounded-[10px] border border-border bg-surface p-3 text-[12.5px]">
+                <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                  Pre-entrevista realizada
+                </span>
+                <span className="font-heading font-bold text-foreground">
+                  {fechaHora(postulacion.preentrevista.fecha)} hs
+                </span>
+                {postulacion.preentrevista.notas && (
+                  <p className="text-muted-foreground">{postulacion.preentrevista.notas}</p>
+                )}
+              </div>
+            ) : null
+          ) : (
+            <FormularioPreentrevista
+              postulacionId={postulacion.id}
+              preentrevista={postulacion.preentrevista}
+              preentrevistaEstado={postulacion.preentrevistaEstado}
+              nombrePostulante={nombre}
+              tituloOferta={postulacion.oferta.titulo}
+            />
+          )}
 
           {/* CV Document preview or message */}
-          <div className="flex flex-1 flex-col gap-2 min-h-[350px]">
-            <span className="text-[11px] font-medium text-muted-foreground uppercase">Documento adjunto</span>
+          <div className="flex min-h-[350px] flex-1 flex-col gap-2">
+            <span className="text-[11px] font-medium text-muted-foreground uppercase">
+              Documento adjunto ({esCvPng ? "Imagen PNG" : "PDF"})
+            </span>
             {postulacion.postulante.cvNombre ? (
               <>
-                {/* The route signs a fresh link on every load: a link signed when the
-                    page was rendered expires in 60 s and broke the viewer. */}
-                <iframe
-                  src={`/api/admin/postulantes/${postulacion.postulante.id}/cv`}
-                  title="Visor de CV"
-                  className="size-full flex-1 rounded-[8px] border border-border min-h-[420px]"
-                />
+                {esCvPng ? (
+                  <div className="flex min-h-[420px] flex-1 items-center justify-center overflow-auto rounded-[8px] border border-border bg-surface p-3">
+                    <Image
+                      src={`/api/admin/postulantes/${postulacion.postulante.id}/cv`}
+                      alt={`CV de ${nombre}`}
+                      width={800}
+                      height={1000}
+                      unoptimized
+                      className="max-h-[640px] w-auto max-w-full rounded-[6px] object-contain"
+                    />
+                  </div>
+                ) : (
+                  <iframe
+                    src={`/api/admin/postulantes/${postulacion.postulante.id}/cv`}
+                    title="Visor de CV"
+                    className="min-h-[420px] size-full flex-1 rounded-[8px] border border-border"
+                  />
+                )}
                 <BotonAdmin
                   variante="secundario"
                   className="self-start"
@@ -299,7 +323,7 @@ export function EvaluacionPostulacion({
               </>
             ) : (
               <div className="flex flex-col items-center justify-center gap-1 rounded-[8px] border border-dashed border-border bg-surface p-8 text-center text-muted-foreground">
-                <p className="font-medium text-foreground">Esta persona no subió CV en PDF.</p>
+                <p className="font-medium text-foreground">Esta persona no subió CV.</p>
                 <p className="text-[12px]">Revisá los oficios declarados y los datos de contacto arriba.</p>
               </div>
             )}

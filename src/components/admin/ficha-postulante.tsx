@@ -13,10 +13,10 @@ import { fechaCorta, fechaDia, fechaHora, fechaLarga } from "@/lib/admin/fechas"
 import { perfilIncompleto, tieneCv, type FilaPostulante, type OfertaParaAsociar } from "@/lib/admin/postulantes";
 import { conDesde } from "@/lib/admin/url";
 import { enlaceLlamada, enlaceWhatsApp, formatearTelefonoAR } from "@/lib/telefonos";
-import type { DerivacionCurso, PostulacionAdmin, ResumenSeguimiento } from "@/lib/validation/oficina";
+import type { CursoOficina, DerivacionCurso, PostulacionAdmin, ResumenSeguimiento } from "@/lib/validation/oficina";
 import { NOMBRE_RUBRO, type Rubro } from "@/lib/validation/rubros";
 
-/** After this many rejections the Office offers a training course (D-046, D-047). It only shows a notice. */
+/** After this many rejections the Office offers a training course (D-046, D-047). */
 const RECHAZOS_PARA_CURSO = 3;
 
 type Props = {
@@ -26,6 +26,8 @@ type Props = {
   seguimiento: { resumen: ResumenSeguimiento; derivacionesCurso: DerivacionCurso[] };
   /** Published offers to link the person to (P16, RF1.5.8). */
   ofertasParaAsociar: OfertaParaAsociar[];
+  /** Courses from the Office catalog so the operator can assign one in two clicks. */
+  cursosDisponibles?: CursoOficina[];
   volver: string;
   /** This page's own URL, so the evaluation it links to can come back here. */
   aqui: string;
@@ -37,7 +39,15 @@ type Props = {
  * pre-interview and the company's answer in the main column; linking to an
  * offer and the course referrals on the side.
  */
-export function FichaPostulante({ postulante, postulaciones, seguimiento, ofertasParaAsociar, volver, aqui }: Props) {
+export function FichaPostulante({
+  postulante,
+  postulaciones,
+  seguimiento,
+  ofertasParaAsociar,
+  cursosDisponibles = [],
+  volver,
+  aqui,
+}: Props) {
   const nombre = nombreCompleto(postulante) ?? "Sin nombre cargado";
   const whatsapp = enlaceWhatsApp(postulante.telefono);
   const cvCargado = tieneCv(postulante);
@@ -84,7 +94,11 @@ export function FichaPostulante({ postulante, postulaciones, seguimiento, oferta
           <FichaSeccion titulo="Asociar a una oferta">
             <AsociarOferta postulanteId={postulante.id} ofertas={ofertasParaAsociar} />
           </FichaSeccion>
-          <CursosPostulante postulanteId={postulante.id} seguimiento={seguimiento} />
+          <CursosPostulante
+            postulanteId={postulante.id}
+            seguimiento={seguimiento}
+            cursosDisponibles={cursosDisponibles}
+          />
         </>
       }
     >
@@ -172,9 +186,11 @@ function Seguimiento({ resumen }: { resumen: ResumenSeguimiento }) {
 function CursosPostulante({
   postulanteId,
   seguimiento,
+  cursosDisponibles,
 }: {
   postulanteId: string;
   seguimiento: { resumen: ResumenSeguimiento; derivacionesCurso: DerivacionCurso[] };
+  cursosDisponibles: CursoOficina[];
 }) {
   return (
     <section id="cursos" className="flex scroll-mt-4 flex-col gap-3 rounded-[10px] border border-border bg-card p-4">
@@ -186,7 +202,7 @@ function CursosPostulante({
             : `Tiene ${seguimiento.resumen.rechazos} rechazos de empresas.`}
         </p>
       )}
-      <FormularioDerivacionCurso postulanteId={postulanteId} />
+      <FormularioDerivacionCurso postulanteId={postulanteId} cursosDisponibles={cursosDisponibles} />
       {seguimiento.derivacionesCurso.length === 0 ? (
         <p className="text-muted-foreground">Todavía no se derivó a ningún curso.</p>
       ) : (
@@ -219,7 +235,7 @@ function ListaPostulaciones({ postulaciones, aqui }: { postulaciones: Postulacio
             <div className="flex min-w-0 flex-col leading-tight">
               <span className="font-bold">{p.oferta.titulo}</span>
               <small className="text-[12.5px] text-muted-foreground">
-                {p.oferta.empresa?.razonSocial ?? "Sin empresa"} · {fechaCorta(p.postuladoEl)}
+                {p.oferta.empresa?.razonSocial ?? "Sin empresa"} · Postulado el {fechaCorta(p.postuladoEl)}
               </small>
             </div>
             <div className="flex shrink-0 items-center gap-3">
@@ -229,7 +245,8 @@ function ListaPostulaciones({ postulaciones, aqui }: { postulaciones: Postulacio
           </div>
           {p.preentrevista && (
             <p className="text-[13px] text-muted-foreground">
-              Preentrevista: {fechaHora(p.preentrevista.fecha)}
+              Preentrevista ({p.preentrevistaEstado === "pendiente_confirmacion" ? "Pendiente de confirmación" : "Agendada"}):{" "}
+              {fechaHora(p.preentrevista.fecha)}
               {p.preentrevista.notas && ` · ${p.preentrevista.notas}`}
             </p>
           )}

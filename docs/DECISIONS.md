@@ -741,6 +741,54 @@ Decisión:
 - En la **oferta** no se agrega columna: el campo `lugar` pasa a llamarse **"Dirección del trabajo"** (calle y número, o barrio o zona de Funes). Los valores que ya hay (barrios) siguen siendo válidos.
 Motivo: pedido del usuario ("dirección en el perfil del postulante y en las ofertas"). Para las ofertas se eligió reusar `lugar` y cambiar el rótulo, el cambio más chico (esquema mínimo).
 
+### D-071 — Ordenamiento descendente (más reciente primero) y `actualizada_el` en postulaciones (2026-10-28)
+Se agrega `postulaciones.actualizada_el` mantenida por trigger en cada cambio de estado, pre-entrevista o decisión de empresa. Todas las tablas y colas de la Oficina y el panel principal (`/admin`) ordenan de más reciente a más antigua (`desc`), y las tarjetas del postulante destacan las ofertas nuevas y la fecha de postulación.
+
+### D-072 — Estados de pre-entrevista, confirmación por email, calendario y reprogramación manual (2026-10-28)
+La pre-entrevista tiene estado explícito (`no_agendada | pendiente_confirmacion | agendada`) y token de confirmación (`preentrevista_token`). Al agendar o reprogramar se notifica por email (Resend HTTP API) para que el postulante confirme o avise que no puede asistir (`/acceso/preentrevista`). La Oficina dispone de la sección `/admin/preentrevistas` con lista colapsable y calendario por Día, Semana y Mes (con accesos directos a postulación, oferta y postulante) y puede reprogramar manualmente en cualquier momento eligiendo si queda pendiente de confirmación o agendada directo.
+
+### D-073 — Catálogo de cursos y cola automática de postulantes con 3 o más rechazos (2026-10-28, resuelve Q-013)
+La Oficina administra el catálogo de cursos en `public.cursos` desde `/admin/cursos` y visualiza automáticamente a los postulantes que acumulan 3 o más `decision_empresa = 'no_contratado'` para asignarles capacitación (`derivaciones_curso.curso_id`) y notificarlos por email.
+
+### D-074 — Confirmación de cuenta con enlace + código PIN de 6 dígitos + reenvío (2026-10-28)
+La plantilla `confirmar-registro.html` incluye tanto el botón con `token_hash` como el código OTP de 6 dígitos (`{{ .Token }}`). `AvisoRevisaTuCorreo` permite activar la cuenta ingresando los 6 dígitos en la misma pantalla (`POST /api/auth/verificar-codigo`) o reenviar el correo (`POST /api/auth/reenviar-confirmacion`).
+
+### D-078 — Validación estricta de CUIT y perfil completo de empresa antes de aprobar o publicar ofertas (2026-10-28, amplía D-068)
+Ni el caso de uso (`publicarOferta`, `aprobarEmpresa`, `publicarOfertaPendiente`) ni la política RLS `ofertas_insert_propias` permiten que una empresa sin `cuit` o sin `razon_social` cargados publique ofertas o sea aprobada. La migración `20261028180000_seguridad_empresas_login_metricas.sql` devuelve a estado `'pendiente'` a cualquier empresa que hubiera quedado aprobada con el perfil incompleto.
+
+### D-079 — Reforma de Landing (`/`), Full-Width (`max-w-[1680px]`) y carrusel automático sin duplicados (2026-10-28, reemplaza parcialmente D-066)
+Se elimina la sección `"El portal en números"`. `OfertasRecientes` muestra hasta 9 ofertas en un carrusel automático y manual que excluye las ofertas ya exhibidas en `OfertasSugeridas`. Se mantiene siempre visible el bloque con el logo de la Municipalidad (`Confianza`), se suman `RedesMunicipales` y un `PieInicio` completo con links en `target="_blank"`, y se expande el contenedor general a `max-w-[1680px]`.
+
+### D-080 — Ayuda contextual según el rol de la sesión (2026-10-28, amplía D-057)
+En `/ayuda`, cuando el usuario tiene sesión de `postulante` se renderiza únicamente la guía y preguntas frecuentes de postulantes; cuando tiene sesión de `empresa`, únicamente las de empresas.
+
+### D-081 — Filtros avanzados en `/ofertas` y tarjetas enriquecidas en `/postulante/postulaciones` (2026-10-28)
+El catálogo `/ofertas` filtra en la URL por categoría (`rubro`), pago (`pago`), barrio (`barrio`), horario (`horario`) y orden (`recientes` / `antiguas`). En `/postulante/postulaciones`, cada postulación se presenta en una grilla de tarjetas con los rubros, dirección (`lugar`), jornada, sueldo y estado de la oferta.
+
+### D-082 — Sección de Métricas y Reportes (`/admin/metricas`) con gráficos, matrices crudas y exportación PDF (2026-10-28)
+Nueva sección de la Oficina con filtro global por Día, Semana, Mes, Período personalizado e Histórico que alimenta tarjetas KPI (visitas diarias registradas en `visitas_diarias`, contratados, personas en cursos, rechazados, postulaciones y ofertas), 3 gráficos (`recharts`), 3 matrices nominales/crudas y exportación de reporte ejecutivo en `.pdf`.
+
+### D-083 — Inicio de sesión con Email o DNI (postulante) y Email o CUIT (empresa) (2026-10-28, amplía D-020)
+`ingresoSchema` y `ingresarConContrasena` aceptan email, DNI (7–8 dígitos) o CUIT (11 dígitos), resolviendo el documento al email de la cuenta mediante la función `resolver_email_por_documento` (con respaldo en servidor) antes de autenticar en Supabase Auth.
+
+### D-084 — Animaciones de interfaz y esqueletos relucientes con `motion` (2026-10-28)
+Se adopta `motion` en `src/components/marca/animaciones.tsx` para animaciones de entrada, listas escalonadas, paneles colapsables y esqueletos de carga con la silueta de los componentes y efecto de brillo (`shimmer`), respetando `prefers-reduced-motion`.
+
+### D-085 — Pantalla de Privacidad (`/privacidad`) y consentimiento informado en el registro (2026-10-28, Ley 25.326)
+Se crea `/privacidad` detallando en lenguaje claro qué datos pide el portal, para qué se usan, quién puede ver cada uno y cómo ejercer los derechos de acceso, rectificación y supresión. En el registro de postulantes y empresas (`FormularioRegistro`, `registroSchema`) se exige marcar `aceptaPrivacidad: true` (`CampoConsentimiento`) y se guarda la marca temporal `consentimiento_privacidad_el` en `user_metadata`.
+
+### D-086 — Simplificación de filtros en `/ofertas`, ajustes de Landing y tablas de resumen en `/admin/metricas` (2026-10-28)
+En `/ofertas` los rubros se presentan como botones grandes y el resto de los filtros (sueldo, horario, zona, orden) se agrupa bajo `"Más opciones"` con botones de lenguaje cotidiano. En la Landing se ubica `"Cómo postularte"` antes del bloque municipal, se compacta la tira de redes con íconos oficiales SVG y el footer pasa a ancho completo. En `/admin/metricas` se muestran únicamente conteos reales (sin estimaciones) y tablas de resumen legibles sin datos crudos ni DNI.
+
+### D-075 — "Mi perfil" (P03) en modo vista tipo perfil profesional por defecto (2026-10-28)
+`/postulante/perfil` muestra siempre la vista de perfil (`VistaPerfilPostulante`) por defecto mientras exista el registro del postulante, pasando al formulario de edición únicamente cuando el usuario toca **"Editar perfil"**.
+
+### D-076 — CV en formato PDF o imagen PNG (2026-10-28)
+El postulante puede subir su CV tanto en `.pdf` (`application/pdf`) como en `.png` (`image/png`) de hasta 5 MB, validado por firma binaria (`%PDF-` o los 8 bytes de firma PNG) y almacenado en `cvs` como `${id}/cv.pdf` o `${id}/cv.png`.
+
+### D-077 — Sugerencias de ofertas según los rubros del perfil (2026-10-28)
+En el inicio (`/`) y en `/postulante/postulaciones`, el postulante con sesión iniciada ve el bloque `OfertasSugeridas`, que filtra las ofertas publicadas que coinciden con al menos uno de los rubros elegidos en su perfil, priorizando aquellas a las que todavía no se postuló.
+
 ---
 
 ## Abiertas

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "motion/react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { useSesion } from "@/hooks/useSesion";
@@ -53,26 +54,32 @@ export function EncabezadoPortal({ area }: { area: Role }) {
         {enlaces.length > 0 && (
           <nav aria-label="Principal" className="hidden h-full lg:block">
             <ul className="flex h-full items-stretch gap-1">
-              {enlaces.map(({ href, texto }) => (
-                <li key={href} className="flex">
-                  <Link
-                    href={href}
-                    aria-current={actual === href ? "page" : undefined}
-                    className={cn(
-                      "relative inline-flex items-center px-3 text-[0.9375rem] font-medium whitespace-nowrap text-primary-foreground/75 outline-none",
-                      "focus-visible:ring-3 focus-visible:ring-brand-mint/70 focus-visible:ring-inset",
-                      "after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t-full after:bg-brand-mint after:opacity-0",
-                      // Hover: the whole slot lights up and the mint bar shows at half strength,
-                      // so the option under the pointer stands out before choosing it.
-                      "hover:bg-primary-foreground/[0.08] hover:text-primary-foreground hover:after:opacity-50",
-                      "motion-safe:transition-colors motion-safe:after:transition-opacity",
-                      "aria-[current=page]:text-primary-foreground aria-[current=page]:after:opacity-100",
-                    )}
-                  >
-                    {texto}
-                  </Link>
-                </li>
-              ))}
+              {enlaces.map(({ href, texto }) => {
+                const esActual = actual === href;
+                return (
+                  <li key={href} className="relative flex">
+                    <Link
+                      href={href}
+                      aria-current={esActual ? "page" : undefined}
+                      className={cn(
+                        "relative inline-flex items-center px-3 text-[0.9375rem] font-medium whitespace-nowrap text-primary-foreground/75 outline-none transition-colors",
+                        "focus-visible:ring-3 focus-visible:ring-brand-mint/70 focus-visible:ring-inset",
+                        "hover:bg-primary-foreground/[0.08] hover:text-primary-foreground",
+                        esActual && "text-primary-foreground",
+                      )}
+                    >
+                      {texto}
+                      {esActual && (
+                        <motion.span
+                          layoutId="nav-underline-portal"
+                          className="absolute inset-x-3 bottom-0 h-[3px] rounded-t-full bg-brand-mint"
+                          transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                        />
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </nav>
         )}
