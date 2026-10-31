@@ -230,6 +230,12 @@ describe("aprobarEmpresa (D-068)", () => {
 
     expect(dal.actualizarEstadoEmpresa).toHaveBeenCalledWith("empresa-1", "pendiente", { estado: "aprobada" });
     expect(resultado.ok && resultado.datos.empresa.estado).toBe("aprobada");
+    expect(emailMock.enviarCorreo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        para: "contacto@ejemplo.com",
+        asunto: expect.stringContaining("fue aprobada"),
+      }),
+    );
   });
 
   test("a rejected company can be approved later", async () => {
@@ -293,6 +299,12 @@ describe("rechazarEmpresa (D-068, D-069)", () => {
       motivoRechazo: "Faltan datos de la empresa",
     });
     expect(resultado.ok && resultado.datos.empresa.motivoRechazo).toBe("Faltan datos de la empresa");
+    expect(emailMock.enviarCorreo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        para: "contacto@ejemplo.com",
+        asunto: expect.stringContaining("Observaciones"),
+      }),
+    );
   });
 
   test.each(["aprobada", "rechazada"] as const)("a %s company was already reviewed", async (estado) => {
@@ -338,7 +350,7 @@ describe("publicarOfertaPendiente (RF1.5.3)", () => {
           contactoNombre: "Juan",
           contactoTelefono: "123",
           contactoEmail: "empresa@ejemplo.com",
-          descripcion: null,
+          descripcion: "",
         },
       }))
       .mockResolvedValueOnce(oferta({ estado: "publicada", publicadaEl: "2026-09-29T13:00:00.000Z" }));

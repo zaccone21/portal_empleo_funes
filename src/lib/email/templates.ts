@@ -287,3 +287,73 @@ export function plantillaDerivacionCurso(datos: {
 
   return { asunto, html };
 }
+
+/**
+ * 6. Template: Company account approved by the Office (D-068)
+ */
+export function plantillaEmpresaAprobada(datos: {
+  razonSocial: string;
+}): { asunto: string; html: string } {
+  const urlBase = obtenerUrlBase();
+  const asunto = `Tu empresa fue aprobada - Portal de Empleo de Funes`;
+  const cuerpoHtml = `
+    <p style="font-size: 15px; line-height: 1.6; color: #334155; margin-bottom: 16px;">
+      Hola <strong>${escaparHtml(datos.razonSocial)}</strong>:
+    </p>
+    <p style="font-size: 15px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
+      ¡Buenas noticias! La Oficina de Empleo de la Municipalidad de Funes revisó y <strong>aprobó tu cuenta de empresa</strong>.
+    </p>
+    <div style="background-color: #f1f5f9; border-left: 4px solid #3c8c4f; border-radius: 4px; padding: 16px; margin-bottom: 20px;">
+      <p style="font-size: 15px; font-weight: 600; color: #04311a; margin: 0;">
+        A partir de este momento ya podés publicar ofertas laborales y recibir las derivaciones de candidatos locales evaluados por nuestro equipo.
+      </p>
+    </div>
+  `;
+
+  const html = layoutBaseEmail({
+    titulo: "¡Tu cuenta de empresa está activa!",
+    cuerpoHtml,
+    botonTexto: "Publicar una oferta",
+    botonUrl: `${urlBase}/empresa/ofertas/nueva`,
+    pieAdicional: "La Oficina de Empleo acompaña a los comercios e industrias de Funes.",
+  });
+
+  return { asunto, html };
+}
+
+/**
+ * 7. Template: Company account rejected by the Office (D-068, D-069)
+ */
+export function plantillaEmpresaRechazada(datos: {
+  razonSocial: string;
+  motivo: string;
+}): { asunto: string; html: string } {
+  const urlBase = obtenerUrlBase();
+  const asunto = `Observaciones sobre tu registro de empresa - Portal de Empleo de Funes`;
+  const cuerpoHtml = `
+    <p style="font-size: 15px; line-height: 1.6; color: #334155; margin-bottom: 16px;">
+      Hola <strong>${escaparHtml(datos.razonSocial)}</strong>:
+    </p>
+    <p style="font-size: 15px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
+      La Oficina de Empleo revisó la información de tu empresa y ha registrado las siguientes observaciones para completar tu alta:
+    </p>
+    <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 4px; padding: 16px; margin-bottom: 20px;">
+      <p style="font-size: 14px; line-height: 1.5; color: #991b1b; margin: 0;">
+        <strong>Motivo:</strong> ${escaparHtml(datos.motivo)}
+      </p>
+    </div>
+    <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin-bottom: 0;">
+      Podés ingresar a tu perfil para corregir los datos solicitados y volver a pedir la revisión.
+    </p>
+  `;
+
+  const html = layoutBaseEmail({
+    titulo: "Observaciones en tu registro de empresa",
+    cuerpoHtml,
+    botonTexto: "Corregir mis datos",
+    botonUrl: `${urlBase}/empresa/perfil`,
+    pieAdicional: "Si tenés dudas, podés contactar directamente a la Oficina de Empleo.",
+  });
+
+  return { asunto, html };
+}

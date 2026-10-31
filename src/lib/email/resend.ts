@@ -22,13 +22,16 @@ const REMITENTE_POR_DEFECTO = "Oficina de Empleo Funes <no-reply@zaccone.dev>";
  * { ok: false, error } instead of throwing, so the main business flow can continue.
  */
 export async function enviarCorreo({ para, asunto, html }: ParametrosCorreo): Promise<ResultadoEnvio> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const remitente = process.env.RESEND_FROM_EMAIL || REMITENTE_POR_DEFECTO;
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const remitente = process.env.RESEND_FROM_EMAIL?.trim() || REMITENTE_POR_DEFECTO;
 
   if (!apiKey) {
-    // In dev or tests without a Resend key, we log and return gracefully
     if (process.env.NODE_ENV !== "test") {
-      console.warn("[email] RESEND_API_KEY no configurada. No se envió el correo a:", Array.isArray(para) ? para.join(", ") : para);
+      console.warn(
+        `[email] ATENCIÓN: RESEND_API_KEY no está configurada en .env.local. No se envió el correo a: ${
+          Array.isArray(para) ? para.join(", ") : para
+        }`,
+      );
     }
     return { ok: false, error: "RESEND_API_KEY no configurada" };
   }
@@ -36,7 +39,14 @@ export async function enviarCorreo({ para, asunto, html }: ParametrosCorreo): Pr
   // Ensure recipients are valid non-empty values
   const destinatarios = (Array.isArray(para) ? para : [para]).map((d) => d.trim()).filter(Boolean);
   if (destinatarios.length === 0) {
+    if (process.env.NODE_ENV !== "test") {
+      console.warn(`[email] Destinatario vacío para el asunto: "${asunto}". No se envió.`);
+    }
     return { ok: false, error: "No se especificó ningún destinatario válido" };
+  }
+
+  if (process.env.NODE_ENV !== "test") {
+    console.log(`[email] Enviando correo a: ${destinatarios.join(", ")} | Asunto: "${asunto}" | Remitente: ${remitente}`);
   }
 
   try {
@@ -56,14 +66,18 @@ export async function enviarCorreo({ para, asunto, html }: ParametrosCorreo): Pr
 
     if (!respuesta.ok) {
       const cuerpoError = await respuesta.json().catch(() => ({}));
-      const detalle = (cuerpoError && typeof cuerpoError === "object" && "message" in cuerpoError && typeof cuerpoError.message === "string")
-        ? cuerpoError.message
-        : `HTTP ${respuesta.status}`;
-      console.error(`[email] Error al enviar correo con Resend: ${detalle}`);
+      const detalle =
+        cuerpoError && typeof cuerpoError === "object" && "message" in cuerpoError && typeof cuerpoError.message === "string"
+          ? cuerpoError.message
+          : `HTTP ${respuesta.status}`;
+      console.error(`[email] Error de Resend (${respuesta.status}) al enviar a ${destinatarios.join(", ")}: ${detalle}`);
       return { ok: false, error: detalle };
     }
 
     const datos = (await respuesta.json()) as { id?: string };
+    if (process.env.NODE_ENV !== "test") {
+      console.log(`[email] Correo enviado exitosamente (ID de Resend: ${datos.id})`);
+    }
     return { ok: true, id: datos.id };
   } catch (error) {
     const mensaje = error instanceof Error ? error.message : "Error desconocido de red";

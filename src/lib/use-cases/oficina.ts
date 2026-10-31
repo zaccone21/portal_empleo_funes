@@ -53,6 +53,8 @@ import {
 import { enviarCorreo } from "@/lib/email/resend";
 import {
   plantillaCandidatoDerivadoEmpresa,
+  plantillaEmpresaAprobada,
+  plantillaEmpresaRechazada,
   plantillaOfertaAprobadaEmpresa,
   plantillaPostulacionDerivadaPostulante,
 } from "@/lib/email/templates";
@@ -235,6 +237,15 @@ export async function aprobarEmpresa(usuario: CurrentUser, id: string): Promise<
 
   const cambiada = await actualizarEstadoEmpresa(id, empresa.estado, { estado: "aprobada" });
   if (!cambiada) return falla("conflict", "Otra persona de la Oficina ya revisó esta empresa.");
+
+  // Email notification to company (non-blocking)
+  if (empresa.contactoEmail) {
+    const { asunto, html } = plantillaEmpresaAprobada({
+      razonSocial: empresa.razonSocial || "Empresa",
+    });
+    void enviarCorreo({ para: empresa.contactoEmail, asunto, html }).catch(() => {});
+  }
+
   return releerEmpresa(id);
 }
 
@@ -256,6 +267,16 @@ export async function rechazarEmpresa(
 
   const cambiada = await actualizarEstadoEmpresa(id, "pendiente", { estado: "rechazada", motivoRechazo: motivo });
   if (!cambiada) return falla("conflict", "Otra persona de la Oficina ya revisó esta empresa.");
+
+  // Email notification to company (non-blocking)
+  if (empresa.contactoEmail) {
+    const { asunto, html } = plantillaEmpresaRechazada({
+      razonSocial: empresa.razonSocial || "Empresa",
+      motivo,
+    });
+    void enviarCorreo({ para: empresa.contactoEmail, asunto, html }).catch(() => {});
+  }
+
   return releerEmpresa(id);
 }
 

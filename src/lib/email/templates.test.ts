@@ -6,6 +6,8 @@ import {
   escaparHtml,
   plantillaCandidatoDerivadoEmpresa,
   plantillaDerivacionCurso,
+  plantillaEmpresaAprobada,
+  plantillaEmpresaRechazada,
   plantillaOfertaAprobadaEmpresa,
   plantillaPostulacionDerivadaPostulante,
   plantillaPreentrevista,
@@ -75,5 +77,28 @@ describe("Email templates", () => {
     expect(asunto).toContain("Curso de Soldadura Básica");
     expect(html).toContain("Ana López");
     expect(html).toContain("Inicio: 15 de Noviembre");
+  });
+
+  it("generates company approved email with dashboard button", () => {
+    const { asunto, html } = plantillaEmpresaAprobada({
+      razonSocial: "Heladería & Café Funes",
+    });
+
+    expect(asunto).toBe("Tu empresa fue aprobada - Portal de Empleo de Funes");
+    expect(html).toContain("Heladería &amp; Café Funes");
+    expect(html).toContain("¡Tu cuenta de empresa está activa!");
+    expect(html).toContain("Publicar una oferta");
+  });
+
+  it("generates company rejected email with observation reason", () => {
+    const { asunto, html } = plantillaEmpresaRechazada({
+      razonSocial: "Construcciones Sur",
+      motivo: "El CUIT ingresado no coincide con la constancia de AFIP adjunta.",
+    });
+
+    expect(asunto).toBe("Observaciones sobre tu registro de empresa - Portal de Empleo de Funes");
+    expect(html).toContain("Construcciones Sur");
+    expect(html).toContain("El CUIT ingresado no coincide con la constancia de AFIP adjunta.");
+    expect(html).toContain("Corregir mis datos");
   });
 });
