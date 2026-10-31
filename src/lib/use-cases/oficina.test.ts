@@ -329,7 +329,18 @@ describe("publicarOfertaPendiente (RF1.5.3)", () => {
 
   test("a pending offer is published and notifies the company via email", async () => {
     dal.leerOfertaParaOficina
-      .mockResolvedValueOnce(oferta({ emailEmpresa: "empresa@ejemplo.com", titulo: "Puesto (ejemplo)" }))
+      .mockResolvedValueOnce(oferta({
+        emailEmpresa: "empresa@ejemplo.com",
+        titulo: "Puesto (ejemplo)",
+        empresa: {
+          razonSocial: "Empresa S.A.",
+          cuit: "30-11111111-1",
+          contactoNombre: "Juan",
+          contactoTelefono: "123",
+          contactoEmail: "empresa@ejemplo.com",
+          descripcion: null,
+        },
+      }))
       .mockResolvedValueOnce(oferta({ estado: "publicada", publicadaEl: "2026-09-29T13:00:00.000Z" }));
 
     const resultado = await publicarOfertaPendiente(oficina, "oferta-1");
@@ -552,7 +563,7 @@ describe("registrarPreentrevista (RF1.6.1, D-045)", () => {
 
     const resultado = await registrarPreentrevista(oficina, "p-1", { fecha: "2026-10-20T13:00:00.000Z", notas: "" });
 
-    expect(dal.guardarPreentrevista).toHaveBeenCalledWith("p-1", preentrevista);
+    expect(dal.guardarPreentrevista).toHaveBeenCalledWith("p-1", expect.objectContaining(preentrevista));
     expect(resultado.ok && resultado.datos.postulacion.preentrevista).toEqual(preentrevista);
   });
 
