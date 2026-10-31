@@ -50,6 +50,15 @@ import {
 const empresa: CurrentUser = { id: "empresa-1", rol: "empresa", email: "empresa@ejemplo.com" };
 const postulante: CurrentUser = { id: "postulante-1", rol: "postulante", email: "persona@ejemplo.com" };
 
+const perfilValido = {
+  cuit: "30-71234567-1",
+  razonSocial: "Empresa S.A.",
+  contactoNombre: "Juan",
+  contactoTelefono: "341 555-1234",
+  contactoEmail: "contacto@empresa.com",
+  descripcion: "",
+};
+
 function oferta(datos: Partial<Oferta>): Oferta {
   return {
     id: "oferta-1",
@@ -93,7 +102,7 @@ test("the company sees its offers, and the rejection reason only on rejected one
 test("a new offer starts pending, and an empty pay field is saved as no pay", async () => {
   dal.crearOferta.mockResolvedValue("oferta-nueva");
   dal.leerOferta.mockResolvedValue(oferta({ id: "oferta-nueva" }));
-  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {}, estado: "aprobada" });
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: perfilValido, estado: "aprobada" });
 
   const resultado = await publicarOferta(empresa, {
     titulo: "Cadete",
@@ -110,7 +119,7 @@ test("a new offer starts pending, and an empty pay field is saved as no pay", as
 });
 
 test.each(["pendiente", "rechazada"] as const)("a %s company cannot send an offer (D-068)", async (estado) => {
-  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {}, estado });
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: perfilValido, estado });
 
   const resultado = await publicarOferta(empresa, {
     titulo: "Cadete",
@@ -127,7 +136,7 @@ test.each(["pendiente", "rechazada"] as const)("a %s company cannot send an offe
 });
 
 test("the message of a rejected company points to its data, not to waiting", async () => {
-  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {}, estado: "rechazada" });
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: perfilValido, estado: "rechazada" });
 
   const resultado = await publicarOferta(empresa, {
     titulo: "Cadete",

@@ -82,11 +82,11 @@ export async function publicarOferta(
   const { perfil, estado } = await leerPerfilEmpresa(usuario.id);
   if (
     !perfil ||
-    !perfil.cuit.trim() ||
-    !perfil.razonSocial.trim() ||
-    !perfil.contactoNombre.trim() ||
-    !perfil.contactoTelefono.trim() ||
-    !perfil.contactoEmail.trim()
+    !perfil.cuit?.trim() ||
+    !perfil.razonSocial?.trim() ||
+    !perfil.contactoNombre?.trim() ||
+    !perfil.contactoTelefono?.trim() ||
+    !perfil.contactoEmail?.trim()
   ) {
     return falla(
       "conflict",
