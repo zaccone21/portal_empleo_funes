@@ -1,27 +1,54 @@
+import { DECISIONES_EMPRESA, ESTADOS_POSTULACION } from "@/features/postulaciones/domain/estados";
+import type { ClavesOrden, OrdenTabla } from "@/lib/admin/orden";
 import { leerParam, type ParamsBusqueda } from "@/lib/admin/url";
 import type { PostulacionAdmin } from "@/lib/validation/oficina";
 
 export type ModoPostulaciones = "por-evaluar" | "por-comunicar" | "registro";
 
-/** Returns the applications that belong to this mode, sorted correctly. */
+/** Surname first, so sorting by person reads like a list of names. */
+function apellidoYNombre(p: { nombre: string | null; apellido: string | null }): string | null {
+  return [p.apellido, p.nombre].filter(Boolean).join(" ") || null;
+}
+
+/** What each sortable column of the application tables sorts by (D-063); the keys are the column ids. */
+export const CLAVES_ORDEN_POSTULACIONES: ClavesOrden<PostulacionAdmin> = {
+  postulante: (p) => apellidoYNombre(p.postulante),
+  puesto: (p) => p.oferta.titulo,
+  estado: (p) => ESTADOS_POSTULACION[p.estado].etiqueta,
+  resultado: (p) => (p.decisionEmpresa ? DECISIONES_EMPRESA[p.decisionEmpresa].etiqueta : null),
+  cv: (p) => (p.postulante.cvNombre ? 1 : 0),
+  fecha: (p) => p.actualizadaEl ?? p.postuladoEl,
+  // Ascending means the shortest wait first: the newest application.
+  espera: (p) => -Date.parse(p.actualizadaEl ?? p.postuladoEl),
+};
+
+/** The order each application screen comes in without ?orden: newest actions first across all views. */
+export const ORDEN_POR_DEFECTO_POSTULACIONES: Record<ModoPostulaciones, OrdenTabla> = {
+  "por-evaluar": { columna: "espera", direccion: "asc" },
+  "por-comunicar": { columna: "fecha", direccion: "desc" },
+  registro: { columna: "fecha", direccion: "desc" },
+};
+
+function fechaDeOrden(p: PostulacionAdmin): string {
+  return p.actualizadaEl ?? p.postuladoEl;
+}
+
+/** Returns the applications that belong to this mode, sorted with the most recent first. */
 export function postulacionesDelModo(
   postulaciones: PostulacionAdmin[],
   modo: ModoPostulaciones,
 ): PostulacionAdmin[] {
   switch (modo) {
     case "por-evaluar":
-      // Oldest first for resolution queue
       return postulaciones
         .filter((p) => p.estado === "postulado")
-        .sort((a, b) => a.postuladoEl.localeCompare(b.postuladoEl));
+        .sort((a, b) => fechaDeOrden(b).localeCompare(fechaDeOrden(a)));
     case "por-comunicar":
-      // Oldest first for communication queue
       return postulaciones
         .filter((p) => p.estado === "preseleccionado")
-        .sort((a, b) => a.postuladoEl.localeCompare(b.postuladoEl));
+        .sort((a, b) => fechaDeOrden(b).localeCompare(fechaDeOrden(a)));
     case "registro":
-      // Newest first for general register
-      return [...postulaciones].sort((a, b) => b.postuladoEl.localeCompare(a.postuladoEl));
+      return [...postulaciones].sort((a, b) => fechaDeOrden(b).localeCompare(fechaDeOrden(a)));
   }
 }
 

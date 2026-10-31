@@ -13,6 +13,10 @@ values
 update public.perfiles set rol = 'admin' where id = '00000000-0000-0000-0000-0000000000d1';
 delete from public.postulantes where id = '00000000-0000-0000-0000-0000000000d1';
 
+-- A company can only create offers once the Office approved it (D-068).
+update public.empresas set estado = 'aprobada'
+where id in ('00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000c2');
+
 -- f1: company 1, published. f2: company 1, pending. f3: company 2, pending.
 -- f4: company 2, published.
 insert into public.ofertas (id, empresa_id, titulo, descripcion, requisitos, lugar, jornada, estado, publicada_el)

@@ -7,9 +7,9 @@ import { toast } from "sonner";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { PedirIngreso } from "@/components/estados/PedirIngreso";
+import { BloqueReluciente } from "@/components/marca/animaciones";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useMiCv } from "@/hooks/useMiCv";
 import { cn } from "@/lib/utils";
 
@@ -19,12 +19,8 @@ import { TarjetaCvActual } from "./TarjetaCvActual";
 /**
  * "Mi CV" (P04): the current CV, the form to upload or replace it, and who
  * can see it. Loads and uploads with useMiCv.
- *
- * `ofertaId` arrives when the person came from "Postularme" without a CV
- * (RF1.4.4). Then the screen says why they are here and, once the CV is up,
- * offers to go back to that same offer to finish applying. Only an id is
- * taken from the URL and the link is built here, so the parameter cannot
- * send anyone to another site.
+ * Aligned to the exact same `lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)]` grid
+ * as `PerfilPostulante` so the main and side cards line up cleanly.
  */
 export function MiCv({ ofertaId }: { ofertaId?: string }) {
   const { cv, loading, error, sinAcceso, recargar, subir, subiendo, errorSubida } = useMiCv();
@@ -41,11 +37,11 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
 
   if (loading) {
     return (
-      <div aria-busy="true" className="flex flex-col gap-4 lg:max-w-2xl">
+      <div aria-busy="true" className="grid gap-6 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)] lg:items-start">
         <span className="sr-only" role="status">
           Cargando tu CV…
         </span>
-        <Skeleton className="h-64 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card" />
+        <BloqueReluciente className="h-64 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card ring-1 ring-foreground/5" />
       </div>
     );
   }
@@ -65,9 +61,9 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)] lg:items-start">
       <div className="flex flex-col gap-4">
-        {ofertaId && !recienSubido && (
+        {ofertaId && !recienSubido && !cv && (
           <Alert>
             <InfoIcon aria-hidden="true" />
             <AlertTitle className="text-base">Para postularte necesitás tu CV</AlertTitle>
@@ -92,13 +88,17 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
         {cv && <TarjetaCvActual cv={cv} />}
         <FormularioCv tieneCv={cv !== null} onSubir={handleSubir} subiendo={subiendo} error={errorSubida} />
       </div>
-      <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5">
+      <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 sm:p-6">
         <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">¿Quién ve tu CV?</h2>
-          <p className="text-base text-muted-foreground">
-            Solo la Oficina de Empleo. Las empresas no ven tus datos: la Oficina te contacta si tu
-            perfil encaja con una búsqueda.
+        <div className="flex flex-col gap-1.5">
+          <h2 className="font-heading text-lg font-semibold text-foreground">¿Quién ve tu CV?</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            La Oficina de Empleo. Si tu perfil encaja con una búsqueda, la Oficina te propone a esa
+            empresa, y entonces la empresa también puede verlo.{" "}
+            <Link href="/privacidad" className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80">
+              Conocé cómo cuidamos tus datos
+            </Link>
+            .
           </p>
         </div>
       </aside>

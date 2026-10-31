@@ -37,6 +37,20 @@ export function urlCon(ruta: string, params: ParamsBusqueda, cambios: Record<str
   return query ? `${ruta}?${query}` : ruta;
 }
 
+/**
+ * The list a detail page was opened from (`?desde=`), for its back arrow. Only
+ * an Office path is accepted, so a crafted link cannot send the operator away.
+ */
+export function leerDesde(params: ParamsBusqueda): string | undefined {
+  const desde = leerParam(params, "desde");
+  return desde && /^\/admin(\/|\?|$)/.test(desde) ? desde : undefined;
+}
+
+/** Link to a detail page that remembers the list it comes from (see `leerDesde`). */
+export function conDesde(href: string, desde: string): string {
+  return `${href}?desde=${encodeURIComponent(desde)}`;
+}
+
 /** Rows shown per page in every register (the pager says so). */
 export const FILAS_POR_PAGINA = 50;
 

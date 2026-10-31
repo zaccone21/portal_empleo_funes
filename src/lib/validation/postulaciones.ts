@@ -1,8 +1,9 @@
 import { z } from "zod";
 
+import { rubroSchema } from "./rubros";
+
 /*
  * Applications from the applicant's side (P06, P07; D-024).
- * PROVISIONAL (DT-002): fields to be replaced when the database is modeled.
  */
 
 /** Body of POST /api/postulaciones. The applicant comes from the session, never from the body (AGENTS §7). */
@@ -23,19 +24,22 @@ export const estadoPostulacionSchema = z.enum(["postulado", "preseleccionado", "
 export type EstadoPostulacion = z.infer<typeof estadoPostulacionSchema>;
 
 /**
- * One row of "Mis postulaciones" (P07): which offer and when. There is no
- * status field on purpose: the applicant never sees the Office's internal
- * evaluation (RF1.2.4). Zod drops unknown keys when parsing, so even if the
- * server sent a status by mistake, it would not reach the screen.
+ * One row of "Mis postulaciones" (P07): which offer, its details (workplace,
+ * schedule, pay, trades, whether the offer is still active) and when the
+ * applicant applied. Never includes the Office's internal evaluation status (RF1.2.4).
  */
 export const postulacionPropiaSchema = z.object({
   id: z.string().min(1),
-  /** When the applicant applied (ISO 8601 with offset). */
-  postuladoEl: z.iso.datetime({ offset: true }),
+  /** When the applicant applied (ISO 8601). */
+  postuladoEl: z.string().min(1),
   oferta: z.object({
     id: z.string().min(1),
     titulo: z.string().min(1),
     lugar: z.string(),
+    jornada: z.string().nullable().optional(),
+    sueldo: z.string().nullable().optional(),
+    estadoOferta: z.enum(["pendiente", "publicada", "rechazada", "cerrada"]).nullable().optional(),
+    rubros: z.array(rubroSchema).optional(),
   }),
 });
 

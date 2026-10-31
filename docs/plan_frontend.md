@@ -16,32 +16,38 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 
 | Usuario | Pantalla | Dirección | Estado |
 |---|---|---|---|
-| Cualquier persona | P01 Inicio | `/` | Lista |
+| Cualquier persona | P01 Inicio | `/` | Cifras, carrusel, rubros y confianza (2026-10-20). Falta aplicar la migración `20261020220000` y revisarla sin sesión |
+| Cualquier persona | **P20 Ayuda** | `/ayuda` | Hecha (2026-10-20), revisada en el navegador con sesión de empresa |
 | Cualquier persona | P05 y P06 Ofertas y su detalle | `/ofertas` | Lista |
 | Postulante | P02 Ingresar, crear cuenta, recuperar contraseña | `/postulante/…` | Lista |
-| Postulante | P03 Mi perfil (con el CV, P04) | `/postulante/perfil` | Lista, falta un agregado: la experiencia laboral |
+| Postulante | P03 Mi perfil (con el CV, P04) | `/postulante/perfil` | Hecha; suma la **dirección** obligatoria (D-070, 2026-10-23, falta aplicar la migración y revisarla con sesión de postulante) |
 | Postulante | P07 Mis postulaciones | `/postulante/postulaciones` | Lista |
 | Empresa | P08 Ingresar, registrarse, recuperar contraseña | `/empresa/…` | Lista |
-| Empresa | P09 Inicio de la empresa | `/empresa` | Lista, falta un agregado: candidatos por decidir |
+| Empresa | P09 Inicio de la empresa | `/empresa` | Hecha; avisa si la empresa está en revisión o rechazada (D-068, 2026-10-23); falta revisarla con sesión de empresa |
 | Empresa | P10 Datos de la empresa | `/empresa/perfil` | Lista |
-| Empresa | P11 Publicar una oferta | `/empresa/ofertas/nueva` | Lista, falta un agregado: abrirse precargada al duplicar |
-| Empresa | P12 Mis ofertas | `/empresa/ofertas` | Lista, falta un agregado: "Duplicar" |
-| Empresa | **P17 Candidatos derivados** | (dentro de "Mis ofertas") | Por hacer |
+| Empresa | P11 Publicar una oferta | `/empresa/ofertas/nueva` | Hecha (precarga rechazadas y cerradas); solo para empresas aprobadas (D-068); falta revisarla con sesión de empresa |
+| Empresa | P12 Mis ofertas | `/empresa/ofertas` | Hecha ("Duplicar" en cerradas), falta revisarla con sesión de empresa |
+| Empresa | **P17 Candidatos derivados** | (dentro de "Mis ofertas") | Hecha, falta revisarla con sesión de empresa |
 | Oficina de Empleo | P13 Ingresar | `/admin/ingresar` | Lista |
-| Oficina de Empleo | P14 Dashboard | `/admin` | Lista, falta un agregado: indicadores de la consigna |
-| Oficina de Empleo | P15 Ofertas y postulaciones (colas, registros y evaluación) | `/admin/ofertas…`, `/admin/postulaciones…`, `/admin/por-comunicar` | Lista, falta un agregado: preentrevista |
-| Oficina de Empleo | P16 Postulantes | `/admin/postulantes` | Lista, falta un agregado: filtrar por varios rubros y asociar a una oferta |
-| Oficina de Empleo | **P18 Seguimiento del postulante** | `/admin/postulantes/[id]` | Por hacer |
-| Oficina de Empleo | **P19 Derivaciones a cursos** | dentro de `/admin/postulantes/[id]` | Por hacer |
-| Todos | Menú según quién ingresó, "Salir" | en todas | Lista |
+| Oficina de Empleo | P14 Dashboard | `/admin` | Lista (indicadores y "Sin respuesta", revisada el 2026-10-18) |
+| Oficina de Empleo | P15 Ofertas y postulaciones (colas, registros y evaluación) | `/admin/ofertas…`, `/admin/postulaciones…`, `/admin/por-comunicar` | Lista (preentrevista y derivar desde la evaluación, revisada el 2026-10-18) |
+| Oficina de Empleo | P16 Postulantes | `/admin/postulantes` | Lista (varios rubros y asociar a una oferta, revisada el 2026-10-18) |
+| Oficina de Empleo | **P18 Seguimiento del postulante** | `/admin/postulantes/[id]` | Lista (revisada el 2026-10-18) |
+| Oficina de Empleo | **P19 Derivaciones a cursos** | dentro de `/admin/postulantes/[id]` | Lista (revisada sin registrar un curso real) |
+| Oficina de Empleo | **P21 Equipo** | `/admin/equipo` | Hecha (2026-10-20), falta revisarla con sesión de la Oficina y crear una cuenta real |
+| Todos | Menú según quién ingresó, "Salir" | en todas | Rehecho el 2026-10-20 (D-056); revisado con sesión de empresa, en escritorio y a 390 px |
 
 ---
 
 ## Cualquier persona (sin cuenta)
 
 ### P01 — Inicio (`/`)
-- **Qué hace:** buscador "¿Qué trabajo buscás?", rubros como atajos, las 4 ofertas más recientes, "Cómo postularte" en 3 pasos, un bloque para empresas y el ingreso de la Oficina abajo. Una empresa o la Oficina con sesión van directo a su inicio.
-- **Falta:** nada para la entrega. *Ref.: D-029.*
+- **Qué hace:** buscador "¿Qué trabajo buscás?", rubros como atajos, "El portal en números" (totales reales con contador), las 8 ofertas más recientes en un carrusel, los 11 rubros con su cantidad de ofertas, "Un servicio de la Municipalidad de Funes", "Cómo postularte" en 3 pasos, un bloque para empresas y, abajo, la ayuda y el ingreso de la Oficina. Una empresa o la Oficina con sesión van directo a su inicio.
+- **Falta:** aplicar la migración `20261020220000_estadisticas_publicas.sql`; sin ella no aparecen las cifras. Revisarla sin sesión. *Ref.: D-029, D-059.*
+
+### P20 — Ayuda (`/ayuda`) *(nueva, 2026-10-20)*
+- **Qué hace:** elegir "Busco trabajo" o "Tengo una empresa"; guía paso a paso con link a cada pantalla y preguntas frecuentes en acordeón. La Oficina no tiene guía.
+- **Falta:** nada. *Ref.: D-057.*
 
 ### P05 y P06 — Ofertas y su detalle (`/ofertas`)
 - **Qué hace:** catálogo de ofertas publicadas con búsqueda sin tildes, filtro por rubro y orden. El detalle se abre al lado (en el celular, en lugar de la lista) con "Postularme". Los filtros quedan en la dirección.
@@ -57,7 +63,7 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 - **Falta:** que el link del email funcione en otro dispositivo (configuración de Supabase). *Ref.: D-034, DT-011.*
 
 ### P03 — Mi perfil (`/postulante/perfil`), con el CV (P04)
-- **Qué hace:** datos personales (nombre, apellido, DNI, teléfono), rubros sin tope y el CV en PDF (se revisa que sea un PDF de verdad y que pese hasta 5 MB). Se ve en modo lectura con "Editar datos".
+- **Qué hace:** datos personales (nombre, apellido, DNI, teléfono, dirección), rubros sin tope y el CV en PDF (se revisa que sea un PDF de verdad y que pese hasta 5 MB). Se ve en modo lectura con "Editar datos".
 - **Falta para la entrega:**
   - un campo de **experiencia laboral** (la consigna pide información "personal y laboral");
   - cambiar los textos que dicen "las empresas nunca ven tus datos": ahora la empresa los ve **solo si la Oficina te deriva**.
@@ -72,16 +78,16 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 ## Empresa
 
 ### P08 — Ingresar, registrarse y recuperar la contraseña (`/empresa/…`)
-- **Qué hace:** igual que P02; el registro pide CUIT. Una empresa registrada publica enseguida: la Oficina modera cada oferta.
-- **Falta:** lo mismo que P02. *Ref.: D-034, D-052.*
+- **Qué hace:** igual que P02; el registro pide CUIT. Una empresa registrada queda **pendiente** y publica recién cuando la Oficina la aprueba (D-068).
+- **Falta:** lo mismo que P02. *Ref.: D-034, D-068.*
 
 ### P09 — Inicio de la empresa (`/empresa`)
 - **Qué hace:** cuántas ofertas tiene en cada estado, acceso directo a publicar y las últimas ofertas.
 - **Falta:** mostrar cuántos **candidatos derivados esperan su decisión**, con un acceso directo. *Ref.: D-051.*
 
 ### P10 — Datos de la empresa (`/empresa/perfil`)
-- **Qué hace:** razón social, CUIT (con dígito verificador), descripción y persona de contacto; lectura con "Editar datos".
-- **Falta:** nada para la entrega. *Ref.: D-027, D-041.*
+- **Qué hace:** razón social, CUIT (con dígito verificador), descripción y persona de contacto; lectura con "Editar datos". Muestra el aviso de revisión o de rechazo con su motivo (D-068, D-069). Cambiar el CUIT o la razón social de una empresa aprobada la manda de nuevo a revisión.
+- **Falta:** nada para la entrega. *Ref.: D-027, D-041, D-068.*
 
 ### P11 — Publicar una oferta (`/empresa/ofertas/nueva`)
 - **Qué hace:** formulario con validación al lado de cada campo, de 1 a 3 rubros y sueldo opcional. La oferta queda Pendiente; no hay borradores.
@@ -138,7 +144,7 @@ Estado de cada pantalla del portal, ordenado por **quién la usa**. Para cada un
 | A. Diagnóstico | Probar lo que hay, de punta a punta | Hecha (2026-10-18) |
 | 0. Pulir | Arreglos del diagnóstico y borrar código sin uso | Hecha (2026-10-18). Faltan correr los e2e |
 | 1. Papeles | Requerimientos, pantallas, decisiones, reglas y este plan alineados con la consigna | Hecha (2026-10-18) |
-| 2. Base de datos | Una migración: preentrevista, decisión de la empresa, experiencia laboral y derivaciones a cursos | Por hacer |
-| 3. Lógica | Casos de uso y rutas de P17, P18 y P19, preentrevista, duplicar y asociar a una oferta | Por hacer |
-| 4. Pantallas | Lo de "Falta" de este documento | Por hacer |
-| 5. Entrega | Vercel, cuentas y datos de demostración, README, ensayo de la demo | Por hacer |
+| 2. Base de datos | Una migración (`20261018200000`): preentrevista, fecha de derivación, decisión de la empresa, experiencia laboral y derivaciones a cursos. Sin totales guardados ni topes (D-054) | Hecha (aplicada en testing el 2026-10-18) |
+| 3. Lógica | Casos de uso y rutas de P17, P18 y P19, preentrevista, duplicar y asociar a una oferta; conteos en el DAL y la cola "sin respuesta de la empresa" en P14 (D-054) | Hecha (2026-10-18), con tests unitarios. D-055 (no se pide el cierre con candidatos sin respuesta) hecha el 2026-10-20 |
+| 4. Pantallas | Lo de "Falta" de este documento | Hecha (2026-10-18). La Oficina se revisó en el navegador; empresa y postulante, solo con tests: falta verlas con su sesión y a 390 px |
+| 5. Entrega | Vercel, cuentas y datos de demostración, README, ensayo de la demo | En curso: README hecho (2026-10-18). Falta Vercel, cuentas y datos de demostración, plantillas de email (DT-011), correr los e2e y ensayar |

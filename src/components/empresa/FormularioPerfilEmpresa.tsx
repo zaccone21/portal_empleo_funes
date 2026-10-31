@@ -6,16 +6,21 @@ import { z } from "zod";
 import { BotonEnviar } from "@/components/auth/BotonEnviar";
 import { ErrorDelServidor } from "@/components/auth/ErrorDelServidor";
 import { CampoTexto } from "@/components/formularios/CampoTexto";
+import { Button } from "@/components/ui/button";
 import { FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field";
-import { perfilEmpresaSchema, type PerfilEmpresa } from "@/lib/validation/empresa";
+import { perfilEmpresaSchema, type EstadoEmpresa, type PerfilEmpresa } from "@/lib/validation/empresa";
 
 type Props = {
   /** Saved data to start from, or null the first time. */
   perfil: PerfilEmpresa | null;
   /** Saved CUIT when the profile is incomplete */
   cuitRegistrado?: string | null;
+  /** Current approval status; when "aprobada", warns that changing CUIT or name re-triggers Office review (D-068). */
+  estado?: EstadoEmpresa;
   /** Saves the data; resolves to true when it worked. */
   onGuardar: (datos: PerfilEmpresa) => Promise<boolean>;
+  /** Present when editing an already saved profile, so the user can cancel without saving. */
+  onCancelar?: () => void;
   guardando: boolean;
   /** Server message of the last failed save. */
   error: string | null;
@@ -32,7 +37,7 @@ type Errores = Partial<Record<keyof PerfilEmpresa, string[]>>;
  * `onGuardar`. Errors go under each field; the server's message, above the
  * button.
  */
-export function FormularioPerfilEmpresa({ perfil, cuitRegistrado, onGuardar, guardando, error }: Props) {
+export function FormularioPerfilEmpresa({ perfil, cuitRegistrado, estado, onGuardar, onCancelar, guardando, error }: Props) {
   const [errores, setErrores] = useState<Errores>({});
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -63,7 +68,12 @@ export function FormularioPerfilEmpresa({ perfil, cuitRegistrado, onGuardar, gua
       className="flex flex-col gap-8 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 sm:p-7"
     >
       <FieldSet>
-        <FieldLegend className="mb-4 font-heading font-semibold data-[variant=legend]:text-xl">La empresa</FieldLegend>
+        <FieldLegend className="mb-2 font-heading font-semibold data-[variant=legend]:text-xl">La empresa</FieldLegend>
+        {perfil && estado === "aprobada" && (
+          <p className="mb-4 text-sm text-muted-foreground">
+            Si cambiás la razón social o el CUIT, la Oficina de Empleo vuelve a revisar tu empresa antes de que publiques ofertas nuevas.
+          </p>
+        )}
         <FieldGroup className="gap-6">
           <CampoTexto
             id="razonSocial"
@@ -131,7 +141,16 @@ export function FormularioPerfilEmpresa({ perfil, cuitRegistrado, onGuardar, gua
         </FieldGroup>
       </FieldSet>
       <ErrorDelServidor error={error} />
-      <BotonEnviar loading={guardando} texto="Guardar datos" textoCargando="Guardando…" />
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex-1">
+          <BotonEnviar loading={guardando} texto="Guardar datos" textoCargando="Guardando…" />
+        </div>
+        {onCancelar && (
+          <Button type="button" variant="outline" size="lg" onClick={onCancelar} disabled={guardando}>
+            Cancelar
+          </Button>
+        )}
+      </div>
     </form>
   );
 }

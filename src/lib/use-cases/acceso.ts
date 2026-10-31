@@ -5,8 +5,10 @@ import {
   cambiarContrasena,
   enviarRecuperacion,
   ingresarConContrasena,
+  reenviarConfirmacionRegistro,
   registrar,
   salir,
+  verificarCodigoEmail,
   type CurrentUser,
   type EnlaceDelEmail,
 } from "@/lib/dal/auth";
@@ -30,9 +32,9 @@ export async function ingresar(datos: { email: string; password: string }): Prom
   if (!resultado.ok) {
     // Only someone who typed the right password gets here, so it reveals nothing to a stranger.
     if (resultado.motivo === "sin_confirmar") {
-      return falla("unauthenticated", "Todavía no activaste tu cuenta. Abrí el enlace del email que te mandamos.");
+      return falla("unauthenticated", "Todavía no activaste tu cuenta. Abrí el enlace del email que te mandamos o ingresá tu código de 6 dígitos.");
     }
-    return falla("unauthenticated", "Email o contraseña incorrectos");
+    return falla("unauthenticated", "Email/documento o contraseña incorrectos");
   }
   return exito({ destino: INICIO_POR_ROL[resultado.rol] });
 }
@@ -106,4 +108,33 @@ export async function abrirEnlace(enlace: EnlaceDelEmail, esRecuperacion: boolea
     return falla("unauthenticated", "El enlace venció o ya se usó.");
   }
   return exito({ destino: esRecuperacion ? "/nueva-contrasena" : INICIO_POR_ROL[rol] });
+}
+
+/**
+ * Activates the account and opens a session using the 6-digit OTP code from
+ * the confirmation email. Returns `{ destino }` pointing to the role's home.
+ */
+export async function confirmarConCodigo(datos: {
+  email: string;
+  codigo: string;
+}): Promise<Resultado<{ destino: string }>> {
+  const rol = await verificarCodigoEmail(datos.email, datos.codigo);
+  if (!rol) {
+    return falla(
+      "unauthenticated",
+      "El código es incorrecto o ya venció. Revisá el email o pedí un código nuevo.",
+    );
+  }
+  return exito({ destino: INICIO_POR_ROL[rol] });
+}
+
+/**
+ * Resends the signup confirmation email so the user gets a fresh link and 6-digit PIN.
+ */
+export async function reenviarCorreoConfirmacion(
+  datos: { email: string },
+  urlConfirmacion: string,
+): Promise<Resultado<undefined>> {
+  const resultado = await reenviarConfirmacionRegistro(datos.email, urlConfirmacion);
+  return resultado.ok ? exito(undefined) : falla("unavailable", MENSAJE_EMAIL_NO_ENVIADO);
 }

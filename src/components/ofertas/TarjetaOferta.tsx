@@ -1,7 +1,8 @@
-import { CircleCheckIcon } from "lucide-react";
+import { CalendarIcon, CircleCheckIcon } from "lucide-react";
 
 import { TarjetaSeleccionable } from "@/components/marca/TarjetaSeleccionable";
-import { formatearDia } from "@/lib/fechas";
+import { Badge } from "@/components/ui/badge";
+import { esFechaReciente, formatearDia, formatearTiempoRelativo } from "@/lib/fechas";
 import type { OfertaPublica } from "@/lib/validation/ofertas";
 
 import { DatosOferta } from "./DatosOferta";
@@ -18,18 +19,33 @@ type Props = {
 
 /**
  * One offer in the catalog (P05, RF1.4.1): title, trade, where, when and the
- * publication date, plus "Te postulaste" when the logged-in applicant already
- * applied (D-028). The card is a link that opens the detail on the same page
- * (D-025) and keeps the search and filters in the URL, so going back returns
- * to the same results.
+ * publication date (highlighted when recent), plus "Te postulaste" when the
+ * logged-in applicant already applied (D-028).
  */
 export function TarjetaOferta({ oferta, href, seleccionada, soloEnEscritorio }: Props) {
+  const reciente = esFechaReciente(oferta.publicadaEl, 3);
+  const relativo = formatearTiempoRelativo(oferta.publicadaEl);
+
   return (
     <TarjetaSeleccionable href={href} seleccionada={seleccionada} soloEnEscritorio={soloEnEscritorio}>
-      <h2 className="font-heading text-lg leading-snug font-semibold sm:text-xl">{oferta.titulo}</h2>
-      <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-muted-foreground">Publicada el {formatearDia(oferta.publicadaEl)}</p>
+      <div className="flex items-start justify-between gap-2">
+        <h2 className="line-clamp-2 min-h-[2lh] font-heading text-lg leading-snug font-semibold sm:text-xl">
+          {oferta.titulo}
+        </h2>
+        {reciente && (
+          <Badge variant="secondary" className="shrink-0">
+            Nueva · {relativo}
+          </Badge>
+        )}
+      </div>
+      <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} compacto />
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1">
+        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <CalendarIcon aria-hidden="true" className="size-3.5 shrink-0 text-primary" />
+          <span>
+            Publicada el {formatearDia(oferta.publicadaEl)} ({relativo.toLowerCase()})
+          </span>
+        </p>
         {oferta.yaTePostulaste && (
           <p className="flex items-center gap-1.5 text-sm font-semibold text-primary">
             <CircleCheckIcon aria-hidden="true" className="size-4" />

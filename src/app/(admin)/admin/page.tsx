@@ -5,8 +5,11 @@ import { nombreCompleto } from "@/components/admin/celdas";
 import { operadorActual } from "@/lib/admin/datos";
 import {
   getConteosAdmin,
+  verDerivadasSinRespuesta,
+  verIndicadoresAdmin,
   verOfertas,
   verPostulacionesAdmin,
+  verPostulantesConTresRechazos,
 } from "@/lib/use-cases/oficina";
 
 export const metadata: Metadata = { title: "Dashboard · Oficina de Empleo" };
@@ -14,14 +17,19 @@ export const metadata: Metadata = { title: "Dashboard · Oficina de Empleo" };
 export default async function AdminDashboardPage() {
   const usuario = await operadorActual();
 
-  const [conteos, resOfertas, resPostulaciones] = await Promise.all([
+  const [conteos, resIndicadores, resOfertas, resPostulaciones, resSinRespuesta, resTresRechazos] = await Promise.all([
     getConteosAdmin(usuario),
+    verIndicadoresAdmin(usuario),
     verOfertas(usuario),
     verPostulacionesAdmin(usuario),
+    verDerivadasSinRespuesta(usuario),
+    verPostulantesConTresRechazos(usuario),
   ]);
 
   const ofertas = resOfertas.ok ? resOfertas.datos : [];
   const postulaciones = resPostulaciones.ok ? resPostulaciones.datos : [];
+  const sinRespuesta = resSinRespuesta.ok ? resSinRespuesta.datos : [];
+  const postulantesTresRechazos = resTresRechazos.ok ? resTresRechazos.datos : [];
 
   const tareas: TareaPendiente[] = [];
 
@@ -62,7 +70,7 @@ export default async function AdminDashboardPage() {
         tipo: "postulacion_nueva",
         titulo: p.oferta.titulo,
         subtitulo: `${postulante} · ${p.oferta.empresa?.razonSocial ?? "Empresa"}`,
-        fecha: p.postuladoEl,
+        fecha: p.actualizadaEl ?? p.postuladoEl,
         enlace: `/admin/postulaciones/${p.id}`,
       });
     }
@@ -77,18 +85,48 @@ export default async function AdminDashboardPage() {
         tipo: "por_comunicar",
         titulo: p.oferta.titulo,
         subtitulo: `${postulante} → ${p.oferta.empresa?.razonSocial ?? "Empresa"}`,
-        fecha: p.postuladoEl,
+        fecha: p.actualizadaEl ?? p.postuladoEl,
         enlace: "/admin/por-comunicar",
       });
     }
   }
 
-  // Oldest first for urgent resolution
-  tareas.sort((a, b) => a.fecha.localeCompare(b.fecha));
+  // 5. Referred applications the company has not answered (D-054), dated by the referral
+  for (const p of sinRespuesta) {
+    const postulante = nombreCompleto(p.postulante) ?? "Postulante";
+    tareas.push({
+      id: p.id,
+      tipo: "sin_respuesta",
+      titulo: p.oferta.titulo,
+      subtitulo: `${postulante} → ${p.oferta.empresa?.razonSocial ?? "Empresa"}`,
+      fecha: p.derivadaEl ?? p.actualizadaEl ?? p.postuladoEl,
+      enlace: `/admin/postulaciones/${p.id}`,
+    });
+  }
+
+  // 6. Applicants with 3 or more company rejections waiting for course referral
+  for (const r of postulantesTresRechazos) {
+    if (r.cursosAsignados.length === 0) {
+      const postulante = nombreCompleto(r) ?? "Postulante";
+      tareas.push({
+        id: r.postulanteId,
+        tipo: "tres_rechazos",
+        titulo: `${postulante} (${r.cantidadRechazos} rechazos)`,
+        subtitulo: "Ofrecer curso de capacitación",
+        fecha: r.ultimoRechazoEl,
+        enlace: `/admin/cursos`,
+      });
+    }
+  }
+
+  // Most recent actions first so newer items never appear below older ones
+  tareas.sort((a, b) => b.fecha.localeCompare(a.fecha));
 
   return (
     <Dashboard
       conteos={conteos}
+      postulantesTresRechazos={postulantesTresRechazos.length}
+      indicadores={resIndicadores.ok ? resIndicadores.datos : null}
       tareasPendientes={tareas}
       emailOperador={usuario.email}
     />

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "motion/react";
 
 import { useUrlAdmin } from "@/hooks/useUrlAdmin";
 import { cn } from "@/lib/utils";
@@ -30,17 +31,23 @@ export function StatusStrip({ opciones, valorTodos, param = "estado" }: Props) {
         {opciones.map((opcion) => {
           const activa = opcion.valor === actual;
           return (
-            <li key={opcion.valor} className="border-r border-border last:border-r-0">
+            <li key={opcion.valor} className="relative border-r border-border last:border-r-0">
               <Link
                 href={construir({ [param]: opcion.valor === valorTodos ? undefined : opcion.valor })}
                 scroll={false}
                 aria-current={activa ? "true" : undefined}
-                className={cn(
-                  "flex min-w-24 flex-col px-3.5 py-2 text-[12px] text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
-                  activa && "bg-mint-soft shadow-[inset_0_-3px_0_var(--primary)]",
-                )}
+                className="relative z-10 flex min-w-24 flex-col px-3.5 py-2 text-[12px] text-muted-foreground outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset hover:text-foreground"
               >
-                {opcion.etiqueta}
+                {activa && (
+                  <motion.span
+                    layoutId={`status-strip-${param}`}
+                    className="absolute inset-0 -z-10 bg-mint-soft shadow-[inset_0_-3px_0_var(--primary)]"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <span className={cn("transition-colors", activa && "font-semibold text-primary")}>
+                  {opcion.etiqueta}
+                </span>
                 <span className="text-[20px] leading-tight font-bold text-foreground tabular-nums">{opcion.cantidad}</span>
               </Link>
             </li>

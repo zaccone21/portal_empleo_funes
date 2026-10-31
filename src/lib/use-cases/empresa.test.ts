@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { CurrentUser } from "@/lib/dal/auth";
+import type { Candidato } from "@/lib/dal/candidatos";
 import type { Oferta } from "@/lib/dal/ofertas";
 
 vi.mock("server-only", () => ({}));
@@ -12,7 +13,17 @@ const dal = vi.hoisted(() => ({
   leerOferta: vi.fn(),
   listarOfertasDeEmpresa: vi.fn(),
   marcarCierreSolicitado: vi.fn(),
+  listarCandidatosDerivados: vi.fn(),
+  leerCandidato: vi.fn(),
+  guardarDecisionEmpresa: vi.fn(),
+  crearUrlFirmadaCvParaEmpresa: vi.fn(),
 }));
+vi.mock("@/lib/dal/candidatos", () => ({
+  listarCandidatosDerivados: dal.listarCandidatosDerivados,
+  leerCandidato: dal.leerCandidato,
+  guardarDecisionEmpresa: dal.guardarDecisionEmpresa,
+}));
+vi.mock("@/lib/dal/cv", () => ({ crearUrlFirmadaCvParaEmpresa: dal.crearUrlFirmadaCvParaEmpresa }));
 vi.mock("@/lib/dal/empresas", () => ({
   leerPerfilEmpresa: dal.leerPerfilEmpresa,
   guardarPerfilEmpresa: dal.guardarPerfilEmpresa,
@@ -24,7 +35,17 @@ vi.mock("@/lib/dal/ofertas", () => ({
   marcarCierreSolicitado: dal.marcarCierreSolicitado,
 }));
 
-import { guardarPerfil, pedirCierre, publicarOferta, verMisOfertas } from "./empresa";
+import {
+  abrirCvCandidato,
+  decidirCandidato,
+  guardarPerfil,
+  pedirCierre,
+  publicarOferta,
+  verCandidatosDerivados,
+  verMiOferta,
+  verMisOfertas,
+  verPerfilEmpresa,
+} from "./empresa";
 
 const empresa: CurrentUser = { id: "empresa-1", rol: "empresa", email: "empresa@ejemplo.com" };
 const postulante: CurrentUser = { id: "postulante-1", rol: "postulante", email: "persona@ejemplo.com" };
@@ -72,7 +93,7 @@ test("the company sees its offers, and the rejection reason only on rejected one
 test("a new offer starts pending, and an empty pay field is saved as no pay", async () => {
   dal.crearOferta.mockResolvedValue("oferta-nueva");
   dal.leerOferta.mockResolvedValue(oferta({ id: "oferta-nueva" }));
-  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {} });
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {}, estado: "aprobada" });
 
   const resultado = await publicarOferta(empresa, {
     titulo: "Cadete",
@@ -88,8 +109,41 @@ test("a new offer starts pending, and an empty pay field is saved as no pay", as
   expect(resultado.ok && resultado.datos.oferta.estado).toBe("pendiente");
 });
 
+test.each(["pendiente", "rechazada"] as const)("a %s company cannot send an offer (D-068)", async (estado) => {
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {}, estado });
+
+  const resultado = await publicarOferta(empresa, {
+    titulo: "Cadete",
+    descripcion: "Entregas",
+    requisitos: "Moto",
+    lugar: "Centro",
+    jornada: "Tardes",
+    sueldo: "",
+    rubros: ["transporte"],
+  });
+
+  expect(resultado.ok === false && resultado.falla).toBe("forbidden");
+  expect(dal.crearOferta).not.toHaveBeenCalled();
+});
+
+test("the message of a rejected company points to its data, not to waiting", async () => {
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: {}, estado: "rechazada" });
+
+  const resultado = await publicarOferta(empresa, {
+    titulo: "Cadete",
+    descripcion: "Entregas",
+    requisitos: "Moto",
+    lugar: "Centro",
+    jornada: "Tardes",
+    sueldo: "",
+    rubros: ["transporte"],
+  });
+
+  expect(resultado.ok === false && resultado.mensaje).toContain("no aprobó");
+});
+
 test("cannot publish without a profile", async () => {
-  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: null });
+  dal.leerPerfilEmpresa.mockResolvedValue({ perfil: null, estado: "pendiente" });
 
   const resultado = await publicarOferta(empresa, {
     titulo: "Cadete",
@@ -137,7 +191,36 @@ describe("pedirCierre (RF1.3.6)", () => {
     expect(resultado.ok === false && resultado.falla).toBe("conflict");
   });
 
+  test("is refused while a referred applicant has no answer, saying how many (D-055)", async () => {
+    dal.leerOferta.mockResolvedValue(oferta({ estado: "publicada" }));
+    dal.listarCandidatosDerivados.mockResolvedValue([
+      candidato({ postulacionId: "p-1", decision: null }),
+      candidato({ postulacionId: "p-2", decision: null }),
+      candidato({ postulacionId: "p-3", decision: "contratado" }),
+    ]);
+
+    const resultado = await pedirCierre(empresa, "oferta-1");
+
+    expect(dal.listarCandidatosDerivados).toHaveBeenCalledWith("empresa-1", "oferta-1");
+    expect(resultado.ok === false && resultado.falla).toBe("conflict");
+    expect(resultado.ok === false && resultado.mensaje).toContain("2 personas");
+    expect(dal.marcarCierreSolicitado).not.toHaveBeenCalled();
+  });
+
+  test("is allowed once every referred applicant has an answer (D-055)", async () => {
+    dal.leerOferta.mockResolvedValue(oferta({ estado: "publicada" }));
+    dal.listarCandidatosDerivados.mockResolvedValue([
+      candidato({ decision: "no_contratado", motivoNoContratacion: "Buscaba otra experiencia." }),
+    ]);
+
+    const resultado = await pedirCierre(empresa, "oferta-1");
+
+    expect(resultado.ok).toBe(true);
+    expect(dal.marcarCierreSolicitado).toHaveBeenCalledWith("oferta-1");
+  });
+
   test("marks the request, and asking twice does not mark it again", async () => {
+    dal.listarCandidatosDerivados.mockResolvedValue([]);
     dal.leerOferta.mockResolvedValueOnce(oferta({ estado: "publicada" }));
     const primera = await pedirCierre(empresa, "oferta-1");
 
@@ -148,4 +231,199 @@ describe("pedirCierre (RF1.3.6)", () => {
     expect(primera.ok && primera.datos.oferta.cierreSolicitado).toBe(true);
     expect(segunda.ok).toBe(true);
   });
+});
+
+describe("verMiOferta (D-048)", () => {
+  test("another company's published offer answers the same as one that does not exist", async () => {
+    dal.leerOferta.mockResolvedValue(oferta({ empresaId: "otra-empresa", estado: "publicada" }));
+
+    const resultado = await verMiOferta(empresa, "oferta-1");
+
+    expect(resultado.ok === false && resultado.falla).toBe("not_found");
+  });
+
+  test("returns the company's own offer to fill in the duplicate", async () => {
+    dal.leerOferta.mockResolvedValue(oferta({ estado: "rechazada", motivoRechazo: "Falta el horario." }));
+
+    const resultado = await verMiOferta(empresa, "oferta-1");
+
+    expect(resultado.ok && resultado.datos.oferta.titulo).toBe("Puesto (ejemplo)");
+  });
+});
+
+function candidato(datos: Partial<Candidato>): Candidato {
+  return {
+    postulacionId: "p-1",
+    postulanteId: "postulante-1",
+    empresaId: "empresa-1",
+    estado: "derivado",
+    oferta: { id: "oferta-1", titulo: "Puesto (ejemplo)" },
+    derivadoEl: "2026-10-10T12:00:00.000Z",
+    nombre: "Persona",
+    apellido: "De Prueba",
+    telefono: "341 555-0000",
+    email: "persona@ejemplo.com",
+    rubros: ["otros"],
+    tieneCv: true,
+    decision: null,
+    motivoNoContratacion: null,
+    ...datos,
+  };
+}
+
+describe("verCandidatosDerivados (RF1.6.3, D-044)", () => {
+  test("only companies see referred applicants", async () => {
+    const resultado = await verCandidatosDerivados(postulante);
+
+    expect(resultado.ok === false && resultado.falla).toBe("forbidden");
+    expect(dal.listarCandidatosDerivados).not.toHaveBeenCalled();
+  });
+
+  test("another company's offer answers 'not found' and lists nobody", async () => {
+    dal.leerOferta.mockResolvedValue(oferta({ empresaId: "otra-empresa", estado: "publicada" }));
+
+    const resultado = await verCandidatosDerivados(empresa, "oferta-1");
+
+    expect(resultado.ok === false && resultado.falla).toBe("not_found");
+    expect(dal.listarCandidatosDerivados).not.toHaveBeenCalled();
+  });
+
+  test("lists the company's referred applicants without internal ids or status", async () => {
+    dal.listarCandidatosDerivados.mockResolvedValue([candidato({})]);
+
+    const resultado = await verCandidatosDerivados(empresa);
+
+    expect(dal.listarCandidatosDerivados).toHaveBeenCalledWith("empresa-1", undefined);
+    expect(resultado.ok && resultado.datos[0]).not.toHaveProperty("postulanteId");
+    expect(resultado.ok && resultado.datos[0]).not.toHaveProperty("estado");
+    expect(resultado.ok && resultado.datos[0]).not.toHaveProperty("empresaId");
+  });
+});
+
+describe("decidirCandidato (RF1.6.4, D-044)", () => {
+  test("another company's applicant answers 'not found'", async () => {
+    dal.leerCandidato.mockResolvedValue(candidato({ empresaId: "otra-empresa" }));
+
+    const resultado = await decidirCandidato(empresa, "p-1", { decision: "contratado" });
+
+    expect(resultado.ok === false && resultado.falla).toBe("not_found");
+    expect(dal.guardarDecisionEmpresa).not.toHaveBeenCalled();
+  });
+
+  test("an application the Office did not refer answers 'not found'", async () => {
+    dal.leerCandidato.mockResolvedValue(candidato({ estado: "preseleccionado" }));
+
+    const resultado = await decidirCandidato(empresa, "p-1", { decision: "contratado" });
+
+    expect(resultado.ok === false && resultado.falla).toBe("not_found");
+    expect(dal.guardarDecisionEmpresa).not.toHaveBeenCalled();
+  });
+
+  test("the decision is answered only once", async () => {
+    dal.leerCandidato.mockResolvedValue(candidato({ decision: "contratado" }));
+
+    const resultado = await decidirCandidato(empresa, "p-1", { decision: "no_contratado", motivo: "Otro perfil" });
+
+    expect(resultado.ok === false && resultado.falla).toBe("conflict");
+    expect(dal.guardarDecisionEmpresa).not.toHaveBeenCalled();
+  });
+
+  test("two answers at once: the one that loses is a conflict", async () => {
+    dal.leerCandidato.mockResolvedValue(candidato({}));
+    dal.guardarDecisionEmpresa.mockResolvedValue(false);
+
+    const resultado = await decidirCandidato(empresa, "p-1", { decision: "contratado" });
+
+    expect(resultado.ok === false && resultado.falla).toBe("conflict");
+  });
+
+  test("not hiring without a reason is invalid", async () => {
+    dal.leerCandidato.mockResolvedValue(candidato({}));
+
+    const resultado = await decidirCandidato(empresa, "p-1", { decision: "no_contratado" });
+
+    expect(resultado.ok === false && resultado.falla).toBe("invalid");
+    expect(dal.guardarDecisionEmpresa).not.toHaveBeenCalled();
+  });
+
+  test("not hiring saves the reason", async () => {
+    dal.leerCandidato.mockResolvedValue(candidato({}));
+    dal.guardarDecisionEmpresa.mockResolvedValue(true);
+
+    const resultado = await decidirCandidato(empresa, "p-1", { decision: "no_contratado", motivo: "Buscaba más experiencia" });
+
+    expect(dal.guardarDecisionEmpresa).toHaveBeenCalledWith("p-1", "no_contratado", "Buscaba más experiencia");
+    expect(resultado.ok && resultado.datos.candidato.decision).toBe("no_contratado");
+  });
+
+  test("hiring does not keep a reason", async () => {
+    dal.leerCandidato.mockResolvedValue(candidato({}));
+    dal.guardarDecisionEmpresa.mockResolvedValue(true);
+
+    await decidirCandidato(empresa, "p-1", { decision: "contratado", motivo: "Sobra" });
+
+    expect(dal.guardarDecisionEmpresa).toHaveBeenCalledWith("p-1", "contratado", null);
+  });
+});
+
+describe("abrirCvCandidato (RNF1, D-044)", () => {
+  test("another company's applicant gets no link", async () => {
+    dal.leerCandidato.mockResolvedValue(candidato({ empresaId: "otra-empresa" }));
+
+    const resultado = await abrirCvCandidato(empresa, "p-1");
+
+    expect(resultado.ok === false && resultado.falla).toBe("not_found");
+    expect(dal.crearUrlFirmadaCvParaEmpresa).not.toHaveBeenCalled();
+  });
+
+  test("gives a signed link to a referred applicant's CV", async () => {
+    dal.leerCandidato.mockResolvedValue(candidato({}));
+    dal.crearUrlFirmadaCvParaEmpresa.mockResolvedValue("https://ejemplo.supabase.co/firmada");
+
+    const resultado = await abrirCvCandidato(empresa, "p-1");
+
+    expect(dal.crearUrlFirmadaCvParaEmpresa).toHaveBeenCalledWith("postulante-1");
+    expect(resultado).toEqual({ ok: true, datos: { url: "https://ejemplo.supabase.co/firmada" } });
+  });
+});
+
+test("saving the data answers where the company stands after the database's own change (D-068)", async () => {
+  dal.guardarPerfilEmpresa.mockResolvedValue({
+    ok: true,
+    perfil: {
+      razonSocial: "Empresa (ejemplo)",
+      cuit: "30-71234567-1",
+      descripcion: "",
+      contactoNombre: "Persona",
+      contactoTelefono: "341 555-0000",
+      contactoEmail: "contacto@ejemplo.com",
+    },
+    estado: "pendiente",
+    motivoRechazo: null,
+  });
+
+  const resultado = await guardarPerfil(empresa, {
+    razonSocial: "Empresa (ejemplo)",
+    cuit: "30-71234567-1",
+    descripcion: "",
+    contactoNombre: "Persona",
+    contactoTelefono: "341 555-0000",
+    contactoEmail: "contacto@ejemplo.com",
+  });
+
+  expect(resultado.ok && resultado.datos.estado).toBe("pendiente");
+  expect(resultado.ok && resultado.datos.cuit).toBe("30-71234567-1");
+});
+
+test("the company sees why the Office rejected it", async () => {
+  dal.leerPerfilEmpresa.mockResolvedValue({
+    perfil: null,
+    cuit: null,
+    estado: "rechazada",
+    motivoRechazo: "Faltan datos de la empresa",
+  });
+
+  const resultado = await verPerfilEmpresa(empresa);
+
+  expect(resultado.ok && resultado.datos.motivoRechazo).toBe("Faltan datos de la empresa");
 });

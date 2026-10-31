@@ -138,6 +138,7 @@ Qué:
 
 Por qué quedó: cambiar las plantillas es configuración del panel de Supabase.
 Cómo se salda: en Authentication → Emails, cambiar el link de las plantillas "Confirm signup" y "Reset password" por `{{ .SiteURL }}/acceso/confirmar?token_hash={{ .TokenHash }}&type=email` y `…&type=recovery` (ver `docs/como_probar.md`).
+*Nota 2026-10-20:* las plantillas listas para pegar, en español y con el link `token_hash`, están en `docs/plantillas-email/`. Usan `{{ .RedirectTo }}` en vez de `{{ .SiteURL }}`, para que el mismo proyecto sirva para `localhost` y Vercel (D-050). Se salda cuando el usuario las pegue en Supabase y pruebe abrir el email en otro dispositivo (`docs/como_probar.md`, paso 1.2.4).
 
 ### DT-012 — Documentos que quedan solo en la máquina del usuario
 Fecha: 2026-09-29 · Origen: pedido del usuario ("así no cargamos tanto el repo"), D-036
@@ -222,3 +223,53 @@ Por qué: El admin hizo la transición a un estándar SaaS (Fase 5) utilizando D
 Qué lo reemplaza: admin/postulantes/page.tsx usando RegistroPostulantes (Server Component que llama a buscarPostulantes).
 Pérdida de cobertura: Se perdieron las pruebas unitarias que apuntaban a los componentes viejos. Esto se salda testeando de manera unificada (idealmente con e2e) el nuevo RegistroPostulantes.
 *Nota 2026-10-18: `RegistroPostulantes` también quedó sin uso y se borró (DT-015). Este archivo tenía líneas en Windows-1252 y caracteres de control que rompían los textos; se pasó entero a UTF-8.*
+
+### DT-019 — La empresa ve a sus derivados con el cliente admin, sin RLS propia
+Fecha: 2026-10-18 · Origen: D-044, migración `20261018200000`
+**Prioridad (2026-10-22): bloqueante. Se salda en la fase de seguridad, antes de los refactors del frontend y de la entrega.** El usuario descartó dejarla como excepción: no puede haber filtración de datos en ningún lugar del portal, y toda lectura o escritura de datos personales necesita dos barreras. Hoy no hay una fuga conocida (el caso de uso comprueba rol, dueño de la oferta y estado `derivado`, con tests), pero esa comprobación es la única barrera y nunca se probó con sesiones reales de dos empresas.
+Qué:
+- La empresa no tiene políticas RLS sobre `postulaciones` ni `postulantes`, ni sobre el bucket `cvs`. Para mostrarle sus candidatos derivados (P17), informar su decisión y abrir el CV, el caso de uso (`src/lib/use-cases/empresa.ts`) verifica el rol, que la oferta sea suya y que la postulación esté derivada, y el DAL usa el cliente admin (`src/lib/supabase/admin.ts`), que saltea RLS: `src/lib/dal/candidatos.ts` y `crearUrlFirmadaCvParaEmpresa` en `src/lib/dal/cv.ts`. Como segunda línea, la lista de candidatos filtra por empresa en la misma consulta.
+- Si el caso de uso se equivoca en ese control, la base no lo frena: es la única barrera para esas lecturas y escrituras (AGENTS §7 pide dos).
+- La decisión "una sola vez" la controla el caso de uso, y el `update` del DAL solo toca filas sin decisión (así dos respuestas a la vez no ganan las dos). La base no lo impide por sí sola.
+Por qué quedó: una política para la empresa tendría que exponer solo algunas columnas de `postulantes` y de `postulaciones` (no el DNI, la preentrevista ni el estado interno), y RLS filtra filas, no columnas (ver DT-007). Hacerlo bien lleva vistas o funciones propias, y no entra en el plazo de la entrega.
+Cómo se salda: una función `security definer` por operación (por ejemplo `candidatos_derivados(oferta_id)` y `decidir_candidato(postulacion_id, decision, motivo)`) que controle en la base que la oferta es de la empresa con sesión y devuelva o cambie solo las columnas permitidas; el DAL las llama con `rpc` y deja de usar el cliente admin. Sumar su test pgTAP.
+
+### DT-020 — Las cuentas de la Oficina se crean con el cliente admin y una contraseña temporal a la vista
+Fecha: 2026-10-20 · Origen: D-058
+**Prioridad (2026-10-22): entra en la fase de seguridad** junto con DT-019, por el mismo motivo (una sola barrera sobre una operación sensible: crear cuentas con rol `admin`). Las plantillas con `token_hash` ya están pegadas en el panel (2026-10-22), así que la invitación por email deja de estar bloqueada.
+Qué:
+- "Equipo" (P21) crea la cuenta de una operadora con el cliente admin (`src/lib/dal/equipo.ts`): `auth.admin.createUser`, después cambia `perfiles.rol` a `admin` y borra la fila de `postulantes` que crea el trigger `crear_perfil`. El único control es el caso de uso (`src/lib/use-cases/equipo.ts`), que exige el rol `admin`; la base no lo repite (AGENTS §7 pide dos barreras).
+- Son tres pasos sin transacción. Si falla el segundo o el tercero, el DAL borra el usuario recién creado; si también falla ese borrado, queda una cuenta a medias que hay que arreglar a mano en Supabase.
+- La contraseña temporal viaja en la respuesta de la Server Action y se muestra una vez en pantalla. No se obliga a cambiarla: la operadora lo hace desde "Cambiar mi contraseña".
+- No queda registro de qué operadora creó cada cuenta (como DT-006).
+Por qué quedó: el usuario pidió que la Oficina pueda crear cuentas sin borrarlas, a dos semanas de la entrega. Mandar una invitación por email depende de las plantillas con `token_hash` (DT-011), que todavía no están en el panel.
+Cómo se salda: una función `security definer` `crear_cuenta_oficina(email)` que controle en la base que quien la llama es admin y haga los pasos en una transacción; invitación por email en vez de contraseña temporal, cuando las plantillas estén pegadas; una columna `creada_por` en `perfiles`, y un test pgTAP.
+
+### DT-021 — Las 850 ubicaciones previas de la Oficina están fijas en el código
+Fecha: 2026-10-22 · Origen: D-067
+Qué:
+- La cifra de la portada suma `CONTRATACIONES_ANTES_DEL_PORTAL = 850` (`src/lib/use-cases/inicio.ts`) a las contrataciones que cuenta la base. Si la Oficina corrige ese número, hay que cambiar el código y volver a desplegar.
+- No está confirmado desde qué año cuenta la Oficina ese número.
+Por qué quedó: es un solo valor que no cambia en el día a día; guardarlo en la base sumaba una tabla y una pantalla para editarlo (memoria "mvp-minimal-schema").
+Cómo se salda: si la Oficina necesita actualizarlo seguido, una fila de configuración en la base (migración) y un campo en el panel de la Oficina para editarlo.
+
+### DT-022 — Aprobación de empresas y motivos de rechazo: atajos de esta entrega
+Fecha: 2026-10-23 · Origen: D-068, D-069, D-070
+Qué:
+- **Motivo de rechazo como texto:** el rechazo de empresas y de ofertas elige un motivo de una lista fija, pero la base guarda la oración final en `motivo_rechazo` ("Motivo: observación"). No queda un código por motivo, así que no se puede contar "cuántas ofertas se rechazaron por falta de información" sin leer el texto.
+- **Una empresa aprobada no se revoca:** el trigger no permite `aprobada → rechazada`. Si una empresa aprobada resulta ser un problema, hoy se resuelve a mano en el SQL Editor (el trigger deja pasar las actualizaciones sin sesión) y sus ofertas publicadas no se tocan.
+- **La Oficina puede aprobar las ofertas pendientes de una empresa que volvió a "pendiente"** (por cambiar su CUIT): moderar ofertas y aprobar empresas son dos decisiones separadas.
+- **`lugar` hace de "dirección":** la oferta no tiene una columna `direccion`; el campo `lugar` cambió de rótulo (D-070). Si algún día hace falta separar la calle de la zona (por ejemplo, para un mapa), es una migración.
+- **Las pruebas de la base no se corrieron:** `supabase/tests/empresas_aprobacion_rls.test.sql` (y el ajuste de `ofertas_rls.test.sql`) necesitan la CLI de Supabase, que el usuario no usa (como el resto de `supabase/tests/`).
+- **La evaluación de postulación no muestra la dirección:** solo la ficha del postulante; la pantalla de evaluación sigue como estaba.
+Por qué quedó: son el cambio mínimo que cumple el pedido del usuario a dos semanas de la entrega, sin sumar tablas ni columnas que no se usan todavía.
+Cómo se salda: una columna `motivo_rechazo_codigo` (o una tabla de motivos) si la Oficina quiere estadísticas; agregar la transición `aprobada → rechazada` con una pantalla de confirmación si la Oficina necesita revocar; correr los pgTAP cuando haya CLI.
+
+
+### DT-023 — Remoción de bloques reemplazados en Inicio, Mi Perfil y Panel de Oficina
+Fecha: 2026-10-28 · Origen: D-079, D-082
+Qué se quitó:
+- **`CifrasPortal` ("El portal en números") en `src/app/page.tsx`:** dejado de renderizar en la landing pública por pedido del usuario; el contador en vivo de contrataciones permanece en `PortadaInicio` y las métricas detalladas pasaron a `/admin/metricas` (`src/components/admin/panel-metricas.tsx`).
+- **Recuadro de iniciales/foto en `src/components/postulante/VistaPerfilPostulante.tsx`:** eliminado para no insinuar que existe carga de foto de perfil.
+- **Columna `"Accesos de gestión"` en `src/components/admin/dashboard.tsx`:** eliminada porque duplicaba los enlaces ya presentes en el menú lateral (`app-sidebar.tsx`) y comprimía la tabla de `"Acciones y tareas más recientes"`, que ahora ocupa el 100 % del ancho.
+Cómo probarlo: abrir `/` (sin `"El portal en números"`), `/postulante/perfil` (cabecera limpia sin cuadro de iniciales) y `/admin` (tabla de actividad reciente a ancho completo y métricas completas en `/admin/metricas`).

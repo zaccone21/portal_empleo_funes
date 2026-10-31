@@ -28,8 +28,8 @@ export function TarjetaOfertaEmpresa({ oferta, seleccionada, soloEnEscritorio }:
           <span className="text-sm text-muted-foreground">Pediste el cierre</span>
         )}
       </div>
-      <h2 className="font-heading text-lg leading-snug font-semibold sm:text-xl">{oferta.titulo}</h2>
-      <p className="text-sm text-muted-foreground">Enviada el {formatearDia(oferta.creadaEl)}</p>
+      <h2 className="line-clamp-2 min-h-[2lh] font-heading text-lg leading-snug font-semibold sm:text-xl">{oferta.titulo}</h2>
+      <p className="mt-auto text-sm text-muted-foreground">Enviada el {formatearDia(oferta.creadaEl)}</p>
     </TarjetaSeleccionable>
   );
 }

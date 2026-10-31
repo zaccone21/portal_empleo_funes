@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { LightbulbIcon } from "lucide-react";
 
-import { FormularioOferta } from "@/components/empresa/FormularioOferta";
+import { PublicarOferta } from "@/components/empresa/PublicarOferta";
 import { Seccion } from "@/components/marca/Seccion";
 import { getCurrentUser } from "@/lib/dal/auth";
-import { verMisOfertas } from "@/lib/use-cases/empresa";
+import { verMiOferta } from "@/lib/use-cases/empresa";
 import type { DatosNuevaOferta } from "@/lib/validation/ofertas";
 
 export const metadata: Metadata = { title: "Publicar una oferta" };
@@ -21,10 +21,11 @@ export default async function EmpresaNuevaOfertaPage({
   if (params.duplicar) {
     const usuario = await getCurrentUser();
     if (usuario && usuario.rol === "empresa") {
-      const resultado = await verMisOfertas(usuario);
+      const resultado = await verMiOferta(usuario, params.duplicar);
       if (resultado.ok) {
-        const duplicada = resultado.datos.find((o) => o.id === params.duplicar && o.estado === "rechazada");
-        if (duplicada) {
+        const duplicada = resultado.datos.oferta;
+        // D-048: rejected offers are corrected and sent again; closed ones, to look for someone again.
+        if (duplicada.estado === "rechazada" || duplicada.estado === "cerrada") {
           ofertaPrevia = {
             titulo: duplicada.titulo,
             descripcion: duplicada.descripcion,
@@ -42,10 +43,10 @@ export default async function EmpresaNuevaOfertaPage({
   return (
     <Seccion
       titulo="Publicar una oferta"
-      bajada="Completá los datos del puesto. La Oficina de Empleo la revisa antes de publicarla."
+      bajada="Completá los datos del puesto. La Oficina de Empleo la revisa antes de publicarla. Para publicar, tu empresa tiene que estar aprobada."
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:items-start">
-        <FormularioOferta ofertaPrevia={ofertaPrevia} />
+        <PublicarOferta ofertaPrevia={ofertaPrevia} />
         <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 lg:sticky lg:top-4">
           <LightbulbIcon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
           <div className="flex flex-col gap-2">

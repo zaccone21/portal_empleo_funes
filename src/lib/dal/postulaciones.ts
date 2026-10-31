@@ -4,12 +4,19 @@ import { z } from "zod";
 
 import { fechaSchema } from "@/lib/dal/fecha";
 import { createClient } from "@/lib/supabase/server";
-import type { PostulacionAdmin } from "@/lib/validation/oficina";
+import { rubroSchema } from "@/lib/validation/rubros";
+import { decisionEmpresaSchema, type DecisionEmpresa } from "@/lib/validation/candidatos";
+import {
+  estadoPreentrevistaSchema,
+  type EstadoPreentrevista,
+  type PostulacionAdmin,
+} from "@/lib/validation/oficina";
 import { estadoPostulacionSchema, type EstadoPostulacion } from "@/lib/validation/postulaciones";
 
 /*
  * Applications in the database (`postulaciones`). RLS lets an applicant see
- * only their own and the Office all of them; companies see none (D-023).
+ * only their own and the Office all of them; companies see none by RLS: their
+ * referred applicants go through lib/dal/candidatos.ts (D-044, DT-019).
  */
 
 /** Ids of the offers this applicant already applied to (for `yaTePostulaste`, D-028). */
@@ -25,17 +32,36 @@ export type PostulacionPropia = {
   id: string;
   creadaEl: string;
   /** Null if the applicant can no longer see the offer. */
-  oferta: { id: string; titulo: string; lugar: string } | null;
+  oferta: {
+    id: string;
+    titulo: string;
+    lugar: string;
+    jornada?: string;
+    sueldo?: string | null;
+    estadoOferta?: "pendiente" | "publicada" | "rechazada" | "cerrada";
+    rubros?: import("@/lib/validation/rubros").Rubro[];
+  } | null;
 };
 
 /** The applicant's applications, newest first, without their status (RF1.2.4). */
 export async function listarPostulacionesPropias(postulanteId: string): Promise<PostulacionPropia[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("postulaciones")
-    .select("id, creada_el, ofertas(id, titulo, lugar)")
+    .select("id, creada_el, ofertas(id, titulo, lugar, jornada, sueldo, estado, oferta_rubros(rubros(slug)))")
     .eq("postulante_id", postulanteId)
     .order("creada_el", { ascending: false });
+
+  if (error) {
+    // Fallback to base columns if an optional joined relation fails
+    const respaldo = await supabase
+      .from("postulaciones")
+      .select("id, creada_el, ofertas(id, titulo, lugar)")
+      .eq("postulante_id", postulanteId)
+      .order("creada_el", { ascending: false });
+    data = respaldo.data as typeof data;
+    error = respaldo.error;
+  }
 
   if (error) throw new Error("Could not load the applications.");
   return z
@@ -43,11 +69,38 @@ export async function listarPostulacionesPropias(postulanteId: string): Promise<
       z.object({
         id: z.string(),
         creada_el: fechaSchema,
-        ofertas: z.object({ id: z.string(), titulo: z.string(), lugar: z.string() }).nullable(),
+        ofertas: z
+          .object({
+            id: z.string(),
+            titulo: z.string(),
+            lugar: z.string(),
+            jornada: z.string().nullable().optional(),
+            sueldo: z.string().nullable().optional(),
+            estado: z.enum(["pendiente", "publicada", "rechazada", "cerrada"]).nullable().optional(),
+            oferta_rubros: z
+              .array(z.object({ rubros: z.object({ slug: rubroSchema }).nullable() }))
+              .nullable()
+              .optional(),
+          })
+          .nullable(),
       }),
     )
     .parse(data)
-    .map((fila) => ({ id: fila.id, creadaEl: fila.creada_el, oferta: fila.ofertas }));
+    .map((fila) => ({
+      id: fila.id,
+      creadaEl: fila.creada_el,
+      oferta: fila.ofertas
+        ? {
+            id: fila.ofertas.id,
+            titulo: fila.ofertas.titulo,
+            lugar: fila.ofertas.lugar,
+            jornada: fila.ofertas.jornada ?? undefined,
+            sueldo: fila.ofertas.sueldo ?? null,
+            estadoOferta: fila.ofertas.estado ?? undefined,
+            rubros: (fila.ofertas.oferta_rubros ?? []).flatMap((r) => (r.rubros ? [r.rubros.slug] : [])),
+          }
+        : null,
+    }));
 }
 
 /**
@@ -61,7 +114,27 @@ export async function crearPostulacion(postulanteId: string, ofertaId: string): 
   if (error && error.code !== "23505") throw new Error(`Could not save the application. Supabase error: ${error.message} (Code: ${error.code})`);
 }
 
-/** Changes an application's status (RF1.5.6). The caller already checked that it exists and the move is allowed. */
+/**
+ * The Office links an applicant to a published offer, as if they had applied
+ * (P16, RF1.5.8). RLS allows it only on a published offer. Returns false when
+ * the applicant already applied to it (the unique constraint, 23505).
+ */
+export async function crearPostulacionDeOficina(postulanteId: string, ofertaId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("postulaciones")
+    .insert({ postulante_id: postulanteId, oferta_id: ofertaId, origen: "oficina" });
+
+  if (error?.code === "23505") return false;
+  if (error) throw new Error("Could not save the application.");
+  return true;
+}
+
+/**
+ * Changes an application's status (RF1.5.6). The caller already checked that it
+ * exists and the move is allowed. Referring stamps derivada_el in the database
+ * (trigger antes_de_actualizar_postulacion).
+ */
 export async function actualizarEstadoPostulacion(id: string, estado: EstadoPostulacion): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase.from("postulaciones").update({ estado }).eq("id", id);
@@ -69,24 +142,125 @@ export async function actualizarEstadoPostulacion(id: string, estado: EstadoPost
   if (error) throw new Error("Could not update the application.");
 }
 
-/** How many applications are in a status (P14). */
-export async function contarPostulaciones(estado: EstadoPostulacion): Promise<number> {
+/** Saves (or replaces) the pre-interview of an application (RF1.6.1, D-045), including its state and confirmation token. */
+export async function guardarPreentrevista(
+  id: string,
+  preentrevista: {
+    fecha: string;
+    notas: string | null;
+    estado?: EstadoPreentrevista;
+    token?: string | null;
+  },
+): Promise<void> {
   const supabase = await createClient();
-  const { count, error } = await supabase
-    .from("postulaciones")
-    .select("id", { count: "exact", head: true })
-    .eq("estado", estado);
 
+  if (preentrevista.estado !== undefined || preentrevista.token !== undefined) {
+    const { error: errorNuevo } = await supabase
+      .from("postulaciones")
+      .update({
+        preentrevista_el: preentrevista.fecha,
+        preentrevista_notas: preentrevista.notas,
+        ...(preentrevista.estado !== undefined ? { preentrevista_estado: preentrevista.estado } : {}),
+        ...(preentrevista.token !== undefined ? { preentrevista_token: preentrevista.token } : {}),
+      })
+      .eq("id", id);
+
+    if (!errorNuevo) return;
+    if (errorNuevo.code !== "42703") {
+      throw new Error("Could not save the pre-interview.");
+    }
+  }
+
+  const { error } = await supabase
+    .from("postulaciones")
+    .update({ preentrevista_el: preentrevista.fecha, preentrevista_notas: preentrevista.notas })
+    .eq("id", id);
+
+  if (error) throw new Error("Could not save the pre-interview.");
+}
+
+/** Confirms or declines a pre-interview using the unique email token via the `security definer` RPC. */
+export async function confirmarPreentrevistaConToken(token: string, confirmar: boolean): Promise<boolean> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("confirmar_preentrevista_por_token", {
+    p_token: token,
+    p_confirmar: confirmar,
+  });
+
+  if (error) return false;
+  return Boolean(data);
+}
+
+/** How many applications there are, all of them or in one status (P14). */
+export async function contarPostulaciones(estado?: EstadoPostulacion): Promise<number> {
+  const supabase = await createClient();
+  let consulta = supabase.from("postulaciones").select("id", { count: "exact", head: true });
+  if (estado) consulta = consulta.eq("estado", estado);
+
+  const { count, error } = await consulta;
   if (error) throw new Error("Could not count the applications.");
   return count ?? 0;
 }
 
-const COLUMNAS_POSTULACION_ADMIN = `
+/** How many applications the Office ever referred to a company (P14, D-051). */
+export async function contarDerivaciones(): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("postulaciones")
+    .select("id", { count: "exact", head: true })
+    .not("derivada_el", "is", null);
+
+  if (error) throw new Error("Could not count the referrals.");
+  return count ?? 0;
+}
+
+/** How many applications got this decision from the company: hires or rejections (P14, D-046, D-051). */
+export async function contarDecisiones(decision: DecisionEmpresa): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("postulaciones")
+    .select("id", { count: "exact", head: true })
+    .eq("decision_empresa", decision);
+
+  if (error) throw new Error("Could not count the company decisions.");
+  return count ?? 0;
+}
+
+/** How many referred applications are still waiting for the company's decision (P14, D-054). */
+export async function contarDerivadasSinDecision(): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("postulaciones")
+    .select("id", { count: "exact", head: true })
+    .eq("estado", "derivado")
+    .is("decision_empresa", null);
+
+  if (error) throw new Error("Could not count the pending decisions.");
+  return count ?? 0;
+}
+
+const COLUMNAS_POSTULACION_ADMIN_BASE = `
   id, estado, creada_el,
+  preentrevista_el, preentrevista_notas, derivada_el, decision_empresa, motivo_no_contratacion,
   ofertas (
-    id, titulo, lugar, jornada, descripcion, sueldo,
+    id, empresa_id, titulo, lugar, jornada, descripcion, requisitos, sueldo,
     oferta_rubros ( rubros ( slug ) ),
-    empresas ( razon_social, cuit, contacto_nombre, contacto_telefono, contacto_email )
+    empresas ( razon_social, cuit, descripcion, contacto_nombre, contacto_telefono, contacto_email )
+  ),
+  postulantes (
+    id, nombre, apellido, dni, telefono, cv_nombre,
+    perfiles ( email ),
+    postulante_rubros ( rubros ( slug ) )
+  )
+`;
+
+const COLUMNAS_POSTULACION_ADMIN = `
+  id, estado, creada_el, actualizada_el, preentrevista_estado,
+  preentrevista_el, preentrevista_notas, derivada_el, decision_empresa, motivo_no_contratacion,
+  ofertas (
+    id, empresa_id, titulo, lugar, jornada, descripcion, requisitos, sueldo,
+    oferta_rubros ( rubros ( slug ) ),
+    empresas ( razon_social, cuit, descripcion, contacto_nombre, contacto_telefono, contacto_email )
   ),
   postulantes (
     id, nombre, apellido, dni, telefono, cv_nombre,
@@ -99,18 +273,28 @@ const filaPostulacionAdminSchema = z.object({
   id: z.string(),
   estado: estadoPostulacionSchema,
   creada_el: fechaSchema,
+  actualizada_el: fechaSchema.optional(),
+  preentrevista_estado: estadoPreentrevistaSchema.optional(),
+  preentrevista_el: fechaSchema.nullable(),
+  preentrevista_notas: z.string().nullable(),
+  derivada_el: fechaSchema.nullable(),
+  decision_empresa: decisionEmpresaSchema.nullable(),
+  motivo_no_contratacion: z.string().nullable(),
   ofertas: z.object({
     id: z.string(),
+    empresa_id: z.string(),
     titulo: z.string(),
     lugar: z.string(),
     jornada: z.string(),
     descripcion: z.string(),
+    requisitos: z.string(),
     sueldo: z.string().nullable(),
     oferta_rubros: z.array(z.object({ rubros: z.object({ slug: z.string() }).nullable() })),
     empresas: z
       .object({
         razon_social: z.string().nullable(),
         cuit: z.string().nullable(),
+        descripcion: z.string().nullable(),
         contacto_nombre: z.string().nullable(),
         contacto_telefono: z.string().nullable(),
         contacto_email: z.string().nullable(),
@@ -131,21 +315,34 @@ const filaPostulacionAdminSchema = z.object({
 
 function aPostulacionAdmin(fila: z.infer<typeof filaPostulacionAdminSchema>): PostulacionAdmin {
   const { ofertas: o, postulantes: p } = fila;
+  const estadoPre: EstadoPreentrevista =
+    fila.preentrevista_estado ?? (fila.preentrevista_el ? "agendada" : "no_agendada");
+  const actualizada = fila.actualizada_el ?? fila.derivada_el ?? fila.preentrevista_el ?? fila.creada_el;
+
   return {
     id: fila.id,
     estado: fila.estado,
     postuladoEl: fila.creada_el,
+    actualizadaEl: actualizada,
+    preentrevistaEstado: estadoPre,
+    preentrevista: fila.preentrevista_el ? { fecha: fila.preentrevista_el, notas: fila.preentrevista_notas } : null,
+    derivadaEl: fila.derivada_el,
+    decisionEmpresa: fila.decision_empresa,
+    motivoNoContratacion: fila.motivo_no_contratacion,
     oferta: {
       id: o.id,
       titulo: o.titulo,
       lugar: o.lugar,
       jornada: o.jornada,
       descripcion: o.descripcion,
+      requisitos: o.requisitos,
       sueldo: o.sueldo,
       rubros: o.oferta_rubros.flatMap((r) => (r.rubros ? [r.rubros.slug] : [])),
+      empresaId: o.empresa_id,
       empresa: o.empresas && {
         razonSocial: o.empresas.razon_social,
         cuit: o.empresas.cuit,
+        descripcion: o.empresas.descripcion,
         contactoNombre: o.empresas.contacto_nombre,
         contactoTelefono: o.empresas.contacto_telefono,
         contactoEmail: o.empresas.contacto_email,
@@ -164,16 +361,51 @@ function aPostulacionAdmin(fila: z.infer<typeof filaPostulacionAdminSchema>): Po
   };
 }
 
-/** Every application with its offer, company contact and applicant, oldest first (Office queues and registers, D-042). */
-export async function listarPostulacionesAdmin(): Promise<PostulacionAdmin[]> {
+/**
+ * Every application with its offer, company contact and applicant, ordered by
+ * most recent action first (`actualizada_el` desc), or only one applicant's (P18).
+ */
+export async function listarPostulacionesAdmin(postulanteId?: string): Promise<PostulacionAdmin[]> {
+  const supabase = await createClient();
+  let consulta = supabase.from("postulaciones").select(COLUMNAS_POSTULACION_ADMIN);
+  if (postulanteId) consulta = consulta.eq("postulante_id", postulanteId);
+
+  const { data, error } = await consulta.order("actualizada_el", { ascending: false });
+  if (!error) {
+    return z.array(filaPostulacionAdminSchema).parse(data).map(aPostulacionAdmin);
+  }
+
+  // Fallback if migration 20261028140000 has not been applied yet
+  let consultaBase = supabase.from("postulaciones").select(COLUMNAS_POSTULACION_ADMIN_BASE);
+  if (postulanteId) consultaBase = consultaBase.eq("postulante_id", postulanteId);
+  const { data: dataBase, error: errorBase } = await consultaBase.order("creada_el", { ascending: false });
+  if (errorBase) throw new Error("Could not load the applications.");
+  return z.array(filaPostulacionAdminSchema).parse(dataBase).map(aPostulacionAdmin);
+}
+
+/** Referred applications without the company's decision, newest referral first (P14 queue, D-054). */
+export async function listarDerivadasSinDecision(): Promise<PostulacionAdmin[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("postulaciones")
     .select(COLUMNAS_POSTULACION_ADMIN)
-    .order("creada_el", { ascending: true });
+    .eq("estado", "derivado")
+    .is("decision_empresa", null)
+    .order("derivada_el", { ascending: false });
 
-  if (error) throw new Error("Could not load the applications.");
-  return z.array(filaPostulacionAdminSchema).parse(data).map(aPostulacionAdmin);
+  if (!error) {
+    return z.array(filaPostulacionAdminSchema).parse(data).map(aPostulacionAdmin);
+  }
+
+  const { data: dataBase, error: errorBase } = await supabase
+    .from("postulaciones")
+    .select(COLUMNAS_POSTULACION_ADMIN_BASE)
+    .eq("estado", "derivado")
+    .is("decision_empresa", null)
+    .order("derivada_el", { ascending: false });
+
+  if (errorBase) throw new Error("Could not load the pending decisions.");
+  return z.array(filaPostulacionAdminSchema).parse(dataBase).map(aPostulacionAdmin);
 }
 
 /** One application as the Office sees it, or null when it does not exist. */
@@ -181,9 +413,20 @@ export async function leerPostulacionAdmin(id: string): Promise<PostulacionAdmin
   const supabase = await createClient();
   const { data, error } = await supabase.from("postulaciones").select(COLUMNAS_POSTULACION_ADMIN).eq("id", id).maybeSingle();
 
-  if (error) {
-    if (error.code === "22P02") return null;
+  if (!error) {
+    return data ? aPostulacionAdmin(filaPostulacionAdminSchema.parse(data)) : null;
+  }
+  if (error.code === "22P02") return null;
+
+  const { data: dataBase, error: errorBase } = await supabase
+    .from("postulaciones")
+    .select(COLUMNAS_POSTULACION_ADMIN_BASE)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (errorBase) {
+    if (errorBase.code === "22P02") return null;
     throw new Error("Could not load the application.");
   }
-  return data ? aPostulacionAdmin(filaPostulacionAdminSchema.parse(data)) : null;
+  return dataBase ? aPostulacionAdmin(filaPostulacionAdminSchema.parse(dataBase)) : null;
 }

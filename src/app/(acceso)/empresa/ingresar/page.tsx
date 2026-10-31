@@ -7,8 +7,8 @@ import { TarjetaAcceso } from "@/components/auth/TarjetaAcceso";
 export const metadata: Metadata = { title: "Ingresar como empresa" };
 
 /**
- * P08: company login. ?volver= brings the person back to the screen that
- * asked them to log in.
+ * P08: company login (accepts Email or CUIT). ?volver= brings the person back
+ * to the screen that asked them to log in.
  */
 export default async function EmpresaIngresarPage({ searchParams }: PageProps<"/empresa/ingresar">) {
   const { volver } = await searchParams;
@@ -16,7 +16,7 @@ export default async function EmpresaIngresarPage({ searchParams }: PageProps<"/
   return (
     <TarjetaAcceso
       titulo="Ingresá como empresa"
-      descripcion="Para publicar ofertas de trabajo y ver cómo avanzan."
+      descripcion="Ingresá con el email o el CUIT de tu empresa para publicar ofertas de trabajo y seguir candidatos."
       pie={
         <EnlacesAcceso
           enlaces={[
@@ -26,7 +26,10 @@ export default async function EmpresaIngresarPage({ searchParams }: PageProps<"/
         />
       }
     >
-      <FormularioIngreso volver={typeof volver === "string" ? volver : undefined} />
+      <FormularioIngreso
+        modoAcceso="empresa"
+        volver={typeof volver === "string" ? volver : undefined}
+      />
     </TarjetaAcceso>
   );
 }

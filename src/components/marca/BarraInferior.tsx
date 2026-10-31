@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "motion/react";
 
 import { useSesion } from "@/hooks/useSesion";
 import { cn } from "@/lib/utils";
@@ -43,17 +44,24 @@ export function BarraInferior({ area }: { area: Role }) {
                 href={href}
                 aria-current={actual ? "page" : undefined}
                 className={cn(
-                  "flex h-full flex-col items-center justify-center gap-1 px-1 text-[0.8125rem] leading-tight font-medium text-muted-foreground outline-none",
+                  "flex h-full flex-col items-center justify-center gap-1 px-0.5 text-xs leading-tight font-medium text-muted-foreground outline-none sm:px-1 sm:text-[0.8125rem]",
                   "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset",
                   "aria-[current=page]:font-semibold aria-[current=page]:text-primary",
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-8 w-14 items-center justify-center rounded-full",
-                    destacado ? "bg-primary text-primary-foreground" : actual && "bg-secondary",
+                    "relative flex h-8 w-14 items-center justify-center rounded-full transition-colors",
+                    destacado && "bg-primary text-primary-foreground",
                   )}
                 >
+                  {actual && !destacado && (
+                    <motion.span
+                      layoutId="nav-pill-movil"
+                      className="absolute inset-0 -z-10 rounded-full bg-secondary"
+                      transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                    />
+                  )}
                   <Icono aria-hidden="true" className="size-5" />
                 </span>
                 <span className="max-w-full truncate">{texto}</span>

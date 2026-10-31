@@ -8,14 +8,7 @@ export const metadata: Metadata = { title: "Empresas · Oficina de Empleo" };
 
 export default async function AdminEmpresasPage(props: { searchParams: Promise<ParamsBusqueda> }) {
   const params = await props.searchParams;
-  const { empresas, ofertasDeSel } = await datosEmpresas(params);
+  const { empresas } = await datosEmpresas();
 
-  return (
-    <VistaEmpresas
-      ruta="/admin/empresas"
-      empresas={empresas}
-      params={params}
-      ofertasDeSel={ofertasDeSel}
-    />
-  );
+  return <VistaEmpresas empresas={empresas} params={params} />;
 }

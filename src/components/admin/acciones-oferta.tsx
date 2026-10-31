@@ -1,11 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { BotonAdmin } from "@/components/admin/boton-admin";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
-import { useUrlAdmin } from "@/hooks/useUrlAdmin";
 import {
   aprobarOfertaAccion,
   aprobarOfertasLoteAccion,
@@ -13,36 +13,39 @@ import {
   rechazarOfertaAccion,
   type RespuestaAccion,
 } from "@/lib/actions/oficina";
+import { OPCIONES_MOTIVO_OFERTA } from "@/lib/validation/motivos-rechazo";
 import type { EstadoOferta } from "@/lib/validation/ofertas";
 
 type Props = {
   id: string;
   estado: EstadoOferta;
   cierreSolicitado: boolean;
-  /** Row to select after resolving, when the screen is a queue (undefined = none left). */
-  siguienteId?: string;
-  /** In queues the selection moves on by itself after a decision. */
-  avanzar?: boolean;
+  /**
+   * Where to go after a decision: in a queue, the next offer (or the queue when
+   * none is left). Without it the page stays and shows the new status.
+   */
+  destino?: string;
 };
 
 /**
- * Actions of an offer inside the panel (RF1.5.3, RF1.5.4; D-042). Approving is
- * one click with a toast; rejecting (with the reason the company will read) and
- * closing ask for confirmation. The server decides if the move is still valid:
- * when another operator got there first, the toast says so.
+ * Actions of an offer on its page (RF1.5.3, RF1.5.4; D-042, D-062). Approving
+ * is one click with a toast; rejecting (with the reason the company will read)
+ * and closing ask for confirmation. The server decides if the move is still
+ * valid: when another operator got there first, the toast says so.
  */
-export function AccionesOferta({ id, estado, cierreSolicitado, siguienteId, avanzar = false }: Props) {
-  const { ir } = useUrlAdmin();
+export function AccionesOferta({ id, estado, cierreSolicitado, destino }: Props) {
+  const router = useRouter();
   const [pendiente, iniciar] = useTransition();
 
   async function ejecutar(accion: () => Promise<RespuestaAccion>) {
     const respuesta = await accion();
     if (respuesta.ok) {
       toast.success(respuesta.mensaje);
-      if (avanzar) ir({ sel: siguienteId });
+      if (destino) router.push(destino);
+      else router.refresh();
     } else {
       toast.error(respuesta.mensaje);
-      ir({});
+      router.refresh();
     }
   }
 
@@ -55,12 +58,11 @@ export function AccionesOferta({ id, estado, cierreSolicitado, siguienteId, avan
         <ConfirmDialog
           trigger={<BotonAdmin variante="destructivo">Rechazar</BotonAdmin>}
           titulo="¿Rechazar esta oferta?"
-          descripcion="La empresa va a leer el motivo. Escribilo claro para que pueda corregir la oferta."
+          descripcion="Elegí el motivo. La empresa lo va a leer para poder corregir la oferta."
           textoConfirmar="Rechazar oferta"
           varianteConfirmar="destructive"
-          requiereMotivo
-          etiquetaMotivo="Motivo del rechazo"
-          onConfirmar={(motivo) => ejecutar(() => rechazarOfertaAccion(id, motivo ?? ""))}
+          motivos={OPCIONES_MOTIVO_OFERTA}
+          onConfirmar={(motivo) => ejecutar(() => rechazarOfertaAccion(id, motivo?.codigo ?? "", motivo?.observacion))}
         />
       </>
     );
@@ -83,7 +85,7 @@ export function AccionesOferta({ id, estado, cierreSolicitado, siguienteId, avan
 
 /** Bulk approval bar button: confirms with the amount and reports the result per offer. */
 export function AprobarSeleccionadas({ ids, limpiar }: { ids: string[]; limpiar: () => void }) {
-  const { ir } = useUrlAdmin();
+  const router = useRouter();
 
   async function aprobar() {
     const respuesta = await aprobarOfertasLoteAccion(ids);
@@ -94,7 +96,7 @@ export function AprobarSeleccionadas({ ids, limpiar }: { ids: string[]; limpiar:
     if (respuesta.fallidas > 0) toast.warning(respuesta.mensaje);
     else toast.success(respuesta.mensaje);
     limpiar();
-    ir({ sel: undefined });
+    router.refresh();
   }
 
   return (

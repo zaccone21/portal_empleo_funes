@@ -3,6 +3,8 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
+import { conDesde } from "@/lib/admin/url";
+
 /**
  * Lets a client component change the URL state of an Office screen (filters,
  * search, selection). `construir` returns the URL for some changes; `ir` goes
@@ -40,5 +42,14 @@ export function useUrlAdmin() {
     [construir, router],
   );
 
-  return { params, pathname, construir, ir };
+  /** Link to a detail page that brings the operator back to this exact list (filters, page, order). */
+  const detalle = useCallback(
+    (href: string) => {
+      const query = params.toString();
+      return conDesde(href, query ? `${pathname}?${query}` : pathname);
+    },
+    [params, pathname],
+  );
+
+  return { params, pathname, construir, ir, detalle };
 }

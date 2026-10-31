@@ -4,9 +4,12 @@ import { PageHeader } from "@/components/admin/page-header";
 import { TablaPorComunicar } from "@/components/admin/tabla-por-comunicar";
 import { Toolbar, type FiltroToolbar } from "@/components/admin/toolbar";
 import { datosPostulaciones } from "@/lib/admin/datos";
+import { aplicarOrden, leerOrden } from "@/lib/admin/orden";
 import {
+  CLAVES_ORDEN_POSTULACIONES,
   empresasDePostulaciones,
   filtrarPostulaciones,
+  ORDEN_POR_DEFECTO_POSTULACIONES,
   postulacionesDelModo,
 } from "@/lib/admin/postulaciones";
 import { leerParam, paginar, type ParamsBusqueda } from "@/lib/admin/url";
@@ -21,7 +24,8 @@ export default async function AdminPorComunicarPage(props: {
   const { postulaciones } = await datosPostulaciones(params);
 
   const delModo = postulacionesDelModo(postulaciones, "por-comunicar");
-  const filtradas = filtrarPostulaciones(delModo, params, "por-comunicar");
+  const filtradas = aplicarOrden(filtrarPostulaciones(delModo, params, "por-comunicar"), params, CLAVES_ORDEN_POSTULACIONES);
+  const orden = leerOrden(params, CLAVES_ORDEN_POSTULACIONES) ?? ORDEN_POR_DEFECTO_POSTULACIONES["por-comunicar"];
   const pagina = paginar(filtradas, Number(leerParam(params, "pagina")));
 
   const filtros: FiltroToolbar[] = [
@@ -45,13 +49,13 @@ export default async function AdminPorComunicarPage(props: {
       <PageHeader
         migas={["Tareas pendientes", "Por comunicar / derivar"]}
         titulo="Por comunicar / derivar"
-        aside="Orden: más antiguas primero"
       />
       <Toolbar placeholder="Buscar puesto, postulante o empresa" filtros={filtros} />
       <TablaPorComunicar
         postulaciones={pagina.filas}
         pager={pagina}
         hayFiltros={hayFiltros}
+        orden={orden}
       />
     </>
   );

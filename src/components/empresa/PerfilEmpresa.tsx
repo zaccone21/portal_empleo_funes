@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ShieldCheckIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
@@ -10,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePerfilEmpresa } from "@/hooks/usePerfilEmpresa";
 import type { PerfilEmpresa as Perfil } from "@/lib/validation/empresa";
 
+import { AvisoEstadoEmpresa } from "./AvisoEstadoEmpresa";
 import { FormularioPerfilEmpresa } from "./FormularioPerfilEmpresa";
 import { VistaPerfilEmpresa } from "./VistaPerfilEmpresa";
 
@@ -18,7 +20,7 @@ import { VistaPerfilEmpresa } from "./VistaPerfilEmpresa";
  * Shows a read-only view if data exists, or the form if it is empty or editing.
  */
 export function PerfilEmpresa() {
-  const { perfil, cuitRegistrado, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
+  const { perfil, cuitRegistrado, estado, motivoRechazo, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
     usePerfilEmpresa();
   const [editando, setEditando] = useState(false);
   const [version, setVersion] = useState(0);
@@ -62,20 +64,44 @@ export function PerfilEmpresa() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:items-start">
-      {mostrarFormulario ? (
-        <FormularioPerfilEmpresa
-          key={version}
-          perfil={perfil ?? null}
-          cuitRegistrado={cuitRegistrado}
-          // FormularioPerfilEmpresa's onGuardar expects (datos: PerfilEmpresa) => Promise<boolean>
-          onGuardar={handleGuardar}
-          guardando={guardando}
-          error={errorGuardado}
-        />
-      ) : (
-        <VistaPerfilEmpresa perfil={perfil} onEditar={() => setEditando(true)} />
+      {perfil && estado !== "aprobada" && (
+        <div className="lg:col-span-2">
+          <AvisoEstadoEmpresa estado={estado} motivoRechazo={motivoRechazo} mostrarEnlace={false} />
+        </div>
       )}
-      
+      <AnimatePresence mode="wait" initial={false}>
+        {mostrarFormulario ? (
+          <motion.div
+            key={`form-${version}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+          >
+            <FormularioPerfilEmpresa
+              key={version}
+              perfil={perfil ?? null}
+              cuitRegistrado={cuitRegistrado}
+              estado={estado}
+              onGuardar={handleGuardar}
+              onCancelar={perfil ? () => setEditando(false) : undefined}
+              guardando={guardando}
+              error={errorGuardado}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="vista"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+          >
+            <VistaPerfilEmpresa perfil={perfil} onEditar={() => setEditando(true)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 lg:sticky lg:top-4">
         <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
         <div className="flex flex-col gap-1">

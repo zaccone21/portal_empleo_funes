@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -138,15 +139,25 @@ export function Toolbar({ placeholder, filtros = [] }: Props) {
           <FiltroMultiple key={filtro.param} filtro={filtro} />
         ),
       )}
-      {hayFiltros && (
-        <Link
-          scroll={false}
-          href={construir(Object.fromEntries(claves.map((clave) => [clave, undefined])))}
-          className="text-[13px] font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
-        >
-          Limpiar
-        </Link>
-      )}
+      <AnimatePresence>
+        {hayFiltros && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, width: 0 }}
+            animate={{ opacity: 1, scale: 1, width: "auto" }}
+            exit={{ opacity: 0, scale: 0.9, width: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <Link
+              scroll={false}
+              href={construir(Object.fromEntries(claves.map((clave) => [clave, undefined])))}
+              className="inline-flex whitespace-nowrap px-1 py-1 text-[13px] font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
+            >
+              Limpiar
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

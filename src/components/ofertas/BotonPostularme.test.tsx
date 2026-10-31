@@ -54,6 +54,16 @@ test("without a session, offers to log in and come back to this offer", () => {
   );
 });
 
+test("without a complete profile, links to Mi perfil carrying the offer id", () => {
+  mocks.estado = { loading: false, resultado: { tipo: "falta_perfil", mensaje: "Completá tus datos." } };
+  render(<BotonPostularme ofertaId="o-9" />);
+
+  expect(screen.getByText("Completá tus datos.")).toBeDefined();
+  expect(screen.getByRole("link", { name: "Completar mi perfil" }).getAttribute("href")).toBe(
+    "/postulante/perfil?oferta=o-9",
+  );
+});
+
 test("without a CV, links to the upload (RF1.4.4)", () => {
   mocks.estado = { loading: false, resultado: { tipo: "falta_cv", mensaje: "Subí tu CV." } };
   render(<BotonPostularme ofertaId="o-9" />);

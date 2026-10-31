@@ -4,9 +4,12 @@ import { PageHeader } from "@/components/admin/page-header";
 import { TablaPostulacionesNuevas } from "@/components/admin/tabla-postulaciones-nuevas";
 import { Toolbar, type FiltroToolbar } from "@/components/admin/toolbar";
 import { datosPostulaciones } from "@/lib/admin/datos";
+import { aplicarOrden, leerOrden } from "@/lib/admin/orden";
 import {
+  CLAVES_ORDEN_POSTULACIONES,
   empresasDePostulaciones,
   filtrarPostulaciones,
+  ORDEN_POR_DEFECTO_POSTULACIONES,
   postulacionesDelModo,
 } from "@/lib/admin/postulaciones";
 import { leerParam, paginar, type ParamsBusqueda } from "@/lib/admin/url";
@@ -21,7 +24,8 @@ export default async function AdminPostulacionesPorEvaluarPage(props: {
   const { postulaciones } = await datosPostulaciones(params);
 
   const delModo = postulacionesDelModo(postulaciones, "por-evaluar");
-  const filtradas = filtrarPostulaciones(delModo, params, "por-evaluar");
+  const filtradas = aplicarOrden(filtrarPostulaciones(delModo, params, "por-evaluar"), params, CLAVES_ORDEN_POSTULACIONES);
+  const orden = leerOrden(params, CLAVES_ORDEN_POSTULACIONES) ?? ORDEN_POR_DEFECTO_POSTULACIONES["por-evaluar"];
   const pagina = paginar(filtradas, Number(leerParam(params, "pagina")));
 
   const filtros: FiltroToolbar[] = [
@@ -45,13 +49,13 @@ export default async function AdminPostulacionesPorEvaluarPage(props: {
       <PageHeader
         migas={["Tareas pendientes", "Postulaciones nuevas"]}
         titulo="Postulaciones nuevas"
-        aside="Orden: más antiguas primero"
       />
       <Toolbar placeholder="Buscar puesto, postulante o empresa" filtros={filtros} />
       <TablaPostulacionesNuevas
         postulaciones={pagina.filas}
         pager={pagina}
         hayFiltros={hayFiltros}
+        orden={orden}
       />
     </>
   );

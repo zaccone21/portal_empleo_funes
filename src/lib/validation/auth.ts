@@ -31,7 +31,7 @@ export const PASSWORD_MAX_LENGTH = 72;
  * only checks the format when the value is not empty, so an empty field shows
  * "Ingresá tu email" instead of "email inválido".
  */
-const emailSchema = z
+export const emailSchema = z
   .string({ error: "Ingresá tu email" })
   .trim()
   .min(1, "Ingresá tu email")
@@ -73,9 +73,35 @@ export const rolRegistrableSchema = roleSchema.exclude(["admin"], {
 
 export type RolRegistrable = z.infer<typeof rolRegistrableSchema>;
 
+/**
+ * Identifier when logging in: accepts a valid email (`nombre@correo.com`),
+ * a 7- or 8-digit DNI (with or without dots), or an 11-digit CUIT/CUIL
+ * (with or without hyphens/dots).
+ */
+export const identificadorAccesoSchema = z
+  .string({ error: "Ingresá tu email, DNI o CUIT" })
+  .trim()
+  .min(1, "Ingresá tu email, DNI o CUIT")
+  .refine(
+    (valor) => {
+      if (valor.includes("@")) {
+        return z.email().safeParse(valor).success;
+      }
+      const soloDigitos = valor.replace(/\D/g, "");
+      const soloCaracteresPermitidos = /^[0-9.\-\s]+$/.test(valor);
+      return (
+        soloCaracteresPermitidos &&
+        (soloDigitos.length === 7 || soloDigitos.length === 8 || soloDigitos.length === 11)
+      );
+    },
+    {
+      error: "Ingresá un email válido, tu DNI (7 u 8 números) o el CUIT (11 números)",
+    },
+  );
+
 /** Body of POST /api/auth/ingreso. */
 export const ingresoSchema = z.object({
-  email: emailSchema,
+  email: identificadorAccesoSchema,
   password: passwordIngresoSchema,
 });
 
@@ -95,12 +121,21 @@ export const cuitSchema = z
     return `${nums.slice(0, 2)}-${nums.slice(2, 10)}-${nums.slice(10, 11)}`;
   });
 
+/**
+ * Consent to the privacy notice (/privacidad): required to create an account.
+ * The server checks it too and stores the moment in the account's metadata.
+ */
+export const aceptaPrivacidadSchema = z.literal(true, {
+  error: "Para crear tu cuenta tenés que aceptar cómo usamos tus datos",
+});
+
 /** Body of POST /api/auth/registro. Discriminates between applicant (needs DNI) and company (needs CUIT). */
 export const registroPostulanteSchema = z.object({
   role: z.literal("postulante"),
   email: emailSchema,
   password: passwordNuevaSchema,
   dni: dniSchema,
+  aceptaPrivacidad: aceptaPrivacidadSchema,
 });
 
 export const registroEmpresaSchema = z.object({
@@ -108,6 +143,7 @@ export const registroEmpresaSchema = z.object({
   email: emailSchema,
   password: passwordNuevaSchema,
   cuit: cuitSchema,
+  aceptaPrivacidad: aceptaPrivacidadSchema,
 });
 
 export const registroSchema = z.discriminatedUnion("role", [
@@ -117,6 +153,20 @@ export const registroSchema = z.discriminatedUnion("role", [
 
 /** Body of POST /api/auth/recuperar-contrasena. */
 export const recuperarContrasenaSchema = z.object({
+  email: emailSchema,
+});
+
+/** Body of POST /api/auth/verificar-codigo (6-digit OTP PIN from confirmation email). */
+export const verificarCodigoEmailSchema = z.object({
+  email: emailSchema,
+  codigo: z
+    .string({ error: "Ingresá el código de 6 dígitos" })
+    .trim()
+    .regex(/^[0-9]{6}$/, "El código tiene que tener 6 números"),
+});
+
+/** Body of POST /api/auth/reenviar-confirmacion. */
+export const reenviarConfirmacionSchema = z.object({
   email: emailSchema,
 });
 
@@ -196,3 +246,5 @@ export type DatosIngreso = z.infer<typeof ingresoSchema>;
 export type DatosRegistro = z.infer<typeof registroSchema>;
 export type DatosRecuperarContrasena = z.infer<typeof recuperarContrasenaSchema>;
 export type DatosNuevaContrasena = z.infer<typeof nuevaContrasenaSchema>;
+export type DatosVerificarCodigoEmail = z.infer<typeof verificarCodigoEmailSchema>;
+export type DatosReenviarConfirmacion = z.infer<typeof reenviarConfirmacionSchema>;

@@ -10,9 +10,21 @@ import { registroSchema } from "@/lib/validation/auth";
  * already exists, so nobody learns which accounts exist.
  */
 export async function POST(request: Request) {
-  const datos = registroSchema.safeParse(await leerCuerpo(request));
-  if (!datos.success) return datosInvalidos(datos.error);
+  try {
+    const datos = registroSchema.safeParse(await leerCuerpo(request));
+    if (!datos.success) return datosInvalidos(datos.error);
 
-  const urlConfirmacion = `${new URL(request.url).origin}/acceso/confirmar`;
-  return responder(await registrarse(datos.data, urlConfirmacion), 201);
+    const url = new URL(request.url);
+    const volver = url.searchParams.get("volver");
+    const urlConfirmacion = volver
+      ? `${url.origin}/acceso/confirmar?volver=${encodeURIComponent(volver)}`
+      : `${url.origin}/acceso/confirmar`;
+    return responder(await registrarse(datos.data, urlConfirmacion), 201);
+  } catch (error) {
+    console.error("[POST /api/auth/registro error]:", error);
+    return Response.json(
+      { error: "No pudimos completar el registro en este momento. Probá de nuevo en unos minutos." },
+      { status: 503 },
+    );
+  }
 }

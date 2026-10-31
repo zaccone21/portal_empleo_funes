@@ -1,12 +1,14 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { KeyRound, LogOut } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
 /**
- * Footer of the sidebar: who is logged in and the sign-out action. When the
+ * Footer of the sidebar: who is logged in, changing one's own password (a new
+ * operator starts with a temporary one, D-058) and the sign-out action. When the
  * sidebar is collapsed only the icon button stays, with a tooltip.
  */
 export function NavUser({ email }: { email: string }) {
@@ -27,6 +29,16 @@ export function NavUser({ email }: { email: string }) {
         </span>
       </div>
       <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            tooltip="Cambiar mi contraseña"
+            render={<Link href="/nueva-contrasena" />}
+            className="h-auto gap-[9px] rounded-[7px] px-2 py-[7px] text-[12.5px] text-foreground group-data-[collapsible=icon]:px-2"
+          >
+            <KeyRound className="size-4 opacity-60" aria-hidden="true" />
+            <span>Cambiar mi contraseña</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
         <SidebarMenuItem>
           <SidebarMenuButton
             tooltip="Cerrar sesión"

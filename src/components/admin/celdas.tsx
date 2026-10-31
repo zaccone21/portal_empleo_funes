@@ -10,7 +10,7 @@ export function CeldaDoble({ titulo, detalle }: { titulo: ReactNode; detalle?: R
   return (
     <div className="flex min-w-0 flex-col leading-tight">
       <span className="truncate font-bold text-foreground">{titulo}</span>
-      {detalle ? <small className="truncate text-[11.5px] text-muted-foreground">{detalle}</small> : null}
+      {detalle ? <small className="truncate text-[12.5px] text-muted-foreground">{detalle}</small> : null}
     </div>
   );
 }

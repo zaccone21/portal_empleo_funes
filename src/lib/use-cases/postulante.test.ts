@@ -40,6 +40,7 @@ vi.mock("@/lib/dal/postulantes", () => ({
 
 import {
   abrirMiCv,
+  actualizarPerfilPostulante,
   obtenerPerfilPostulante,
   postularme,
   subirMiCv,
@@ -180,6 +181,7 @@ describe("obtenerPerfilPostulante", () => {
       nombre: "Juan",
       apellido: "Pérez",
       telefono: "3411234567",
+      direccion: "San José 1500",
       dni: "12345678",
       rubros: [{ slug: "comercio", nombre: "Comercio" }],
       tieneCv: true,
@@ -193,6 +195,7 @@ describe("obtenerPerfilPostulante", () => {
         nombre: "Juan",
         apellido: "Pérez",
         telefono: "3411234567",
+        direccion: "San José 1500",
         dni: "12345678",
         rubros: [{ slug: "comercio", nombre: "Comercio" }],
         tieneCv: true,
@@ -205,6 +208,61 @@ describe("obtenerPerfilPostulante", () => {
     const resultado = await obtenerPerfilPostulante(empresa);
 
     expect(resultado.ok === false && resultado.falla).toBe("forbidden");
+  });
+});
+
+const DIRECCION = "San José 1500";
+
+describe("actualizarPerfilPostulante: work experience (RF1.6.7)", () => {
+  test("saves the experience written in the profile", async () => {
+    await actualizarPerfilPostulante(postulante, {
+      nombre: "Juan",
+      apellido: "Pérez",
+      telefono: "3411234567",
+      direccion: DIRECCION,
+      rubros: ["comercio"],
+      experiencia: "Dos años en un almacén",
+    });
+
+    expect(dal.guardarPerfilPostulante).toHaveBeenCalledWith("postulante-1", {
+      nombre: "Juan",
+      apellido: "Pérez",
+      telefono: "3411234567",
+      direccion: DIRECCION,
+      rubros: ["comercio"],
+      experiencia: "Dos años en un almacén",
+    });
+  });
+
+  test("an empty field erases it", async () => {
+    await actualizarPerfilPostulante(postulante, {
+      nombre: "Juan",
+      apellido: "Pérez",
+      telefono: "3411234567",
+      direccion: DIRECCION,
+      rubros: ["comercio"],
+      experiencia: "",
+    });
+
+    expect(dal.guardarPerfilPostulante).toHaveBeenCalledWith("postulante-1", expect.objectContaining({ experiencia: null }));
+  });
+
+  test("leaving it out keeps what was saved", async () => {
+    await actualizarPerfilPostulante(postulante, {
+      nombre: "Juan",
+      apellido: "Pérez",
+      telefono: "3411234567",
+      direccion: DIRECCION,
+      rubros: ["comercio"],
+    });
+
+    expect(dal.guardarPerfilPostulante).toHaveBeenCalledWith("postulante-1", {
+      nombre: "Juan",
+      apellido: "Pérez",
+      telefono: "3411234567",
+      direccion: DIRECCION,
+      rubros: ["comercio"],
+    });
   });
 });
 

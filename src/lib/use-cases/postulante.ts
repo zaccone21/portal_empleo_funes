@@ -32,11 +32,16 @@ export async function obtenerPerfilPostulante(
   });
 }
 
+/** Saves P03. An empty experience field erases it; leaving it out keeps it (RF1.6.7). */
 export async function actualizarPerfilPostulante(usuario: CurrentUser, perfil: PerfilPostulante): Promise<Resultado<undefined>> {
   const negado = sinPermiso(usuario, "postulante");
   if (negado) return negado;
 
-  await guardarPerfilPostulante(usuario.id, perfil);
+  const { experiencia, ...resto } = perfil;
+  await guardarPerfilPostulante(usuario.id, {
+    ...resto,
+    ...(experiencia !== undefined ? { experiencia: experiencia || null } : {}),
+  });
   return exito(undefined);
 }
 
@@ -58,11 +63,9 @@ export async function verMisPostulaciones(usuario: CurrentUser): Promise<Resulta
 
   const postulaciones = await listarPostulacionesPropias(usuario.id);
   return exito(
-    postulaciones.map(({ id, creadaEl, oferta }) => {
-      // RLS shows applicants the offers they applied to (migration 20260929130000), so this means a missing migration.
-      if (!oferta) throw new Error("An applied offer is not visible to its applicant.");
-      return { id, postuladoEl: creadaEl, oferta };
-    }),
+    postulaciones
+      .filter((p): p is typeof p & { oferta: NonNullable<typeof p.oferta> } => p.oferta !== null)
+      .map(({ id, creadaEl, oferta }) => ({ id, postuladoEl: creadaEl, oferta })),
   );
 }
 
@@ -82,20 +85,20 @@ export async function postularme(usuario: CurrentUser, ofertaId: string): Promis
   if (!oferta || oferta.estado !== "publicada") {
     return falla("not_found", "Esta oferta ya no está publicada.");
   }
-  
+
   if (!(await perfilCompletoPostulante(usuario.id))) {
-    return falla("conflict", "Para postularte tenés que completar tus datos personales y elegir al menos un rubro en Mi perfil.");
+    return falla("conflict", "Para postularte tenés que completar tus datos personales (con tu dirección) y elegir al menos un rubro en Mi perfil.");
   }
-  
+
   if (!(await leerCv(usuario.id))) {
-    return falla("conflict", "Para postularte tenés que subir tu CV en PDF. Lleva un minuto.");
+    return falla("conflict", "Para postularte tenés que subir tu CV en PDF o PNG. Lleva un minuto.");
   }
 
   await crearPostulacion(usuario.id, oferta.id);
   return exito(undefined);
 }
 
-/** The applicant's CV data (P04). There is no link to open it: only the Office views CVs (RNF1, D-026). */
+/** The applicant's CV data (P04). */
 export async function verMiCv(usuario: CurrentUser): Promise<Resultado<{ cv: CvPropio | null }>> {
   const negado = sinPermiso(usuario, "postulante");
   if (negado) return negado;
@@ -103,7 +106,7 @@ export async function verMiCv(usuario: CurrentUser): Promise<Resultado<{ cv: CvP
   return exito({ cv: await leerCv(usuario.id) });
 }
 
-/** Uploads the CV, replacing the previous one (RF1.2.3). The Route Handler already checked the file is a valid PDF. */
+/** Uploads the CV, replacing the previous one (RF1.2.3). The Route Handler already checked the file is a valid PDF or PNG. */
 export async function subirMiCv(usuario: CurrentUser, archivo: File): Promise<Resultado<{ cv: CvPropio }>> {
   const negado = sinPermiso(usuario, "postulante");
   if (negado) return negado;
@@ -111,7 +114,7 @@ export async function subirMiCv(usuario: CurrentUser, archivo: File): Promise<Re
   return exito({ cv: await guardarCv(usuario.id, archivo) });
 }
 
-/** Short-lived signed URL for the applicant to view their own CV PDF (RF1.2.3, RNF1). */
+/** Short-lived signed URL for the applicant to view their own CV (RF1.2.3, RNF1). */
 export async function abrirMiCv(usuario: CurrentUser): Promise<Resultado<{ url: string }>> {
   const negado = sinPermiso(usuario, "postulante");
   if (negado) return negado;
@@ -119,8 +122,8 @@ export async function abrirMiCv(usuario: CurrentUser): Promise<Resultado<{ url: 
   const cv = await leerCv(usuario.id);
   if (!cv) return falla("not_found", "Todavía no subiste tu CV.");
 
-  const ruta = `${usuario.id}/cv.pdf`;
+  const extension = cv.nombre.toLowerCase().endsWith(".png") ? "png" : "pdf";
+  const ruta = cv.ruta ?? `${usuario.id}/cv.${extension}`;
   const url = await crearUrlFirmadaCv(ruta);
   return exito({ url });
 }
-

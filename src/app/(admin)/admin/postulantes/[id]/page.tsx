@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { PageHeader } from "@/components/admin/page-header";
-import { PanelPostulante } from "@/components/admin/panel-postulante";
+import { FichaPostulante } from "@/components/admin/ficha-postulante";
 import { operadorActual } from "@/lib/admin/datos";
-import { leerParam, urlCon, type ParamsBusqueda } from "@/lib/admin/url";
-import { verPostulante, verPostulacionesAdmin } from "@/lib/use-cases/oficina";
+import { ofertasParaAsociar } from "@/lib/admin/postulantes";
+import { leerDesde, urlCon, type ParamsBusqueda } from "@/lib/admin/url";
+import { verCursosAdmin, verOfertas, verSeguimientoPostulante } from "@/lib/use-cases/oficina";
 
 export const metadata: Metadata = { title: "Postulante · Oficina de Empleo" };
 
-/** Full page of one applicant: the same detail as the side panel. */
+/**
+ * Full page of one applicant (D-062): data, follow-up with the rejections
+ * (P18), applications, linking to an offer (P16) and course referrals (P19).
+ */
 export default async function AdminPostulanteDetallePage(props: {
   params: Promise<{ id: string }>;
   searchParams: Promise<ParamsBusqueda>;
@@ -18,37 +21,25 @@ export default async function AdminPostulanteDetallePage(props: {
   const params = await props.searchParams;
   const usuario = await operadorActual();
 
-  const [resPostulante, resPostulaciones] = await Promise.all([
-    verPostulante(usuario, id),
-    verPostulacionesAdmin(usuario),
+  const [resSeguimiento, resOfertas, resCursos] = await Promise.all([
+    verSeguimientoPostulante(usuario, id),
+    verOfertas(usuario),
+    verCursosAdmin(usuario),
   ]);
 
-  if (!resPostulante.ok) notFound();
+  if (!resSeguimiento.ok) notFound();
 
-  const postulaciones = resPostulaciones.ok
-    ? resPostulaciones.datos.filter((p) => p.postulante.id === id)
-    : [];
-
-  const tab = leerParam(params, "tab") === "postulaciones" ? "postulaciones" : "resumen";
-  const ruta = `/admin/postulantes/${id}`;
-
-  const fila = {
-    ...resPostulante.datos,
-    cantidadPostulaciones: postulaciones.length,
-  };
+  const { postulante, postulaciones, derivacionesCurso, resumen } = resSeguimiento.datos;
 
   return (
-    <>
-      <PageHeader migas={["Gestión", "Postulantes"]} titulo="Postulante" />
-      <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[10px] border border-border md:max-w-3xl">
-        <PanelPostulante
-          postulante={fila}
-          postulaciones={postulaciones}
-          tab={tab}
-          hrefTab={(t) => urlCon(ruta, params, { tab: t === "resumen" ? undefined : t })}
-          paginaCompleta
-        />
-      </section>
-    </>
+    <FichaPostulante
+      postulante={{ ...postulante, cantidadPostulaciones: postulaciones.length }}
+      postulaciones={postulaciones}
+      seguimiento={{ resumen, derivacionesCurso }}
+      ofertasParaAsociar={resOfertas.ok ? ofertasParaAsociar(resOfertas.datos, postulaciones) : []}
+      cursosDisponibles={resCursos.ok ? resCursos.datos : []}
+      volver={leerDesde(params) ?? "/admin/postulantes"}
+      aqui={urlCon(`/admin/postulantes/${id}`, params, {})}
+    />
   );
 }

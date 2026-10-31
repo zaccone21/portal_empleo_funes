@@ -1,17 +1,27 @@
 import {
+  BarChart3,
   Briefcase,
   Building2,
+  Calendar,
   CircleAlert,
   ClipboardCheck,
   ClipboardList,
   FileUser,
+  GraduationCap,
   LayoutDashboard,
   Send,
+  Store,
+  UserCog,
   Users,
   type LucideIcon,
 } from "lucide-react";
 
-export type ConteoMenu = "ofertasPendientes" | "postulacionesNuevas" | "cierresSolicitados" | "porDerivar";
+export type ConteoMenu =
+  | "ofertasPendientes"
+  | "postulacionesNuevas"
+  | "cierresSolicitados"
+  | "porDerivar"
+  | "empresasPorAprobar";
 
 export type NavItem = {
   titulo: string;
@@ -33,7 +43,10 @@ export type NavGroup = {
 export const MENU_ADMIN: NavGroup[] = [
   {
     titulo: "Resumen",
-    items: [{ titulo: "Dashboard", url: "/admin", icono: LayoutDashboard }],
+    items: [
+      { titulo: "Dashboard", url: "/admin", icono: LayoutDashboard },
+      { titulo: "Métricas", url: "/admin/metricas", icono: BarChart3 },
+    ],
   },
   {
     titulo: "Tareas pendientes",
@@ -42,6 +55,8 @@ export const MENU_ADMIN: NavGroup[] = [
       { titulo: "Postulaciones nuevas", url: "/admin/postulaciones/por-evaluar", icono: ClipboardList, idConteo: "postulacionesNuevas" },
       { titulo: "Cierres solicitados", url: "/admin/ofertas/cierres-solicitados", icono: CircleAlert, idConteo: "cierresSolicitados" },
       { titulo: "Por comunicar / derivar", url: "/admin/por-comunicar", icono: Send, idConteo: "porDerivar" },
+      // D-068: a new company needs the Office's approval before it can send offers.
+      { titulo: "Empresas por aprobar", url: "/admin/empresas?vista=pendientes", icono: Store, idConteo: "empresasPorAprobar" },
     ],
   },
   {
@@ -49,9 +64,15 @@ export const MENU_ADMIN: NavGroup[] = [
     items: [
       { titulo: "Ofertas", url: "/admin/ofertas", icono: Briefcase },
       { titulo: "Postulaciones", url: "/admin/postulaciones", icono: FileUser },
+      { titulo: "Pre-entrevistas", url: "/admin/preentrevistas", icono: Calendar },
       { titulo: "Postulantes", url: "/admin/postulantes", icono: Users },
+      { titulo: "Cursos", url: "/admin/cursos", icono: GraduationCap },
       { titulo: "Empresas", url: "/admin/empresas", icono: Building2 },
     ],
+  },
+  {
+    titulo: "Oficina",
+    items: [{ titulo: "Equipo", url: "/admin/equipo", icono: UserCog }],
   },
 ];
 
@@ -71,6 +92,19 @@ export function itemActivo(pathname: string): NavItem | undefined {
   )[0];
 }
 
+/** Text of the back arrow of a detail page, named after where `desde` leads ("Volver a Ofertas por revisar"). */
+export function etiquetaVolver(desde: string): string {
+  const ruta = desde.split("?")[0];
+  if (ruta === "/admin") return "Volver al Dashboard";
+  const item = TODOS.find((i) => i.url === ruta);
+  if (item) return `Volver a ${item.titulo}`;
+  if (/^\/admin\/postulaciones\/[^/]+$/.test(ruta)) return "Volver a la evaluación";
+  if (/^\/admin\/postulantes\/[^/]+$/.test(ruta)) return "Volver al postulante";
+  if (/^\/admin\/ofertas\/[^/]+$/.test(ruta)) return "Volver a la oferta";
+  if (/^\/admin\/empresas\/[^/]+$/.test(ruta)) return "Volver a la empresa";
+  return "Volver";
+}
+
 /** Group + item title for the breadcrumb ("Gestión › Ofertas"), or null for unknown paths. */
 export function migasDeRuta(pathname: string): string[] | null {
   const item = itemActivo(pathname);
@@ -78,4 +112,3 @@ export function migasDeRuta(pathname: string): string[] | null {
   const grupo = MENU_ADMIN.find((g) => g.items.includes(item));
   return grupo ? [grupo.titulo, item.titulo] : null;
 }
-

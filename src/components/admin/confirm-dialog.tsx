@@ -14,8 +14,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { MAXIMO_OBSERVACION, type OpcionMotivo } from "@/lib/validation/motivos-rechazo";
+
+/** What the operator chose in a rejection: one of the fixed reasons and an optional note (D-069). */
+export type MotivoElegido = { codigo: string; observacion: string };
 
 type Props = {
   trigger: React.ReactElement;
@@ -23,14 +29,15 @@ type Props = {
   descripcion: string;
   textoConfirmar?: string;
   varianteConfirmar?: "default" | "destructive" | "outline";
-  requiereMotivo?: boolean;
-  etiquetaMotivo?: string;
-  onConfirmar: (motivo?: string) => Promise<void>;
+  /** When given, the operator must pick one of these reasons before confirming (D-069). */
+  motivos?: readonly OpcionMotivo[];
+  onConfirmar: (motivo?: MotivoElegido) => Promise<void>;
 };
 
 /**
- * Diálogo de confirmación para acciones críticas, opcionalmente requiere un motivo
- * (ej. para rechazar o descartar). Maneja estado de carga durante la promesa.
+ * Diálogo de confirmación para acciones críticas. Con `motivos` pide elegir un
+ * motivo fijo y deja una observación opcional (por ejemplo, para rechazar una
+ * oferta o una empresa). Maneja el estado de carga durante la promesa.
  */
 export function ConfirmDialog({
   trigger,
@@ -38,26 +45,27 @@ export function ConfirmDialog({
   descripcion,
   textoConfirmar = "Confirmar",
   varianteConfirmar = "default",
-  requiereMotivo = false,
-  etiquetaMotivo = "Motivo",
+  motivos,
   onConfirmar,
 }: Props) {
   const [abierto, setAbierto] = useState(false);
   const [cargando, setCargando] = useState(false);
-  const [motivo, setMotivo] = useState("");
+  const [codigo, setCodigo] = useState("");
+  const [observacion, setObservacion] = useState("");
 
   const handleConfirmar = async () => {
     setCargando(true);
     try {
-      await onConfirmar(requiereMotivo ? motivo : undefined);
+      await onConfirmar(motivos ? { codigo, observacion } : undefined);
       setAbierto(false);
-      setMotivo("");
+      setCodigo("");
+      setObservacion("");
     } finally {
       setCargando(false);
     }
   };
 
-  const valido = requiereMotivo ? motivo.trim().length > 0 : true;
+  const valido = motivos ? codigo !== "" : true;
 
   return (
     <AlertDialog open={abierto} onOpenChange={setAbierto}>
@@ -68,17 +76,36 @@ export function ConfirmDialog({
           <AlertDialogDescription>{descripcion}</AlertDialogDescription>
         </AlertDialogHeader>
 
-        {requiereMotivo && (
-          <div className="my-4 grid gap-2">
-            <Label htmlFor="motivo">{etiquetaMotivo}</Label>
-            <Textarea
-              id="motivo"
-              value={motivo}
-              onChange={(e) => setMotivo(e.target.value)}
-              placeholder="Explicá el motivo de esta decisión..."
+        {motivos && (
+          <div className="my-4 grid gap-4">
+            <RadioGroup
+              aria-label="Motivo"
+              value={codigo}
+              onValueChange={(valor) => setCodigo(String(valor))}
               disabled={cargando}
-              className="resize-none"
-            />
+            >
+              {motivos.map((m) => (
+                <Field key={m.codigo} orientation="horizontal" className="min-h-11 items-center">
+                  <RadioGroupItem value={m.codigo} id={`motivo-${m.codigo}`} />
+                  <FieldLabel htmlFor={`motivo-${m.codigo}`} className="min-h-11 flex-1 items-center font-normal">
+                    {m.etiqueta}
+                  </FieldLabel>
+                </Field>
+              ))}
+            </RadioGroup>
+
+            <div className="grid gap-2">
+              <Label htmlFor="observacion">Observación (opcional)</Label>
+              <Textarea
+                id="observacion"
+                value={observacion}
+                onChange={(e) => setObservacion(e.target.value)}
+                maxLength={MAXIMO_OBSERVACION}
+                placeholder="Sumá un detalle si ayuda a corregirlo..."
+                disabled={cargando}
+                className="resize-none"
+              />
+            </div>
           </div>
         )}
 
