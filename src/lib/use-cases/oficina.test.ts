@@ -21,6 +21,15 @@ const dal = vi.hoisted(() => ({
   leerPerfilPostulanteAdmin: vi.fn(),
   listarEmpresas: vi.fn(),
 }));
+
+const emailMock = vi.hoisted(() => ({
+  enviarCorreo: vi.fn().mockResolvedValue({ ok: true }),
+}));
+
+vi.mock("@/lib/email/resend", () => ({
+  enviarCorreo: emailMock.enviarCorreo,
+}));
+
 vi.mock("@/lib/dal/ofertas", () => ({
   actualizarEstadoOferta: dal.actualizarEstadoOferta,
   contarOfertas: dal.contarOfertas,
@@ -107,6 +116,7 @@ function postulacion(datos: Partial<PostulacionAdmin>): PostulacionAdmin {
 
 beforeEach(() => {
   for (const fn of Object.values(dal)) fn.mockReset();
+  emailMock.enviarCorreo.mockClear();
 });
 
 test("only the Office gets the counters of its panel", async () => {
@@ -124,6 +134,7 @@ describe("publicarOfertaPendiente (RF1.5.3)", () => {
     const resultado = await publicarOfertaPendiente(oficina, "oferta-1");
 
     expect(resultado.ok === false && resultado.falla).toBe("not_found");
+    expect(emailMock.enviarCorreo).not.toHaveBeenCalled();
   });
 
   test("an offer someone already decided is a conflict with the Office's message (D-030)", async () => {
@@ -133,17 +144,24 @@ describe("publicarOfertaPendiente (RF1.5.3)", () => {
 
     expect(resultado).toEqual({ ok: false, falla: "conflict", mensaje: "Esta oferta ya fue revisada." });
     expect(dal.actualizarEstadoOferta).not.toHaveBeenCalled();
+    expect(emailMock.enviarCorreo).not.toHaveBeenCalled();
   });
 
-  test("a pending offer is published", async () => {
+  test("a pending offer is published and notifies the company via email", async () => {
     dal.leerOfertaParaOficina
-      .mockResolvedValueOnce(oferta({}))
+      .mockResolvedValueOnce(oferta({ emailEmpresa: "empresa@ejemplo.com", titulo: "Puesto (ejemplo)" }))
       .mockResolvedValueOnce(oferta({ estado: "publicada", publicadaEl: "2026-09-29T13:00:00.000Z" }));
 
     const resultado = await publicarOfertaPendiente(oficina, "oferta-1");
 
     expect(dal.actualizarEstadoOferta).toHaveBeenCalledWith("oferta-1", { estado: "publicada" });
     expect(resultado.ok && resultado.datos.oferta.estado).toBe("publicada");
+    expect(emailMock.enviarCorreo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        para: "empresa@ejemplo.com",
+        asunto: expect.stringContaining("fue aprobada"),
+      }),
+    );
   });
 });
 
@@ -197,6 +215,64 @@ describe("resolverPostulacion (RF1.5.6, D-042)", () => {
 
     expect(dal.actualizarEstadoPostulacion).toHaveBeenCalledWith("p-1", "preseleccionado");
     expect(resultado.ok && resultado.datos.postulacion.estado).toBe("preseleccionado");
+    expect(emailMock.enviarCorreo).not.toHaveBeenCalled();
+  });
+
+  test("deriving an application notifies company and applicant via email", async () => {
+    dal.leerPostulacionAdmin
+      .mockResolvedValueOnce(postulacion({ estado: "preseleccionado" }))
+      .mockResolvedValueOnce(
+        postulacion({
+          estado: "derivado",
+          oferta: {
+            id: "oferta-1",
+            titulo: "Cajero",
+            lugar: "Funes",
+            jornada: "Completa",
+            descripcion: "Tareas",
+            sueldo: null,
+            rubros: ["comercio"],
+            empresa: {
+              razonSocial: "Supermercado Funes",
+              cuit: "30-11111111-1",
+              contactoNombre: "Jefe RRHH",
+              contactoTelefono: "123456",
+              contactoEmail: "rrhh@superfunes.com",
+            },
+          },
+          postulante: {
+            id: "postulante-1",
+            nombre: "Juan",
+            apellido: "Pérez",
+            dni: "30111222",
+            telefono: null,
+            email: "juan@ejemplo.com",
+            cvNombre: "cv.pdf",
+            rubros: ["comercio"],
+          },
+        }),
+      );
+
+    const resultado = await resolverPostulacion(oficina, "p-1", "derivado");
+
+    expect(dal.actualizarEstadoPostulacion).toHaveBeenCalledWith("p-1", "derivado");
+    expect(resultado.ok && resultado.datos.postulacion.estado).toBe("derivado");
+
+    // Company email
+    expect(emailMock.enviarCorreo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        para: "rrhh@superfunes.com",
+        asunto: expect.stringContaining("Cajero"),
+      }),
+    );
+
+    // Applicant email
+    expect(emailMock.enviarCorreo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        para: "juan@ejemplo.com",
+        asunto: expect.stringContaining("Cajero"),
+      }),
+    );
   });
 
   test("a company never changes an application's status", async () => {

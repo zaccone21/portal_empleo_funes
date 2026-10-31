@@ -1,0 +1,13 @@
+- generic [active] [ref=f43e1]:
+  - link "Saltar al contenido" [ref=f43e2] [cursor=pointer]:
+    - /url: "#contenido"
+  - generic [ref=f43e3]:
+    - banner [ref=f43e4]:
+      - link "Gobierno de la Ciudad de Funes Portal de Empleo" [ref=f43e7] [cursor=pointer]:
+        - /url: /
+        - img "Gobierno de la Ciudad de Funes" [ref=f43e8]
+        - generic [ref=f43e10]: Portal de Empleo
+    - main [ref=f43e13]:
+      - heading "Ofertas de trabajo en Funes" [level=1] [ref=f43e14]
+      - status [ref=f43e17]: Cargando ofertas…
+  - region "Notifications alt+T"

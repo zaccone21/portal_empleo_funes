@@ -21,6 +21,12 @@ import {
   leerPerfilPostulanteAdmin,
   type ResultadoBusquedaPostulante,
 } from "@/lib/dal/postulantes";
+import { enviarCorreo } from "@/lib/email/resend";
+import {
+  plantillaCandidatoDerivadoEmpresa,
+  plantillaOfertaAprobadaEmpresa,
+  plantillaPostulacionDerivadaPostulante,
+} from "@/lib/email/templates";
 import type { OfertaOficina, PostulacionAdmin } from "@/lib/validation/oficina";
 import type { EstadoPostulacion } from "@/lib/validation/postulaciones";
 
@@ -78,6 +84,7 @@ async function releer(id: string): Promise<Resultado<{ oferta: OfertaOficina }>>
 /**
  * Publishes a pending offer (RF1.5.3). 409 if someone at the Office already
  * decided (the screen shows the message, D-030).
+ * Sends an email notification to the company.
  */
 export async function publicarOfertaPendiente(usuario: CurrentUser, id: string): Promise<Resultado<{ oferta: OfertaOficina }>> {
   const negado = sinPermiso(usuario, "admin");
@@ -88,7 +95,19 @@ export async function publicarOfertaPendiente(usuario: CurrentUser, id: string):
   if (oferta.estado !== "pendiente") return falla("conflict", "Esta oferta ya fue revisada.");
 
   await actualizarEstadoOferta(id, { estado: "publicada" });
-  return releer(id);
+  const resultado = await releer(id);
+
+  // Email notification to company (non-blocking)
+  const emailDestino = oferta.empresa?.contactoEmail || oferta.emailEmpresa;
+  if (emailDestino) {
+    const { asunto, html } = plantillaOfertaAprobadaEmpresa({
+      razonSocial: oferta.empresa?.razonSocial || "Empresa",
+      tituloOferta: oferta.titulo,
+    });
+    void enviarCorreo({ para: emailDestino, asunto, html }).catch(() => {});
+  }
+
+  return resultado;
 }
 
 /** Rejects a pending offer with its reason, which the company reads (RF1.3.5, RF1.5.3). */
@@ -174,6 +193,7 @@ export async function verPostulacionAdmin(usuario: CurrentUser, id: string): Pro
  * (postulado → preseleccionado | no_apto, preseleccionado → derivado | no_apto).
  * 409 when another operator already decided or the move is not allowed, so the
  * screen can say so instead of showing a generic error (D-042).
+ * When moved to 'derivado', notifies company and applicant via email.
  */
 export async function resolverPostulacion(
   usuario: CurrentUser,
@@ -192,6 +212,29 @@ export async function resolverPostulacion(
   await actualizarEstadoPostulacion(id, estado);
   const nueva = await leerPostulacionAdmin(id);
   if (!nueva) throw new Error("The application disappeared after the decision.");
+
+  // If application was referred to the company, notify company and applicant (non-blocking)
+  if (estado === "derivado") {
+    const emailEmpresa = nueva.oferta.empresa?.contactoEmail;
+    if (emailEmpresa) {
+      const emailInfo = plantillaCandidatoDerivadoEmpresa({
+        razonSocial: nueva.oferta.empresa?.razonSocial || "Empresa",
+        tituloOferta: nueva.oferta.titulo,
+      });
+      void enviarCorreo({ para: emailEmpresa, asunto: emailInfo.asunto, html: emailInfo.html }).catch(() => {});
+    }
+
+    const emailPostulante = nueva.postulante.email;
+    if (emailPostulante) {
+      const nombreCompleto = [nueva.postulante.nombre, nueva.postulante.apellido].filter(Boolean).join(" ");
+      const emailPostulanteInfo = plantillaPostulacionDerivadaPostulante({
+        nombrePostulante: nombreCompleto || "Postulante",
+        tituloOferta: nueva.oferta.titulo,
+      });
+      void enviarCorreo({ para: emailPostulante, asunto: emailPostulanteInfo.asunto, html: emailPostulanteInfo.html }).catch(() => {});
+    }
+  }
+
   return exito({ postulacion: nueva });
 }
 

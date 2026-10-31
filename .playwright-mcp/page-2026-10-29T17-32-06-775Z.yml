@@ -1,0 +1,14 @@
+- generic [active] [ref=f24e1]:
+  - link "Saltar al contenido" [ref=f24e2] [cursor=pointer]:
+    - /url: "#contenido"
+  - generic [ref=f24e3]:
+    - banner [ref=f24e4]:
+      - link "Gobierno de la Ciudad de Funes Portal de Empleo" [ref=f24e7] [cursor=pointer]:
+        - /url: /
+        - img "Gobierno de la Ciudad de Funes" [ref=f24e8]
+        - generic [ref=f24e10]: Portal de Empleo
+    - main [ref=f24e13]:
+      - heading "Ofertas de trabajo en Funes" [level=1] [ref=f24e14]
+      - status [ref=f24e17]: Cargando ofertas…
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f24e73] [cursor=pointer]

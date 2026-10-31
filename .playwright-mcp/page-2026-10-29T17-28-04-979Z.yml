@@ -1,0 +1,234 @@
+- generic [active] [ref=e1]:
+  - link "Saltar al contenido" [ref=e2] [cursor=pointer]:
+    - /url: "#contenido"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "Gobierno de la Ciudad de Funes Portal de Empleo" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img "Gobierno de la Ciudad de Funes" [ref=e8]
+        - generic [ref=e10]: Portal de Empleo
+    - main [ref=e13]:
+      - heading "Ofertas de trabajo en Funes" [level=1] [ref=e14]
+      - generic [ref=e15]:
+        - generic [ref=e79]:
+          - search [ref=e80]:
+            - generic [ref=e81]:
+              - generic [ref=e82]: ¿Qué trabajo buscás?
+              - searchbox "¿Qué trabajo buscás?" [ref=e84]
+            - button "Buscar" [ref=e85]
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - generic [ref=e88]: Rubro u oficio
+              - combobox "Rubro u oficio" [ref=e90]:
+                - option "Todos los rubros" [selected]
+                - option "Gastronomía"
+                - option "Comercio y ventas"
+                - option "Construcción y oficios"
+                - option "Jardinería y mantenimiento"
+                - option "Transporte y reparto"
+                - option "Limpieza"
+                - option "Administración"
+                - option "Cuidado de personas"
+                - option "Industria y producción"
+                - option "Tecnología"
+                - option "Otros"
+            - generic [ref=e91]:
+              - generic [ref=e92]: Remuneración
+              - combobox "Remuneración" [ref=e94]:
+                - option "Todas las remuneraciones" [selected]
+                - option "Dice cuánto pagan"
+                - option "A convenir"
+            - generic [ref=e95]:
+              - generic [ref=e96]: Horario
+              - combobox "Horario" [ref=e98]:
+                - option "Cualquier horario" [selected]
+                - option "Turno mañana"
+                - option "Turno tarde"
+                - option "Jornada completa"
+                - option "Medio tiempo"
+            - generic [ref=e99]:
+              - generic [ref=e100]: Zona de Funes
+              - combobox "Zona de Funes" [ref=e102]:
+                - option "Todas las zonas" [selected]
+                - option "Centro"
+                - option "Zona Norte"
+                - option "Zona Sur"
+                - option "Zona Oeste"
+                - option "Ruta 9"
+                - option "Parque Industrial"
+                - option "Funes norte"
+                - option "Juan Elorza 1180, Funes"
+                - option "Av. Santa Fe 1650, Funes"
+                - option "Hipólito Yrigoyen 1340, Funes"
+                - option "Funes City"
+            - generic [ref=e103]:
+              - generic [ref=e104]: Ordenar
+              - combobox "Ordenar" [ref=e106]:
+                - option "Más recientes primero" [selected]
+                - option "Más antiguas primero"
+        - region [ref=e109]:
+          - paragraph [ref=e111]: Hay 6 ofertas publicadas.
+          - list [ref=e112]:
+            - listitem [ref=e113]:
+              - 'link "Jefe de cocina Rubro: Gastronomía Dirección: Funes norte Horario: Lunes a sábados de 9 a 17 hrs Publicada el 25 de octubre (hace 4 días)" [ref=e114] [cursor=pointer]':
+                - /url: /ofertas?oferta=389afed9-5c57-4a4e-8ece-cbd71408deee
+                - generic [ref=e115]:
+                  - heading "Jefe de cocina" [level=2] [ref=e117]
+                  - list [ref=e118]:
+                    - listitem [ref=e119]:
+                      - generic [ref=e122]:
+                        - generic [ref=e123]: "Rubro:"
+                        - text: Gastronomía
+                    - listitem [ref=e124]:
+                      - generic [ref=e128]:
+                        - generic [ref=e129]: "Dirección:"
+                        - text: Funes norte
+                    - listitem [ref=e130]:
+                      - generic [ref=e134]:
+                        - generic [ref=e135]: "Horario:"
+                        - text: Lunes a sábados de 9 a 17 hrs
+                  - paragraph [ref=e137]:
+                    - generic [ref=e140]: Publicada el 25 de octubre (hace 4 días)
+            - listitem [ref=e143]:
+              - 'link "Atención de mostrador y cafetería Rubros: Gastronomía · Comercio y ventas Dirección: Juan Elorza 1180, Funes Horario: Martes a domingo de 7:00 a 14:00 Sueldo: $690.000 + presentismo Publicada el 23 de octubre (hace 6 días)" [ref=e144] [cursor=pointer]':
+                - /url: /ofertas?oferta=33333333-3333-4333-8333-333333333302
+                - generic [ref=e145]:
+                  - heading "Atención de mostrador y cafetería" [level=2] [ref=e147]
+                  - list [ref=e148]:
+                    - listitem [ref=e149]:
+                      - generic [ref=e152]:
+                        - generic [ref=e153]: "Rubros:"
+                        - text: Gastronomía · Comercio y ventas
+                    - listitem [ref=e154]:
+                      - generic [ref=e158]:
+                        - generic [ref=e159]: "Dirección:"
+                        - text: Juan Elorza 1180, Funes
+                    - listitem [ref=e160]:
+                      - generic [ref=e164]:
+                        - generic [ref=e165]: "Horario:"
+                        - text: Martes a domingo de 7:00 a 14:00
+                    - listitem [ref=e166]:
+                      - generic [ref=e170]:
+                        - generic [ref=e171]: "Sueldo:"
+                        - text: $690.000 + presentismo
+                  - paragraph [ref=e173]:
+                    - generic [ref=e176]: Publicada el 23 de octubre (hace 6 días)
+            - listitem [ref=e179]:
+              - 'link "Asistente administrativo y facturación Rubros: Administración · Comercio y ventas Dirección: Av. Santa Fe 1650, Funes Horario: Lunes a viernes de 8:30 a 16:30 Sueldo: $780.000 netos Publicada el 22 de octubre (hace 7 días)" [ref=e180] [cursor=pointer]':
+                - /url: /ofertas?oferta=33333333-3333-4333-8333-333333333301
+                - generic [ref=e181]:
+                  - heading "Asistente administrativo y facturación" [level=2] [ref=e183]
+                  - list [ref=e184]:
+                    - listitem [ref=e185]:
+                      - generic [ref=e188]:
+                        - generic [ref=e189]: "Rubros:"
+                        - text: Administración · Comercio y ventas
+                    - listitem [ref=e190]:
+                      - generic [ref=e194]:
+                        - generic [ref=e195]: "Dirección:"
+                        - text: Av. Santa Fe 1650, Funes
+                    - listitem [ref=e196]:
+                      - generic [ref=e200]:
+                        - generic [ref=e201]: "Horario:"
+                        - text: Lunes a viernes de 8:30 a 16:30
+                    - listitem [ref=e202]:
+                      - generic [ref=e206]:
+                        - generic [ref=e207]: "Sueldo:"
+                        - text: $780.000 netos
+                  - paragraph [ref=e209]:
+                    - generic [ref=e212]: Publicada el 22 de octubre (hace 7 días)
+            - listitem [ref=e215]:
+              - 'link "Soporte técnico e implementación Rubro: Tecnología Dirección: Hipólito Yrigoyen 1340, Funes Horario: Lunes a viernes de 9:00 a 17:00 Sueldo: $850.000 Publicada el 18 de octubre (hace 11 días)" [ref=e216] [cursor=pointer]':
+                - /url: /ofertas?oferta=33333333-3333-4333-8333-333333333304
+                - generic [ref=e217]:
+                  - heading "Soporte técnico e implementación" [level=2] [ref=e219]
+                  - list [ref=e220]:
+                    - listitem [ref=e221]:
+                      - generic [ref=e224]:
+                        - generic [ref=e225]: "Rubro:"
+                        - text: Tecnología
+                    - listitem [ref=e226]:
+                      - generic [ref=e230]:
+                        - generic [ref=e231]: "Dirección:"
+                        - text: Hipólito Yrigoyen 1340, Funes
+                    - listitem [ref=e232]:
+                      - generic [ref=e236]:
+                        - generic [ref=e237]: "Horario:"
+                        - text: Lunes a viernes de 9:00 a 17:00
+                    - listitem [ref=e238]:
+                      - generic [ref=e242]:
+                        - generic [ref=e243]: "Sueldo:"
+                        - text: $850.000
+                  - paragraph [ref=e245]:
+                    - generic [ref=e248]: Publicada el 18 de octubre (hace 11 días)
+            - listitem [ref=e251]:
+              - 'link "QA Tester Rubro: Tecnología Dirección: Funes Norte Horario: Lunes a Jueves de 8hs a 15hs. Sueldo: A convenir. Publicada el 1 de octubre (hace 28 días)" [ref=e252] [cursor=pointer]':
+                - /url: /ofertas?oferta=de744abd-22b5-4c22-b8ce-9076ce3bfb20
+                - generic [ref=e253]:
+                  - heading "QA Tester" [level=2] [ref=e255]
+                  - list [ref=e256]:
+                    - listitem [ref=e257]:
+                      - generic [ref=e260]:
+                        - generic [ref=e261]: "Rubro:"
+                        - text: Tecnología
+                    - listitem [ref=e262]:
+                      - generic [ref=e266]:
+                        - generic [ref=e267]: "Dirección:"
+                        - text: Funes Norte
+                    - listitem [ref=e268]:
+                      - generic [ref=e272]:
+                        - generic [ref=e273]: "Horario:"
+                        - text: Lunes a Jueves de 8hs a 15hs.
+                    - listitem [ref=e274]:
+                      - generic [ref=e278]:
+                        - generic [ref=e279]: "Sueldo:"
+                        - text: A convenir.
+                  - paragraph [ref=e281]:
+                    - generic [ref=e284]: Publicada el 1 de octubre (hace 28 días)
+            - listitem [ref=e287]:
+              - 'link "Full-Stack Developer Rubros: Tecnología · Otros Dirección: Funes City Horario: Lunes a Viernes. Horario flexible. Sueldo: A convenir. Publicada el 1 de octubre (hace 28 días)" [ref=e288] [cursor=pointer]':
+                - /url: /ofertas?oferta=ea05ea63-f715-432a-aacb-924144287ca1
+                - generic [ref=e289]:
+                  - heading "Full-Stack Developer" [level=2] [ref=e291]
+                  - list [ref=e292]:
+                    - listitem [ref=e293]:
+                      - generic [ref=e296]:
+                        - generic [ref=e297]: "Rubros:"
+                        - text: Tecnología · Otros
+                    - listitem [ref=e298]:
+                      - generic [ref=e302]:
+                        - generic [ref=e303]: "Dirección:"
+                        - text: Funes City
+                    - listitem [ref=e304]:
+                      - generic [ref=e308]:
+                        - generic [ref=e309]: "Horario:"
+                        - text: Lunes a Viernes. Horario flexible.
+                    - listitem [ref=e310]:
+                      - generic [ref=e314]:
+                        - generic [ref=e315]: "Sueldo:"
+                        - text: A convenir.
+                  - paragraph [ref=e317]:
+                    - generic [ref=e320]: Publicada el 1 de octubre (hace 28 días)
+    - navigation "Principal" [ref=e67]:
+      - list [ref=e68]:
+        - listitem [ref=e323]:
+          - link "Ofertas" [ref=e324] [cursor=pointer]:
+            - /url: /ofertas
+        - listitem [ref=e332]:
+          - link "Ingresar" [ref=e333] [cursor=pointer]:
+            - /url: /postulante/ingresar
+        - listitem [ref=e339]:
+          - link "Crear cuenta" [ref=e340] [cursor=pointer]:
+            - /url: /postulante/registrarse
+        - listitem [ref=e346]:
+          - link "Ayuda" [ref=e347] [cursor=pointer]:
+            - /url: /ayuda
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e353] [cursor=pointer]:
+    - generic [ref=e356]:
+      - text: Compiling
+      - generic [ref=e357]:
+        - generic [ref=e358]: .
+        - generic [ref=e359]: .
+        - generic [ref=e360]: .
+  - alert [ref=e361]
