@@ -38,7 +38,7 @@ test("shows an error under each empty field and does not send anything", () => {
 
   fireEvent.click(screen.getByRole("button", { name: "Ingresar" }));
 
-  expect(screen.getByText("Ingresá tu email")).toBeDefined();
+  expect(screen.getByText("Ingresá tu email, DNI o CUIT")).toBeDefined();
   expect(screen.getByText("Ingresá tu contraseña")).toBeDefined();
   expect(mocks.ingresar).not.toHaveBeenCalled();
 });

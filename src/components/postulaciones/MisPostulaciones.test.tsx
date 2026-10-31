@@ -68,7 +68,7 @@ test("lists the applications with their date and no status (RF1.2.4)", () => {
   render(<MisPostulaciones />);
 
   expect(screen.getByRole("heading", { name: "Ayudante de cocina (ejemplo)" })).toBeDefined();
-  expect(screen.getByText("Te postulaste el 20 de septiembre")).toBeDefined();
+  expect(screen.getByText(/Postulado el 20 de septiembre/)).toBeDefined();
   for (const estado of ["Postulado", "Pre-seleccionado", "Derivado", "No apto"]) {
     expect(screen.queryByText(estado)).toBeNull();
   }

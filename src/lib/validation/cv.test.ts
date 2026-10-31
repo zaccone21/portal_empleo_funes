@@ -24,7 +24,7 @@ describe("validarArchivoCv", () => {
 
   test("rejects a file that is not declared as PDF", async () => {
     expect(await validarArchivoCv(archivo("%PDF-1.7", "foto.jpg", "image/jpeg"))).toBe(
-      "Tiene que ser un archivo PDF.",
+      "Tiene que ser un archivo PDF o una imagen PNG.",
     );
   });
 
