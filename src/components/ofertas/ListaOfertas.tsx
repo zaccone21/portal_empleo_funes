@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SearchXIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { ListaConDetalle } from "@/components/marca/ListaConDetalle";
 import { buttonVariants } from "@/components/ui/button";
@@ -18,7 +19,7 @@ import type { OfertaPublica } from "@/lib/validation/ofertas";
 
 import { DetalleOferta } from "./DetalleOferta";
 import { ItemNoDisponible } from "./ItemNoDisponible";
-import { TarjetaOferta } from "./TarjetaOferta";
+import { TarjetaOfertaCatalogo } from "./TarjetaOfertaCatalogo";
 
 type Props = {
   /** Every published offer; the filters are applied here. */
@@ -89,16 +90,25 @@ export function ListaOfertas({ ofertas, filtros = FILTROS_VACIOS, seleccionadaId
         )
       }
     >
-      {resultados.map((oferta) => (
-        <li key={oferta.id}>
-          <TarjetaOferta
-            oferta={oferta}
-            href={rutaCatalogo(filtros, oferta.id)}
-            seleccionada={oferta.id === enDetalle?.id}
-            soloEnEscritorio={!eligio}
-          />
-        </li>
-      ))}
+      <AnimatePresence mode="popLayout" initial={false}>
+        {resultados.map((oferta) => (
+          <motion.li
+            key={oferta.id}
+            layout
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            <TarjetaOfertaCatalogo
+              oferta={oferta}
+              href={rutaCatalogo(filtros, oferta.id)}
+              seleccionada={oferta.id === enDetalle?.id}
+              soloEnEscritorio={!eligio}
+            />
+          </motion.li>
+        ))}
+      </AnimatePresence>
     </ListaConDetalle>
   );
 }

@@ -21,6 +21,7 @@ type Props = {
  * One offer in the catalog (P05, RF1.4.1): title, trade, where, when and the
  * publication date (highlighted when recent), plus "Te postulaste" when the
  * logged-in applicant already applied (D-028).
+ * Preserves the full card layout used in the home page carousel (P01, D-059).
  */
 export function TarjetaOferta({ oferta, href, seleccionada, soloEnEscritorio }: Props) {
   const reciente = esFechaReciente(oferta.publicadaEl, 3);

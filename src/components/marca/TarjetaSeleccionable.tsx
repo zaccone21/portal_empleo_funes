@@ -15,6 +15,7 @@ type Props = {
    * on a phone only the list is visible and nothing should look selected.
    */
   soloEnEscritorio: boolean;
+  className?: string;
   children: ReactNode;
 };
 
@@ -22,7 +23,7 @@ type Props = {
  * Card of a list with the detail on the same page (D-025), with the portal's
  * "leaf" shape. Fills full height uniformly so footers align cleanly (D-066).
  */
-export function TarjetaSeleccionable({ href, seleccionada, soloEnEscritorio, children }: Props) {
+export function TarjetaSeleccionable({ href, seleccionada, soloEnEscritorio, className, children }: Props) {
   return (
     <Link
       href={href}
@@ -33,6 +34,7 @@ export function TarjetaSeleccionable({ href, seleccionada, soloEnEscritorio, chi
         "hover:ring-foreground/20 hover:shadow-xs focus-visible:ring-3 focus-visible:ring-ring/50",
         seleccionada &&
           (soloEnEscritorio ? "lg:bg-secondary lg:ring-2 lg:ring-primary lg:ring-inset" : "bg-secondary ring-2 ring-primary ring-inset"),
+        className,
       )}
     >
       <div className="flex h-full min-w-0 flex-1 flex-col justify-between gap-3">{children}</div>

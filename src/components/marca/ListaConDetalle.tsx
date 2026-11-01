@@ -18,11 +18,13 @@ type Props = {
   detalle: ReactNode;
   /** Key identifying the selected item so detail cross-fades smoothly between items. */
   detalleKey?: string;
+  /** Classes defining the two-column grid proportions on desktop. */
+  columnasClase?: string;
 };
 
 /**
  * Layout of a list with the detail on the same page, like job boards do
- * (D-025, Computrabajo style).
+ * (D-025, Computrabajo / Indeed style).
  *
  * - Desktop (`lg`):
  *   - The left column (`section`) has an independently scrollable list of cards (`ul`
@@ -32,9 +34,17 @@ type Props = {
  * - Phone: without a choice only the list is visible; with a choice only the
  *   detail (which has its own "Volver").
  */
-export function ListaConDetalle({ eligio, resumen, accion, children, detalle, detalleKey }: Props) {
+export function ListaConDetalle({
+  eligio,
+  resumen,
+  accion,
+  children,
+  detalle,
+  detalleKey,
+  columnasClase = "lg:grid-cols-[minmax(350px,420px)_minmax(0,1fr)]",
+}: Props) {
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:h-full lg:min-h-0 lg:items-stretch">
+    <div className={cn("grid gap-5 lg:gap-6 lg:h-full lg:min-h-0 lg:items-stretch", columnasClase)}>
       <section
         aria-labelledby="lista-resumen"
         className={cn(
@@ -58,7 +68,7 @@ export function ListaConDetalle({ eligio, resumen, accion, children, detalle, de
           </AnimatePresence>
           {accion}
         </div>
-        <ul className="relative flex flex-1 min-h-0 flex-col gap-3 p-1 lg:overflow-y-auto lg:px-1.5 lg:py-1.5 lg:pr-2 lg:pb-6 [scrollbar-width:thin] [scrollbar-gutter:stable]">
+        <ul className="relative flex flex-1 min-h-0 flex-col gap-2.5 p-1 lg:overflow-y-auto lg:px-1.5 lg:py-1.5 lg:pr-2 lg:pb-6 [scrollbar-width:thin] [scrollbar-gutter:stable]">
           {children}
         </ul>
       </section>

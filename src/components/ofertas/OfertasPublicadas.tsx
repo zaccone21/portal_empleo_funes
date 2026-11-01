@@ -20,7 +20,7 @@ type Props = {
 };
 
 /**
- * The public offer catalog (P05, P06; D-025, D-029) with Computrabajo-style
+ * The public offer catalog (P05, P06; D-025, D-029) with Computrabajo / Indeed
  * viewport lock layout on desktop:
  * - Top bar with search and compact filters pinned flush under the navbar.
  * - Workspace area with scrolling cards list on the left and immobile detail on the right.
@@ -32,12 +32,12 @@ export function OfertasPublicadas({ filtros = FILTROS_VACIOS, seleccionadaId }: 
   if (loading) {
     return (
       <div className="flex-1 min-h-0 mx-auto w-full max-w-[1680px] px-4 py-4 sm:px-6 lg:px-8 flex flex-col">
-        <div aria-busy="true" className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:h-full lg:min-h-0">
+        <div aria-busy="true" className="grid gap-5 lg:gap-6 lg:grid-cols-[minmax(350px,420px)_minmax(0,1fr)] lg:h-full lg:min-h-0">
           <span className="sr-only" role="status">
             Cargando ofertas…
           </span>
-          <div className="flex flex-col gap-3">
-            {Array.from({ length: 4 }, (_, i) => (
+          <div className="flex flex-col gap-2.5">
+            {Array.from({ length: 5 }, (_, i) => (
               <EsqueletoTarjetaOferta key={i} />
             ))}
           </div>
@@ -77,11 +77,11 @@ export function OfertasPublicadas({ filtros = FILTROS_VACIOS, seleccionadaId }: 
     <div className="flex flex-1 min-h-0 flex-col">
       <div
         className={cn(
-          "shrink-0 border-b border-border bg-card px-4 py-3 sm:px-6 lg:px-8 shadow-2xs",
+          "shrink-0 border-b border-border bg-card px-4 py-2.5 sm:px-6 sm:py-3 lg:px-8 shadow-2xs",
           seleccionadaId !== undefined && "hidden lg:block"
         )}
       >
-        <div className="mx-auto w-full max-w-[1680px] flex flex-col gap-3">
+        <div className="mx-auto w-full max-w-[1680px] flex flex-col gap-2">
           {usuario?.rol === "postulante" && <AvisoCvFaltante />}
           <FiltrosOfertas
             filtros={filtros}
