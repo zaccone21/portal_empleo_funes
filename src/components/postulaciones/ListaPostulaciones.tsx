@@ -11,14 +11,14 @@ import {
 
 import { AnimarElemento, AnimarGrupo } from "@/components/marca/animaciones";
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
-import { Badge } from "@/components/ui/badge";
 import { formatearDia } from "@/lib/fechas";
 import type { PostulacionPropia } from "@/lib/validation/postulaciones";
 import { NOMBRE_RUBRO } from "@/lib/validation/rubros";
 
 /**
  * The applicant's application history (P07, RF1.2.4) rendered as a rich,
- * well-organized responsive card grid with aligned margins and paddings.
+ * well-organized responsive card grid with aligned margins, paddings,
+ * and semantic status pills.
  */
 export function ListaPostulaciones({ postulaciones }: { postulaciones: PostulacionPropia[] }) {
   const ordenadas = [...postulaciones].sort((a, b) => b.postuladoEl.localeCompare(a.postuladoEl));
@@ -34,32 +34,39 @@ export function ListaPostulaciones({ postulaciones }: { postulaciones: Postulaci
           <AnimarElemento key={postulacion.id} elevarAlPasar className="flex h-full flex-col">
             <Link
               href={`/ofertas?oferta=${encodeURIComponent(oferta.id)}`}
-              className="group flex h-full flex-col justify-between gap-4 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/10 transition-all hover:ring-2 hover:ring-primary hover:shadow-xs focus-visible:ring-3 focus-visible:ring-ring/50 outline-none sm:p-6"
+              className="group flex h-full flex-col justify-between gap-4 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/10 transition-all hover:ring-2 hover:ring-primary hover:shadow-xs focus-visible:ring-3 focus-visible:ring-ring/50 outline-none sm:p-5"
             >
               <div className="flex flex-col gap-3.5">
-                {/* Fila superior: Rubros + estado de la oferta */}
+                {/* Fila superior: Rubros con color de oficio + estado distintivo de la oferta */}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-1.5">
                     {rubros.length > 0 ? (
                       rubros.slice(0, 2).map((rubro) => (
                         <span
                           key={rubro}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-secondary-foreground"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/8 px-2.5 py-0.5 text-xs font-semibold text-primary"
                         >
-                          <IconoRubro rubro={rubro} className="size-3.5 text-primary" />
+                          <IconoRubro rubro={rubro} className="size-3 text-primary" />
                           {NOMBRE_RUBRO[rubro]}
                         </span>
                       ))
                     ) : (
-                      <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-secondary-foreground">
+                      <span className="inline-flex items-center rounded-full border border-border bg-muted/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                         Oferta laboral
                       </span>
                     )}
                   </div>
 
-                  <Badge variant={sigueActiva ? "secondary" : "outline"} className="shrink-0 text-xs font-semibold">
-                    {sigueActiva ? "Búsqueda activa" : "Búsqueda cerrada"}
-                  </Badge>
+                  {sigueActiva ? (
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-brand-mint/60 bg-brand-mint/35 px-2.5 py-0.5 text-xs font-semibold text-brand-deep">
+                      <span className="size-1.5 rounded-full bg-emerald-600 animate-pulse" aria-hidden="true" />
+                      Búsqueda activa
+                    </span>
+                  ) : (
+                    <span className="inline-flex shrink-0 items-center rounded-full border border-border bg-muted/70 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      Búsqueda cerrada
+                    </span>
+                  )}
                 </div>
 
                 {/* Título del puesto */}
@@ -98,7 +105,7 @@ export function ListaPostulaciones({ postulaciones }: { postulaciones: Postulaci
               </div>
 
               {/* Pie de la tarjeta: fecha de postulación y acción */}
-              <div className="flex items-center justify-between gap-2 border-t border-border/60 pt-3.5 text-xs">
+              <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/60 pt-3.5 text-xs">
                 <span className="inline-flex items-center gap-1.5 font-medium text-muted-foreground">
                   <CalendarIcon aria-hidden="true" className="size-3.5 text-primary" />
                   Te postulaste el {formatearDia(postulacion.postuladoEl)}

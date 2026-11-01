@@ -1,8 +1,10 @@
 "use client";
 
+import { AnimatePresence, motion } from "motion/react";
+
 import { useState } from "react";
 import Link from "next/link";
-import { FilterIcon, MegaphoneIcon, PlusIcon } from "lucide-react";
+import { FilterIcon, MegaphoneIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { PedirIngreso } from "@/components/estados/PedirIngreso";
@@ -46,6 +48,7 @@ const ETIQUETAS_ESTADO: Record<EstadoFiltro, string> = {
 export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) {
   const { ofertas, loading, error, sinAcceso, recargar, reemplazar } = useOfertasEmpresa();
   const [filtroEstado, setFiltroEstado] = useState<EstadoFiltro>("todas");
+  const [busqueda, setBusqueda] = useState<string>("");
 
   if (loading) {
     return (
@@ -100,8 +103,14 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
   }
 
   const ofertasFiltradas = ofertas.filter((oferta) => {
-    if (filtroEstado === "todas") return true;
-    return oferta.estado === filtroEstado;
+    if (filtroEstado !== "todas" && oferta.estado !== filtroEstado) return false;
+    if (busqueda) {
+      const q = busqueda.trim().toLowerCase();
+      const matchTitulo = oferta.titulo.toLowerCase().includes(q);
+      const matchLugar = oferta.lugar.toLowerCase().includes(q);
+      if (!matchTitulo && !matchLugar) return false;
+    }
+    return true;
   });
 
   const eligio = seleccionadaId !== undefined;
@@ -144,10 +153,33 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
           })}
         </div>
 
-        <Link href="/empresa/ofertas/nueva" className={buttonVariants({ variant: "default", size: "sm" })}>
-          <PlusIcon data-icon="inline-start" aria-hidden="true" />
-          Publicar oferta
-        </Link>
+        <div className="flex items-center gap-2">
+          <div className="relative min-w-[180px] sm:w-56">
+            <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+            <input
+              type="search"
+              value={busqueda}
+              placeholder="Buscar por puesto o lugar…"
+              aria-label="Buscar en mis ofertas"
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="h-8 w-full rounded-md border border-input bg-card pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            {busqueda && (
+              <button
+                type="button"
+                onClick={() => setBusqueda("")}
+                aria-label="Borrar búsqueda"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <XIcon className="size-3.5" />
+              </button>
+            )}
+          </div>
+          <Link href="/empresa/ofertas/nueva" className={buttonVariants({ variant: "default", size: "sm" })}>
+            <PlusIcon data-icon="inline-start" aria-hidden="true" />
+            Publicar oferta
+          </Link>
+        </div>
       </div>
 
       <ListaConDetalle
@@ -159,12 +191,6 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
               ? "Tenés 1 oferta."
               : `Tenés ${ofertas.length} ofertas.`
             : `Mostrando ${ofertasFiltradas.length} de ${ofertas.length} ofertas (${ETIQUETAS_ESTADO[filtroEstado].toLowerCase()}).`
-        }
-        accion={
-          <Link href="/empresa/ofertas/nueva" className={buttonVariants({ variant: "outline" })}>
-            <PlusIcon data-icon="inline-start" aria-hidden="true" />
-            Publicar oferta
-          </Link>
         }
         detalle={
           enDetalle ? (
@@ -179,21 +205,31 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
           )
         }
       >
-        {ofertasFiltradas.length === 0 ? (
-          <li className="rounded-xl border border-dashed p-8 text-center text-muted-foreground bg-card/40">
-            No tenés ofertas en estado &ldquo;{ETIQUETAS_ESTADO[filtroEstado].toLowerCase()}&rdquo;.
-          </li>
-        ) : (
-          ofertasFiltradas.map((oferta) => (
-            <li key={oferta.id}>
-              <TarjetaOfertaEmpresa
-                oferta={oferta}
-                seleccionada={oferta.id === enDetalle?.id}
-                soloEnEscritorio={!eligio}
-              />
-            </li>
-          ))
-        )}
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div
+            key={`${filtroEstado}-${busqueda}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="flex flex-col gap-3"
+          >
+            {ofertasFiltradas.length === 0 ? (
+              <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground bg-card/40">
+                No tenés ofertas en estado &ldquo;{ETIQUETAS_ESTADO[filtroEstado].toLowerCase()}&rdquo;.
+              </div>
+            ) : (
+              ofertasFiltradas.map((oferta) => (
+                <TarjetaOfertaEmpresa
+                  key={oferta.id}
+                  oferta={oferta}
+                  seleccionada={oferta.id === enDetalle?.id}
+                  soloEnEscritorio={!eligio}
+                />
+              ))
+            )}
+          </motion.div>
+        </AnimatePresence>
       </ListaConDetalle>
     </div>
   );

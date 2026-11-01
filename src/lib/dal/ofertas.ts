@@ -5,6 +5,7 @@ import { z } from "zod";
 import { COLUMNAS_EMPRESA, aPerfilEmpresa, filaEmpresaSchema } from "@/lib/dal/empresas";
 import { fechaSchema } from "@/lib/dal/fecha";
 import { createClient } from "@/lib/supabase/server";
+import { calcularRango, crearRespuestaPaginada, type ParametrosPaginacion, type RespuestaPaginada } from "@/lib/paginacion";
 import type { PerfilEmpresa } from "@/lib/validation/empresa";
 import { estadoOfertaSchema, type EstadoOferta } from "@/lib/validation/ofertas";
 import { rubroSchema, type Rubro } from "@/lib/validation/rubros";
@@ -235,4 +236,37 @@ export async function contarOfertas(estado: EstadoOferta, soloConPedidoDeCierre 
   const { count, error } = await consulta;
   if (error) throw new Error("Could not count the offers.");
   return count ?? 0;
+}
+
+/**
+ * Paged published offers using native Supabase .range().
+ */
+export async function listarOfertasPublicadasPaginadas(
+  paginacion: ParametrosPaginacion = { pagina: 1, porPagina: 20 },
+  filtros: { rubro?: string | null; q?: string } = {},
+): Promise<RespuestaPaginada<Oferta>> {
+  const supabase = await createClient();
+  const { desde, hasta } = calcularRango(paginacion.pagina, paginacion.porPagina);
+
+  let query = supabase
+    .from("ofertas")
+    .select(COLUMNAS_OFERTA, { count: "exact" })
+    .eq("estado", "publicada");
+
+  if (filtros.rubro) {
+    query = query.contains("rubros", [filtros.rubro]);
+  }
+
+  if (filtros.q && filtros.q.trim()) {
+    const q = filtros.q.trim();
+    query = query.or(`titulo.ilike.%${q}%,descripcion.ilike.%${q}%,lugar.ilike.%${q}%`);
+  }
+
+  const { data, error, count } = await query
+    .order("publicada_el", { ascending: false })
+    .range(desde, hasta);
+
+  if (error) throw new Error("Could not load paged published offers: " + error.message);
+  const items = z.array(filaOfertaSchema).parse(data).map(aOferta);
+  return crearRespuestaPaginada(items, count ?? 0, paginacion.pagina, paginacion.porPagina);
 }

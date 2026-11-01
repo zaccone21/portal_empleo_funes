@@ -58,7 +58,7 @@ export function ListaConDetalle({ eligio, resumen, accion, children, detalle, de
           </AnimatePresence>
           {accion}
         </div>
-        <ul className="relative flex flex-1 min-h-0 flex-col gap-3 lg:overflow-y-auto lg:pr-2 lg:pb-6 [scrollbar-width:thin] [scrollbar-gutter:stable]">
+        <ul className="relative flex flex-1 min-h-0 flex-col gap-3 p-1 lg:overflow-y-auto lg:px-1.5 lg:py-1.5 lg:pr-2 lg:pb-6 [scrollbar-width:thin] [scrollbar-gutter:stable]">
           {children}
         </ul>
       </section>

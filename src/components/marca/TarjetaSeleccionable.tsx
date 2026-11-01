@@ -29,14 +29,14 @@ export function TarjetaSeleccionable({ href, seleccionada, soloEnEscritorio, chi
       scroll={false}
       aria-current={seleccionada && !soloEnEscritorio ? "true" : undefined}
       className={cn(
-        "group flex h-full min-h-[12.5rem] w-full items-stretch justify-between gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/10 outline-none transition-all sm:p-5",
+        "group flex h-full min-h-[12.5rem] w-full items-stretch justify-between gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4.5 ring-1 ring-foreground/10 outline-none transition-all sm:p-5",
         "hover:ring-foreground/20 hover:shadow-xs focus-visible:ring-3 focus-visible:ring-ring/50",
         seleccionada &&
-          (soloEnEscritorio ? "lg:bg-secondary lg:ring-2 lg:ring-primary" : "bg-secondary ring-2 ring-primary"),
+          (soloEnEscritorio ? "lg:bg-secondary lg:ring-2 lg:ring-primary lg:ring-inset" : "bg-secondary ring-2 ring-primary ring-inset"),
       )}
     >
       <div className="flex h-full min-w-0 flex-1 flex-col justify-between gap-3">{children}</div>
-      <div className="flex shrink-0 items-center justify-center pt-1">
+      <div className="flex shrink-0 items-center justify-center self-center">
         <ChevronRightIcon
           aria-hidden="true"
           className="size-5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"

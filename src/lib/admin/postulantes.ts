@@ -56,14 +56,30 @@ export const CLAVES_ORDEN_POSTULANTES: ClavesOrden<FilaPostulante> = {
   postulaciones: (p) => p.cantidadPostulaciones,
 };
 
-export type OfertaParaAsociar = { id: string; titulo: string; empresa: string };
+export type OfertaParaAsociar = {
+  id: string;
+  titulo: string;
+  empresa: string;
+  rubros?: string[];
+  lugar?: string;
+  jornada?: string | null;
+  sueldo?: string | null;
+};
 
 /** Published offers the person has not applied to, to link them from the pool (P16, RF1.5.8). */
 export function ofertasParaAsociar(ofertas: OfertaOficina[], postulacionesDeLaPersona: PostulacionAdmin[]): OfertaParaAsociar[] {
   const yaPostulada = new Set(postulacionesDeLaPersona.map((p) => p.oferta.id));
   return ofertas
     .filter((o) => o.estado === "publicada" && !yaPostulada.has(o.id))
-    .map((o) => ({ id: o.id, titulo: o.titulo, empresa: o.empresa?.razonSocial ?? "Empresa" }));
+    .map((o) => ({
+      id: o.id,
+      titulo: o.titulo,
+      empresa: o.empresa?.razonSocial ?? "Empresa",
+      rubros: o.rubros,
+      lugar: o.lugar,
+      jornada: o.jornada,
+      sueldo: o.sueldo,
+    }));
 }
 
 export function contarVistasPostulantes(postulantes: FilaPostulante[]) {

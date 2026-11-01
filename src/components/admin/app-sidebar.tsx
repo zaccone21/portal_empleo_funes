@@ -40,13 +40,10 @@ export function AppSidebar({ conteos, emailUsuario }: Props) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border bg-card">
-      <SidebarHeader className="border-b border-border/80 px-3 py-2.5">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex min-w-0 flex-col gap-1 group-data-[collapsible=icon]:hidden">
-            <LogoMunicipalidad variante="color" className="h-7 w-auto self-start" />
-            <span className="font-heading text-[13.5px] leading-tight font-bold text-foreground">
-              Oficina de Empleo
-            </span>
+      <SidebarHeader className="overflow-hidden border-b border-border/80 px-3 py-2.5">
+        <div className="flex h-9 items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center overflow-hidden transition-all duration-200 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0">
+            <LogoMunicipalidad variante="color" className="h-7 w-auto shrink-0" />
           </div>
 
           <button

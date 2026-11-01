@@ -89,7 +89,7 @@ export function DecisionCandidato({ candidato, nombre, onDecidido }: Props) {
             <CampoTexto
               id={idMotivo}
               label="¿Por qué no la contratás?"
-              descripcion="Lo lee solo la Oficina de Empleo, para seguir ayudando a esta persona."
+              descripcion="Información confidencial para el seguimiento de la Oficina de Empleo."
               error={errorMotivo}
               multilinea
               maxLength={500}

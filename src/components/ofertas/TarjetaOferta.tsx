@@ -30,7 +30,7 @@ export function TarjetaOferta({ oferta, href, seleccionada, soloEnEscritorio }: 
     <TarjetaSeleccionable href={href} seleccionada={seleccionada} soloEnEscritorio={soloEnEscritorio}>
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
-          <h2 className="line-clamp-2 min-h-[2.75rem] font-heading text-lg leading-snug font-semibold text-foreground sm:text-xl">
+          <h2 className="line-clamp-2 min-h-[3rem] font-heading text-lg leading-snug font-semibold text-foreground sm:text-xl">
             {oferta.titulo}
           </h2>
           {reciente && (

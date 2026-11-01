@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/dal/auth";
 import type { ResultadoBusquedaPostulante } from "@/lib/dal/postulantes";
-import { crearCuentaOficina } from "@/lib/use-cases/equipo";
+import { crearCuentaOficina, darDeBajaCuentaOficina } from "@/lib/use-cases/equipo";
 import {
   alternarCursoAdmin,
   aprobarEmpresa,
@@ -321,4 +321,19 @@ export async function crearCuentaOficinaAccion(datos: unknown): Promise<Respuest
   if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
   revalidatePath("/admin/equipo");
   return { ok: true, ...resultado.datos };
+}
+
+/**
+ * Deactivates an Office account (Peer Admin safety guards enforced).
+ */
+export async function darDeBajaCuentaOficinaAccion(id: string): Promise<RespuestaAccion> {
+  const parsedId = idSchema.safeParse(id);
+  if (!parsedId.success) return DATOS_INVALIDOS;
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const resultado = await darDeBajaCuentaOficina(usuario, parsedId.data);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  revalidatePath("/admin/equipo");
+  return { ok: true, mensaje: "Cuenta dada de baja correctamente." };
 }

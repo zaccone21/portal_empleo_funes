@@ -36,7 +36,7 @@ export function TarjetaOfertaEmpresa({ oferta, seleccionada, soloEnEscritorio }:
           )}
         </div>
 
-        <h2 className="line-clamp-2 min-h-[2.5rem] font-heading text-lg leading-snug font-semibold sm:text-xl text-foreground">
+        <h2 className="line-clamp-2 min-h-[3rem] font-heading text-lg leading-snug font-semibold sm:text-xl text-foreground">
           {oferta.titulo}
         </h2>
 

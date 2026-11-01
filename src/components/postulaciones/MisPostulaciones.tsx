@@ -86,10 +86,9 @@ export function MisPostulaciones() {
       <div className="flex flex-col gap-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="max-w-2xl text-base text-muted-foreground">
-            La Oficina de Empleo revisa cada postulación y te contacta si tu perfil encaja con la
-            búsqueda. Tocá cualquier tarjeta para volver a leer los requisitos del puesto.
+            Historial de búsquedas laborales a las que te postulaste en el portal.
           </p>
-          <span className="rounded-full bg-secondary px-3.5 py-1 text-sm font-semibold text-secondary-foreground tabular-nums">
+          <span className="rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-bold text-primary tabular-nums">
             {postulaciones.length} {postulaciones.length === 1 ? "postulación" : "postulaciones"}
           </span>
         </div>

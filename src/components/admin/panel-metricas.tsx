@@ -109,10 +109,70 @@ const configRubros = {
 /** Hides the Office shell and lifts the scroll limits so "Exportar .PDF" prints the whole report. */
 const ESTILOS_IMPRESION = `
 @media print {
-  [data-slot="sidebar"], [data-slot="sidebar-gap"], [data-slot="sidebar-container"] { display: none !important; }
-  html, body, [data-slot="sidebar-wrapper"], main { height: auto !important; min-height: 0 !important; overflow: visible !important; }
-  body { background: #fff !important; }
-  section, article { break-inside: avoid; }
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  header, nav, [data-slot="sidebar"], [data-slot="sidebar-gap"], [data-slot="sidebar-container"], .print\\:hidden {
+    display: none !important;
+  }
+  html, body, [data-slot="sidebar-wrapper"], main, #contenido {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .recharts-responsive-container {
+    width: 100% !important;
+    height: 220px !important;
+    min-height: 220px !important;
+    display: block !important;
+  }
+  .recharts-wrapper {
+    width: 100% !important;
+    height: 220px !important;
+    display: block !important;
+  }
+  svg.recharts-surface {
+    width: 100% !important;
+    height: 220px !important;
+    overflow: visible !important;
+  }
+  div[class*="overflow-auto"], div[class*="max-h-"] {
+    max-height: none !important;
+    overflow: visible !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  th, td {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+  }
+  thead {
+    display: table-header-group !important;
+  }
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  thead[class*="sticky"], tr[class*="sticky"], th[class*="sticky"] {
+    position: static !important;
+    background: #f1f5f9 !important;
+  }
+  section, article, .rounded-2xl, .rounded-xl {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    box-shadow: none !important;
+  }
 }`;
 
 type Props = {
@@ -375,14 +435,14 @@ export function PanelMetricas({ datos }: Props) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success("Descargaste el reporte de métricas en formato CSV.");
+    toast.success("Descargaste el reporte ejecutivo de métricas en formato Excel.");
   }
 
   const datosResultados = [
-    { etapa: "Consiguieron trabajo", cantidad: analisis.contratadas, fill: "var(--brand-leaf)" },
-    { etapa: "Sin respuesta de la empresa", cantidad: analisis.sinRespuesta, fill: "var(--brand-sun)" },
-    { etapa: "No elegidos por la empresa", cantidad: analisis.noContratadas, fill: "var(--brand-deep)" },
-    { etapa: "No pasaron la pre-entrevista", cantidad: analisis.noAptas, fill: "var(--muted-foreground)" },
+    { etapa: "Consiguieron trabajo", cantidad: analisis.contratadas, fill: "var(--brand-leaf)", fillHex: "#3c8c4f" },
+    { etapa: "Sin respuesta de la empresa", cantidad: analisis.sinRespuesta, fill: "var(--brand-sun)", fillHex: "#f2c230" },
+    { etapa: "No elegidos por la empresa", cantidad: analisis.noContratadas, fill: "var(--brand-deep)", fillHex: "#04311a" },
+    { etapa: "No pasaron la pre-entrevista", cantidad: analisis.noAptas, fill: "var(--muted-foreground)", fillHex: "#64748b" },
   ];
 
   return (
@@ -418,11 +478,11 @@ export function PanelMetricas({ datos }: Props) {
                 className="h-10 gap-2 px-3.5 font-semibold text-foreground hover:border-brand-leaf/50 hover:bg-brand-mint/20"
               >
                 <DownloadIcon className="size-4 text-brand-deep" aria-hidden="true" />
-                Exportar CSV
+                Exportar Excel
               </Button>
               <Button type="button" onClick={() => window.print()} className="h-10 gap-2 px-4 font-semibold">
               <FileDownIcon className="size-4" aria-hidden="true" />
-              Imprimir / PDF
+              Imprimir reporte
             </Button>
             </div>
           }
@@ -579,7 +639,7 @@ export function PanelMetricas({ datos }: Props) {
           detalle={
             analisis.tasaContratacion === null
               ? "Contrataciones confirmadas por empresas"
-              : `${analisis.tasaContratacion} de cada 100 presentados a empresas`
+              : `${analisis.tasaContratacion}% de efectividad en contrataciones`
           }
         />
         <TarjetaCifra
@@ -619,22 +679,41 @@ export function PanelMetricas({ datos }: Props) {
           descripcion="Cuántas personas entraron al portal cada día."
         >
           {analisis.hayVisitas ? (
-            <ChartContainer config={configVisitas} className="aspect-auto h-[240px] w-full">
-              <AreaChart data={analisis.porDia} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} tickMargin={8} minTickGap={24} />
-                <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={34} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Area
-                  type="monotone"
-                  dataKey="visitas"
-                  stroke="var(--color-visitas)"
-                  fill="var(--color-visitas)"
-                  fillOpacity={0.2}
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ChartContainer>
+            <>
+              <div className="print:hidden">
+                <ChartContainer config={configVisitas} className="aspect-auto h-[240px] w-full">
+                  <AreaChart data={analisis.porDia} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} tickMargin={8} minTickGap={24} />
+                    <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={34} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Area
+                      type="monotone"
+                      dataKey="visitas"
+                      stroke="var(--color-visitas)"
+                      fill="var(--color-visitas)"
+                      fillOpacity={0.2}
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ChartContainer>
+              </div>
+              <div className="hidden print:block w-full overflow-hidden">
+                <AreaChart width={680} height={210} data={analisis.porDia} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} tickMargin={6} fontSize={10} stroke="#64748b" />
+                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={30} fontSize={10} stroke="#64748b" />
+                  <Area
+                    type="monotone"
+                    dataKey="visitas"
+                    stroke="#3c8c4f"
+                    fill="#3c8c4f"
+                    fillOpacity={0.25}
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </div>
+            </>
           ) : (
             <SinDatos texto="Todavía no hay visitas registradas en este período." />
           )}
@@ -646,17 +725,30 @@ export function PanelMetricas({ datos }: Props) {
           descripcion="Cuántas personas se postularon y cuántas consiguieron trabajo."
         >
           {analisis.recibidas + analisis.contratadas > 0 ? (
-            <ChartContainer config={configActividad} className="aspect-auto h-[240px] w-full">
-              <BarChart data={analisis.porDia} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} tickMargin={8} minTickGap={24} />
-                <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={34} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
-                <Bar dataKey="postulaciones" fill="var(--color-postulaciones)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="contratados" fill="var(--color-contratados)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ChartContainer>
+            <>
+              <div className="print:hidden">
+                <ChartContainer config={configActividad} className="aspect-auto h-[240px] w-full">
+                  <BarChart data={analisis.porDia} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} tickMargin={8} minTickGap={24} />
+                    <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={34} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="postulaciones" fill="var(--color-postulaciones)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="contratados" fill="var(--color-contratados)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ChartContainer>
+              </div>
+              <div className="hidden print:block w-full overflow-hidden">
+                <BarChart width={680} height={210} data={analisis.porDia} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} tickMargin={6} fontSize={10} stroke="#64748b" />
+                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={30} fontSize={10} stroke="#64748b" />
+                  <Bar dataKey="postulaciones" fill="#04311a" radius={[3, 3, 0, 0]} name="Postulaciones" />
+                  <Bar dataKey="contratados" fill="#f2c230" radius={[3, 3, 0, 0]} name="Contratados" />
+                </BarChart>
+              </div>
+            </>
           ) : (
             <SinDatos texto="No hubo postulaciones ni contrataciones en este período." />
           )}
@@ -668,19 +760,35 @@ export function PanelMetricas({ datos }: Props) {
           descripcion="De quienes la Oficina presentó a una empresa: cuántos consiguieron trabajo y cuántos no."
         >
           {datosResultados.some((d) => d.cantidad > 0) ? (
-            <ChartContainer config={configResultados} className="aspect-auto h-[240px] w-full">
-              <BarChart data={datosResultados} layout="vertical" margin={{ top: 6, right: 18, left: 8, bottom: 6 }}>
-                <CartesianGrid horizontal={false} strokeDasharray="3 3" />
-                <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} />
-                <YAxis type="category" dataKey="etapa" tickLine={false} axisLine={false} width={150} />
-                <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                <Bar dataKey="cantidad" radius={[0, 6, 6, 0]}>
-                  {datosResultados.map((d) => (
-                    <Cell key={d.etapa} fill={d.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ChartContainer>
+            <>
+              <div className="print:hidden">
+                <ChartContainer config={configResultados} className="aspect-auto h-[240px] w-full">
+                  <BarChart data={datosResultados} layout="vertical" margin={{ top: 6, right: 18, left: 8, bottom: 6 }}>
+                    <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+                    <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} />
+                    <YAxis type="category" dataKey="etapa" tickLine={false} axisLine={false} width={150} />
+                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                    <Bar dataKey="cantidad" radius={[0, 6, 6, 0]}>
+                      {datosResultados.map((d) => (
+                        <Cell key={d.etapa} fill={d.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </div>
+              <div className="hidden print:block w-full overflow-hidden">
+                <BarChart width={680} height={210} data={datosResultados} layout="vertical" margin={{ top: 6, right: 18, left: 8, bottom: 6 }}>
+                  <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} fontSize={10} stroke="#64748b" />
+                  <YAxis type="category" dataKey="etapa" tickLine={false} axisLine={false} width={160} fontSize={10} stroke="#64748b" />
+                  <Bar dataKey="cantidad" radius={[0, 4, 4, 0]}>
+                    {datosResultados.map((d) => (
+                      <Cell key={d.etapa} fill={d.fillHex ?? d.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </div>
+            </>
           ) : (
             <SinDatos texto="Todavía no hay resultados en este período." />
           )}
@@ -692,17 +800,30 @@ export function PanelMetricas({ datos }: Props) {
           descripcion="Dónde hay más trabajo y dónde hay más gente buscando."
         >
           {analisis.porRubro.length > 0 ? (
-            <ChartContainer config={configRubros} className="aspect-auto h-[240px] w-full">
-              <BarChart data={analisis.porRubro.slice(0, 8)} margin={{ top: 10, right: 12, left: 0, bottom: 8 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} tickMargin={8} interval={0} fontSize={11} />
-                <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={34} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
-                <Bar dataKey="ofertas" fill="var(--color-ofertas)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="postulaciones" fill="var(--color-postulaciones)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ChartContainer>
+            <>
+              <div className="print:hidden">
+                <ChartContainer config={configRubros} className="aspect-auto h-[240px] w-full">
+                  <BarChart data={analisis.porRubro.slice(0, 8)} margin={{ top: 10, right: 12, left: 0, bottom: 8 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} tickMargin={8} interval={0} fontSize={11} />
+                    <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={34} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="ofertas" fill="var(--color-ofertas)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="postulaciones" fill="var(--color-postulaciones)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ChartContainer>
+              </div>
+              <div className="hidden print:block w-full overflow-hidden">
+                <BarChart width={680} height={210} data={analisis.porRubro.slice(0, 8)} margin={{ top: 10, right: 12, left: 0, bottom: 8 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} tickMargin={6} interval={0} fontSize={10} stroke="#64748b" />
+                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={30} fontSize={10} stroke="#64748b" />
+                  <Bar dataKey="ofertas" fill="#3c8c4f" radius={[3, 3, 0, 0]} name="Ofertas" />
+                  <Bar dataKey="postulaciones" fill="#04311a" radius={[3, 3, 0, 0]} name="Postulaciones" />
+                </BarChart>
+              </div>
+            </>
           ) : (
             <SinDatos texto="No hubo ofertas ni postulaciones por rubro en este período." />
           )}
@@ -772,7 +893,7 @@ export function PanelMetricas({ datos }: Props) {
         {analisis.porRubro.length === 0 ? (
           <SinDatos texto="No hubo ofertas ni postulaciones por rubro en este período." />
         ) : (
-          <div className="overflow-auto rounded-xl border border-border/70">
+          <div className="overflow-auto rounded-xl border border-border/70 print:max-h-none print:overflow-visible">
             <Table>
               <TableHeader className="bg-muted">
                 <TableRow>
@@ -780,7 +901,7 @@ export function PanelMetricas({ datos }: Props) {
                   <TableHead className="text-right font-bold text-foreground">Ofertas</TableHead>
                   <TableHead className="text-right font-bold text-foreground">Postulaciones</TableHead>
                   <TableHead className="text-right font-bold text-emerald-800">Contratados</TableHead>
-                  <TableHead className="text-right font-bold text-foreground">Cada 100 postulaciones</TableHead>
+                  <TableHead className="text-right font-bold text-foreground">% Contratados</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -791,7 +912,7 @@ export function PanelMetricas({ datos }: Props) {
                     <TableCell className="text-right tabular-nums">{r.postulaciones}</TableCell>
                     <TableCell className="text-right font-semibold text-emerald-800 tabular-nums">{r.contratados}</TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {r.postulaciones > 0 ? `${Math.round((r.contratados / r.postulaciones) * 100)} contratados` : "—"}
+                      {r.postulaciones > 0 ? `${Math.round((r.contratados / r.postulaciones) * 100)}%` : "—"}
                     </TableCell>
                   </TableRow>
                 ))}
