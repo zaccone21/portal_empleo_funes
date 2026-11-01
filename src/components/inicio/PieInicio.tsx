@@ -1,15 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { ClockIcon, MapPinIcon } from "lucide-react";
+import { useContext } from "react";
 
 import { LogoMunicipalidad } from "@/components/marca/LogoMunicipalidad";
-
-const ENLACES_PORTAL = [
-  { texto: "Ofertas de trabajo", href: "/ofertas" },
-  { texto: "Ingresar como postulante", href: "/postulante/ingresar" },
-  { texto: "Acceso para empresas", href: "/empresa/ingresar" },
-  { texto: "Ayuda", href: "/ayuda" },
-  { texto: "Privacidad y uso de tus datos", href: "/privacidad" },
-];
+import { ContextoSesion } from "@/components/sesion/ProveedorSesion";
 
 const ENLACES_MUNICIPALIDAD = [
   { texto: "Sitio oficial de Funes", href: "https://www.funes.gob.ar/" },
@@ -21,12 +17,22 @@ const ENLACES_MUNICIPALIDAD = [
   },
 ];
 
-/**
- * Plain site footer, full width like the navigation bar (not a card): the
- * Office's identity and hours, the portal's links, the municipal links (new tab)
- * and the privacy notice. Only text links, so it stays quiet below the content.
- */
 export function PieInicio() {
+  const sesion = useContext(ContextoSesion);
+  const usuario = sesion?.usuario;
+
+  const ENLACES_PORTAL = [
+    { texto: "Ofertas de trabajo", href: "/ofertas" },
+    ...(!usuario
+      ? [
+          { texto: "Ingresar como postulante", href: "/postulante/ingresar" },
+          { texto: "Acceso para empresas", href: "/empresa/ingresar" },
+        ]
+      : []),
+    { texto: "Ayuda", href: "/ayuda" },
+    { texto: "Privacidad y uso de tus datos", href: "/privacidad" },
+  ];
+
   return (
     <footer className="w-full border-t border-border bg-card pb-[var(--alto-barra-inferior,0px)] text-sm">
       <div className="grid w-full gap-8 px-4 py-8 sm:px-8 md:grid-cols-3 lg:px-14">
