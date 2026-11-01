@@ -1,4 +1,14 @@
-import { CircleCheckIcon, CircleXIcon, FileTextIcon, MailIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
+import Link from "next/link";
+import {
+  ArrowUpRightIcon,
+  BriefcaseIcon,
+  CircleCheckIcon,
+  CircleXIcon,
+  FileTextIcon,
+  MailIcon,
+  MessageCircleIcon,
+  PhoneIcon,
+} from "lucide-react";
 
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
 import { buttonVariants } from "@/components/ui/button";
@@ -31,6 +41,21 @@ export function TarjetaCandidato({ candidato, onDecidido }: Props) {
 
   return (
     <article className="flex flex-col gap-4 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
+      {candidato.oferta && (
+        <div className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-1.5 text-xs text-muted-foreground border border-border/50">
+          <div className="flex items-center gap-1.5 font-medium text-foreground min-w-0">
+            <BriefcaseIcon className="size-3.5 text-primary shrink-0" aria-hidden="true" />
+            <span className="text-muted-foreground shrink-0">Búsqueda:</span>
+            <Link
+              href={`/empresa/ofertas?oferta=${encodeURIComponent(candidato.oferta.id)}`}
+              className="font-semibold text-primary hover:underline truncate inline-flex items-center gap-1"
+            >
+              <span className="truncate">{candidato.oferta.titulo}</span>
+              <ArrowUpRightIcon className="size-3 opacity-70 shrink-0" aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-1">
         <h4 className="text-lg font-semibold">{nombre}</h4>
         {rubros.length > 0 && (

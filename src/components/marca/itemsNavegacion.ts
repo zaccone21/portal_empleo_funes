@@ -9,6 +9,7 @@ import {
   PlusIcon,
   UserIcon,
   UserPlusIcon,
+  UsersIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -49,16 +50,14 @@ export const ITEMS_POR_ROL: Record<Role, ItemNavegacion[]> = {
   empresa: [
     { href: "/empresa", texto: "Inicio", icono: HouseIcon },
     { href: "/empresa/ofertas", texto: "Mis ofertas", icono: ListChecksIcon },
+    { href: "/empresa/candidatos", texto: "Candidatos", icono: UsersIcon },
     { href: "/empresa/ofertas/nueva", texto: "Publicar", icono: PlusIcon, destacado: true },
   ],
   admin: [],
 };
 
 /**
- * What anyone can open without an account in each area. "Inicio" is there
- * even though the logo leads home too, for whoever does not know the logo is
- * a link. Companies find their way in through "Ayuda" and the cross-links of
- * the sign-in screens (D-065).
+ * What anyone can open without an account in each area.
  */
 const ITEMS_PUBLICOS: Record<Role, ItemNavegacion[]> = {
   postulante: [INICIO_POSTULANTE, OFERTAS],
@@ -78,17 +77,7 @@ function conAyuda(items: ItemNavegacion[], rol: Role): ItemNavegacion[] {
 }
 
 /**
- * Items of the menu for who is looking (`usuario` from useSesion) in an area
- * (the layout's role), on desktop (top bar) or on the phone (`celular`,
- * bottom bar, 3 or 4 items):
- * - logged in: that person's role menu, wherever they are, with the profile
- *   and "Ayuda" (D-056, D-065). On the phone the applicant drops "Inicio" (the
- *   logo leads there) and the company drops "Ayuda" (it is on its home), so
- *   the bottom bar keeps four items;
- * - nobody: the public items of the area and "Ayuda"; on the phone, "Ingresar"
- *   and the registration instead of the desktop links, because the bottom bar
- *   is the only menu there (on desktop they are buttons on the right);
- * - still loading: nothing, so no wrong menu flashes for a moment.
+ * Items of the menu for who is looking (`usuario` from useSesion) in an area.
  */
 export function itemsNavegacion(
   usuario: UsuarioSesion | null | undefined,
