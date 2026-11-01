@@ -17,7 +17,7 @@ async function registrarVisitaSilenciosa() {
     const supabase = await createClient();
     await supabase.rpc("registrar_visita_diaria");
   } catch {
-    // Non-blocking if migration 20261028180000 is not yet applied
+    // Non-blocking if migration is not yet applied
   }
 }
 
