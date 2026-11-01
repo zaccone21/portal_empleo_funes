@@ -29,18 +29,16 @@ export const perfilPostulanteSchema = z.object({
       (tel) => tel.replace(/\D/g, "").length >= 8,
       "El teléfono tiene que tener al menos 8 dígitos",
     ),
-  /** Street and number or area of Funes (D-070). Required: the Office needs to know where the person lives. */
   direccion: z
     .string()
     .trim()
     .min(1, "Ingresá tu dirección")
     .max(100, "La dirección puede tener hasta 100 caracteres"),
   rubros: z.array(rubroSchema).min(1, "Elegí al menos un rubro"),
-  /** Work experience (RF1.6.7), optional. Left out, it is not changed; empty, it is erased. */
   experiencia: z.string().trim().max(2000, "Puede tener hasta 2000 caracteres").optional(),
   nivelEducativo: nivelEducativoSchema.optional().nullable(),
   rangoExperiencia: rangoExperienciaSchema.optional().nullable(),
-  fotoUrl: z.string().optional().nullable(), // <-- ¡Agregado para el formulario/PUT!
+  fotoUrl: z.string().optional().nullable(),
 });
 
 export type PerfilPostulante = z.infer<typeof perfilPostulanteSchema>;
@@ -58,7 +56,7 @@ export const perfilPostulanteRespuestaSchema = z.object({
   experiencia: z.string().nullable(),
   nivelEducativo: nivelEducativoSchema.nullable().optional(),
   rangoExperiencia: rangoExperienciaSchema.nullable().optional(),
-  fotoUrl: z.string().nullable().optional(), // <-- ¡Agregado para la respuesta del GET!
+  fotoUrl: z.string().nullable().optional(),
 });
 
 export type { NivelEducativo, RangoExperiencia };
