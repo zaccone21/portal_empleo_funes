@@ -114,7 +114,7 @@ export async function postularme(usuario: CurrentUser, ofertaId: string): Promis
   }
 
   if (!(await leerCv(usuario.id))) {
-    return falla("conflict", "Para postularte tenés que subir tu CV en PDF o PNG. Lleva un minuto.");
+    return falla("conflict", "Para postularte tenés que subir tu CV (PDF o PNG).");
   }
 
   await crearPostulacion(usuario.id, oferta.id);

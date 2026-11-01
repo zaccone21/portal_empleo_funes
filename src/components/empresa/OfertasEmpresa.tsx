@@ -89,7 +89,7 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
           </EmptyMedia>
           <EmptyTitle>Todavía no publicaste ofertas</EmptyTitle>
           <EmptyDescription className="text-base">
-            Contá qué puesto buscás y la Oficina de Empleo la publica después de revisarla.
+            Publicá tu primera oferta laboral para encontrar candidatos en Funes.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>

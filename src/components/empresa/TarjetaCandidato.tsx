@@ -70,7 +70,7 @@ export function TarjetaCandidato({ candidato, onDecidido }: Props) {
             </p>
           )}
           {candidato.derivadoEl && (
-            <p className="text-sm text-muted-foreground">Te la propuso la Oficina el {formatearDia(candidato.derivadoEl)}.</p>
+            <p className="text-sm text-muted-foreground">Propuesto el {formatearDia(candidato.derivadoEl)}.</p>
           )}
         </div>
 

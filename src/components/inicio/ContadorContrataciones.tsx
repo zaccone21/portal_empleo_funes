@@ -49,9 +49,6 @@ export function ContadorContrataciones() {
           {contrataciones === 1 ? "persona consiguió trabajo" : "personas consiguieron trabajo"} con la Oficina de
           Empleo
         </h2>
-        <p className="text-sm text-primary-foreground/75 lg:text-base lg:text-muted-foreground">
-          Cuenta a quienes la Oficina ubicó antes del portal y se suma solo con cada contratación nueva.
-        </p>
       </div>
     </section>
   );

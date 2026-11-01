@@ -65,7 +65,7 @@ export function OfertasPublicadas({ filtros = FILTROS_VACIOS, seleccionadaId }: 
             </EmptyMedia>
             <EmptyTitle>Por ahora no hay ofertas publicadas</EmptyTitle>
             <EmptyDescription className="text-base">
-              Cuando la Oficina de Empleo publique una oferta nueva, la vas a ver acá.
+              No hay ofertas laborales activas en este momento. Te sugerimos volver a consultar pronto.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

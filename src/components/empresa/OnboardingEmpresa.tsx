@@ -74,7 +74,7 @@ export function OnboardingEmpresa({ perfil, cuit, estado, motivoRechazo, cantida
           ? "¡Tu empresa ya está aprobada para publicar!"
           : estado === "rechazada"
             ? `Rechazada: ${motivoRechazo ?? "Revisá los datos cargados."}`
-            : "La Oficina de Empleo verifica los datos (hasta 24 hs hábiles).",
+            : "La Oficina de Empleo revisará los datos para habilitar la publicación de ofertas.",
       completado: paso3Completado,
       activo: paso2Completado && !paso3Completado,
       icono:
@@ -132,7 +132,7 @@ export function OnboardingEmpresa({ perfil, cuit, estado, motivoRechazo, cantida
           </h2>
         </div>
         <p className="text-sm text-muted-foreground">
-          Seguí estos 4 simples pasos para comenzar a recibir personas pre-entrevistadas por la Oficina de Empleo de Funes.
+          Seguí estos pasos para comenzar a recibir candidatos propuestos para tu empresa.
         </p>
       </div>
 

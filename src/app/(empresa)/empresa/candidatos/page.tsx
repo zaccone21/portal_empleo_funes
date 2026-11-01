@@ -9,7 +9,7 @@ export default function EmpresaCandidatosPage() {
   return (
     <Seccion
       titulo="Candidatos propuestos por la Oficina"
-      bajada="Personas pre-entrevistadas por el equipo de empleo de la Municipalidad para tus búsquedas activas."
+      bajada="Candidatos propuestos por la Oficina de Empleo para tus búsquedas activas."
     >
       <VistaCandidatosEmpresa />
     </Seccion>
