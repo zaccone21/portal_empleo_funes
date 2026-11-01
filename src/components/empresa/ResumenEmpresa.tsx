@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Building2Icon, PlusIcon, UsersIcon } from "lucide-react";
+import { PlusIcon, UsersIcon } from "lucide-react";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { PedirIngreso } from "@/components/estados/PedirIngreso";
@@ -16,7 +16,7 @@ import { usePerfilEmpresa } from "@/hooks/usePerfilEmpresa";
 import { cn } from "@/lib/utils";
 import type { EstadoOferta as Estado, OfertaEmpresa } from "@/lib/validation/ofertas";
 
-import { AvisoEstadoEmpresa } from "./AvisoEstadoEmpresa";
+import { OnboardingEmpresa } from "./OnboardingEmpresa";
 import { TarjetaOfertaEmpresa } from "./TarjetaOfertaEmpresa";
 
 const ORDEN_ESTADOS: Estado[] = ["pendiente", "publicada", "rechazada", "cerrada"];
@@ -32,19 +32,6 @@ function contarPorEstado(ofertas: OfertaEmpresa[]): Record<Estado, number> {
 
 /**
  * The company's home (P09, RF1.3.1): a summary of its activity in the portal.
- *
- * What it shows:
- * - a reminder to fill in the company data while there is none (P10);
- * - where the company stands with the Office while it is not approved
- *   (D-068); the way to publish only shows once it is;
- * - how many referred applicants are waiting for its answer, with a shortcut
- *   to the offer of the oldest one (D-051, D-054);
- * - the main action, publishing an offer;
- * - how many offers are in each status, and the three latest ones.
- * Applicants appear only when the Office refers them (D-044).
- *
- * It loads the offers, the profile and the referred applicants; if any fails,
- * the error screen retries all of them.
  */
 export function ResumenEmpresa() {
   const ofertas = useOfertasEmpresa();
@@ -96,6 +83,52 @@ export function ResumenEmpresa() {
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Onboarding guiado paso a paso para empresas nuevas o con perfil incompleto */}
+      <OnboardingEmpresa
+        perfil={perfil.perfil ?? null}
+        cuit={perfil.cuitRegistrado}
+        estado={perfil.estado}
+        motivoRechazo={perfil.motivoRechazo}
+        cantidadOfertas={lista.length}
+      />
+
+      {!perfil.perfil && (
+        <Alert>
+          <AlertTitle className="text-base">Completá los datos de la empresa</AlertTitle>
+          <AlertDescription className="text-base">
+            Para que la Oficina de Empleo pueda aprobar tu cuenta y publicar tus ofertas.
+          </AlertDescription>
+          <Link href="/empresa/perfil" className={cn(buttonVariants(), "col-start-2 mt-2 justify-self-start")}>
+            Completar datos
+          </Link>
+        </Alert>
+      )}
+
+      {perfil.perfil && perfil.estado === "pendiente" && (
+        <Alert>
+          <AlertTitle className="text-base">Tu empresa está en revisión</AlertTitle>
+          <AlertDescription className="text-base">
+            La Oficina de Empleo está revisando tus datos. Te avisamos por mail cuando esté aprobada.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {perfil.perfil && perfil.estado === "rechazada" && (
+        <Alert variant="destructive">
+          <AlertTitle className="text-base">La Oficina de Empleo no aprobó tu empresa</AlertTitle>
+          <AlertDescription className="text-base">
+            {perfil.motivoRechazo ? `Motivo: ${perfil.motivoRechazo}. ` : ""}Revisá los datos cargados para que
+            podamos revisarla de nuevo.
+          </AlertDescription>
+          <Link
+            href="/empresa/perfil"
+            className={cn(buttonVariants({ variant: "outline" }), "col-start-2 mt-2 justify-self-start")}
+          >
+            Revisar los datos
+          </Link>
+        </Alert>
+      )}
+
       {sinRespuesta.length > 0 && (
         <Alert>
           <UsersIcon aria-hidden="true" />
@@ -113,27 +146,6 @@ export function ResumenEmpresa() {
             className={cn(buttonVariants(), "col-start-2 mt-2 justify-self-start")}
           >
             Ver candidatos
-          </Link>
-        </Alert>
-      )}
-
-      {perfil.perfil !== null && perfil.estado !== "aprobada" && (
-        <AvisoEstadoEmpresa estado={perfil.estado} motivoRechazo={perfil.motivoRechazo} />
-      )}
-
-      {perfil.perfil === null && (
-        <Alert>
-          <Building2Icon aria-hidden="true" />
-          <AlertTitle className="text-base">Completá los datos de la empresa</AlertTitle>
-          <AlertDescription className="text-base">
-            La Oficina de Empleo los usa para comunicarse con ustedes.
-          </AlertDescription>
-          {/* Outside AlertDescription, which underlines every link inside it. */}
-          <Link
-            href="/empresa/perfil"
-            className={cn(buttonVariants({ variant: "outline" }), "col-start-2 mt-2 justify-self-start")}
-          >
-            Completar datos
           </Link>
         </Alert>
       )}
