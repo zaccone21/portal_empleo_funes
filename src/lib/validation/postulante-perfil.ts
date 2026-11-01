@@ -38,7 +38,7 @@ export const perfilPostulanteSchema = z.object({
   experiencia: z.string().trim().max(2000, "Puede tener hasta 2000 caracteres").optional(),
   nivelEducativo: nivelEducativoSchema.optional().nullable(),
   rangoExperiencia: rangoExperienciaSchema.optional().nullable(),
-  fotoUrl: z.string().optional().nullable(),
+  fotoUrl: z.string().optional(),
 });
 
 export type PerfilPostulante = z.infer<typeof perfilPostulanteSchema>;
@@ -56,7 +56,7 @@ export const perfilPostulanteRespuestaSchema = z.object({
   experiencia: z.string().nullable(),
   nivelEducativo: nivelEducativoSchema.nullable().optional(),
   rangoExperiencia: rangoExperienciaSchema.nullable().optional(),
-  fotoUrl: z.string().nullable().optional(),
+  fotoUrl: z.string().optional(),
 });
 
 export type { NivelEducativo, RangoExperiencia };
