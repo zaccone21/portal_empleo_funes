@@ -1,0 +1,694 @@
+[     549ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[     638ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[     726ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    2106ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    2183ms] [LOG] [Fast Refresh] done in 77ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    2609ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    2830ms] [LOG] [Fast Refresh] done in 220ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    3027ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    3241ms] [LOG] [Fast Refresh] done in 214ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    3406ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    3470ms] [LOG] [Fast Refresh] done in 64ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    3810ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    3862ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    4216ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    4279ms] [LOG] [Fast Refresh] done in 63ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    4615ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    4665ms] [LOG] [Fast Refresh] done in 50ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    5010ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    5061ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    5399ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    5454ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    5796ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    5850ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    7324ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    7412ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    7469ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    8027ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    8484ms] [LOG] [Fast Refresh] done in 458ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    8506ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    8579ms] [LOG] [Fast Refresh] done in 74ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    8913ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    8965ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    9313ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    9363ms] [LOG] [Fast Refresh] done in 49ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    9720ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[    9771ms] [LOG] [Fast Refresh] done in 50ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   10106ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   10157ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   10495ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   10544ms] [LOG] [Fast Refresh] done in 50ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   10890ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   10940ms] [LOG] [Fast Refresh] done in 49ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   11275ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   11365ms] [LOG] [Fast Refresh] done in 89ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   11700ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   11755ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   15077ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   15144ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   15202ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   16091ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   16491ms] [LOG] [Fast Refresh] done in 400ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   16558ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   16775ms] [LOG] [Fast Refresh] done in 217ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   16946ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   17022ms] [LOG] [Fast Refresh] done in 76ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   17380ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   17433ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   17780ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   17834ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   18181ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   18232ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   18597ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   18666ms] [LOG] [Fast Refresh] done in 69ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   19010ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   19060ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   19417ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   19470ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   19839ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   19895ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   20423ms] Invalid or unexpected token
+[   21406ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   21482ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   21546ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   22111ms] [ERROR] Can't perform a React state update on a component that hasn't mounted yet. This indicates that you have a side-effect in your render function that asynchronously tries to update the component. Move this work to useEffect instead. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   22118ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   22543ms] [LOG] [Fast Refresh] done in 425ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   22582ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   22634ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   23012ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   23064ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   23425ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   23479ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   23851ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   23904ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   24284ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   24340ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   24722ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   24775ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   25156ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   25233ms] [LOG] [Fast Refresh] done in 77ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   25591ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   25649ms] [LOG] [Fast Refresh] done in 59ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   26024ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   26091ms] [LOG] [Fast Refresh] done in 66ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   26577ms] Invalid or unexpected token
+[   29399ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   29473ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   29531ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   30327ms] [ERROR] Can't perform a React state update on a component that hasn't mounted yet. This indicates that you have a side-effect in your render function that asynchronously tries to update the component. Move this work to useEffect instead. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   30334ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   30776ms] [LOG] [Fast Refresh] done in 442ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   30793ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   30848ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   31215ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   31270ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   31649ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   31716ms] [LOG] [Fast Refresh] done in 67ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   32059ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   32117ms] [LOG] [Fast Refresh] done in 57ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   32488ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   32540ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   32897ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   32952ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   33321ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   33382ms] [LOG] [Fast Refresh] done in 60ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   33725ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   33779ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   34135ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   34213ms] [LOG] [Fast Refresh] done in 78ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   35767ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   35849ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   35914ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   36497ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   36881ms] [LOG] [Fast Refresh] done in 383ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   36948ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   37180ms] [LOG] [Fast Refresh] done in 232ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   37343ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   37394ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   37738ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   37801ms] [LOG] [Fast Refresh] done in 64ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   38135ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   38188ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   38550ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   38601ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   38966ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   39027ms] [LOG] [Fast Refresh] done in 61ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   39372ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   39424ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   39767ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   39817ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   40171ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   40226ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   41395ms] Invalid or unexpected token
+[   42381ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   42444ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   42507ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   43077ms] [ERROR] Can't perform a React state update on a component that hasn't mounted yet. This indicates that you have a side-effect in your render function that asynchronously tries to update the component. Move this work to useEffect instead. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   43084ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   43525ms] [LOG] [Fast Refresh] done in 441ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   43549ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   43604ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   43979ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   44032ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   44414ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   44527ms] [LOG] [Fast Refresh] done in 114ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   44829ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   44930ms] [LOG] [Fast Refresh] done in 101ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   45285ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   45337ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   45714ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   45785ms] [LOG] [Fast Refresh] done in 71ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   46137ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   46200ms] [LOG] [Fast Refresh] done in 63ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   46561ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   46615ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   47004ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   47056ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   49581ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   49673ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   49790ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   50486ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   50873ms] [LOG] [Fast Refresh] done in 388ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   50944ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   51164ms] [LOG] [Fast Refresh] done in 221ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   51919ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   52047ms] [LOG] [Fast Refresh] done in 127ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   52436ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   52507ms] [LOG] [Fast Refresh] done in 70ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   52854ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   52918ms] [LOG] [Fast Refresh] done in 65ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   53261ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   53330ms] [LOG] [Fast Refresh] done in 70ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   53676ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   53746ms] [LOG] [Fast Refresh] done in 69ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   54101ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   54168ms] [LOG] [Fast Refresh] done in 68ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   54515ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   54580ms] [LOG] [Fast Refresh] done in 64ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   56073ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   56143ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   56207ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   56800ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   57080ms] [LOG] [Fast Refresh] done in 279ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   57266ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   57488ms] [LOG] [Fast Refresh] done in 221ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   57650ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   57706ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   58048ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   58104ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   58440ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   58493ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   58841ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   58893ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   59245ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   59295ms] [LOG] [Fast Refresh] done in 49ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   59661ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   59715ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   60058ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   60109ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   60493ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   60546ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   61985ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   62137ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   62198ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   63263ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   63671ms] [LOG] [Fast Refresh] done in 408ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   63674ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   63748ms] [LOG] [Fast Refresh] done in 74ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   64092ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   64142ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   64497ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   64547ms] [LOG] [Fast Refresh] done in 49ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   64891ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   64942ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   65292ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   65348ms] [LOG] [Fast Refresh] done in 57ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   65699ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   65750ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   66122ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   66174ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   66526ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   66575ms] [LOG] [Fast Refresh] done in 49ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   66922ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   66988ms] [LOG] [Fast Refresh] done in 66ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   68445ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   68517ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   68580ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   69157ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   69545ms] [LOG] [Fast Refresh] done in 387ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   69634ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   69854ms] [LOG] [Fast Refresh] done in 221ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   70026ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   70107ms] [LOG] [Fast Refresh] done in 80ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   70433ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   70483ms] [LOG] [Fast Refresh] done in 50ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   70847ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   70897ms] [LOG] [Fast Refresh] done in 49ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   71247ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   71298ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   71651ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   71713ms] [LOG] [Fast Refresh] done in 61ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   72045ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   72097ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   72441ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   72492ms] [LOG] [Fast Refresh] done in 50ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   72832ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   72886ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   75026ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   75115ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   75179ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   75854ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   76133ms] [LOG] [Fast Refresh] done in 279ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   76339ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   76397ms] [LOG] [Fast Refresh] done in 59ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   76771ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   76822ms] [LOG] [Fast Refresh] done in 50ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   77181ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   77234ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   77591ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   77642ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   77984ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   78048ms] [LOG] [Fast Refresh] done in 64ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   78394ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   78447ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   78796ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   78845ms] [LOG] [Fast Refresh] done in 49ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   79195ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   79259ms] [LOG] [Fast Refresh] done in 63ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   79609ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   79668ms] [LOG] [Fast Refresh] done in 58ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   81922ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   82005ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   82069ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   82815ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   83091ms] [LOG] [Fast Refresh] done in 276ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   83253ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   83312ms] [LOG] [Fast Refresh] done in 59ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   83651ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   83701ms] [LOG] [Fast Refresh] done in 50ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   84042ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   84095ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   84441ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   84492ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   84843ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   84895ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   85237ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   85287ms] [LOG] [Fast Refresh] done in 49ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   85634ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   85687ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   86049ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   86111ms] [LOG] [Fast Refresh] done in 63ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   86446ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   86497ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   89235ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   89306ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   89361ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   90088ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   90353ms] [LOG] [Fast Refresh] done in 264ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   90543ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   90768ms] [LOG] [Fast Refresh] done in 225ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   90959ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   91184ms] [LOG] [Fast Refresh] done in 225ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   91357ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   91408ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   91761ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   91817ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   92163ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   92219ms] [LOG] [Fast Refresh] done in 57ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   92572ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   92625ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   92972ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   93031ms] [LOG] [Fast Refresh] done in 59ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   93377ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   93433ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   93792ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   93856ms] [LOG] [Fast Refresh] done in 64ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   94335ms] Invalid or unexpected token
+[   95338ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   95401ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   95459ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   96026ms] [ERROR] Can't perform a React state update on a component that hasn't mounted yet. This indicates that you have a side-effect in your render function that asynchronously tries to update the component. Move this work to useEffect instead. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   96034ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   96432ms] [LOG] [Fast Refresh] done in 398ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   96473ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   96537ms] [LOG] [Fast Refresh] done in 64ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   96907ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   96962ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   97326ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   97380ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   97748ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   97816ms] [LOG] [Fast Refresh] done in 68ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   98161ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   98222ms] [LOG] [Fast Refresh] done in 61ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   98576ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   98634ms] [LOG] [Fast Refresh] done in 57ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   98992ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   99044ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   99448ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   99522ms] [LOG] [Fast Refresh] done in 75ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   99877ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[   99938ms] [LOG] [Fast Refresh] done in 62ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  102270ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  102363ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  102429ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  103024ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  103438ms] [LOG] [Fast Refresh] done in 414ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  103460ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  103526ms] [LOG] [Fast Refresh] done in 67ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  103873ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  103926ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  104297ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  104359ms] [LOG] [Fast Refresh] done in 63ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  104703ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  104756ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  105103ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  105157ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  105513ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  105565ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  105918ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  105969ms] [LOG] [Fast Refresh] done in 50ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  106313ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  106365ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  106719ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  106773ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  108902ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  108984ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  109042ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  109729ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  110106ms] [LOG] [Fast Refresh] done in 377ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  110175ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  110401ms] [LOG] [Fast Refresh] done in 226ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  110563ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  110626ms] [LOG] [Fast Refresh] done in 62ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  110961ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  111016ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  111389ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  111451ms] [LOG] [Fast Refresh] done in 61ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  111782ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  111837ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  112183ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  112247ms] [LOG] [Fast Refresh] done in 65ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  112596ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  112658ms] [LOG] [Fast Refresh] done in 62ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  112985ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  113058ms] [LOG] [Fast Refresh] done in 74ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  113419ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  113481ms] [LOG] [Fast Refresh] done in 62ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  115849ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  115939ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  115999ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  116604ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  117041ms] [LOG] [Fast Refresh] done in 436ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  117046ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  117125ms] [LOG] [Fast Refresh] done in 79ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  117469ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  117537ms] [LOG] [Fast Refresh] done in 68ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  117878ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  117929ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  118276ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  118329ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  118677ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  118728ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  119082ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  119143ms] [LOG] [Fast Refresh] done in 61ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  120188ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  120247ms] [LOG] [Fast Refresh] done in 60ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  120616ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  120668ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  121073ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  121134ms] [LOG] [Fast Refresh] done in 61ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  121690ms] Invalid or unexpected token
+[  122659ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  122733ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  122797ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  123352ms] [ERROR] Can't perform a React state update on a component that hasn't mounted yet. This indicates that you have a side-effect in your render function that asynchronously tries to update the component. Move this work to useEffect instead. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[  123360ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  123770ms] [LOG] [Fast Refresh] done in 411ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  123799ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  123857ms] [LOG] [Fast Refresh] done in 58ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  124233ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  124289ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  124675ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  124729ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  125093ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  125155ms] [LOG] [Fast Refresh] done in 62ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  125523ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  125579ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  125942ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  125992ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  126358ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  126410ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  126798ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  126878ms] [LOG] [Fast Refresh] done in 80ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  128360ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  128442ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  128503ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  129085ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  129345ms] [LOG] [Fast Refresh] done in 261ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  129507ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  129559ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  129910ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  129964ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  130310ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  130359ms] [LOG] [Fast Refresh] done in 50ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  130708ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  130758ms] [LOG] [Fast Refresh] done in 49ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  131100ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  131172ms] [LOG] [Fast Refresh] done in 71ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  131498ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  131582ms] [LOG] [Fast Refresh] done in 83ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  131914ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  132018ms] [LOG] [Fast Refresh] done in 104ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  133049ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  133105ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  133500ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  133574ms] [LOG] [Fast Refresh] done in 73ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  135054ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  135123ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  135181ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  135799ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  136271ms] [LOG] [Fast Refresh] done in 473ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  136298ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  136364ms] [LOG] [Fast Refresh] done in 66ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  136717ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  136933ms] [LOG] [Fast Refresh] done in 216ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  137125ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  137189ms] [LOG] [Fast Refresh] done in 65ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  137529ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  137595ms] [LOG] [Fast Refresh] done in 66ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  137938ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  138004ms] [LOG] [Fast Refresh] done in 65ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  138338ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  138407ms] [LOG] [Fast Refresh] done in 70ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  138738ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  138804ms] [LOG] [Fast Refresh] done in 66ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  139147ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  139215ms] [LOG] [Fast Refresh] done in 68ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  140683ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  140758ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  140823ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  141487ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  141786ms] [LOG] [Fast Refresh] done in 298ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  141983ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  142042ms] [LOG] [Fast Refresh] done in 60ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  142430ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  142506ms] [LOG] [Fast Refresh] done in 75ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  142875ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  142930ms] [LOG] [Fast Refresh] done in 55ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  143305ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  143367ms] [LOG] [Fast Refresh] done in 63ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  143750ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  143811ms] [LOG] [Fast Refresh] done in 62ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  144194ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  144248ms] [LOG] [Fast Refresh] done in 54ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  144627ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  144685ms] [LOG] [Fast Refresh] done in 59ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  145935ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  145999ms] [LOG] [Fast Refresh] done in 65ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  149046ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  149117ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  149177ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  150009ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  150308ms] [LOG] [Fast Refresh] done in 298ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  150508ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  150755ms] [LOG] [Fast Refresh] done in 247ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  150967ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  151039ms] [LOG] [Fast Refresh] done in 71ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  151414ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  151479ms] [LOG] [Fast Refresh] done in 65ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  151839ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  151915ms] [LOG] [Fast Refresh] done in 75ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  152298ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  152382ms] [LOG] [Fast Refresh] done in 84ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  152764ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  152836ms] [LOG] [Fast Refresh] done in 71ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  153200ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  153255ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  153644ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  153696ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  155269ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  155364ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  155431ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  156016ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  156430ms] [LOG] [Fast Refresh] done in 415ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  156436ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  156510ms] [LOG] [Fast Refresh] done in 74ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  156898ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  156953ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  157301ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  157354ms] [LOG] [Fast Refresh] done in 53ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  157703ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  157753ms] [LOG] [Fast Refresh] done in 51ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  158108ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  158160ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  158504ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  158557ms] [LOG] [Fast Refresh] done in 52ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  158902ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  158970ms] [LOG] [Fast Refresh] done in 69ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  159314ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  160058ms] [LOG] [Fast Refresh] done in 744ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  161573ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  161645ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  161709ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  162313ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  162586ms] [LOG] [Fast Refresh] done in 272ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  162771ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  162837ms] [LOG] [Fast Refresh] done in 66ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  163213ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  163443ms] [LOG] [Fast Refresh] done in 231ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  163637ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  163703ms] [LOG] [Fast Refresh] done in 65ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  164038ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  164104ms] [LOG] [Fast Refresh] done in 66ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  164469ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  164537ms] [LOG] [Fast Refresh] done in 68ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  164876ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  164941ms] [LOG] [Fast Refresh] done in 64ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  165288ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  165350ms] [LOG] [Fast Refresh] done in 62ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  165694ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  165764ms] [LOG] [Fast Refresh] done in 70ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  167555ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/ofertas:0
+[  167819ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(pages-dir-browser)/./node_modules/react-dom/cjs/react-dom-client.development.js:28004
+[  167915ms] SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at loadManifest (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\load-manifest.external.js:54:25)
+    at loadManifestFromRelativePath (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\load-manifest.external.js:111:12)
+    at AppPageRouteModule.loadManifests (file://D:\Proyectos\portal_empleo\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:216:44780)
+    at AppPageRouteModule.prepare (file://D:\Proyectos\portal_empleo\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:216:52923)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Module.handler (webpack-internal:///(rsc)/./node_modules/next/dist/build/templates/app-page-runtime.js:165:31)
+    at async DevServer.renderToResponseWithComponentsImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:1537:9)
+    at async DevServer.renderPageComponent (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:1589:24)
+    at async DevServer.renderToResponseImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:1639:32)
+    at async DevServer.pipeImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:1088:25)
+    at async NextNodeServer.handleCatchallRenderRequest (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\next-server.js:338:17)
+    at async DevServer.handleRequestImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:979:17)
+    at async (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\dev\next-dev-server.js:426:20)
+    at async Span.traceAsyncFn (file://D:\Proyectos\portal_empleo\node_modules\next\dist\trace\trace.js:164:20)
+    at async DevServer.handleRequest (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\dev\next-dev-server.js:422:24)
+    at async invokeRender (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\lib\router-server.js:306:21)
+    at async handleRequest (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\lib\router-server.js:508:24)
+    at async requestHandlerImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\lib\router-server.js:565:13)
+    at async Server.requestListener (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\lib\start-server.js:225:13)
+[  167980ms] [LOG] [HMR] connected @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  168702ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  167819ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(pages-dir-browser)/./node_modules/react-dom/cjs/react-dom-client.development.js:28004
+[  168818ms] SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at loadManifest (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\load-manifest.external.js:54:25)
+    at loadManifestFromRelativePath (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\load-manifest.external.js:111:12)
+    at AppPageRouteModule.loadManifests (file://D:\Proyectos\portal_empleo\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:216:44780)
+    at AppPageRouteModule.prepare (file://D:\Proyectos\portal_empleo\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:216:52923)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Module.handler (webpack-internal:///(rsc)/./node_modules/next/dist/build/templates/app-page-runtime.js:165:31)
+    at async DevServer.renderToResponseWithComponentsImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:1537:9)
+    at async DevServer.renderPageComponent (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:1589:24)
+    at async DevServer.renderToResponseImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:1639:32)
+    at async DevServer.pipeImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:1088:25)
+    at async NextNodeServer.handleCatchallRenderRequest (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\next-server.js:338:17)
+    at async DevServer.handleRequestImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\base-server.js:979:17)
+    at async (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\dev\next-dev-server.js:426:20)
+    at async Span.traceAsyncFn (file://D:\Proyectos\portal_empleo\node_modules\next\dist\trace\trace.js:164:20)
+    at async DevServer.handleRequest (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\dev\next-dev-server.js:422:24)
+    at async invokeRender (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\lib\router-server.js:306:21)
+    at async handleRequest (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\lib\router-server.js:508:24)
+    at async requestHandlerImpl (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\lib\router-server.js:565:13)
+    at async Server.requestListener (file://D:\Proyectos\portal_empleo\node_modules\next\dist\server\lib\start-server.js:225:13)
+[  167980ms] [LOG] [HMR] connected @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  168702ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  168804ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  170335ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  170594ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  170629ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  170671ms] [WARNING] Image with src "/LOGOencabezado.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  171214ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  171676ms] [LOG] [Fast Refresh] done in 462ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  171714ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  171820ms] [LOG] [Fast Refresh] done in 107ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  172201ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  172317ms] [LOG] [Fast Refresh] done in 115ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  172737ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  172847ms] [LOG] [Fast Refresh] done in 109ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  173217ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  173320ms] [LOG] [Fast Refresh] done in 104ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  173691ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  173832ms] [LOG] [Fast Refresh] done in 141ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  174208ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  174320ms] [LOG] [Fast Refresh] done in 112ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  174695ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  174840ms] [LOG] [Fast Refresh] done in 145ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  175179ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  175300ms] [LOG] [Fast Refresh] done in 122ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  175644ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  175745ms] [LOG] [Fast Refresh] done in 102ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  176108ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  176210ms] [LOG] [Fast Refresh] done in 101ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  176588ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  176689ms] [LOG] [Fast Refresh] done in 102ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  177053ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  177165ms] [LOG] [Fast Refresh] done in 111ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  177553ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  177658ms] [LOG] [Fast Refresh] done in 104ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  178023ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  178128ms] [LOG] [Fast Refresh] done in 106ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  178501ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  178606ms] [LOG] [Fast Refresh] done in 104ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  179031ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  179163ms] [LOG] [Fast Refresh] done in 132ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  179520ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  179630ms] [LOG] [Fast Refresh] done in 110ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  179995ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  180117ms] [LOG] [Fast Refresh] done in 122ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  180453ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  180579ms] [LOG] [Fast Refresh] done in 127ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  180935ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  181033ms] [LOG] [Fast Refresh] done in 98ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44
+[  181386ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:44

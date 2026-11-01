@@ -44,8 +44,8 @@ test("offers a shortcut per trade, the help (also for companies) and the Office'
 
   expect(screen.getByRole("link", { name: "Gastronomía" }).getAttribute("href")).toBe("/ofertas?rubro=gastronomia");
   expect(screen.queryByRole("link", { name: "Registrar mi empresa" })).toBeNull();
-  expect(screen.getByRole("link", { name: "Ayuda y preguntas frecuentes" }).getAttribute("href")).toBe("/ayuda");
-  expect(screen.getByRole("link", { name: "Ingreso para la Oficina de Empleo" }).getAttribute("href")).toBe(
-    "/admin/ingresar",
+  expect(screen.getByRole("link", { name: "Ayuda" }).getAttribute("href")).toBe("/ayuda");
+  expect(screen.getByRole("link", { name: "Acceso para empresas" }).getAttribute("href")).toBe(
+    "/empresa/ingresar",
   );
 });

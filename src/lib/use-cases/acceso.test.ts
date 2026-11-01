@@ -35,7 +35,7 @@ describe("ingresar", () => {
     await expect(ingresar({ email: "nadie@ejemplo.com", password: "x" })).resolves.toEqual({
       ok: false,
       falla: "unauthenticated",
-      mensaje: "Email o contraseña incorrectos",
+      mensaje: "Email/documento o contraseña incorrectos",
     });
   });
 

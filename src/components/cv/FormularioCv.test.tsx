@@ -19,7 +19,7 @@ test("asks to choose a file before uploading", () => {
 
   fireEvent.click(screen.getByRole("button", { name: "Subir CV" }));
 
-  expect(screen.getByText("Elegí un archivo PDF.")).toBeDefined();
+  expect(screen.getByText("Elegí un archivo PDF o una imagen PNG.")).toBeDefined();
   expect(onSubir).not.toHaveBeenCalled();
 });
 
@@ -28,7 +28,7 @@ test("rejects a file that is not a PDF as soon as it is chosen", async () => {
 
   elegir(new File(["foto"], "foto.jpg", { type: "image/jpeg" }));
 
-  expect(await screen.findByText("Tiene que ser un archivo PDF.")).toBeDefined();
+  expect(await screen.findByText("Tiene que ser un archivo PDF o una imagen PNG.")).toBeDefined();
   fireEvent.click(screen.getByRole("button", { name: "Subir CV" }));
   expect(onSubir).not.toHaveBeenCalled();
 });
