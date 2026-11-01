@@ -18,20 +18,13 @@ import type { PerfilPostulante as Perfil } from "@/lib/validation/postulante-per
 import { FormularioPerfilPostulante } from "./FormularioPerfilPostulante";
 import { VistaPerfilPostulante } from "./VistaPerfilPostulante";
 
-/**
- * "Datos del postulante" (P03). Loads the saved data with usePerfilPostulante.
- * Always stays in View Mode (`VistaPerfilPostulante`) by default when a profile
- * exists, switching to Edit Mode (`FormularioPerfilPostulante`) only when the
- * user explicitly clicks "Editar perfil" (or "Editar mis datos").
- * Uses the exact same 8fr/4fr non-sticky grid as `MiCv` so cards align cleanly.
- */
 export function PerfilPostulante({ ofertaId }: { ofertaId?: string }) {
   const { perfil, dni, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } = usePerfilPostulante();
   const [editando, setEditando] = useState(false);
   const [recienGuardado, setRecienGuardado] = useState(false);
   const [version, setVersion] = useState(0);
 
-  async function handleGuardar(datos: Perfil) {
+  async function handleGuardar(datos: Perfil & { foto?: File }) {
     const guardado = await guardar(datos);
     if (guardado) {
       toast.success("Guardaste tus datos personales.");
@@ -88,6 +81,7 @@ export function PerfilPostulante({ ofertaId }: { ofertaId?: string }) {
         rubros: perfil.rubros.map((r: { slug: import("@/lib/validation/rubros").Rubro }) => r.slug),
         tieneCv: perfil.tieneCv,
         experiencia: perfil.experiencia ?? "",
+        fotoUrl: (perfil as Record<string, unknown>).fotoUrl as string | undefined,
       }
     : null;
 

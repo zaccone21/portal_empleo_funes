@@ -22,7 +22,7 @@ export function usePerfilPostulante() {
   const perfil = datos && datos.nombre ? datos : null;
   const dni = datos?.dni ?? null;
 
-  async function guardar(perfilData: PerfilPostulante): Promise<boolean> {
+  async function guardar(perfilData: PerfilPostulante & { fotoUrl?: string }): Promise<boolean> {
     setGuardando(true);
     setErrorGuardado(null);
 

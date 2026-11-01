@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ChangeEvent } from "react";
 import { z } from "zod";
 
 import { BotonEnviar } from "@/components/auth/BotonEnviar";
@@ -29,25 +29,47 @@ type Props = {
     direccion: string;
     rubros: Rubro[];
     experiencia: string;
+    fotoUrl?: string;
   } | null;
-  /** DNI from the database row even when the profile has not been saved yet. */
   dni?: string | null;
-  onGuardar: (datos: PerfilPostulante) => Promise<boolean>;
-  /** Present when editing an already saved profile, so the user can cancel without saving. */
+  onGuardar: (datos: PerfilPostulante & { fotoUrl?: string }) => Promise<boolean>;
   onCancelar?: () => void;
   guardando: boolean;
   error: string | null;
 };
 
-type Errores = Partial<Record<keyof PerfilPostulante, string[]>>;
+type Errores = Partial<Record<keyof PerfilPostulante | "foto", string[]>>;
 
 export function FormularioPerfilPostulante({ perfil, dni, onGuardar, onCancelar, guardando, error }: Props) {
   const [errores, setErrores] = useState<Errores>({});
   const [rubrosElegidos, setRubrosElegidos] = useState<Rubro[]>(perfil?.rubros ?? []);
+  
+  const [fotoBase64, setFotoBase64] = useState<string | undefined>(perfil?.fotoUrl);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(perfil?.fotoUrl ?? null);
+
   const dniVisible = perfil?.dni || dni;
 
   function cambiarRubro(rubro: Rubro, elegido: boolean) {
     setRubrosElegidos((actuales) => (elegido ? [...actuales, rubro] : actuales.filter((r) => r !== rubro)));
+  }
+
+  function handleFotoChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        setErrores((prev) => ({ ...prev, foto: ["El archivo debe ser una imagen (JPG, PNG, WEBP)."] }));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setFotoBase64(result);
+        setFotoPreview(result);
+      };
+      reader.readAsDataURL(file);
+      setErrores((prev) => ({ ...prev, foto: undefined }));
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -69,7 +91,10 @@ export function FormularioPerfilPostulante({ perfil, dni, onGuardar, onCancelar,
     }
 
     setErrores({});
-    await onGuardar(resultado.data);
+    await onGuardar({
+      ...resultado.data,
+      ...(fotoBase64 ? { fotoUrl: fotoBase64 } : {}),
+    });
   }
 
   return (
@@ -87,6 +112,33 @@ export function FormularioPerfilPostulante({ perfil, dni, onGuardar, onCancelar,
             <span className="text-base font-medium text-foreground">{dniVisible}</span>
           </div>
         )}
+
+        <div className="mb-6 flex flex-col sm:flex-row items-center gap-4 rounded-xl border bg-card p-4">
+          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-muted-foreground/30 bg-muted">
+            {fotoPreview ? (
+              <img src={fotoPreview} alt="Foto de perfil" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-2xl text-muted-foreground">👤</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-1 text-center sm:text-left grow">
+            <label htmlFor="foto-perfil" className="text-sm font-medium text-foreground cursor-pointer underline">
+              {fotoPreview ? "Cambiar foto de perfil" : "Subir foto de perfil"}
+            </label>
+            <span className="text-xs text-muted-foreground">Formatos permitidos: JPG, PNG o WEBP.</span>
+            <input
+              id="foto-perfil"
+              name="foto"
+              type="file"
+              accept="image/png, image/jpeg, image/webp"
+              onChange={handleFotoChange}
+              className="hidden"
+            />
+            {errores.foto && (
+              <span className="text-xs text-destructive mt-1">{errores.foto[0]}</span>
+            )}
+          </div>
+        </div>
 
         <FieldGroup className="gap-6">
           <div className="grid gap-6 sm:grid-cols-2">
