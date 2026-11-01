@@ -15,15 +15,9 @@ type Props = {
  */
 export function VistaPerfilEmpresa({ perfil, onEditar }: Props) {
   return (
-<<<<<<< HEAD
     <div className="flex flex-col gap-8 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-6 shadow-sm ring-1 ring-foreground/10 sm:p-8">
       {/* Cabecera con Nombre y CUIT */}
       <div className="flex flex-col gap-4 border-b pb-6 sm:flex-row sm:items-center sm:justify-between">
-=======
-    <div className="flex flex-col gap-8 rounded-2xl bg-card p-6 shadow-sm ring-1 ring-foreground/10 sm:p-8">
-      {/* Cabecera con Nombre y CUIT */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
->>>>>>> feature/aprobar-empresas
         <div className="flex flex-col gap-1">
           <h1 className="font-heading text-3xl font-extrabold tracking-tight text-foreground">
             {perfil.razonSocial}
@@ -32,11 +26,7 @@ export function VistaPerfilEmpresa({ perfil, onEditar }: Props) {
             <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
               CUIT registrado
             </span>
-<<<<<<< HEAD
             <span className="text-sm font-semibold text-muted-foreground tabular-nums">{perfil.cuit}</span>
-=======
-            <span className="text-sm font-semibold text-muted-foreground">{perfil.cuit}</span>
->>>>>>> feature/aprobar-empresas
           </div>
         </div>
         <Button onClick={onEditar} size="lg" className="w-full font-bold shadow-sm sm:w-auto">
@@ -50,11 +40,7 @@ export function VistaPerfilEmpresa({ perfil, onEditar }: Props) {
           A qué se dedica la empresa
         </span>
         <p className="whitespace-pre-wrap text-base font-normal leading-relaxed text-foreground/90">
-<<<<<<< HEAD
           {perfil.descripcion || <span className="italic text-muted-foreground">Sin descripción cargada</span>}
-=======
-          {perfil.descripcion || <span className="text-muted-foreground italic">Sin descripción cargada</span>}
->>>>>>> feature/aprobar-empresas
         </p>
       </div>
 
@@ -78,11 +64,7 @@ export function VistaPerfilEmpresa({ perfil, onEditar }: Props) {
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-semibold text-muted-foreground">Teléfono</span>
-<<<<<<< HEAD
               <span className="text-base font-bold text-foreground tabular-nums">{perfil.contactoTelefono}</span>
-=======
-              <span className="text-base font-bold text-foreground">{perfil.contactoTelefono}</span>
->>>>>>> feature/aprobar-empresas
             </div>
           </div>
 
