@@ -19,6 +19,14 @@ import {
   type FiltrosOfertas as Filtros,
   type OrdenOfertas,
 } from "@/lib/catalogo";
+import {
+  MODALIDADES_LABORALES,
+  NOMBRE_MODALIDAD,
+  NOMBRE_TIPO_JORNADA,
+  TIPOS_JORNADA,
+  type ModalidadLaboral,
+  type TipoJornada,
+} from "@/lib/validation/estandarizacion";
 import type { OfertaPublica } from "@/lib/validation/ofertas";
 import { NOMBRE_RUBRO, RUBROS, esRubro, type Rubro } from "@/lib/validation/rubros";
 import { cn } from "@/lib/utils";
@@ -35,12 +43,18 @@ const OPCIONES_PAGO: { valor: FiltroPagoOferta; texto: string }[] = [
   { valor: "a_convenir", texto: "A convenir" },
 ];
 
-const OPCIONES_HORARIO: { valor: string; texto: string }[] = [
-  { valor: "", texto: "Cualquier horario" },
-  { valor: "manana", texto: "Turno mañana" },
-  { valor: "tarde", texto: "Turno tarde" },
-  { valor: "completo", texto: "Jornada completa" },
-  { valor: "part_time", texto: "Medio tiempo" },
+const OPCIONES_JORNADA: { valor: TipoJornada | ""; texto: string }[] = [
+  { valor: "", texto: "Cualquier jornada" },
+  { valor: "completa", texto: "Jornada Completa" },
+  { valor: "media_jornada", texto: "Media Jornada" },
+  { valor: "flexible", texto: "Flexible" },
+];
+
+const OPCIONES_MODALIDAD: { valor: ModalidadLaboral | ""; texto: string }[] = [
+  { valor: "", texto: "Cualquier modalidad" },
+  { valor: "presencial", texto: "Presencial" },
+  { valor: "hibrido", texto: "Híbrido" },
+  { valor: "remoto", texto: "Remoto" },
 ];
 
 const OPCIONES_ORDEN: { valor: OrdenOfertas; texto: string }[] = [
@@ -50,9 +64,7 @@ const OPCIONES_ORDEN: { valor: OrdenOfertas; texto: string }[] = [
 
 /**
  * Filtros del catálogo de ofertas (P05).
- * Diseño compacto y eficiente en espacio: barra de búsqueda y 5 selectores nativos
- * en una grilla adaptable sin dispersión horizontal de pastillas gigantes,
- * dejando las ofertas a la vista sin scroll innecesario.
+ * Grilla adaptable y eficiente con selectores nativos accesibles.
  */
 export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], className }: Props) {
   const router = useRouter();
@@ -71,13 +83,25 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
     router.replace(rutaCatalogo({ ...filtros, rubro }), { scroll: false });
   }
 
+  function cambiarTipoJornada(valor: string) {
+    const tipoJornada =
+      valor && (TIPOS_JORNADA as readonly string[]).includes(valor)
+        ? (valor as TipoJornada)
+        : "";
+    router.replace(rutaCatalogo({ ...filtros, tipoJornada }), { scroll: false });
+  }
+
+  function cambiarModalidad(valor: string) {
+    const modalidad =
+      valor && (MODALIDADES_LABORALES as readonly string[]).includes(valor)
+        ? (valor as ModalidadLaboral)
+        : "";
+    router.replace(rutaCatalogo({ ...filtros, modalidad }), { scroll: false });
+  }
+
   function cambiarPago(valor: string) {
     const pago = valor === "con_sueldo" || valor === "a_convenir" ? valor : "todos";
     router.replace(rutaCatalogo({ ...filtros, pago }), { scroll: false });
-  }
-
-  function cambiarHorario(valor: string) {
-    router.replace(rutaCatalogo({ ...filtros, horario: valor }), { scroll: false });
   }
 
   function cambiarBarrio(valor: string) {
@@ -121,8 +145,8 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
         </Button>
       </form>
 
-      {/* Grilla compacta de 5 filtros en selectores */}
-      <div className="grid grid-cols-1 gap-2 border-t border-border/60 pt-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+      {/* Grilla compacta de filtros en selectores */}
+      <div className="grid grid-cols-1 gap-2 border-t border-border/60 pt-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         {/* Filtro: Rubro */}
         <div className="flex flex-col gap-1">
           <Label htmlFor="filtro-rubro" className="text-xs font-semibold text-muted-foreground">
@@ -143,6 +167,44 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
           </SelectorNativo>
         </div>
 
+        {/* Filtro: Tipo de Jornada */}
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="filtro-tipo-jornada" className="text-xs font-semibold text-muted-foreground">
+            Jornada
+          </Label>
+          <SelectorNativo
+            id="filtro-tipo-jornada"
+            value={filtros.tipoJornada ?? ""}
+            onChange={(e) => cambiarTipoJornada(e.target.value)}
+            className="h-10 text-xs sm:text-sm font-medium"
+          >
+            {OPCIONES_JORNADA.map(({ valor, texto }) => (
+              <option key={valor} value={valor}>
+                {texto}
+              </option>
+            ))}
+          </SelectorNativo>
+        </div>
+
+        {/* Filtro: Modalidad */}
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="filtro-modalidad" className="text-xs font-semibold text-muted-foreground">
+            Modalidad
+          </Label>
+          <SelectorNativo
+            id="filtro-modalidad"
+            value={filtros.modalidad ?? ""}
+            onChange={(e) => cambiarModalidad(e.target.value)}
+            className="h-10 text-xs sm:text-sm font-medium"
+          >
+            {OPCIONES_MODALIDAD.map(({ valor, texto }) => (
+              <option key={valor} value={valor}>
+                {texto}
+              </option>
+            ))}
+          </SelectorNativo>
+        </div>
+
         {/* Filtro: Remuneración */}
         <div className="flex flex-col gap-1">
           <Label htmlFor="filtro-pago" className="text-xs font-semibold text-muted-foreground">
@@ -155,25 +217,6 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
             className="h-10 text-xs sm:text-sm font-medium"
           >
             {OPCIONES_PAGO.map(({ valor, texto }) => (
-              <option key={valor} value={valor}>
-                {texto}
-              </option>
-            ))}
-          </SelectorNativo>
-        </div>
-
-        {/* Filtro: Horario */}
-        <div className="flex flex-col gap-1">
-          <Label htmlFor="filtro-horario" className="text-xs font-semibold text-muted-foreground">
-            Horario
-          </Label>
-          <SelectorNativo
-            id="filtro-horario"
-            value={filtros.horario ?? ""}
-            onChange={(e) => cambiarHorario(e.target.value)}
-            className="h-10 text-xs sm:text-sm font-medium"
-          >
-            {OPCIONES_HORARIO.map(({ valor, texto }) => (
               <option key={valor} value={valor}>
                 {texto}
               </option>
@@ -261,6 +304,40 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
               </motion.button>
             )}
 
+            {filtros.tipoJornada && (
+              <motion.button
+                key="filtro-tipo-jornada"
+                type="button"
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.85 }}
+                transition={{ duration: 0.15 }}
+                onClick={() => cambiarTipoJornada("")}
+                className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-secondary/70 px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-secondary transition-colors"
+                title="Quitar filtro de jornada"
+              >
+                <span>{NOMBRE_TIPO_JORNADA[filtros.tipoJornada]}</span>
+                <XIcon className="size-3 text-muted-foreground" />
+              </motion.button>
+            )}
+
+            {filtros.modalidad && (
+              <motion.button
+                key="filtro-modalidad"
+                type="button"
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.85 }}
+                transition={{ duration: 0.15 }}
+                onClick={() => cambiarModalidad("")}
+                className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-secondary/70 px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-secondary transition-colors"
+                title="Quitar filtro de modalidad"
+              >
+                <span>{NOMBRE_MODALIDAD[filtros.modalidad]}</span>
+                <XIcon className="size-3 text-muted-foreground" />
+              </motion.button>
+            )}
+
             {filtros.pago && filtros.pago !== "todos" && (
               <motion.button
                 key="filtro-pago"
@@ -274,23 +351,6 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
                 title="Quitar filtro de remuneración"
               >
                 <span>{filtros.pago === "con_sueldo" ? "Dice sueldo" : "A convenir"}</span>
-                <XIcon className="size-3 text-muted-foreground" />
-              </motion.button>
-            )}
-
-            {filtros.horario && (
-              <motion.button
-                key="filtro-horario"
-                type="button"
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.85 }}
-                transition={{ duration: 0.15 }}
-                onClick={() => cambiarHorario("")}
-                className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-secondary/70 px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-secondary transition-colors"
-                title="Quitar filtro de horario"
-              >
-                <span className="capitalize">{filtros.horario}</span>
                 <XIcon className="size-3 text-muted-foreground" />
               </motion.button>
             )}

@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+import {
+  modalidadLaboralSchema,
+  rangoExperienciaSchema,
+  tipoJornadaSchema,
+  type ModalidadLaboral,
+  type RangoExperiencia,
+  type TipoJornada,
+} from "./estandarizacion";
 import { rubroSchema } from "./rubros";
 import { textoObligatorio } from "./texto";
 
@@ -19,16 +27,6 @@ const rubrosOfertaSchema = z
 /*
  * Shape of a published job offer as the public list and the applicant see it
  * (P05, P06; D-024).
- *
- * PROVISIONAL (DT-002): the database is not modeled yet, so these fields are a
- * generic proposal. Replace them when the job_offers table exists, and keep
- * this file as the only place that describes the DTO.
- *
- * Deliberately missing:
- * - the company's name and contact data: the Office is the mandatory
- *   intermediary, so the applicant does not deal with the company directly
- *   (open question in DT-002);
- * - the offer status: this list only ever contains "publicada" offers (RF1.4.1).
  */
 export const ofertaPublicaSchema = z.object({
   id: z.string().min(1),
@@ -42,6 +40,12 @@ export const ofertaPublicaSchema = z.object({
   lugar: z.string(),
   /** Working hours as free text, for example "Lunes a viernes de 8 a 16". */
   jornada: z.string(),
+  /** Modalidad laboral estandarizada (presencial, híbrido, remoto). */
+  modalidad: modalidadLaboralSchema.optional(),
+  /** Tipo de jornada laboral estandarizada (completa, parcial, etc.). */
+  tipoJornada: tipoJornadaSchema.optional(),
+  /** Experiencia previa mínima requerida. */
+  experienciaMinima: rangoExperienciaSchema.optional(),
   /** Pay as free text ("A convenir" or an amount), or null when the company left it out (D-032). */
   sueldo: z.string().nullable(),
   /** Trades or sectors, 1 to 3, for the catalog filter (D-029, D-032). */
@@ -68,7 +72,7 @@ export type EstadoOferta = z.infer<typeof estadoOfertaSchema>;
 /**
  * Form of a new offer (P11, RF1.3.3): every field is required. There is no
  * draft (D-007): once sent, the offer is "pendiente" until the Office reviews it.
- * Body of POST /api/empresa/ofertas. PROVISIONAL fields (DT-002).
+ * Body of POST /api/empresa/ofertas.
  */
 export const nuevaOfertaSchema = z.object({
   titulo: textoObligatorio("Ingresá el puesto que buscás", 120),
@@ -76,6 +80,9 @@ export const nuevaOfertaSchema = z.object({
   requisitos: textoObligatorio("Contá qué necesita tener la persona", 2000),
   lugar: textoObligatorio("Indicá la dirección del trabajo", 120),
   jornada: textoObligatorio("Indicá los días y el horario", 120),
+  modalidad: modalidadLaboralSchema.optional(),
+  tipoJornada: tipoJornadaSchema.optional(),
+  experienciaMinima: rangoExperienciaSchema.optional(),
   /** Optional (D-032): an empty field means the offer shows no pay. */
   sueldo: z.string().trim().max(120, "Puede tener hasta 120 caracteres").optional(),
   rubros: rubrosOfertaSchema,
@@ -106,3 +113,4 @@ export const listaOfertasEmpresaSchema = z.array(ofertaEmpresaSchema);
 export const respuestaOfertaEmpresaSchema = z.object({ oferta: ofertaEmpresaSchema });
 
 export type OfertaEmpresa = z.infer<typeof ofertaEmpresaSchema>;
+export type { ModalidadLaboral, TipoJornada, RangoExperiencia };

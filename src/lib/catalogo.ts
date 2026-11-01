@@ -1,10 +1,16 @@
+import {
+  MODALIDADES_LABORALES,
+  TIPOS_JORNADA,
+  type ModalidadLaboral,
+  type TipoJornada,
+} from "@/lib/validation/estandarizacion";
 import type { OfertaPublica } from "@/lib/validation/ofertas";
 import { NOMBRE_RUBRO, esRubro, type Rubro } from "@/lib/validation/rubros";
 
 /*
  * The offer catalog's search, filters (category/rubro, pay, neighborhood/barrio,
- * schedule/horario) and order (P05, D-029). Everything lives in the URL
- * (/ofertas?q=...&rubro=...&pago=...&barrio=...&horario=...&orden=...), so a
+ * schedule/horario, modalidad, tipo de jornada) and order (P05, D-029). Everything lives in the URL
+ * (/ofertas?q=...&rubro=...&pago=...&barrio=...&horario=...&tipoJornada=...&modalidad=...&orden=...), so a
  * search can be shared, reloaded and undone with the back button.
  */
 
@@ -22,6 +28,10 @@ export type FiltrosOfertas = {
   barrio?: string;
   /** Schedule / working hours (`jornada` match). Empty string means all. */
   horario?: string;
+  /** Standardized job schedule type (completa, media_jornada, flexible). */
+  tipoJornada?: TipoJornada | "";
+  /** Standardized workplace modality (presencial, hibrido, remoto). */
+  modalidad?: ModalidadLaboral | "";
   /** Sort order: newest (`recientes`) or oldest (`antiguas`) first. */
   orden: OrdenOfertas;
 };
@@ -32,6 +42,8 @@ export const FILTROS_VACIOS: Required<FiltrosOfertas> = {
   pago: "todos",
   barrio: "",
   horario: "",
+  tipoJornada: "",
+  modalidad: "",
   orden: "recientes",
 };
 
@@ -47,8 +59,18 @@ export function leerFiltros(parametros: ParametrosUrl): Required<FiltrosOfertas>
       : "todos";
   const barrio = typeof parametros.barrio === "string" ? parametros.barrio.trim().slice(0, 80) : "";
   const horario = typeof parametros.horario === "string" ? parametros.horario.trim().slice(0, 80) : "";
+  const tipoJornada: TipoJornada | "" =
+    typeof parametros.tipoJornada === "string" &&
+    (TIPOS_JORNADA as readonly string[]).includes(parametros.tipoJornada)
+      ? (parametros.tipoJornada as TipoJornada)
+      : "";
+  const modalidad: ModalidadLaboral | "" =
+    typeof parametros.modalidad === "string" &&
+    (MODALIDADES_LABORALES as readonly string[]).includes(parametros.modalidad)
+      ? (parametros.modalidad as ModalidadLaboral)
+      : "";
   const orden = parametros.orden === "antiguas" ? "antiguas" : "recientes";
-  return { q, rubro, pago, barrio, horario, orden };
+  return { q, rubro, pago, barrio, horario, tipoJornada, modalidad, orden };
 }
 
 /** True when the person is narrowing the list (the order alone does not count). */
@@ -58,7 +80,9 @@ export function hayFiltros(filtros: FiltrosOfertas): boolean {
     filtros.rubro !== null ||
     (filtros.pago !== undefined && filtros.pago !== "todos") ||
     Boolean(filtros.barrio) ||
-    Boolean(filtros.horario)
+    Boolean(filtros.horario) ||
+    Boolean(filtros.tipoJornada) ||
+    Boolean(filtros.modalidad)
   );
 }
 
@@ -73,6 +97,8 @@ export function rutaCatalogo(filtros: FiltrosOfertas, oferta?: string): string {
   if (filtros.pago && filtros.pago !== "todos") parametros.set("pago", filtros.pago);
   if (filtros.barrio) parametros.set("barrio", filtros.barrio);
   if (filtros.horario) parametros.set("horario", filtros.horario);
+  if (filtros.tipoJornada) parametros.set("tipoJornada", filtros.tipoJornada);
+  if (filtros.modalidad) parametros.set("modalidad", filtros.modalidad);
   if (filtros.orden !== "recientes") parametros.set("orden", filtros.orden);
   if (oferta) parametros.set("oferta", oferta);
   const texto = parametros.toString();
@@ -103,6 +129,47 @@ function coincideHorario(jornadaOferta: string, filtroHorario: string): boolean 
   if (f === "completo") return j.includes("complet") || j.includes("full") || j.includes("lunes a viernes") || j.includes("corrido");
   if (f === "part_time") return j.includes("part") || j.includes("medio") || j.includes("4 hs") || j.includes("4 horas") || j.includes("6 hs");
   return j.includes(f);
+}
+
+function coincideJornada(
+  oferta: OfertaPublica,
+  tipoJornadaFiltro?: TipoJornada | "",
+  horarioFiltro?: string,
+): boolean {
+  if (tipoJornadaFiltro) {
+    if (oferta.tipoJornada) {
+      return oferta.tipoJornada === tipoJornadaFiltro;
+    }
+    const j = normalizar(oferta.jornada);
+    if (tipoJornadaFiltro === "media_jornada") {
+      return j.includes("media") || j.includes("part") || j.includes("4 h") || j.includes("6 h");
+    }
+    if (tipoJornadaFiltro === "flexible") {
+      return j.includes("flex") || j.includes("rotat") || j.includes("hora");
+    }
+    if (tipoJornadaFiltro === "completa") {
+      return !j.includes("media") && !j.includes("part") && !j.includes("flex");
+    }
+  }
+  if (horarioFiltro) {
+    return coincideHorario(oferta.jornada, horarioFiltro);
+  }
+  return true;
+}
+
+function coincideModalidad(
+  oferta: OfertaPublica,
+  modalidadFiltro?: ModalidadLaboral | "",
+): boolean {
+  if (!modalidadFiltro) return true;
+  if (oferta.modalidad) {
+    return oferta.modalidad === modalidadFiltro;
+  }
+  const texto = normalizar(`${oferta.lugar} ${oferta.descripcion}`);
+  if (modalidadFiltro === "remoto") return texto.includes("remoto");
+  if (modalidadFiltro === "hibrido") return texto.includes("hibrid");
+  if (modalidadFiltro === "presencial") return !texto.includes("remoto");
+  return true;
 }
 
 /**
@@ -140,6 +207,12 @@ export function describirResultados(cantidad: number, filtros: FiltrosOfertas): 
   if (filtros.barrio) partes.push(`en ${filtros.barrio}`);
   if (filtros.pago === "con_sueldo") partes.push("con sueldo informado");
   if (filtros.pago === "a_convenir") partes.push("con sueldo a convenir");
+  if (filtros.tipoJornada === "completa") partes.push("de jornada completa");
+  if (filtros.tipoJornada === "media_jornada") partes.push("de media jornada");
+  if (filtros.tipoJornada === "flexible") partes.push("de horario flexible");
+  if (filtros.modalidad === "presencial") partes.push("presencial");
+  if (filtros.modalidad === "hibrido") partes.push("híbrido");
+  if (filtros.modalidad === "remoto") partes.push("remoto");
   if (filtros.q) partes.push(`para “${filtros.q}”`);
   return `${base} ${partes.join(" ")}.`.replace(/\s+\./, ".");
 }
@@ -150,7 +223,6 @@ export function describirResultados(cantidad: number, filtros: FiltrosOfertas): 
 export function filtrarOfertas(ofertas: OfertaPublica[], filtros: FiltrosOfertas): OfertaPublica[] {
   const palabras = normalizar(filtros.q).split(/\s+/).filter(Boolean);
   const barrioNorm = normalizar(filtros.barrio ?? "");
-  const horarioFiltro = filtros.horario ?? "";
 
   const filtradas = ofertas.filter((oferta) => {
     if (filtros.rubro && !oferta.rubros.includes(filtros.rubro)) {
@@ -165,7 +237,10 @@ export function filtrarOfertas(ofertas: OfertaPublica[], filtros: FiltrosOfertas
     if (barrioNorm && !normalizar(oferta.lugar).includes(barrioNorm)) {
       return false;
     }
-    if (horarioFiltro && !coincideHorario(oferta.jornada, horarioFiltro)) {
+    if (!coincideJornada(oferta, filtros.tipoJornada, filtros.horario)) {
+      return false;
+    }
+    if (!coincideModalidad(oferta, filtros.modalidad)) {
       return false;
     }
     if (palabras.length === 0) {

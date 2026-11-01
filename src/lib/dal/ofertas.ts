@@ -23,6 +23,9 @@ export type Oferta = {
   requisitos: string;
   lugar: string;
   jornada: string;
+  modalidad?: string;
+  tipoJornada?: string;
+  experienciaMinima?: string;
   sueldo: string | null;
   rubros: Rubro[];
   estado: EstadoOferta;
@@ -138,6 +141,9 @@ export type DatosOfertaNueva = {
   requisitos: string;
   lugar: string;
   jornada: string;
+  modalidad?: string;
+  tipoJornada?: string;
+  experienciaMinima?: string;
   sueldo: string | null;
   rubros: Rubro[];
 };
