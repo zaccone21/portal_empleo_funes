@@ -5,11 +5,13 @@ import { headers } from "next/headers";
 import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/dal/auth";
+import type { ResultadoBusquedaPostulante } from "@/lib/dal/postulantes";
 import { crearCuentaOficina } from "@/lib/use-cases/equipo";
 import {
   alternarCursoAdmin,
   aprobarEmpresa,
   asociarPostulanteAOferta,
+  buscarPostulantes,
   cerrarOferta,
   crearCursoAdmin,
   publicarOfertaPendiente,
@@ -283,6 +285,21 @@ export async function asociarPostulanteAccion(postulanteId: string, ofertaId: st
   if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
   refrescarAdmin();
   return { ok: true, mensaje: `Quedó postulada a “${resultado.datos.oferta.titulo}”.` };
+}
+
+/**
+ * Searches the candidate pool for proactive linking to an offer (Task 9 & 10).
+ */
+export async function buscarCandidatosParaOfertaAccion(filtros: {
+  q?: string;
+  rubros?: string[];
+}): Promise<{ ok: true; postulantes: ResultadoBusquedaPostulante[] } | { ok: false; mensaje: string }> {
+  const usuario = await getCurrentUser();
+  if (!usuario) return { ok: false, mensaje: SIN_SESION.mensaje };
+
+  const resultado = await buscarPostulantes(usuario, filtros);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  return { ok: true, postulantes: resultado.datos };
 }
 
 export type RespuestaCrearCuenta =

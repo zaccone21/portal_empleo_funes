@@ -8,6 +8,7 @@ import {
   BriefcaseIcon,
   CalendarIcon,
   CalendarRangeIcon,
+  DownloadIcon,
   FileDownIcon,
   GraduationCapIcon,
   ListChecksIcon,
@@ -20,6 +21,7 @@ import {
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 import { AnimatePresence, motion } from "motion/react";
 import { es } from "date-fns/locale";
+import { toast } from "sonner";
 
 import { AnimarColapsable, AnimarElemento, AnimarEntrada, AnimarGrupo } from "@/components/marca/animaciones";
 import { Badge } from "@/components/ui/badge";
@@ -324,6 +326,58 @@ export function PanelMetricas({ datos }: Props) {
 
   const ofertasActivasHoy = useMemo(() => datos.ofertas.filter((o) => o.estado === "publicada").length, [datos.ofertas]);
 
+  function exportarCsv() {
+    const escapar = (val: string | number | null | undefined) => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const filas: string[] = [
+      ["Municipalidad de Funes - Oficina de Empleo"].map(escapar).join(";"),
+      ["Reporte de Métricas del Portal de Empleo"].map(escapar).join(";"),
+      [`Período: ${rango.etiqueta} (${rango.desde} a ${rango.hasta})`].map(escapar).join(";"),
+      [`Fecha de emisión: ${fechaCorta(hoy)}`].map(escapar).join(";"),
+      "",
+      ["RESUMEN DE INDICADORES"].map(escapar).join(";"),
+      ["Indicador", "Valor"].map(escapar).join(";"),
+      ["Visitas registradas", analisis.totalVisitas].map(escapar).join(";"),
+      ["Nuevas ofertas", analisis.ofertasNuevas].map(escapar).join(";"),
+      ["Postulaciones recibidas", analisis.recibidas].map(escapar).join(";"),
+      ["Postulaciones derivadas", analisis.presentadas].map(escapar).join(";"),
+      ["Contrataciones confirmadas", analisis.contratadas].map(escapar).join(";"),
+      ["No contratados por la empresa", analisis.noContratadas].map(escapar).join(";"),
+      ["Evaluados no aptos", analisis.noAptas].map(escapar).join(";"),
+      ["Pendientes sin respuesta de empresa", analisis.sinRespuesta].map(escapar).join(";"),
+      ["Cursos de capacitación asignados", analisis.cursosAsignados].map(escapar).join(";"),
+      ["Tasa de contratación (%)", analisis.tasaContratacion !== null ? `${analisis.tasaContratacion}%` : "S/D"].map(escapar).join(";"),
+      "",
+      ["DISTRIBUCIÓN POR RUBRO"].map(escapar).join(";"),
+      ["Rubro", "Ofertas en período", "Postulaciones en período"].map(escapar).join(";"),
+      ...analisis.porRubro.map((r) =>
+        [(NOMBRE_RUBRO as Record<string, string>)[r.rubro] ?? r.rubro, r.ofertas, r.postulaciones].map(escapar).join(";")
+      ),
+      "",
+      ["ÚLTIMOS RESULTADOS EN EL PERÍODO"].map(escapar).join(";"),
+      ["Fecha", "Persona", "Acción", "Detalle", "Entidad"].map(escapar).join(";"),
+      ...analisis.resultados.map((r) =>
+        [r.fecha, r.persona, r.queOcurrio, r.detalle, r.entidad].map(escapar).join(";")
+      ),
+    ];
+
+    const contenido = "\uFEFF" + filas.join("\r\n");
+    const blob = new Blob([contenido], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `metricas-portal-funes-${rango.desde}-${rango.hasta}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Descargaste el reporte de métricas en formato CSV.");
+  }
+
   const datosResultados = [
     { etapa: "Consiguieron trabajo", cantidad: analisis.contratadas, fill: "var(--brand-leaf)" },
     { etapa: "Sin respuesta de la empresa", cantidad: analisis.sinRespuesta, fill: "var(--brand-sun)" },
@@ -356,10 +410,21 @@ export function PanelMetricas({ datos }: Props) {
           titulo="Métricas"
           descripcion="Cuánta gente visita el portal, consigue trabajo, hace cursos o queda afuera. Todo se filtra por período."
           accion={
-            <Button type="button" onClick={() => window.print()} className="h-10 gap-2 px-4 font-semibold">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={exportarCsv}
+                className="h-10 gap-2 px-3.5 font-semibold text-foreground hover:border-brand-leaf/50 hover:bg-brand-mint/20"
+              >
+                <DownloadIcon className="size-4 text-brand-deep" aria-hidden="true" />
+                Exportar CSV
+              </Button>
+              <Button type="button" onClick={() => window.print()} className="h-10 gap-2 px-4 font-semibold">
               <FileDownIcon className="size-4" aria-hidden="true" />
-              Exportar resumen en .pdf
+              Imprimir / PDF
             </Button>
+            </div>
           }
         />
       </div>
