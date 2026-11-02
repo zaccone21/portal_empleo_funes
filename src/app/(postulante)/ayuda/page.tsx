@@ -15,6 +15,7 @@ export const metadata: Metadata = { title: "Ayuda" };
  * - If the logged-in user is `postulante`, strictly shows ONLY applicant help (hiding the selector).
  * - If the logged-in user is `empresa`, strictly shows ONLY company help (hiding the selector).
  * - Visitors without a session (or Office staff) can switch between both guides using `SelectorPublico`.
+ * - On mobile: FAQs appear first (order-1), with the step-by-step guide below (order-2) peeking into view.
  */
 export default async function AyudaPage(props: { searchParams: Promise<{ para?: string }> }) {
   const { para } = await props.searchParams;
@@ -40,12 +41,16 @@ export default async function AyudaPage(props: { searchParams: Promise<{ para?: 
     <Seccion titulo="Ayuda" bajada={bajada}>
       <div className="flex flex-col gap-10">
         {!rolFijo && <SelectorPublico elegido={publico} />}
-        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-12">
-          <GuiaPasos
-            titulo={publico === "empresa" ? "Cómo encontrar personal" : "Cómo buscar trabajo"}
-            pasos={GUIAS[publico]}
-          />
-          <PreguntasFrecuentes preguntas={PREGUNTAS[publico]} />
+        <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
+          <div className="order-2 lg:order-1">
+            <GuiaPasos
+              titulo={publico === "empresa" ? "Cómo encontrar personal" : "Cómo buscar trabajo"}
+              pasos={GUIAS[publico]}
+            />
+          </div>
+          <div className="order-1 lg:order-2">
+            <PreguntasFrecuentes preguntas={PREGUNTAS[publico]} />
+          </div>
         </div>
         <ContactoAyuda />
       </div>

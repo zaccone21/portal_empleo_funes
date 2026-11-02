@@ -35,7 +35,7 @@ describe("ingresar", () => {
     await expect(ingresar({ email: "nadie@ejemplo.com", password: "x" })).resolves.toEqual({
       ok: false,
       falla: "unauthenticated",
-      mensaje: "Email o contraseña incorrectos",
+      mensaje: "Email/documento o contraseña incorrectos",
     });
   });
 
@@ -71,7 +71,7 @@ describe("registrarse", () => {
 
     await expect(registrarse(datosEmpresa, "u")).resolves.toEqual({
       ok: true,
-      datos: { destino: "/empresa" },
+      datos: { destino: "/empresa/perfil" },
     });
   });
 
@@ -113,7 +113,7 @@ describe("abrirEnlace", () => {
 
     await expect(abrirEnlace({ tokenHash: "t", tipo: "signup" }, false)).resolves.toEqual({
       ok: true,
-      datos: { destino: "/empresa" },
+      datos: { destino: "/empresa/perfil" },
     });
   });
 

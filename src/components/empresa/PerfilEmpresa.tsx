@@ -20,8 +20,20 @@ import { VistaPerfilEmpresa } from "./VistaPerfilEmpresa";
  * Shows a read-only view if data exists, or the form if it is empty or editing.
  */
 export function PerfilEmpresa() {
-  const { perfil, cuitRegistrado, estado, motivoRechazo, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
-    usePerfilEmpresa();
+  const {
+    perfil,
+    cuitRegistrado,
+    emailCuenta,
+    estado,
+    motivoRechazo,
+    loading,
+    error,
+    sinAcceso,
+    recargar,
+    guardar,
+    guardando,
+    errorGuardado,
+  } = usePerfilEmpresa();
   const [editando, setEditando] = useState(false);
   const [version, setVersion] = useState(0);
 
@@ -63,7 +75,7 @@ export function PerfilEmpresa() {
   const mostrarFormulario = editando || !perfil;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:items-start">
+    <div className="grid w-full max-w-full min-w-0 gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:items-start">
       {perfil && estado !== "aprobada" && (
         <div className="lg:col-span-2">
           <AvisoEstadoEmpresa estado={estado} motivoRechazo={motivoRechazo} mostrarEnlace={false} />
@@ -82,6 +94,7 @@ export function PerfilEmpresa() {
               key={version}
               perfil={perfil ?? null}
               cuitRegistrado={cuitRegistrado}
+              emailCuenta={emailCuenta}
               estado={estado}
               onGuardar={handleGuardar}
               onCancelar={perfil ? () => setEditando(false) : undefined}
@@ -102,7 +115,7 @@ export function PerfilEmpresa() {
         )}
       </AnimatePresence>
 
-      <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 lg:sticky lg:top-4">
+      <aside className="flex w-full max-w-full min-w-0 gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/5 sm:p-5 lg:sticky lg:top-4">
         <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold">¿Quién ve estos datos?</h2>

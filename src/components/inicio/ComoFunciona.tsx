@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FileUpIcon, SendIcon, UserPlusIcon, type LucideIcon } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const PASOS: { icono: LucideIcon; titulo: string; texto: string }[] = [
   { icono: UserPlusIcon, titulo: "Creá tu cuenta", texto: "Solo necesitás un email y una contraseña." },
@@ -46,7 +47,7 @@ export function ComoFunciona() {
           </li>
         ))}
       </ol>
-      <Link href="/postulante/registrarse" className={buttonVariants({ size: "lg", className: "self-start" })}>
+      <Link href="/postulante/registrarse" className={cn(buttonVariants({ size: "lg" }), "w-full sm:w-auto sm:self-start")}>
         Crear mi cuenta
       </Link>
     </section>

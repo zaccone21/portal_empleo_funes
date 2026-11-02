@@ -103,7 +103,7 @@ export function CarruselOfertas({
           {ofertas.map((oferta) => (
             <li
               key={oferta.id}
-              className="flex shrink-0 basis-[85%] snap-start flex-col sm:basis-[calc(50%-0.5rem)] lg:basis-[calc(33.333%-0.67rem)] xl:basis-[calc(25%-0.75rem)]"
+              className="flex shrink-0 basis-[76%] max-w-[290px] snap-start flex-col sm:max-w-none sm:basis-[calc(50%-0.5rem)] lg:basis-[calc(33.333%-0.67rem)] xl:basis-[calc(25%-0.75rem)]"
             >
               <AnimarElemento elevarAlPasar className="flex h-full flex-col">
                 <TarjetaOferta
@@ -122,8 +122,8 @@ export function CarruselOfertas({
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs text-muted-foreground">
             {autoPlay && !pausadoUsuario
-              ? "Se desliza solo · usá las flechas para moverlo vos"
-              : "Usá las flechas para recorrer las ofertas"}
+              ? "Ofertas recientes en Funes"
+              : "Explorá las ofertas recientes"}
           </span>
           <div className="flex items-center gap-2">
             {autoPlay && (

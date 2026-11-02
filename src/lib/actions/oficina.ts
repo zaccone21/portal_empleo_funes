@@ -5,11 +5,13 @@ import { headers } from "next/headers";
 import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/dal/auth";
-import { crearCuentaOficina } from "@/lib/use-cases/equipo";
+import type { ResultadoBusquedaPostulante } from "@/lib/dal/postulantes";
+import { crearCuentaOficina, darDeBajaCuentaOficina } from "@/lib/use-cases/equipo";
 import {
   alternarCursoAdmin,
   aprobarEmpresa,
   asociarPostulanteAOferta,
+  buscarPostulantes,
   cerrarOferta,
   crearCursoAdmin,
   publicarOfertaPendiente,
@@ -285,6 +287,21 @@ export async function asociarPostulanteAccion(postulanteId: string, ofertaId: st
   return { ok: true, mensaje: `Quedó postulada a “${resultado.datos.oferta.titulo}”.` };
 }
 
+/**
+ * Searches the candidate pool for proactive linking to an offer (Task 9 & 10).
+ */
+export async function buscarCandidatosParaOfertaAccion(filtros: {
+  q?: string;
+  rubros?: string[];
+}): Promise<{ ok: true; postulantes: ResultadoBusquedaPostulante[] } | { ok: false; mensaje: string }> {
+  const usuario = await getCurrentUser();
+  if (!usuario) return { ok: false, mensaje: SIN_SESION.mensaje };
+
+  const resultado = await buscarPostulantes(usuario, filtros);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  return { ok: true, postulantes: resultado.datos };
+}
+
 export type RespuestaCrearCuenta =
   | { ok: true; email: string; contrasenaTemporal: string }
   | { ok: false; mensaje: string };
@@ -304,4 +321,19 @@ export async function crearCuentaOficinaAccion(datos: unknown): Promise<Respuest
   if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
   revalidatePath("/admin/equipo");
   return { ok: true, ...resultado.datos };
+}
+
+/**
+ * Deactivates an Office account (Peer Admin safety guards enforced).
+ */
+export async function darDeBajaCuentaOficinaAccion(id: string): Promise<RespuestaAccion> {
+  const parsedId = idSchema.safeParse(id);
+  if (!parsedId.success) return DATOS_INVALIDOS;
+  const usuario = await getCurrentUser();
+  if (!usuario) return SIN_SESION;
+
+  const resultado = await darDeBajaCuentaOficina(usuario, parsedId.data);
+  if (!resultado.ok) return { ok: false, mensaje: resultado.mensaje };
+  revalidatePath("/admin/equipo");
+  return { ok: true, mensaje: "Cuenta dada de baja correctamente." };
 }

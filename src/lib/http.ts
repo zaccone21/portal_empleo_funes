@@ -79,8 +79,8 @@ export async function sendJson<T>(
  * Reads data with GET from `url` and returns it validated with `schema`.
  * Errors behave as in sendJson: ErrorHttp with the server's message and status.
  */
-export async function getJson<T>(url: string, schema: z.ZodType<T>): Promise<T> {
-  const response = await fetch(url);
+export async function getJson<T>(url: string, schema: z.ZodType<T>, init?: RequestInit): Promise<T> {
+  const response = init !== undefined ? await fetch(url, init) : await fetch(url);
 
   if (!response.ok) {
     throw new ErrorHttp(await leerMensajeDeError(response), response.status);
