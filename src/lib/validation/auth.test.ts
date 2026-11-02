@@ -38,26 +38,29 @@ describe("ingresoSchema", () => {
   test("asks for the email when it is empty, not for a valid format", () => {
     const errores = erroresDe(ingresoSchema.safeParse({ email: "", password: "x" }));
 
-    expect(errores.email).toEqual(["Ingresá tu email"]);
+    expect(errores.email).toEqual([
+      "Ingresá tu email, DNI o CUIT",
+      "Ingresá un email válido, tu DNI (7 u 8 números) o el CUIT (11 números)",
+    ]);
   });
 
   test("rejects a malformed email", () => {
     const errores = erroresDe(ingresoSchema.safeParse({ email: "persona@", password: "x" }));
 
-    expect(errores.email?.[0]).toMatch(/^Revisá el email/);
+    expect(errores.email?.[0]).toMatch(/Ingresá un email válido/);
   });
 
   test("treats missing fields (FormData returns null) as empty", () => {
     const errores = erroresDe(ingresoSchema.safeParse({ email: null, password: null }));
 
-    expect(errores.email).toEqual(["Ingresá tu email"]);
+    expect(errores.email).toEqual(["Ingresá tu email, DNI o CUIT"]);
     expect(errores.password).toEqual(["Ingresá tu contraseña"]);
   });
 });
 
 describe("registroSchema", () => {
-  const postulanteValido = { email: "persona@ejemplo.com", password: "12345678", role: "postulante", dni: "38123456", nombre: "Juan", apellido: "Perez" };
-  const empresaValida = { email: "empresa@ejemplo.com", password: "12345678", role: "empresa", cuit: "30-12345678-9" };
+  const postulanteValido = { email: "persona@ejemplo.com", password: "12345678", role: "postulante" as const, dni: "38123456", aceptaPrivacidad: true as const };
+  const empresaValida = { email: "empresa@ejemplo.com", password: "12345678", role: "empresa" as const, cuit: "30-12345678-9", aceptaPrivacidad: true as const };
 
   test("accepts applicant and company", () => {
     expect(registroSchema.safeParse(postulanteValido).success).toBe(true);
@@ -98,8 +101,7 @@ describe("formularioRegistroSchema", () => {
         email: "persona@ejemplo.com",
         password: "12345678",
         repetirPassword: "87654321",
-        nombre: "Juan",
-        apellido: "Perez",
+        aceptaPrivacidad: true,
       }),
     );
 

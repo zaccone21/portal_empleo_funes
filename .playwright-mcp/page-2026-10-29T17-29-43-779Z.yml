@@ -1,0 +1,263 @@
+- generic [active] [ref=f13e1]:
+  - link "Saltar al contenido" [ref=f13e2] [cursor=pointer]:
+    - /url: "#contenido"
+  - generic [ref=f13e3]:
+    - banner [ref=f13e4]:
+      - generic [ref=f13e5]:
+        - link "Gobierno de la Ciudad de Funes Portal de Empleo" [ref=f13e7] [cursor=pointer]:
+          - /url: /
+          - img "Gobierno de la Ciudad de Funes" [ref=f13e8]
+          - generic [ref=f13e10]: Portal de Empleo
+        - navigation "Principal" [ref=f13e11]:
+          - list [ref=f13e12]:
+            - listitem [ref=f13e13]:
+              - link "Inicio" [ref=f13e14] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f13e15]:
+              - link "Ofertas" [ref=f13e16] [cursor=pointer]:
+                - /url: /ofertas
+            - listitem [ref=f13e18]:
+              - link "Ayuda" [ref=f13e19] [cursor=pointer]:
+                - /url: /ayuda
+        - generic [ref=f13e21]:
+          - link "Ingresar" [ref=f13e22] [cursor=pointer]:
+            - /url: /postulante/ingresar?volver=%2Fofertas
+          - link "Crear cuenta" [ref=f13e23] [cursor=pointer]:
+            - /url: /postulante/registrarse
+    - main [ref=f13e24]:
+      - heading "Ofertas de trabajo en Funes" [level=1] [ref=f13e25]
+      - generic [ref=f13e26]:
+        - generic [ref=f13e29]:
+          - search [ref=f13e30]:
+            - generic [ref=f13e31]:
+              - generic [ref=f13e32]: ¿Qué trabajo buscás?
+              - searchbox "¿Qué trabajo buscás?" [ref=f13e34]
+            - button "Buscar" [ref=f13e35]
+          - generic [ref=f13e36]:
+            - generic [ref=f13e37]:
+              - generic [ref=f13e38]: Rubro u oficio
+              - combobox "Rubro u oficio" [ref=f13e40]:
+                - option "Todos los rubros" [selected]
+                - option "Gastronomía"
+                - option "Comercio y ventas"
+                - option "Construcción y oficios"
+                - option "Jardinería y mantenimiento"
+                - option "Transporte y reparto"
+                - option "Limpieza"
+                - option "Administración"
+                - option "Cuidado de personas"
+                - option "Industria y producción"
+                - option "Tecnología"
+                - option "Otros"
+            - generic [ref=f13e41]:
+              - generic [ref=f13e42]: Remuneración
+              - combobox "Remuneración" [ref=f13e44]:
+                - option "Todas las remuneraciones" [selected]
+                - option "Dice cuánto pagan"
+                - option "A convenir"
+            - generic [ref=f13e45]:
+              - generic [ref=f13e46]: Horario
+              - combobox "Horario" [ref=f13e48]:
+                - option "Cualquier horario" [selected]
+                - option "Turno mañana"
+                - option "Turno tarde"
+                - option "Jornada completa"
+                - option "Medio tiempo"
+            - generic [ref=f13e49]:
+              - generic [ref=f13e50]: Zona de Funes
+              - combobox "Zona de Funes" [ref=f13e52]:
+                - option "Todas las zonas" [selected]
+                - option "Centro"
+                - option "Zona Norte"
+                - option "Zona Sur"
+                - option "Zona Oeste"
+                - option "Ruta 9"
+                - option "Parque Industrial"
+                - option "Funes norte"
+                - option "Juan Elorza 1180, Funes"
+                - option "Av. Santa Fe 1650, Funes"
+                - option "Hipólito Yrigoyen 1340, Funes"
+                - option "Funes City"
+            - generic [ref=f13e53]:
+              - generic [ref=f13e54]: Ordenar
+              - combobox "Ordenar" [ref=f13e56]:
+                - option "Más recientes primero" [selected]
+                - option "Más antiguas primero"
+        - generic [ref=f13e58]:
+          - region [ref=f13e59]:
+            - paragraph [ref=f13e61]: Hay 6 ofertas publicadas.
+            - list [ref=f13e62]:
+              - listitem [ref=f13e63]:
+                - 'link "Jefe de cocina Rubro: Gastronomía Dirección: Funes norte Horario: Lunes a sábados de 9 a 17 hrs Publicada el 25 de octubre (hace 4 días)" [ref=f13e64] [cursor=pointer]':
+                  - /url: /ofertas?oferta=389afed9-5c57-4a4e-8ece-cbd71408deee
+                  - generic [ref=f13e65]:
+                    - heading "Jefe de cocina" [level=2] [ref=f13e67]
+                    - list [ref=f13e68]:
+                      - listitem [ref=f13e69]:
+                        - generic [ref=f13e72]:
+                          - generic [ref=f13e73]: "Rubro:"
+                          - text: Gastronomía
+                      - listitem [ref=f13e74]:
+                        - generic [ref=f13e78]:
+                          - generic [ref=f13e79]: "Dirección:"
+                          - text: Funes norte
+                      - listitem [ref=f13e80]:
+                        - generic [ref=f13e84]:
+                          - generic [ref=f13e85]: "Horario:"
+                          - text: Lunes a sábados de 9 a 17 hrs
+                    - paragraph [ref=f13e87]:
+                      - generic [ref=f13e90]: Publicada el 25 de octubre (hace 4 días)
+              - listitem [ref=f13e93]:
+                - 'link "Atención de mostrador y cafetería Rubros: Gastronomía · Comercio y ventas Dirección: Juan Elorza 1180, Funes Horario: Martes a domingo de 7:00 a 14:00 Sueldo: $690.000 + presentismo Publicada el 23 de octubre (hace 6 días)" [ref=f13e94] [cursor=pointer]':
+                  - /url: /ofertas?oferta=33333333-3333-4333-8333-333333333302
+                  - generic [ref=f13e95]:
+                    - heading "Atención de mostrador y cafetería" [level=2] [ref=f13e97]
+                    - list [ref=f13e98]:
+                      - listitem [ref=f13e99]:
+                        - generic [ref=f13e102]:
+                          - generic [ref=f13e103]: "Rubros:"
+                          - text: Gastronomía · Comercio y ventas
+                      - listitem [ref=f13e104]:
+                        - generic [ref=f13e108]:
+                          - generic [ref=f13e109]: "Dirección:"
+                          - text: Juan Elorza 1180, Funes
+                      - listitem [ref=f13e110]:
+                        - generic [ref=f13e114]:
+                          - generic [ref=f13e115]: "Horario:"
+                          - text: Martes a domingo de 7:00 a 14:00
+                      - listitem [ref=f13e116]:
+                        - generic [ref=f13e120]:
+                          - generic [ref=f13e121]: "Sueldo:"
+                          - text: $690.000 + presentismo
+                    - paragraph [ref=f13e123]:
+                      - generic [ref=f13e126]: Publicada el 23 de octubre (hace 6 días)
+              - listitem [ref=f13e129]:
+                - 'link "Asistente administrativo y facturación Rubros: Administración · Comercio y ventas Dirección: Av. Santa Fe 1650, Funes Horario: Lunes a viernes de 8:30 a 16:30 Sueldo: $780.000 netos Publicada el 22 de octubre (hace 7 días)" [ref=f13e130] [cursor=pointer]':
+                  - /url: /ofertas?oferta=33333333-3333-4333-8333-333333333301
+                  - generic [ref=f13e131]:
+                    - heading "Asistente administrativo y facturación" [level=2] [ref=f13e133]
+                    - list [ref=f13e134]:
+                      - listitem [ref=f13e135]:
+                        - generic [ref=f13e138]:
+                          - generic [ref=f13e139]: "Rubros:"
+                          - text: Administración · Comercio y ventas
+                      - listitem [ref=f13e140]:
+                        - generic [ref=f13e144]:
+                          - generic [ref=f13e145]: "Dirección:"
+                          - text: Av. Santa Fe 1650, Funes
+                      - listitem [ref=f13e146]:
+                        - generic [ref=f13e150]:
+                          - generic [ref=f13e151]: "Horario:"
+                          - text: Lunes a viernes de 8:30 a 16:30
+                      - listitem [ref=f13e152]:
+                        - generic [ref=f13e156]:
+                          - generic [ref=f13e157]: "Sueldo:"
+                          - text: $780.000 netos
+                    - paragraph [ref=f13e159]:
+                      - generic [ref=f13e162]: Publicada el 22 de octubre (hace 7 días)
+              - listitem [ref=f13e165]:
+                - 'link "Soporte técnico e implementación Rubro: Tecnología Dirección: Hipólito Yrigoyen 1340, Funes Horario: Lunes a viernes de 9:00 a 17:00 Sueldo: $850.000 Publicada el 18 de octubre (hace 11 días)" [ref=f13e166] [cursor=pointer]':
+                  - /url: /ofertas?oferta=33333333-3333-4333-8333-333333333304
+                  - generic [ref=f13e167]:
+                    - heading "Soporte técnico e implementación" [level=2] [ref=f13e169]
+                    - list [ref=f13e170]:
+                      - listitem [ref=f13e171]:
+                        - generic [ref=f13e174]:
+                          - generic [ref=f13e175]: "Rubro:"
+                          - text: Tecnología
+                      - listitem [ref=f13e176]:
+                        - generic [ref=f13e180]:
+                          - generic [ref=f13e181]: "Dirección:"
+                          - text: Hipólito Yrigoyen 1340, Funes
+                      - listitem [ref=f13e182]:
+                        - generic [ref=f13e186]:
+                          - generic [ref=f13e187]: "Horario:"
+                          - text: Lunes a viernes de 9:00 a 17:00
+                      - listitem [ref=f13e188]:
+                        - generic [ref=f13e192]:
+                          - generic [ref=f13e193]: "Sueldo:"
+                          - text: $850.000
+                    - paragraph [ref=f13e195]:
+                      - generic [ref=f13e198]: Publicada el 18 de octubre (hace 11 días)
+              - listitem [ref=f13e201]:
+                - 'link "QA Tester Rubro: Tecnología Dirección: Funes Norte Horario: Lunes a Jueves de 8hs a 15hs. Sueldo: A convenir. Publicada el 1 de octubre (hace 28 días)" [ref=f13e202] [cursor=pointer]':
+                  - /url: /ofertas?oferta=de744abd-22b5-4c22-b8ce-9076ce3bfb20
+                  - generic [ref=f13e203]:
+                    - heading "QA Tester" [level=2] [ref=f13e205]
+                    - list [ref=f13e206]:
+                      - listitem [ref=f13e207]:
+                        - generic [ref=f13e210]:
+                          - generic [ref=f13e211]: "Rubro:"
+                          - text: Tecnología
+                      - listitem [ref=f13e212]:
+                        - generic [ref=f13e216]:
+                          - generic [ref=f13e217]: "Dirección:"
+                          - text: Funes Norte
+                      - listitem [ref=f13e218]:
+                        - generic [ref=f13e222]:
+                          - generic [ref=f13e223]: "Horario:"
+                          - text: Lunes a Jueves de 8hs a 15hs.
+                      - listitem [ref=f13e224]:
+                        - generic [ref=f13e228]:
+                          - generic [ref=f13e229]: "Sueldo:"
+                          - text: A convenir.
+                    - paragraph [ref=f13e231]:
+                      - generic [ref=f13e234]: Publicada el 1 de octubre (hace 28 días)
+              - listitem [ref=f13e237]:
+                - 'link "Full-Stack Developer Rubros: Tecnología · Otros Dirección: Funes City Horario: Lunes a Viernes. Horario flexible. Sueldo: A convenir. Publicada el 1 de octubre (hace 28 días)" [ref=f13e238] [cursor=pointer]':
+                  - /url: /ofertas?oferta=ea05ea63-f715-432a-aacb-924144287ca1
+                  - generic [ref=f13e239]:
+                    - heading "Full-Stack Developer" [level=2] [ref=f13e241]
+                    - list [ref=f13e242]:
+                      - listitem [ref=f13e243]:
+                        - generic [ref=f13e246]:
+                          - generic [ref=f13e247]: "Rubros:"
+                          - text: Tecnología · Otros
+                      - listitem [ref=f13e248]:
+                        - generic [ref=f13e252]:
+                          - generic [ref=f13e253]: "Dirección:"
+                          - text: Funes City
+                      - listitem [ref=f13e254]:
+                        - generic [ref=f13e258]:
+                          - generic [ref=f13e259]: "Horario:"
+                          - text: Lunes a Viernes. Horario flexible.
+                      - listitem [ref=f13e260]:
+                        - generic [ref=f13e264]:
+                          - generic [ref=f13e265]: "Sueldo:"
+                          - text: A convenir.
+                    - paragraph [ref=f13e267]:
+                      - generic [ref=f13e270]: Publicada el 1 de octubre (hace 28 días)
+          - article [ref=f13e275]:
+            - generic [ref=f13e276]:
+              - heading "Jefe de cocina" [level=2] [ref=f13e277]
+              - paragraph [ref=f13e278]: Publicada el 25 de octubre
+            - generic [ref=f13e279]:
+              - list [ref=f13e280]:
+                - listitem [ref=f13e281]:
+                  - generic [ref=f13e284]:
+                    - generic [ref=f13e285]: "Rubro:"
+                    - text: Gastronomía
+                - listitem [ref=f13e286]:
+                  - generic [ref=f13e290]:
+                    - generic [ref=f13e291]: "Dirección:"
+                    - text: Funes norte
+                - listitem [ref=f13e292]:
+                  - generic [ref=f13e296]:
+                    - generic [ref=f13e297]: "Horario:"
+                    - text: Lunes a sábados de 9 a 17 hrs
+              - generic [ref=f13e298]:
+                - heading "Qué vas a hacer" [level=3] [ref=f13e299]
+                - paragraph [ref=f13e300]: Coordinar y supervisar todas las operaciones de la cocina, incluyendo la planificación de menús, el control de stock, la gestión y capacitación del personal de cocina, y la garantía de las normas de higiene, seguridad y calidad gastronómica en la preparación de los platos.
+              - generic [ref=f13e301]:
+                - heading "Qué piden" [level=3] [ref=f13e302]
+                - paragraph [ref=f13e303]: Experiencia mínima de 3 años en puestos similares. Capacidad para trabajar bajo presión, liderazgo de equipos y buenas habilidades de comunicación. Disponibilidad horaria y flexibilidad.
+            - button "Postularme" [ref=f13e306]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f13e312] [cursor=pointer]:
+    - generic [ref=f13e315]:
+      - text: Compiling
+      - generic [ref=f13e316]:
+        - generic [ref=f13e317]: .
+        - generic [ref=f13e318]: .
+        - generic [ref=f13e319]: .
+  - alert [ref=f13e320]

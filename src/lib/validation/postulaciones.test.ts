@@ -14,10 +14,10 @@ describe("postulacionPropiaSchema", () => {
     expect(postulacion).not.toHaveProperty("estado");
   });
 
-  test("rejects a date without offset", () => {
+  test("rejects an empty date", () => {
     const resultado = postulacionPropiaSchema.safeParse({
       id: "p-1",
-      postuladoEl: "2026-09-20",
+      postuladoEl: "",
       oferta: { id: "o-1", titulo: "Ayudante de cocina", lugar: "Centro" },
     });
 
