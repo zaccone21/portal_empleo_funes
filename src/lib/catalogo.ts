@@ -34,6 +34,8 @@ export type FiltrosOfertas = {
   modalidad?: ModalidadLaboral | "";
   /** Sort order: newest (`recientes`) or oldest (`antiguas`) first. */
   orden: OrdenOfertas;
+  /** Current page in pagination (default 1). */
+  pagina?: number;
 };
 
 export const FILTROS_VACIOS: Required<FiltrosOfertas> = {
@@ -45,6 +47,7 @@ export const FILTROS_VACIOS: Required<FiltrosOfertas> = {
   tipoJornada: "",
   modalidad: "",
   orden: "recientes",
+  pagina: 1,
 };
 
 type ParametrosUrl = Record<string, string | string[] | undefined>;
@@ -70,7 +73,9 @@ export function leerFiltros(parametros: ParametrosUrl): Required<FiltrosOfertas>
       ? (parametros.modalidad as ModalidadLaboral)
       : "";
   const orden = parametros.orden === "antiguas" ? "antiguas" : "recientes";
-  return { q, rubro, pago, barrio, horario, tipoJornada, modalidad, orden };
+  const pagina =
+    typeof parametros.pagina === "string" ? Math.max(1, parseInt(parametros.pagina, 10) || 1) : 1;
+  return { q, rubro, pago, barrio, horario, tipoJornada, modalidad, orden, pagina };
 }
 
 /** True when the person is narrowing the list (the order alone does not count). */
@@ -90,7 +95,7 @@ export function hayFiltros(filtros: FiltrosOfertas): boolean {
  * Query string for the catalog with these filters, plus an optional selected
  * offer. Default values are left out, so the plain list is just "/ofertas".
  */
-export function rutaCatalogo(filtros: FiltrosOfertas, oferta?: string): string {
+export function rutaCatalogo(filtros: FiltrosOfertas, oferta?: string, pagina?: number): string {
   const parametros = new URLSearchParams();
   if (filtros.q) parametros.set("q", filtros.q);
   if (filtros.rubro) parametros.set("rubro", filtros.rubro);
@@ -100,6 +105,10 @@ export function rutaCatalogo(filtros: FiltrosOfertas, oferta?: string): string {
   if (filtros.tipoJornada) parametros.set("tipoJornada", filtros.tipoJornada);
   if (filtros.modalidad) parametros.set("modalidad", filtros.modalidad);
   if (filtros.orden !== "recientes") parametros.set("orden", filtros.orden);
+
+  const pag = pagina !== undefined ? pagina : filtros.pagina;
+  if (pag && pag > 1) parametros.set("pagina", String(pag));
+
   if (oferta) parametros.set("oferta", oferta);
   const texto = parametros.toString();
   return texto ? `/ofertas?${texto}` : "/ofertas";

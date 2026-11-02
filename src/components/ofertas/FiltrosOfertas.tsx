@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowUpDownIcon,
@@ -28,7 +28,6 @@ import {
   rutaCatalogo,
   type FiltroPagoOferta,
   type FiltrosOfertas as Filtros,
-  type OrdenOfertas,
 } from "@/lib/catalogo";
 import {
   MODALIDADES_LABORALES,
@@ -77,8 +76,32 @@ const TODOS = "__todos";
  */
 export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], className }: Props) {
   const router = useRouter();
-  const filtros = { ...FILTROS_VACIOS, ...filtrosParciales };
+  const filtros = useMemo(
+    () => ({ ...FILTROS_VACIOS, ...filtrosParciales }),
+    [filtrosParciales],
+  );
   const [queryTexto, setQueryTexto] = useState(filtros.q);
+  const [prevFiltroQ, setPrevFiltroQ] = useState(filtros.q);
+
+  // Mantiene sincronizado el input con cambios externos de la URL sin setState en effect
+  if (filtros.q !== prevFiltroQ) {
+    setPrevFiltroQ(filtros.q);
+    setQueryTexto(filtros.q);
+  }
+
+  // Búsqueda en vivo mientras el usuario tipea (debounced ~280ms)
+  useEffect(() => {
+    if (queryTexto.trim() === filtros.q.trim()) return;
+
+    const timer = setTimeout(() => {
+      router.replace(
+        rutaCatalogo({ ...filtros, q: queryTexto.trim() }, undefined, 1),
+        { scroll: false },
+      );
+    }, 280);
+
+    return () => clearTimeout(timer);
+  }, [queryTexto, filtros, router]);
 
   // Cantidad de ofertas activas por cada rubro
   const conteosRubros = useMemo(() => {
@@ -96,17 +119,20 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
 
   function buscar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    router.replace(rutaCatalogo({ ...filtros, q: queryTexto.trim() }), { scroll: false });
+    router.replace(
+      rutaCatalogo({ ...filtros, q: queryTexto.trim() }, undefined, 1),
+      { scroll: false },
+    );
   }
 
   function limpiarBusqueda() {
     setQueryTexto("");
-    router.replace(rutaCatalogo({ ...filtros, q: "" }), { scroll: false });
+    router.replace(rutaCatalogo({ ...filtros, q: "" }, undefined, 1), { scroll: false });
   }
 
   function cambiarRubro(valor: string) {
     const rubro = valor && valor !== TODOS && esRubro(valor) ? (valor as Rubro) : null;
-    router.replace(rutaCatalogo({ ...filtros, rubro }), { scroll: false });
+    router.replace(rutaCatalogo({ ...filtros, rubro }, undefined, 1), { scroll: false });
   }
 
   function cambiarTipoJornada(valor: string) {
@@ -114,7 +140,7 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
       valor && valor !== TODOS && (TIPOS_JORNADA as readonly string[]).includes(valor)
         ? (valor as TipoJornada)
         : "";
-    router.replace(rutaCatalogo({ ...filtros, tipoJornada }), { scroll: false });
+    router.replace(rutaCatalogo({ ...filtros, tipoJornada }, undefined, 1), { scroll: false });
   }
 
   function cambiarModalidad(valor: string) {
@@ -122,22 +148,22 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
       valor && valor !== TODOS && (MODALIDADES_LABORALES as readonly string[]).includes(valor)
         ? (valor as ModalidadLaboral)
         : "";
-    router.replace(rutaCatalogo({ ...filtros, modalidad }), { scroll: false });
+    router.replace(rutaCatalogo({ ...filtros, modalidad }, undefined, 1), { scroll: false });
   }
 
   function cambiarPago(valor: string) {
     const pago = valor === "con_sueldo" || valor === "a_convenir" ? valor : "todos";
-    router.replace(rutaCatalogo({ ...filtros, pago }), { scroll: false });
+    router.replace(rutaCatalogo({ ...filtros, pago }, undefined, 1), { scroll: false });
   }
 
   function cambiarOrden(valor: string) {
     const orden = valor === "antiguas" ? "antiguas" : "recientes";
-    router.replace(rutaCatalogo({ ...filtros, orden }), { scroll: false });
+    router.replace(rutaCatalogo({ ...filtros, orden }, undefined, 1), { scroll: false });
   }
 
   function limpiarTodo() {
     setQueryTexto("");
-    router.replace(rutaCatalogo(FILTROS_VACIOS), { scroll: false });
+    router.replace(rutaCatalogo(FILTROS_VACIOS, undefined, 1), { scroll: false });
   }
 
   const tieneFiltrosActivos = hayFiltros(filtros) || filtros.orden !== "recientes";
@@ -158,13 +184,17 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
           <Input
             id="buscar-ofertas"
             name="q"
-            type="search"
+            type="text"
+            inputMode="search"
+            enterKeyHint="search"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
             aria-label="Buscar empleo o palabra clave"
             placeholder="Puesto, oficio o palabra clave…"
-            enterKeyHint="search"
             value={queryTexto}
             onChange={(e) => setQueryTexto(e.target.value)}
-            className="h-10 pl-9.5 pr-8 text-sm font-sans bg-background rounded-full border-input shadow-2xs w-full placeholder:text-muted-foreground/80 focus-visible:ring-1 focus-visible:ring-primary"
+            className="h-10 pl-9.5 pr-8 text-sm font-sans bg-background rounded-full border-input shadow-2xs w-full placeholder:text-muted-foreground/80 focus-visible:ring-1 focus-visible:ring-primary [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-ms-clear]:hidden"
           />
           {queryTexto && (
             <button
