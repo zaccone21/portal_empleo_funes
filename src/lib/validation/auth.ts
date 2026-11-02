@@ -30,6 +30,7 @@ export type NivelFuerzaContrasena = "vacia" | "debil" | "regular" | "segura";
 export type EvaluacionFuerzaContrasena = {
   nivel: NivelFuerzaContrasena;
   etiqueta: "" | "Débil" | "Regular" | "Segura";
+  motivoDebil?: string;
   barrasActivas: 0 | 1 | 2 | 3;
   requisitos: {
     longitud: boolean;
@@ -40,9 +41,69 @@ export type EvaluacionFuerzaContrasena = {
   };
 };
 
+const PALABRAS_DEBILES = [
+  "contrasena",
+  "password",
+  "clave",
+  "secreto",
+  "admin",
+  "usuario",
+  "qwerty",
+  "asdf",
+  "zxcv",
+  "funes",
+  "empleo",
+  "portal",
+  "prueba",
+  "ejemplo",
+];
+
+const SECUENCIAS_DEBILES = [
+  "012",
+  "123",
+  "234",
+  "345",
+  "456",
+  "567",
+  "678",
+  "789",
+  "890",
+  "987",
+  "654",
+  "321",
+  "210",
+  "abc",
+];
+
+function detectarPatronPredecible(password: string): boolean {
+  const normalizada = password
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (PALABRAS_DEBILES.some((palabra) => normalizada.includes(palabra))) {
+    return true;
+  }
+  if (SECUENCIAS_DEBILES.some((secuencia) => normalizada.includes(secuencia))) {
+    return true;
+  }
+  // 3 or more identical characters in a row (e.g. "aaa", "111")
+  if (/(.)\1\1/.test(normalizada)) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Evaluates password strength for the non-blocking visual indicator in
  * registration and password reset forms (Débil / Regular / Segura).
+ *
+ * - Unicode letters (`ñ`, `á`, `é`...) count as lowercase/uppercase letters,
+ *   never as special symbols (`[^\p{L}\p{N}\s]`).
+ * - Predictable words ("contraseña", "password", "clave", "admin"...) or
+ *   sequences ("123", "abc", "111") downgrade the password to "Débil".
+ * - Reaching "Segura" requires all 5 criteria (8+ chars, lowercase, uppercase,
+ *   digit, and a true special symbol) without predictable patterns.
  */
 export function evaluarFuerzaContrasena(password: string): EvaluacionFuerzaContrasena {
   if (!password) {
@@ -61,15 +122,26 @@ export function evaluarFuerzaContrasena(password: string): EvaluacionFuerzaContr
   }
 
   const longitud = password.length >= PASSWORD_MIN_LENGTH;
-  const minuscula = /[a-z]/.test(password);
-  const mayuscula = /[A-Z]/.test(password);
+  const minuscula = /\p{Ll}/u.test(password);
+  const mayuscula = /\p{Lu}/u.test(password);
   const numero = /[0-9]/.test(password);
-  const simbolo = /[^A-Za-z0-9]/.test(password);
+  const simbolo = /[^\p{L}\p{N}\s]/u.test(password);
 
-  const cumpleBase = longitud && minuscula && mayuscula && numero;
+  const cumpleTodos = longitud && minuscula && mayuscula && numero && simbolo;
   const puntos = [longitud, minuscula, mayuscula, numero, simbolo].filter(Boolean).length;
+  const esPredecible = detectarPatronPredecible(password);
 
-  if (cumpleBase) {
+  if (esPredecible) {
+    return {
+      nivel: "debil",
+      etiqueta: "Débil",
+      motivoDebil: "Evitá palabras comunes (como «contraseña») o secuencias («123»).",
+      barrasActivas: 1,
+      requisitos: { longitud, minuscula, mayuscula, numero, simbolo },
+    };
+  }
+
+  if (cumpleTodos) {
     return {
       nivel: "segura",
       etiqueta: "Segura",

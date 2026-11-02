@@ -47,15 +47,16 @@ test("links the description and the error to the input", () => {
   expect(screen.getByText("Ingresá tu contraseña")).toBeDefined();
 });
 
-test("shows visual strength levels (Débil, Regular, Segura) when mostrarFuerza is enabled", () => {
+test("shows visual strength levels (Débil, Regular, Segura) and flags Contraseña123 as Débil", () => {
   const input = renderCampo({ mostrarFuerza: true });
 
-  fireEvent.change(input, { target: { value: "corta" } });
+  fireEvent.change(input, { target: { value: "Contraseña123" } });
   expect(screen.getByText("Débil")).toBeDefined();
+  expect(screen.getByText(/Evitá palabras comunes/i)).toBeDefined();
 
-  fireEvent.change(input, { target: { value: "solominusculas1" } });
+  fireEvent.change(input, { target: { value: "Montaña84" } });
   expect(screen.getByText("Regular")).toBeDefined();
 
-  fireEvent.change(input, { target: { value: "Segura123!" } });
+  fireEvent.change(input, { target: { value: "Montaña84!" } });
   expect(screen.getByText("Segura")).toBeDefined();
 });

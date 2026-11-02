@@ -76,7 +76,7 @@ export function CampoContrasena({
         { clave: "minuscula", texto: "Minúscula", cumplido: evaluacion.requisitos.minuscula },
         { clave: "mayuscula", texto: "Mayúscula", cumplido: evaluacion.requisitos.mayuscula },
         { clave: "numero", texto: "Número", cumplido: evaluacion.requisitos.numero },
-        { clave: "simbolo", texto: "Especial", cumplido: evaluacion.requisitos.simbolo },
+        { clave: "simbolo", texto: "Especial (!@#)", cumplido: evaluacion.requisitos.simbolo },
       ]
     : [];
 
@@ -134,6 +134,9 @@ export function CampoContrasena({
               {evaluacion.etiqueta}
             </span>
           </div>
+          {evaluacion.motivoDebil && (
+            <p className="text-xs text-destructive">{evaluacion.motivoDebil}</p>
+          )}
           <ul className="flex flex-wrap gap-x-2.5 gap-y-1 text-xs" aria-label="Requisitos de seguridad">
             {requisitos.map((item) => (
               <li
