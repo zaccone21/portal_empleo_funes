@@ -12,7 +12,7 @@ import {
   type CurrentUser,
   type EnlaceDelEmail,
 } from "@/lib/dal/auth";
-import { INICIO_POR_ROL } from "@/lib/rutas";
+import { INICIO_POR_ROL, PERFIL_POR_ROL } from "@/lib/rutas";
 import type { UsuarioSesion, DatosRegistro } from "@/lib/validation/auth";
 
 import { exito, falla, type Resultado } from "./resultado";
@@ -62,7 +62,7 @@ export async function registrarse(
     }
     return falla("unavailable", MENSAJE_EMAIL_NO_ENVIADO);
   }
-  return exito({ destino: resultado.sesionIniciada ? INICIO_POR_ROL[datos.role] : null });
+  return exito({ destino: resultado.sesionIniciada ? PERFIL_POR_ROL[datos.role] : null });
 }
 
 /** "Olvidé mi contraseña" (D-020): the same answer whether the email has an account or not. */
@@ -107,7 +107,7 @@ export async function abrirEnlace(enlace: EnlaceDelEmail, esRecuperacion: boolea
   if (!rol) {
     return falla("unauthenticated", "El enlace venció o ya se usó.");
   }
-  return exito({ destino: esRecuperacion ? "/nueva-contrasena" : INICIO_POR_ROL[rol] });
+  return exito({ destino: esRecuperacion ? "/nueva-contrasena" : PERFIL_POR_ROL[rol] });
 }
 
 /**
@@ -125,7 +125,7 @@ export async function confirmarConCodigo(datos: {
       "El código es incorrecto o ya venció. Revisá el email o pedí un código nuevo.",
     );
   }
-  return exito({ destino: INICIO_POR_ROL[rol] });
+  return exito({ destino: PERFIL_POR_ROL[rol] });
 }
 
 /**

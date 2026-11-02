@@ -35,6 +35,7 @@ const ofertas = [
 describe("leerFiltros", () => {
   test("reads the URL and ignores unknown values", () => {
     expect(leerFiltros({ q: "  cocina ", rubro: "gastronomia", orden: "antiguas" })).toEqual({
+      ...FILTROS_VACIOS,
       q: "cocina",
       rubro: "gastronomia",
       orden: "antiguas",
@@ -77,6 +78,29 @@ describe("filtrarOfertas", () => {
     expect(filtrarOfertas(ofertas, { ...FILTROS_VACIOS, q: "JARDINERÍA norte" }).map((o) => o.id)).toEqual(["jardin"]);
     expect(filtrarOfertas(ofertas, { ...FILTROS_VACIOS, q: "reparto centro" }).map((o) => o.id)).toEqual(["chofer"]);
     expect(filtrarOfertas(ofertas, { ...FILTROS_VACIOS, q: "cocina norte" })).toEqual([]);
+  });
+
+  test("by tipoJornada and modalidad", () => {
+    const ofertasEstandarizadas = [
+      oferta("remoto-completo", {
+        titulo: "Programador",
+        tipoJornada: "completa",
+        modalidad: "remoto",
+      }),
+      oferta("presencial-media", {
+        titulo: "Recepcionista",
+        tipoJornada: "media_jornada",
+        modalidad: "presencial",
+      }),
+    ];
+
+    expect(
+      filtrarOfertas(ofertasEstandarizadas, { ...FILTROS_VACIOS, tipoJornada: "media_jornada" }).map((o) => o.id),
+    ).toEqual(["presencial-media"]);
+
+    expect(
+      filtrarOfertas(ofertasEstandarizadas, { ...FILTROS_VACIOS, modalidad: "remoto" }).map((o) => o.id),
+    ).toEqual(["remoto-completo"]);
   });
 });
 

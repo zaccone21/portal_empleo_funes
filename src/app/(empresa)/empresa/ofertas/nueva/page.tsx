@@ -32,6 +32,8 @@ export default async function EmpresaNuevaOfertaPage({
             requisitos: duplicada.requisitos,
             lugar: duplicada.lugar,
             jornada: duplicada.jornada,
+            modalidad: duplicada.modalidad,
+            tipoJornada: duplicada.tipoJornada,
             sueldo: duplicada.sueldo || "",
             rubros: duplicada.rubros,
           };
@@ -43,7 +45,7 @@ export default async function EmpresaNuevaOfertaPage({
   return (
     <Seccion
       titulo="Publicar una oferta"
-      bajada="Completá los datos del puesto. La Oficina de Empleo la revisa antes de publicarla. Para publicar, tu empresa tiene que estar aprobada."
+      bajada="Completá los datos del puesto que buscás cubrir en tu equipo."
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:items-start">
         <PublicarOferta ofertaPrevia={ofertaPrevia} />

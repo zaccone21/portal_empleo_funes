@@ -13,6 +13,13 @@ export const INICIO_POR_ROL: Record<Role, string> = {
   admin: "/admin",
 };
 
+/** Profile / onboarding screen of each role after registration. */
+export const PERFIL_POR_ROL: Record<Role, string> = {
+  postulante: "/postulante/perfil",
+  empresa: "/empresa/perfil",
+  admin: "/admin",
+};
+
 /** Login screen of each role; "Salir" leads there. */
 export const INGRESO_POR_ROL: Record<Role, string> = {
   postulante: "/postulante/ingresar",

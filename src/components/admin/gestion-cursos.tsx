@@ -181,18 +181,18 @@ export function GestionCursos({ cursos, postulantesConRechazos }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
           <div className="flex flex-col gap-0.5">
             <h2 className="text-[15px] font-bold text-foreground">
-              Postulantes con 3 o más rechazos de empresas ({postulantesConRechazos.length})
+              Candidatos sugeridos para capacitación ({postulantesConRechazos.length})
             </h2>
             <p className="text-[12.5px] text-muted-foreground">
-              Al acumular 3 rechazos en ofertas derivadas, la Oficina puede asignarles una capacitación especial que les llega por correo electrónico.
+              Personas que finalizaron procesos de búsqueda laboral y pueden beneficiarse de una capacitación de formación.
             </p>
           </div>
         </div>
 
         {postulantesConRechazos.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-1 rounded-[8px] border border-dashed border-border py-8 text-center text-muted-foreground">
-            <p className="text-[13.5px] font-semibold text-foreground">No hay postulantes con 3 o más rechazos</p>
-            <p className="text-[12.5px]">Cuando una persona acumule 3 decisiones de no contratación aparecerá en esta lista.</p>
+            <p className="text-[13.5px] font-semibold text-foreground">No hay candidatos sugeridos para capacitación</p>
+            <p className="text-[12.5px]">Cuando una persona finalice postulaciones sin contratación figurará en esta lista para seguimiento.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
