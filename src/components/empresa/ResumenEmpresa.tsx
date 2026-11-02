@@ -165,7 +165,7 @@ export function ResumenEmpresa() {
               href="/empresa/ofertas/nueva"
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "bg-brand-mint text-brand-deep hover:bg-brand-mint/90",
+                "w-full sm:w-auto bg-brand-mint text-brand-deep hover:bg-brand-mint/90",
               )}
             >
               <PlusIcon data-icon="inline-start" aria-hidden="true" />

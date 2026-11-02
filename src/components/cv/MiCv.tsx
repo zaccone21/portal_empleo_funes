@@ -61,8 +61,8 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)] lg:items-start">
-      <div className="flex flex-col gap-4">
+    <div className="grid w-full max-w-full min-w-0 gap-6 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)] lg:items-start">
+      <div className="flex w-full max-w-full min-w-0 flex-col gap-4">
         {ofertaId && !recienSubido && !cv && (
           <Alert>
             <InfoIcon aria-hidden="true" />
@@ -88,7 +88,7 @@ export function MiCv({ ofertaId }: { ofertaId?: string }) {
         {cv && <TarjetaCvActual cv={cv} />}
         <FormularioCv tieneCv={cv !== null} onSubir={handleSubir} subiendo={subiendo} error={errorSubida} />
       </div>
-      <aside className="flex gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 sm:p-6">
+      <aside className="flex w-full max-w-full min-w-0 gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/5 sm:p-6">
         <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
         <div className="flex flex-col gap-1.5">
           <h2 className="font-heading text-lg font-semibold text-foreground">¿Quién ve tu CV?</h2>

@@ -35,12 +35,8 @@ const GARANTIAS: { titulo: string; texto: string; icono: LucideIcon }[] = [
 /**
  * "Un servicio de la Municipalidad de Funes" on the home page (P01, D-059,
  * D-066): why a visitor can trust the portal, told with what the Office really
- * does. On the left, the municipal seal big and white straight on the deep
- * green (no disc behind it), so the block reads as an official endorsement at
- * a glance; on the right, the four promises in a grid of equal cells.
- *
- * The seal file is 447 px, white on a transparent background (made from the
- * green one, 2026-10-22), so it stays sharp up to about 224 px.
+ * does. Sized down cleanly in mobile (seal size-24, p-5) while preserving full
+ * presence in desktop.
  */
 export function Confianza() {
   return (
@@ -48,34 +44,34 @@ export function Confianza() {
       aria-labelledby="confianza-titulo"
       className="grid overflow-hidden rounded-tl-[1.75rem] rounded-tr-lg rounded-br-[1.75rem] rounded-bl-lg bg-card ring-1 ring-foreground/5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
     >
-      <div className="flex flex-col items-center justify-center gap-5 bg-brand-deep p-8 text-center text-primary-foreground sm:p-10">
+      <div className="flex flex-col items-center justify-center gap-4 bg-brand-deep p-5 text-center text-primary-foreground sm:gap-5 sm:p-10">
         <Image
           src="/sello-funes-blanco.png"
           alt="Sello del Gobierno de la Ciudad de Funes"
           width={447}
           height={447}
-          className="size-40 sm:size-48 lg:size-56"
+          className="size-24 sm:size-48 lg:size-56"
         />
-        <div className="flex flex-col gap-2">
-          <h2 id="confianza-titulo" className="text-2xl font-semibold text-balance sm:text-3xl">
+        <div className="flex flex-col gap-1.5 sm:gap-2">
+          <h2 id="confianza-titulo" className="text-xl font-semibold text-balance sm:text-3xl">
             Un servicio de la Municipalidad de Funes
           </h2>
-          <p className="mx-auto max-w-sm text-base text-primary-foreground/80">
+          <p className="mx-auto max-w-sm text-sm text-primary-foreground/80 sm:text-base">
             Detrás del portal está la Oficina de Empleo, que conoce a las empresas y a la gente de la ciudad.
           </p>
         </div>
       </div>
       <ul className="grid gap-px bg-border sm:grid-cols-2">
         {GARANTIAS.map(({ titulo, texto, icono: Icono }) => (
-          <li key={titulo} className="flex flex-col gap-3 bg-card p-6 sm:p-8">
+          <li key={titulo} className="flex flex-col gap-2.5 bg-card p-4 sm:gap-3 sm:p-8">
             <span
               aria-hidden="true"
-              className="flex size-12 shrink-0 items-center justify-center rounded-tl-xl rounded-tr-sm rounded-br-xl rounded-bl-sm bg-primary text-primary-foreground"
+              className="flex size-9 shrink-0 items-center justify-center rounded-tl-xl rounded-tr-sm rounded-br-xl rounded-bl-sm bg-primary text-primary-foreground sm:size-12"
             >
-              <Icono className="size-6" />
+              <Icono className="size-5 sm:size-6" />
             </span>
-            <h3 className="font-heading text-lg font-semibold">{titulo}</h3>
-            <p className="text-base text-muted-foreground">{texto}</p>
+            <h3 className="font-heading text-base font-semibold sm:text-lg">{titulo}</h3>
+            <p className="text-sm text-muted-foreground sm:text-base">{texto}</p>
           </li>
         ))}
       </ul>

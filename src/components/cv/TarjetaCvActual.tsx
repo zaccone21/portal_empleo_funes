@@ -13,7 +13,7 @@ export function TarjetaCvActual({ cv }: { cv: CvPropio }) {
   return (
     <section
       aria-labelledby="cv-actual-titulo"
-      className="flex items-start gap-4 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5"
+      className="flex w-full max-w-full min-w-0 overflow-hidden items-start gap-3.5 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/5 sm:gap-4 sm:p-5"
     >
       <span
         aria-hidden="true"

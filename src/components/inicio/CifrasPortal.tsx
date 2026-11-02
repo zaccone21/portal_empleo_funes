@@ -39,7 +39,7 @@ export function CifrasPortal() {
           El portal en números
         </h2>
       </div>
-      <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-primary-foreground/15 min-[400px]:grid-cols-2 lg:grid-cols-4">
+      <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-primary-foreground/15 min-[360px]:grid-cols-2 lg:grid-cols-4">
         {CIFRAS.map(({ clave, etiqueta, icono: Icono }) => (
           <li key={clave} className="flex flex-col gap-4 bg-brand-deep p-5 lg:p-6">
             <span

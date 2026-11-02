@@ -6,7 +6,7 @@ import { FilterIcon, SearchIcon, UsersIcon, XIcon } from "lucide-react";
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { PedirIngreso } from "@/components/estados/PedirIngreso";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import {
   Empty,
   EmptyDescription,
@@ -24,6 +24,7 @@ type FiltroDecision = "todos" | "pendientes" | "contratados" | "no_contratados";
 /**
  * Vista centralizada de candidatos derivados para la empresa (`/empresa/candidatos`).
  * Permite filtrar por estado de respuesta, por búsqueda/oferta y buscar candidatos por nombre o puesto.
+ * Optimizada para dispositivos móviles con contención estricta y filtros distribuidos sin desbordes.
  */
 export function VistaCandidatosEmpresa() {
   const { candidatos, loading, error, sinAcceso, recargar, reemplazar } = useCandidatosDerivados();
@@ -123,52 +124,59 @@ export function VistaCandidatosEmpresa() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex w-full max-w-full min-w-0 flex-col gap-6">
       {/* Barra de Filtros y Búsqueda */}
       <div className="flex flex-col gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-3 sm:p-4 shadow-xs ring-1 ring-foreground/5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <span className="mr-1 hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-              <FilterIcon className="size-3.5" /> Estado:
-            </span>
-            <Button
-              variant={filtro === "todos" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFiltro("todos")}
-              className="h-8 text-xs font-medium"
-            >
-              Todos ({candidatos.length})
-            </Button>
-            <Button
-              variant={filtro === "pendientes" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFiltro("pendientes")}
-              className="h-8 gap-1.5 text-xs font-medium"
-            >
-              <span>Pendientes</span>
-              {pendientesTotales > 0 && (
-                <span className="rounded-full bg-attention/20 px-1.5 py-0.2 text-xs font-semibold text-attention-foreground">
-                  {pendientesTotales}
-                </span>
-              )}
-            </Button>
-            <Button
-              variant={filtro === "contratados" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFiltro("contratados")}
-              className="h-8 text-xs font-medium"
-            >
-              Contratados
-            </Button>
-            <Button
-              variant={filtro === "no_contratados" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFiltro("no_contratados")}
-              className="h-8 text-xs font-medium"
-            >
-              No contratados
-            </Button>
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+          {/* Pastillas de estado con scroll horizontal limpio en mobile */}
+          <div className="relative -mx-3 overflow-hidden px-3 sm:mx-0 sm:px-0">
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-card to-transparent sm:hidden" />
+            <div className="flex items-center gap-1.5 overflow-x-auto pr-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:pr-0">
+              <span className="mr-1 hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <FilterIcon className="size-3.5" /> Estado:
+              </span>
+              <Button
+                variant={filtro === "todos" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFiltro("todos")}
+                className="h-9 shrink-0 text-xs font-medium sm:h-8"
+              >
+                Todos ({candidatos.length})
+              </Button>
+              <Button
+                variant={filtro === "pendientes" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFiltro("pendientes")}
+                className="h-9 shrink-0 gap-1.5 text-xs font-medium sm:h-8"
+              >
+                <span>Pendientes</span>
+                {pendientesTotales > 0 && (
+                  <span className="rounded-full bg-attention/20 px-1.5 py-0.2 text-xs font-semibold text-attention-foreground">
+                    {pendientesTotales}
+                  </span>
+                )}
+              </Button>
+              <Button
+                variant={filtro === "contratados" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFiltro("contratados")}
+                className="h-9 shrink-0 text-xs font-medium sm:h-8"
+              >
+                Contratados
+              </Button>
+              <Button
+                variant={filtro === "no_contratados" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFiltro("no_contratados")}
+                className="h-9 shrink-0 text-xs font-medium sm:h-8"
+              >
+                No contratados
+              </Button>
+            </div>
+          </div>
 
+          {/* Filtro por oferta y buscador */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             {listaOfertas.length > 1 && (
               <Select
                 value={ofertaFiltro}
@@ -176,7 +184,7 @@ export function VistaCandidatosEmpresa() {
               >
                 <SelectTrigger
                   aria-label="Filtrar por búsqueda"
-                  className="h-8 w-auto min-w-[190px] max-w-xs sm:max-w-md bg-card text-xs font-medium border-border/80 gap-1.5 px-2.5"
+                  className="h-9 w-full min-w-0 bg-card text-xs font-medium border-border/80 gap-1.5 px-2.5 sm:w-auto sm:min-w-[190px] sm:max-w-xs sm:h-8"
                 >
                   <span className="text-muted-foreground font-normal shrink-0">Búsqueda:</span>
                   <span
@@ -202,33 +210,32 @@ export function VistaCandidatosEmpresa() {
                 </SelectContent>
               </Select>
             )}
-          </div>
 
-          {/* Buscador de candidatos */}
-          <div className="relative flex-1 sm:max-w-xs min-w-[200px]">
-            <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-            <input
-              type="search"
-              value={busqueda}
-              placeholder="Buscar candidato o puesto…"
-              aria-label="Buscar candidatos por nombre o puesto"
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="h-8 w-full rounded-md border border-input bg-card pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
-            {busqueda && (
-              <button
-                type="button"
-                onClick={() => setBusqueda("")}
-                aria-label="Borrar búsqueda"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                <XIcon className="size-3.5" />
-              </button>
-            )}
+            {/* Buscador de candidatos */}
+            <div className="relative w-full sm:w-52">
+              <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+              <input
+                type="search"
+                value={busqueda}
+                placeholder="Buscar candidato o puesto…"
+                aria-label="Buscar candidatos por nombre o puesto"
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="h-10 w-full rounded-md border border-input bg-card pl-8 pr-7 text-base text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-8 sm:text-xs"
+              />
+              {busqueda && (
+                <button
+                  type="button"
+                  onClick={() => setBusqueda("")}
+                  aria-label="Borrar búsqueda"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <XIcon className="size-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Resumen de filtros */}
         {hayFiltrosActivos && (
           <div className="flex items-center justify-between border-t border-border/50 pt-2 text-xs text-muted-foreground">
             <span>
@@ -256,9 +263,9 @@ export function VistaCandidatosEmpresa() {
           </Button>
         </div>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul className="grid w-full max-w-full min-w-0 gap-4 sm:grid-cols-2">
           {filtrados.map((candidato) => (
-            <li key={candidato.postulacionId}>
+            <li key={candidato.postulacionId} className="w-full max-w-full min-w-0">
               <TarjetaCandidato candidato={candidato} onDecidido={reemplazar} />
             </li>
           ))}

@@ -194,30 +194,31 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
             placeholder="Puesto, oficio o palabra clave…"
             value={queryTexto}
             onChange={(e) => setQueryTexto(e.target.value)}
-            className="h-10 pl-9.5 pr-8 text-sm font-sans bg-background rounded-full border-input shadow-2xs w-full placeholder:text-muted-foreground/80 focus-visible:ring-1 focus-visible:ring-primary [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-ms-clear]:hidden"
+            className="h-11 pl-10 pr-9 text-base sm:text-sm font-sans bg-background rounded-full border-input shadow-2xs w-full placeholder:text-muted-foreground/80 focus-visible:ring-1 focus-visible:ring-primary [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-ms-clear]:hidden"
           />
           {queryTexto && (
             <button
               type="button"
               onClick={limpiarBusqueda}
               aria-label="Borrar texto de búsqueda"
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
             >
-              <XIcon className="size-3.5" />
+              <XIcon className="size-4" />
             </button>
           )}
         </div>
         <Button
           type="submit"
-          size="sm"
-          className="h-10 px-5 text-sm font-sans font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shrink-0 shadow-2xs cursor-pointer transition-colors"
+          className="h-11 px-5 text-base sm:text-sm font-sans font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shrink-0 shadow-2xs cursor-pointer transition-colors"
         >
           Buscar
         </Button>
       </form>
 
-      {/* 2. Lado derecho: Pastillas de filtros con iconos + Ordenar chiquito */}
-      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5 -mx-1 px-1 sm:mx-0 sm:px-0 lg:ml-auto">
+      {/* 2. Lado derecho: Pastillas de filtros con iconos + Ordenar chiquito con Peek y Fade en mobile */}
+      <div className="relative -mr-4 pr-0 sm:mr-0 sm:pr-0 lg:ml-auto overflow-hidden">
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-muted to-transparent lg:hidden" />
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5 pl-0.5 pr-8 sm:pr-0">
         {/* Rubro */}
         <Select
           value={filtros.rubro ?? TODOS}
@@ -226,7 +227,7 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
           <SelectTrigger
             aria-label="Rubro u oficio"
             className={cn(
-              "h-10 rounded-full px-3.5 text-xs sm:text-sm font-sans font-medium transition-colors border shadow-2xs gap-1.5 shrink-0 cursor-pointer",
+              "h-11 rounded-full px-4 text-sm font-sans font-medium transition-all border shadow-sm hover:shadow-md gap-1.5 shrink-0 cursor-pointer",
               filtros.rubro
                 ? "border-primary/50 bg-primary/10 text-primary font-semibold"
                 : "border-border/80 bg-background text-foreground hover:bg-secondary/60 hover:border-primary/40"
@@ -265,7 +266,7 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
           <SelectTrigger
             aria-label="Modalidad laboral"
             className={cn(
-              "h-10 rounded-full px-3.5 text-xs sm:text-sm font-sans font-medium transition-colors border shadow-2xs gap-1.5 shrink-0 cursor-pointer",
+              "h-11 rounded-full px-4 text-sm font-sans font-medium transition-all border shadow-sm hover:shadow-md gap-1.5 shrink-0 cursor-pointer",
               filtros.modalidad
                 ? "border-primary/50 bg-primary/10 text-primary font-semibold"
                 : "border-border/80 bg-background text-foreground hover:bg-secondary/60 hover:border-primary/40"
@@ -296,7 +297,7 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
           <SelectTrigger
             aria-label="Jornada laboral"
             className={cn(
-              "h-10 rounded-full px-3.5 text-xs sm:text-sm font-sans font-medium transition-colors border shadow-2xs gap-1.5 shrink-0 cursor-pointer",
+              "h-11 rounded-full px-4 text-sm font-sans font-medium transition-all border shadow-sm hover:shadow-md gap-1.5 shrink-0 cursor-pointer",
               filtros.tipoJornada
                 ? "border-primary/50 bg-primary/10 text-primary font-semibold"
                 : "border-border/80 bg-background text-foreground hover:bg-secondary/60 hover:border-primary/40"
@@ -327,7 +328,7 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
           <SelectTrigger
             aria-label="Salario o remuneración"
             className={cn(
-              "h-10 rounded-full px-3.5 text-xs sm:text-sm font-sans font-medium transition-colors border shadow-2xs gap-1.5 shrink-0 cursor-pointer",
+              "h-11 rounded-full px-4 text-sm font-sans font-medium transition-all border shadow-sm hover:shadow-md gap-1.5 shrink-0 cursor-pointer",
               filtros.pago !== "todos"
                 ? "border-primary/50 bg-primary/10 text-primary font-semibold"
                 : "border-border/80 bg-background text-foreground hover:bg-secondary/60 hover:border-primary/40"
@@ -365,7 +366,7 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
             <SelectTrigger
               aria-label="Ordenar ofertas"
               className={cn(
-                "h-9 rounded-full px-3 text-xs font-sans font-medium transition-colors border shadow-2xs gap-1.5 shrink-0 cursor-pointer",
+                "h-11 sm:h-9 rounded-full px-3 text-xs font-sans font-medium transition-all border shadow-sm hover:shadow-md gap-1.5 shrink-0 cursor-pointer",
                 filtros.orden === "antiguas"
                   ? "border-primary/40 bg-primary/10 text-primary font-semibold"
                   : "border-border/70 bg-background text-muted-foreground hover:text-foreground hover:bg-secondary/50"
@@ -388,13 +389,14 @@ export function FiltrosOfertas({ filtros: filtrosParciales, ofertas = [], classN
             variant="ghost"
             size="sm"
             onClick={limpiarTodo}
-            className="h-8 px-2.5 text-xs font-sans font-semibold text-muted-foreground hover:text-foreground gap-1 shrink-0 cursor-pointer"
+            className="h-11 sm:h-8 px-3 text-xs font-sans font-semibold text-muted-foreground hover:text-foreground gap-1 shrink-0 cursor-pointer"
             title="Restablecer todos los filtros"
           >
             <RotateCcwIcon className="size-3" aria-hidden="true" />
             <span>Limpiar</span>
           </Button>
         )}
+        </div>
       </div>
     </div>
   );

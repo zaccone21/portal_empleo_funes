@@ -85,12 +85,12 @@ export function PanelDetalle({ elegida, clave, volverHref, volverTexto, titulo, 
       </header>
       <div
         ref={cuerpoRef}
-        className="relative flex flex-col gap-7 px-5 py-6 sm:px-7 lg:flex-1 lg:min-h-0 lg:overflow-y-auto [scrollbar-width:thin]"
+        className="relative flex flex-col gap-7 px-5 pt-6 pb-8 sm:px-7 lg:flex-1 lg:min-h-0 lg:overflow-y-auto [scrollbar-width:thin]"
       >
         {children}
       </div>
       {pie && (
-        <footer className="sticky bottom-(--alto-barra-inferior,0px) mt-auto rounded-br-2xl rounded-bl-md border-t bg-card px-5 py-4 sm:px-7 lg:static lg:shrink-0 lg:mt-0">
+        <footer className="sticky bottom-[var(--alto-barra-inferior,0px)] mt-auto rounded-br-2xl rounded-bl-md border-t bg-card px-5 py-4 sm:px-7 lg:static lg:shrink-0 lg:mt-0">
           {pie}
         </footer>
       )}

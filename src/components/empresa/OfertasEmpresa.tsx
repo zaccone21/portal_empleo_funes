@@ -1,7 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
-
 import { useState } from "react";
 import Link from "next/link";
 import { FilterIcon, MegaphoneIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
@@ -120,41 +118,46 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Barra de filtros rápidos por estado */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 shadow-xs ring-1 ring-foreground/5">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-1 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-            <FilterIcon className="size-4" /> Filtrar:
-          </span>
-          {(["todas", "publicada", "pendiente", "rechazada"] as const).map((estado) => {
-            const cantidad = estado === "todas" ? ofertas.length : ofertas.filter((o) => o.estado === estado).length;
-            const activo = filtroEstado === estado;
-            return (
-              <Button
-                key={estado}
-                variant={activo ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFiltroEstado(estado)}
-                className="gap-1.5"
-              >
-                <span>{ETIQUETAS_ESTADO[estado]}</span>
-                {cantidad > 0 && (
-                  <span
-                    className={cn(
-                      "rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums",
-                      activo ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {cantidad}
-                  </span>
-                )}
-              </Button>
-            );
-          })}
+      {/* Barra de filtros rápidos por estado y buscador distribuida inteligentemente */}
+      <div className="flex flex-col gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-3 sm:p-4 shadow-xs ring-1 ring-foreground/5 sm:flex-row sm:items-center sm:justify-between">
+        {/* Pastillas de estado con scroll horizontal limpio en mobile */}
+        <div className="relative -mx-3 overflow-hidden px-3 sm:mx-0 sm:px-0">
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-card to-transparent sm:hidden" />
+          <div className="flex items-center gap-1.5 overflow-x-auto pr-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:pr-0">
+            <span className="mr-0.5 hidden items-center gap-1 text-xs font-medium text-muted-foreground sm:inline-flex">
+              <FilterIcon className="size-3.5" /> Filtrar:
+            </span>
+            {(["todas", "publicada", "pendiente", "rechazada"] as const).map((estado) => {
+              const cantidad = estado === "todas" ? ofertas.length : ofertas.filter((o) => o.estado === estado).length;
+              const activo = filtroEstado === estado;
+              return (
+                <Button
+                  key={estado}
+                  variant={activo ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFiltroEstado(estado)}
+                  className="h-9 shrink-0 gap-1.5 px-3 text-xs sm:h-8"
+                >
+                  <span>{ETIQUETAS_ESTADO[estado]}</span>
+                  {cantidad > 0 && (
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.2 text-[11px] font-semibold tabular-nums",
+                        activo ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {cantidad}
+                    </span>
+                  )}
+                </Button>
+              );
+            })}
+          </div>
         </div>
 
+        {/* Buscador y botón publicar (en desktop) */}
         <div className="flex items-center gap-2">
-          <div className="relative min-w-[180px] sm:w-56">
+          <div className="relative w-full sm:w-56">
             <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             <input
               type="search"
@@ -162,20 +165,20 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
               placeholder="Buscar por puesto o lugar…"
               aria-label="Buscar en mis ofertas"
               onChange={(e) => setBusqueda(e.target.value)}
-              className="h-8 w-full rounded-md border border-input bg-card pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-10 w-full rounded-md border border-input bg-background pl-8 pr-7 text-base text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-8 sm:text-xs"
             />
             {busqueda && (
               <button
                 type="button"
                 onClick={() => setBusqueda("")}
                 aria-label="Borrar búsqueda"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <XIcon className="size-3.5" />
               </button>
             )}
           </div>
-          <Link href="/empresa/ofertas/nueva" className={buttonVariants({ variant: "default", size: "sm" })}>
+          <Link href="/empresa/ofertas/nueva" className={cn(buttonVariants({ variant: "default", size: "sm" }), "hidden sm:inline-flex")}>
             <PlusIcon data-icon="inline-start" aria-hidden="true" />
             Publicar oferta
           </Link>
@@ -205,31 +208,22 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
           )
         }
       >
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div
-            key={`${filtroEstado}-${busqueda}`}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className="flex flex-col gap-3"
-          >
-            {ofertasFiltradas.length === 0 ? (
-              <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground bg-card/40">
-                No tenés ofertas en estado &ldquo;{ETIQUETAS_ESTADO[filtroEstado].toLowerCase()}&rdquo;.
-              </div>
-            ) : (
-              ofertasFiltradas.map((oferta) => (
-                <TarjetaOfertaEmpresa
-                  key={oferta.id}
-                  oferta={oferta}
-                  seleccionada={oferta.id === enDetalle?.id}
-                  soloEnEscritorio={!eligio}
-                />
-              ))
-            )}
-          </motion.div>
-        </AnimatePresence>
+        <div className="flex flex-col gap-3">
+          {ofertasFiltradas.length === 0 ? (
+            <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground bg-card/40">
+              No tenés ofertas en estado &ldquo;{ETIQUETAS_ESTADO[filtroEstado].toLowerCase()}&rdquo;.
+            </div>
+          ) : (
+            ofertasFiltradas.map((oferta) => (
+              <TarjetaOfertaEmpresa
+                key={oferta.id}
+                oferta={oferta}
+                seleccionada={oferta.id === enDetalle?.id}
+                soloEnEscritorio={!eligio}
+              />
+            ))
+          )}
+        </div>
       </ListaConDetalle>
     </div>
   );

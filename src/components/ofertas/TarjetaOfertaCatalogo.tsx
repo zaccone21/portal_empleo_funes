@@ -9,6 +9,7 @@ import {
 } from "@/lib/validation/estandarizacion";
 import type { OfertaPublica } from "@/lib/validation/ofertas";
 import { NOMBRE_RUBRO } from "@/lib/validation/rubros";
+import { cn } from "@/lib/utils";
 
 type Props = {
   oferta: OfertaPublica;
@@ -74,15 +75,13 @@ export function TarjetaOfertaCatalogo({ oferta, href, seleccionada, soloEnEscrit
               {oferta.rubros.map((r) => NOMBRE_RUBRO[r]).join(" · ")}
             </span>
           )}
-          <span>•</span>
-          <span className="truncate">
+          <span className={cn("truncate", oferta.rubros && oferta.rubros.length > 0 && "before:content-['•'] before:mr-2")}>
             {oferta.tipoJornada ? NOMBRE_TIPO_JORNADA[oferta.tipoJornada] : oferta.jornada}
           </span>
           {oferta.sueldo && (
-            <>
-              <span>•</span>
-              <span className="font-medium text-foreground truncate">{oferta.sueldo}</span>
-            </>
+            <span className="font-medium text-foreground truncate before:content-['•'] before:mr-2">
+              {oferta.sueldo}
+            </span>
           )}
         </div>
       </div>

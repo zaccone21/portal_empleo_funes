@@ -103,7 +103,7 @@ export function CarruselOfertas({
           {ofertas.map((oferta) => (
             <li
               key={oferta.id}
-              className="flex shrink-0 basis-[85%] snap-start flex-col sm:basis-[calc(50%-0.5rem)] lg:basis-[calc(33.333%-0.67rem)] xl:basis-[calc(25%-0.75rem)]"
+              className="flex shrink-0 basis-[76%] max-w-[290px] snap-start flex-col sm:max-w-none sm:basis-[calc(50%-0.5rem)] lg:basis-[calc(33.333%-0.67rem)] xl:basis-[calc(25%-0.75rem)]"
             >
               <AnimarElemento elevarAlPasar className="flex h-full flex-col">
                 <TarjetaOferta

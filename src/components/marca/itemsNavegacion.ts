@@ -91,6 +91,7 @@ export function itemsNavegacion(
     const completo = conAyuda([...ITEMS_POR_ROL[rol], ITEM_PERFIL_POR_ROL[rol]], rol);
     if (!celular || rol === "admin") return completo;
     if (rol === "postulante") return completo.filter((item) => item !== INICIO_POSTULANTE);
+    if (rol === "empresa") return completo.filter((item) => item !== ITEM_AYUDA && !item.destacado);
     return completo.filter((item) => item !== ITEM_AYUDA);
   }
 

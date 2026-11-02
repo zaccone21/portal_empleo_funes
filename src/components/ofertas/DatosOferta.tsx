@@ -51,7 +51,7 @@ export function DatosOferta({
   return (
     <ul className={cn("flex flex-col gap-1.5 text-base", compacto && "min-h-[calc(4lh+1.125rem)]")}>
       {rubros && rubros.length > 0 && (
-        <li className="flex items-start gap-2">
+        <li className="flex min-w-0 items-start gap-2">
           <IconoRubro rubro={rubros[0]} className="mt-0.5 size-5 shrink-0 text-primary" />
           <span className={texto}>
             <span className="sr-only">{rubros.length === 1 ? "Rubro: " : "Rubros: "}</span>
@@ -59,14 +59,14 @@ export function DatosOferta({
           </span>
         </li>
       )}
-      <li className="flex items-start gap-2">
+      <li className="flex min-w-0 items-start gap-2">
         <MapPinIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
         <span className={texto}>
           <span className="sr-only">Dirección y modalidad: </span>
           {modalidad ? `${NOMBRE_MODALIDAD[modalidad]} · ${lugar}` : lugar}
         </span>
       </li>
-      <li className="flex items-start gap-2">
+      <li className="flex min-w-0 items-start gap-2">
         <ClockIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
         <span className={texto}>
           <span className="sr-only">Horario y jornada: </span>
@@ -74,7 +74,7 @@ export function DatosOferta({
         </span>
       </li>
       {sueldo && (
-        <li className="flex items-start gap-2">
+        <li className="flex min-w-0 items-start gap-2">
           <BanknoteIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
           <span className={texto}>
             <span className="sr-only">Sueldo: </span>
