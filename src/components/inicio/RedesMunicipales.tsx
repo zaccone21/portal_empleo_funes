@@ -26,7 +26,7 @@ export function RedesMunicipales() {
               rel="noopener noreferrer"
               aria-label={`${nombre} de la Municipalidad de Funes (se abre en una pestaña nueva)`}
               title={nombre}
-              className="flex size-10 items-center justify-center rounded-full border border-border bg-card text-foreground/70 transition-colors outline-none hover:border-primary hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="flex size-11 items-center justify-center rounded-full border border-border bg-card text-foreground/70 transition-colors outline-none hover:border-primary hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <Icono className="size-[18px]" />
             </a>

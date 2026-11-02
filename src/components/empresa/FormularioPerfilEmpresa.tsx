@@ -15,6 +15,8 @@ type Props = {
   perfil: PerfilEmpresa | null;
   /** Saved CUIT when the profile is incomplete */
   cuitRegistrado?: string | null;
+  /** Saved account email from registration to avoid re-typing */
+  emailCuenta?: string | null;
   /** Current approval status; when "aprobada", warns that changing CUIT or name re-triggers Office review (D-068). */
   estado?: EstadoEmpresa;
   /** Saves the data; resolves to true when it worked. */
@@ -32,12 +34,19 @@ type Errores = Partial<Record<keyof PerfilEmpresa, string[]>>;
  * Company data form (P10, RF1.3.2), in two groups: the company (name, CUIT,
  * description) and the contact person (name, phone, email).
  *
- * On submit it validates with perfilEmpresaSchema, which also checks that
- * the CUIT's check digit is right (it catches typos), and hands the data to
- * `onGuardar`. Errors go under each field; the server's message, above the
- * button.
+ * Pre-fills CUIT and email from the registration step to avoid asking for
+ * duplicate data (P10 pulido).
  */
-export function FormularioPerfilEmpresa({ perfil, cuitRegistrado, estado, onGuardar, onCancelar, guardando, error }: Props) {
+export function FormularioPerfilEmpresa({
+  perfil,
+  cuitRegistrado,
+  emailCuenta,
+  estado,
+  onGuardar,
+  onCancelar,
+  guardando,
+  error,
+}: Props) {
   const [errores, setErrores] = useState<Errores>({});
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -91,7 +100,7 @@ export function FormularioPerfilEmpresa({ perfil, cuitRegistrado, estado, onGuar
             defaultValue={perfil?.cuit || cuitRegistrado || ""}
             error={errores.cuit?.[0]}
             inputMode="numeric"
-            maxLength={13}
+            maxLength={14}
             obligatorio
           />
           <CampoTexto
@@ -131,7 +140,8 @@ export function FormularioPerfilEmpresa({ perfil, cuitRegistrado, estado, onGuar
           <CampoTexto
             id="contactoEmail"
             label="Email"
-            defaultValue={perfil?.contactoEmail}
+            descripcion="Dirección donde la Oficina y los candidatos se comunican con ustedes."
+            defaultValue={perfil?.contactoEmail || emailCuenta || ""}
             error={errores.contactoEmail?.[0]}
             autoComplete="email"
             inputMode="email"

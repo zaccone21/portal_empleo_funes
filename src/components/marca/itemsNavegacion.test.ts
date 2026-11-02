@@ -19,6 +19,7 @@ describe("itemsNavegacion", () => {
     expect(textos(itemsNavegacion(empresa, "postulante", false))).toEqual([
       "Inicio",
       "Mis ofertas",
+      "Candidatos",
       "Publicar",
       "Mi empresa",
       "Ayuda",
@@ -39,11 +40,16 @@ describe("itemsNavegacion", () => {
       "Mi perfil",
       "Ayuda",
     ]);
-    expect(textos(itemsNavegacion(empresa, "empresa", true))).toEqual(["Inicio", "Mis ofertas", "Publicar", "Mi empresa"]);
+    expect(textos(itemsNavegacion(empresa, "empresa", true))).toEqual([
+      "Inicio",
+      "Mis ofertas",
+      "Candidatos",
+      "Mi empresa",
+    ]);
   });
 
   test("the company's main action stands out", () => {
-    expect(itemsNavegacion(empresa, "empresa", true).find((item) => item.destacado)?.texto).toBe("Publicar");
+    expect(itemsNavegacion(empresa, "empresa", false).find((item) => item.destacado)?.texto).toBe("Publicar");
   });
 
   test("without a session, phones also get the way in (the bottom bar is their only menu)", () => {

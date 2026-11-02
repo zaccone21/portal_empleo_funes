@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
-
 import { getCurrentUser } from "@/lib/dal/auth";
-import { responder, sinSesion } from "@/lib/respuestas-api";
+import { redirigirUrlFirmada, responder, sinSesion } from "@/lib/respuestas-api";
 import { abrirMiCv } from "@/lib/use-cases/postulante";
 
 /**
@@ -13,6 +11,6 @@ export async function GET() {
   if (!usuario) return sinSesion();
 
   const resultado = await abrirMiCv(usuario);
-  if (resultado.ok) redirect(resultado.datos.url);
+  if (resultado.ok) return redirigirUrlFirmada(resultado.datos.url);
   return responder(resultado);
 }

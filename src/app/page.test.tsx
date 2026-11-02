@@ -32,10 +32,13 @@ test("home presents the portal with its heading", async () => {
 test("the search works as a plain form to the catalog (even before JavaScript loads)", async () => {
   render(await Home());
 
-  const buscador = screen.getByRole("search");
-  expect(buscador.getAttribute("action")).toBe("/ofertas");
-  expect(buscador.getAttribute("method")).toBe("get");
-  expect(screen.getByLabelText("¿Qué trabajo buscás?").getAttribute("name")).toBe("q");
+  const buscadores = screen.getAllByRole("search");
+  expect(buscadores.length).toBeGreaterThanOrEqual(1);
+  for (const buscador of buscadores) {
+    expect(buscador.getAttribute("action")).toBe("/ofertas");
+    expect(buscador.getAttribute("method")).toBe("get");
+  }
+  expect(screen.getAllByLabelText("¿Qué trabajo buscás?")[0]?.getAttribute("name")).toBe("q");
 });
 
 // D-066: there is no "Para empresas" block any more; companies find their way in through the help.

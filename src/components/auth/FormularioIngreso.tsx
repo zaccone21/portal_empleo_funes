@@ -110,7 +110,7 @@ export function FormularioIngreso({ volver, enlaceVencido, modoAcceso }: Props) 
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+    <form method="post" onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       {enlaceVencido ? (
         <Alert>
           <AlertCircleIcon aria-hidden="true" />

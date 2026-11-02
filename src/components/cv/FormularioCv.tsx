@@ -71,7 +71,7 @@ export function FormularioCv({ tieneCv, onSubir, subiendo, error }: Props) {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="flex flex-col gap-5 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/5 sm:p-6"
+      className="flex w-full max-w-full min-w-0 overflow-hidden flex-col gap-4 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/5 sm:gap-5 sm:p-6"
     >
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-semibold">{tieneCv ? "Reemplazar tu CV" : "Subí tu CV"}</h2>
@@ -95,7 +95,7 @@ export function FormularioCv({ tieneCv, onSubir, subiendo, error }: Props) {
         <label
           htmlFor="archivo-cv"
           className={cn(
-            "flex cursor-pointer flex-col items-center gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border-2 border-dashed border-input bg-muted px-4 py-8 text-center",
+            "flex cursor-pointer flex-col items-center gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border-2 border-dashed border-input bg-muted px-3 py-6 text-center sm:px-4 sm:py-8 w-full max-w-full min-w-0 overflow-hidden",
             "hover:border-primary peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50",
             errorArchivo && "border-destructive",
           )}
@@ -106,7 +106,7 @@ export function FormularioCv({ tieneCv, onSubir, subiendo, error }: Props) {
           >
             <UploadIcon className="size-7" />
           </span>
-          <span className="max-w-full truncate font-heading text-lg font-semibold">
+          <span className="max-w-full truncate font-heading text-base font-semibold sm:text-lg">
             {archivo ? archivo.name : "Elegí tu CV en PDF o imagen PNG"}
           </span>
           <span className="text-base text-muted-foreground">

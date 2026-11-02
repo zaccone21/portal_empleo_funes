@@ -3,10 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 vi.mock("react", () => ({ cache: <T>(fn: T) => fn }));
 
-const { createClient } = vi.hoisted(() => ({ createClient: vi.fn() }));
+const { createClient, createAdminClient } = vi.hoisted(() => ({
+  createClient: vi.fn(),
+  createAdminClient: vi.fn(),
+}));
 vi.mock("@/lib/supabase/server", () => ({ createClient }));
+vi.mock("@/lib/supabase/admin", () => ({ createAdminClient }));
 
-import { getCurrentUser } from "@/lib/dal/auth";
+import { getCurrentUser, ingresarConContrasena } from "@/lib/dal/auth";
 
 function mockSupabase({
   sub,
@@ -37,6 +41,7 @@ function mockSupabase({
 describe("getCurrentUser", () => {
   beforeEach(() => {
     createClient.mockReset();
+    createAdminClient.mockReset();
   });
 
   it("returns null when there is no session", async () => {
@@ -78,5 +83,51 @@ describe("getCurrentUser", () => {
     mockSupabase({ sub: "user-1", perfil: { rol: "superuser", email: "x@ejemplo.com" } });
 
     await expect(getCurrentUser()).rejects.toThrow();
+  });
+});
+
+describe("ingresarConContrasena con DNI/CUIT (resolución exclusiva con service_role)", () => {
+  beforeEach(() => {
+    createClient.mockReset();
+    createAdminClient.mockReset();
+  });
+
+  it("resuelve el DNI usando createAdminClient().rpc('resolver_email_por_documento') y nunca el cliente anon/sesión", async () => {
+    const adminRpc = vi.fn().mockResolvedValue({ data: "postulante@ejemplo.com", error: null });
+    createAdminClient.mockReturnValue({ rpc: adminRpc });
+
+    const sessionRpc = vi.fn();
+    const signInWithPassword = vi.fn().mockResolvedValue({
+      data: { user: { id: "u-postulante" } },
+      error: null,
+    });
+    const single = vi.fn().mockResolvedValue({
+      data: { rol: "postulante" },
+      error: null,
+    });
+    const eq = vi.fn().mockReturnValue({ single });
+    const select = vi.fn().mockReturnValue({ eq });
+    const from = vi.fn().mockReturnValue({ select });
+
+    createClient.mockResolvedValue({
+      rpc: sessionRpc,
+      auth: { signInWithPassword },
+      from,
+    });
+
+    const resultado = await ingresarConContrasena("38123456", "secreto123");
+
+    expect(adminRpc).toHaveBeenCalledWith("resolver_email_por_documento", {
+      p_documento: "38123456",
+    });
+    expect(sessionRpc).not.toHaveBeenCalled();
+    expect(signInWithPassword).toHaveBeenCalledWith({
+      email: "postulante@ejemplo.com",
+      password: "secreto123",
+    });
+    expect(resultado).toEqual({
+      ok: true,
+      rol: "postulante",
+    });
   });
 });

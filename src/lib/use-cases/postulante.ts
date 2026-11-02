@@ -2,8 +2,19 @@ import "server-only";
 
 import type { CurrentUser } from "@/lib/dal/auth";
 import { crearUrlFirmadaCv, guardarCv, leerCv } from "@/lib/dal/cv";
-import { leerOferta, listarOfertasPublicadas } from "@/lib/dal/ofertas";
-import { crearPostulacion, idsDeOfertasPostuladas, listarPostulacionesPropias } from "@/lib/dal/postulaciones";
+import {
+  leerOferta,
+  listarOfertasPublicadas,
+  listarOfertasPublicadasPaginadas,
+  type FiltrosConsultaOfertas,
+} from "@/lib/dal/ofertas";
+import { crearRespuestaPaginada, type ParametrosPaginacion, type RespuestaPaginada } from "@/lib/paginacion";
+import {
+  confirmarPreentrevistaConToken,
+  crearPostulacion,
+  idsDeOfertasPostuladas,
+  listarPostulacionesPropias,
+} from "@/lib/dal/postulaciones";
 import { guardarPerfilPostulante, leerPerfilPostulante, perfilCompletoPostulante, type ResultadoLeerPerfilPostulante } from "@/lib/dal/postulantes";
 import type { CvPropio } from "@/lib/validation/cv";
 import type { OfertaPublica } from "@/lib/validation/ofertas";
@@ -56,6 +67,28 @@ export async function verOfertasPublicadas(usuario: CurrentUser | null): Promise
   return exito(ofertas.map((oferta) => aOfertaPublica(oferta, postuladas.has(oferta.id))));
 }
 
+/**
+ * Published offers query paginated directly from Supabase backend range (P01, P05).
+ */
+export async function verOfertasPublicadasPaginadas(
+  usuario: CurrentUser | null,
+  paginacion?: ParametrosPaginacion,
+  filtros?: FiltrosConsultaOfertas,
+): Promise<Resultado<RespuestaPaginada<OfertaPublica>>> {
+  const paginada = await listarOfertasPublicadasPaginadas(paginacion, filtros);
+  const postuladas = usuario?.rol === "postulante" ? await idsDeOfertasPostuladas(usuario.id) : new Set<string>();
+
+  return exito(
+    crearRespuestaPaginada(
+      paginada.items.map((oferta) => aOfertaPublica(oferta, postuladas.has(oferta.id))),
+      paginada.total,
+      paginada.pagina,
+      paginada.porPagina
+    )
+  );
+}
+
+
 /** "Mis postulaciones" (P07): which offer and when, never the Office's status (RF1.2.4). */
 export async function verMisPostulaciones(usuario: CurrentUser): Promise<Resultado<PostulacionPropia[]>> {
   const negado = sinPermiso(usuario, "postulante");
@@ -91,7 +124,7 @@ export async function postularme(usuario: CurrentUser, ofertaId: string): Promis
   }
 
   if (!(await leerCv(usuario.id))) {
-    return falla("conflict", "Para postularte tenés que subir tu CV en PDF o PNG. Lleva un minuto.");
+    return falla("conflict", "Para postularte tenés que subir tu CV (PDF o PNG).");
   }
 
   await crearPostulacion(usuario.id, oferta.id);
@@ -126,4 +159,19 @@ export async function abrirMiCv(usuario: CurrentUser): Promise<Resultado<{ url: 
   const ruta = cv.ruta ?? `${usuario.id}/cv.${extension}`;
   const url = await crearUrlFirmadaCv(ruta);
   return exito({ url });
+}
+
+/**
+ * Confirms or cancels a pre-interview slot using the one-time UUID token from
+ * the applicant's email link (`GET /acceso/preentrevista`, AGENTS §6).
+ */
+export async function responderPreentrevistaPorToken(
+  token: string,
+  confirmar: boolean,
+): Promise<Resultado<{ resultado: "confirmada" | "cancelada" }>> {
+  const actualizado = await confirmarPreentrevistaConToken(token, confirmar);
+  if (!actualizado) {
+    return falla("not_found", "El enlace de preentrevista no es válido o ya fue utilizado.");
+  }
+  return exito({ resultado: confirmar ? "confirmada" : "cancelada" });
 }

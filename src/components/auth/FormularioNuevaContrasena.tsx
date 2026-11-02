@@ -57,14 +57,15 @@ export function FormularioNuevaContrasena() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+    <form method="post" onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <FieldGroup className="gap-5">
         <CampoContrasena
           id="password"
           name="password"
           label="Contraseña nueva"
           autoComplete="new-password"
-          descripcion={`Tiene que tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`}
+          descripcion={`Tiene que tener al menos ${PASSWORD_MIN_LENGTH} caracteres, con mayúsculas, minúsculas y números.`}
+          mostrarFuerza
           error={errores.password?.[0]}
           obligatorio
         />

@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/dal/auth";
-import { esIdValido, noEncontrado, responder, sinSesion } from "@/lib/respuestas-api";
+import { esIdValido, esOrigenValido, noEncontrado, origenInvalido, responder, sinSesion } from "@/lib/respuestas-api";
 import { pedirCierre } from "@/lib/use-cases/empresa";
 
 /**
@@ -8,7 +8,9 @@ import { pedirCierre } from "@/lib/use-cases/empresa";
  * (also if already asked); 404 if it does not exist or is another company's;
  * 409 if it is not published.
  */
-export async function POST(_request: Request, ctx: RouteContext<"/api/empresa/ofertas/[id]/solicitud-cierre">) {
+export async function POST(request: Request, ctx: RouteContext<"/api/empresa/ofertas/[id]/solicitud-cierre">) {
+  if (!esOrigenValido(request)) return origenInvalido();
+
   const usuario = await getCurrentUser();
   if (!usuario) return sinSesion();
 

@@ -3,8 +3,10 @@ import "server-only";
 import { z } from "zod";
 
 import { createClient } from "@/lib/supabase/server";
+import { calcularRango, crearRespuestaPaginada, type ParametrosPaginacion, type RespuestaPaginada } from "@/lib/paginacion";
 import type { PerfilPostulante } from "@/lib/validation/postulante-perfil";
 import { rubroSchema } from "@/lib/validation/rubros";
+import { limpiarFiltroPostgrest } from "@/lib/validation/texto";
 
 /** Columns of `postulantes` behind PerfilPostulante (P03). */
 const COLUMNAS_POSTULANTE = "nombre, apellido, telefono, direccion, dni, experiencia, cv_ruta, cv_nombre, cv_tamano_bytes, cv_subido_el";
@@ -225,7 +227,7 @@ export async function buscarPostulantes(
   `);
 
   if (filtros.q && filtros.q.trim()) {
-    const qLimpio = filtros.q.trim().replace(/[,()]/g, "");
+    const qLimpio = limpiarFiltroPostgrest(filtros.q);
     if (qLimpio) {
       query = query.or(`nombre.ilike.%${qLimpio}%,apellido.ilike.%${qLimpio}%,dni.ilike.%${qLimpio}%`);
     }
@@ -312,4 +314,69 @@ export async function contarPostulantes(): Promise<number> {
 
   if (error) throw new Error("Could not count the applicants.");
   return count ?? 0;
+}
+
+/**
+ * Paged search for applicants in the Office table.
+ * Uses native Supabase .range() and count: 'exact'.
+ */
+export async function buscarPostulantesPaginados(
+  filtros: FiltrosBusquedaPostulantes = {},
+  paginacion: ParametrosPaginacion = { pagina: 1, porPagina: 50 },
+): Promise<RespuestaPaginada<ResultadoBusquedaPostulante>> {
+  const supabase = await createClient();
+  const { desde, hasta } = calcularRango(paginacion.pagina, paginacion.porPagina);
+
+  let query = supabase.from("postulantes").select(`
+    id,
+    nombre,
+    apellido,
+    telefono,
+    direccion,
+    dni,
+    experiencia,
+    cv_subido_el,
+    perfiles ( email ),
+    postulante_rubros (
+      rubros (
+        slug,
+        nombre
+      )
+    )
+  `, { count: "exact" });
+
+  if (filtros.q && filtros.q.trim()) {
+    const qLimpio = limpiarFiltroPostgrest(filtros.q);
+    if (qLimpio) {
+      query = query.or(`nombre.ilike.%${qLimpio}%,apellido.ilike.%${qLimpio}%,dni.ilike.%${qLimpio}%`);
+    }
+  }
+
+  const { data, error, count } = await query
+    .order("apellido", { ascending: true, nullsFirst: false })
+    .range(desde, hasta);
+
+  if (error) throw new Error("Error al buscar postulantes paginados: " + error.message);
+
+  const items: ResultadoBusquedaPostulante[] = (data ?? []).map((raw) => {
+    const row = filaBusquedaSchema.parse(raw);
+    const rubros = (row.postulante_rubros ?? [])
+      .map((item) => item.rubros?.slug)
+      .filter((slug): slug is string => Boolean(slug));
+
+    return {
+      id: row.id,
+      nombre: row.nombre,
+      apellido: row.apellido,
+      telefono: row.telefono ?? null,
+      direccion: row.direccion ?? null,
+      dni: row.dni ?? null,
+      email: row.perfiles?.email ?? null,
+      cvSubidoEl: row.cv_subido_el,
+      experiencia: row.experiencia,
+      rubros,
+    };
+  });
+
+  return crearRespuestaPaginada(items, count ?? 0, paginacion.pagina, paginacion.porPagina);
 }

@@ -65,6 +65,8 @@ test("sends the offer and opens it in 'Mis ofertas'", async () => {
     lugar: "Centro",
     jornada: "Lunes a viernes de 9 a 13",
     sueldo: "",
+    modalidad: "presencial",
+    tipoJornada: "completa",
     rubros: ["gastronomia", "transporte"],
   });
   await waitFor(() => expect(mocks.push).toHaveBeenCalledWith("/empresa/ofertas?oferta=nueva-1"));

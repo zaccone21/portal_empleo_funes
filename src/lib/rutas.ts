@@ -13,6 +13,13 @@ export const INICIO_POR_ROL: Record<Role, string> = {
   admin: "/admin",
 };
 
+/** Profile / onboarding screen of each role after registration. */
+export const PERFIL_POR_ROL: Record<Role, string> = {
+  postulante: "/postulante/perfil",
+  empresa: "/empresa/perfil",
+  admin: "/admin",
+};
+
 /** Login screen of each role; "Salir" leads there. */
 export const INGRESO_POR_ROL: Record<Role, string> = {
   postulante: "/postulante/ingresar",
@@ -21,10 +28,10 @@ export const INGRESO_POR_ROL: Record<Role, string> = {
 };
 
 /**
- * True for a path inside this site ("/…" but not "//…", which browsers read
- * as another site). Used before navigating to a path that came in the URL,
- * such as ?volver=, so a crafted link cannot send anyone elsewhere.
+ * True for a path inside this site ("/…" but not "//…" or "/\…", which browsers
+ * read as another site — ASVS V1.2.1). Used before navigating to a path that came
+ * in the URL, such as ?volver=, so a crafted link cannot send anyone elsewhere.
  */
 export function esRutaInterna(ruta: string | undefined): ruta is string {
-  return typeof ruta === "string" && /^\/(?!\/)/.test(ruta);
+  return typeof ruta === "string" && /^\/(?![/\\])/.test(ruta);
 }

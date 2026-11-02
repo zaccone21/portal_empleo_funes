@@ -2,8 +2,10 @@ import "server-only";
 
 import { z } from "zod";
 
+import { calcularRango, crearRespuestaPaginada, type ParametrosPaginacion, type RespuestaPaginada } from "@/lib/paginacion";
 import { createClient } from "@/lib/supabase/server";
 import { estadoEmpresaSchema, type EstadoEmpresa, type PerfilEmpresa } from "@/lib/validation/empresa";
+import { limpiarFiltroPostgrest } from "@/lib/validation/texto";
 
 /** Columns of `empresas` behind PerfilEmpresa (P10). */
 export const COLUMNAS_EMPRESA = "razon_social, cuit, descripcion, contacto_nombre, contacto_telefono, contacto_email";
@@ -17,12 +19,13 @@ export const filaEmpresaSchema = z.object({
   contacto_email: z.string().nullable(),
 });
 
-/** The columns of the company's review by the Office (D-068), apart from the data behind PerfilEmpresa. */
-const COLUMNAS_EMPRESA_CON_ESTADO = `${COLUMNAS_EMPRESA}, estado, motivo_rechazo`;
+/** The columns of the company's review by the Office (D-068), plus perfiles email to prefill contact email. */
+const COLUMNAS_EMPRESA_CON_ESTADO = `${COLUMNAS_EMPRESA}, estado, motivo_rechazo, perfiles ( email )`;
 
 const filaEmpresaConEstadoSchema = filaEmpresaSchema.extend({
   estado: estadoEmpresaSchema,
   motivo_rechazo: z.string().nullable(),
+  perfiles: z.object({ email: z.string().nullable() }).nullable().optional(),
 });
 
 /**
@@ -47,6 +50,7 @@ export function aPerfilEmpresa(fila: z.infer<typeof filaEmpresaSchema>): PerfilE
 export type DatosEmpresa = {
   perfil: PerfilEmpresa | null;
   cuit: string | null;
+  emailCuenta: string | null;
   estado: EstadoEmpresa;
   /** Only while the status is "rechazada". */
   motivoRechazo: string | null;
@@ -62,12 +66,18 @@ export async function leerPerfilEmpresa(empresaId: string): Promise<DatosEmpresa
 
   // No row (or a malformed id): treated as not approved, which is the safe side for publishing.
   if (error?.code === "22P02" || (!error && !data)) {
-    return { perfil: null, cuit: null, estado: "pendiente", motivoRechazo: null };
+    return { perfil: null, cuit: null, emailCuenta: null, estado: "pendiente", motivoRechazo: null };
   }
   if (error) throw new Error("Could not load the company.");
 
   const fila = filaEmpresaConEstadoSchema.parse(data);
-  return { perfil: aPerfilEmpresa(fila), cuit: fila.cuit, estado: fila.estado, motivoRechazo: fila.motivo_rechazo };
+  return {
+    perfil: aPerfilEmpresa(fila),
+    cuit: fila.cuit,
+    emailCuenta: fila.perfiles?.email ?? null,
+    estado: fila.estado,
+    motivoRechazo: fila.motivo_rechazo,
+  };
 }
 
 export type ResultadoGuardarEmpresa =
@@ -97,7 +107,7 @@ export async function guardarPerfilEmpresa(empresaId: string, perfil: PerfilEmpr
 
   // 23505: the CUIT is unique (D-032) and another account already has it.
   if (error?.code === "23505") return { ok: false, motivo: "cuit_repetido" };
-  if (error) throw new Error("Could not save the company.");
+  if (error) throw new Error("Could not save the company: " + error.message);
 
   const fila = filaEmpresaConEstadoSchema.parse(data);
   const guardado = aPerfilEmpresa(fila);
@@ -184,20 +194,65 @@ function aEmpresaLista(dato: unknown): EmpresaLista {
   };
 }
 
+export type FiltrosEmpresas = {
+  q?: string;
+  estado?: EstadoEmpresa;
+};
+
 /** Every company, newest first, for the Office (the session must be an admin: RLS decides). */
-export async function listarEmpresas(filtros: { q?: string } = {}): Promise<EmpresaLista[]> {
+export async function listarEmpresas(filtros: FiltrosEmpresas = {}): Promise<EmpresaLista[]> {
   const supabase = await createClient();
 
   let query = supabase.from("empresas").select(COLUMNAS_LISTA);
 
+  if (filtros.estado) {
+    query = query.eq("estado", filtros.estado);
+  }
+
   if (filtros.q) {
-    query = query.or(`razon_social.ilike.%${filtros.q}%,cuit.ilike.%${filtros.q}%,contacto_email.ilike.%${filtros.q}%`);
+    const qLimpio = limpiarFiltroPostgrest(filtros.q);
+    if (qLimpio) {
+      query = query.or(`razon_social.ilike.%${qLimpio}%,cuit.ilike.%${qLimpio}%,contacto_email.ilike.%${qLimpio}%`);
+    }
   }
 
   const { data, error } = await query;
   if (error) throw new Error("Could not load the companies.");
 
   return data.map(aEmpresaLista).sort((a, b) => b.creadaEl.localeCompare(a.creadaEl));
+}
+
+/** Paged list of companies for the Office table. */
+export async function listarEmpresasPaginadas(
+  filtros: FiltrosEmpresas = {},
+  paginacion: ParametrosPaginacion = { pagina: 1, porPagina: 20 },
+): Promise<RespuestaPaginada<EmpresaLista>> {
+  const supabase = await createClient();
+  const { desde, hasta } = calcularRango(paginacion.pagina, paginacion.porPagina);
+
+  let query = supabase
+    .from("empresas")
+    .select(COLUMNAS_LISTA, { count: "exact" });
+
+  if (filtros.estado) {
+    query = query.eq("estado", filtros.estado);
+  }
+
+  if (filtros.q) {
+    const qLimpio = limpiarFiltroPostgrest(filtros.q);
+    if (qLimpio) {
+      query = query.or(`razon_social.ilike.%${qLimpio}%,cuit.ilike.%${qLimpio}%,contacto_email.ilike.%${qLimpio}%`);
+    }
+  }
+
+  const { data, error, count } = await query
+    .order("id", { ascending: false })
+    .range(desde, hasta);
+
+  if (error) throw new Error("Could not load the paged companies: " + error.message);
+
+  const items = (data ?? []).map(aEmpresaLista);
+  return crearRespuestaPaginada(items, count ?? 0, paginacion.pagina, paginacion.porPagina);
 }
 
 /** One company for the Office, or null when it does not exist. */

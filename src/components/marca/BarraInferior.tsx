@@ -37,7 +37,7 @@ export function BarraInferior({ area }: { area: Role }) {
         style={{ gridTemplateColumns: `repeat(${Math.max(items.length, 1)}, minmax(0, 1fr))` }}
       >
         {items.map(({ href, texto, icono: Icono, destacado }) => {
-          const actual = ruta === href;
+          const actual = ruta === href || (href !== "/" && ruta.startsWith(`${href}/`));
           return (
             <li key={href}>
               <Link

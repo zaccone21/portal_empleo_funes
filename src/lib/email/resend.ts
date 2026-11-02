@@ -20,6 +20,7 @@ const REMITENTE_POR_DEFECTO = "Oficina de Empleo Funes <no-reply@zaccone.dev>";
  * Server-only: reads RESEND_API_KEY and RESEND_FROM_EMAIL from process.env.
  * Non-blocking: if unconfigured or if Resend responds with an error, it returns
  * { ok: false, error } instead of throwing, so the main business flow can continue.
+ * Never logs recipient email addresses to console (ASVS V16.4.1, Ley 25.326, AGENTS §7).
  */
 export async function enviarCorreo({ para, asunto, html }: ParametrosCorreo): Promise<ResultadoEnvio> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
@@ -27,11 +28,7 @@ export async function enviarCorreo({ para, asunto, html }: ParametrosCorreo): Pr
 
   if (!apiKey) {
     if (process.env.NODE_ENV !== "test") {
-      console.warn(
-        `[email] ATENCIÓN: RESEND_API_KEY no está configurada en .env.local. No se envió el correo a: ${
-          Array.isArray(para) ? para.join(", ") : para
-        }`,
-      );
+      console.warn("[email] ATENCIÓN: RESEND_API_KEY no está configurada. No se envió el correo.");
     }
     return { ok: false, error: "RESEND_API_KEY no configurada" };
   }
@@ -43,10 +40,6 @@ export async function enviarCorreo({ para, asunto, html }: ParametrosCorreo): Pr
       console.warn(`[email] Destinatario vacío para el asunto: "${asunto}". No se envió.`);
     }
     return { ok: false, error: "No se especificó ningún destinatario válido" };
-  }
-
-  if (process.env.NODE_ENV !== "test") {
-    console.log(`[email] Enviando correo a: ${destinatarios.join(", ")} | Asunto: "${asunto}" | Remitente: ${remitente}`);
   }
 
   try {
@@ -70,14 +63,11 @@ export async function enviarCorreo({ para, asunto, html }: ParametrosCorreo): Pr
         cuerpoError && typeof cuerpoError === "object" && "message" in cuerpoError && typeof cuerpoError.message === "string"
           ? cuerpoError.message
           : `HTTP ${respuesta.status}`;
-      console.error(`[email] Error de Resend (${respuesta.status}) al enviar a ${destinatarios.join(", ")}: ${detalle}`);
+      console.error(`[email] Error de Resend (${respuesta.status}): ${detalle}`);
       return { ok: false, error: detalle };
     }
 
     const datos = (await respuesta.json()) as { id?: string };
-    if (process.env.NODE_ENV !== "test") {
-      console.log(`[email] Correo enviado exitosamente (ID de Resend: ${datos.id})`);
-    }
     return { ok: true, id: datos.id };
   } catch (error) {
     const mensaje = error instanceof Error ? error.message : "Error desconocido de red";

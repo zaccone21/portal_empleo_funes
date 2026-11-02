@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { BotonFlotantePublicar } from "@/components/empresa/BotonFlotantePublicar";
 import { ProveedorSesion } from "@/components/sesion/ProveedorSesion";
 import type { Role } from "@/lib/validation/role";
 
@@ -24,6 +25,7 @@ export function MarcoArea({ area, children }: { area: Role; children: ReactNode 
         <EncabezadoPortal area={area} />
         {children}
         <BarraInferior area={area} />
+        {area === "empresa" && <BotonFlotantePublicar />}
       </div>
     </ProveedorSesion>
   );

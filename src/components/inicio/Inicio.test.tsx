@@ -4,8 +4,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 const estadisticas = vi.hoisted(() => ({ valor: {} as Record<string, unknown> }));
 vi.mock("@/hooks/useEstadisticas", () => ({ useEstadisticas: () => estadisticas.valor }));
 
+import { ContextoSesion } from "@/components/sesion/ProveedorSesion";
 import { CifrasPortal } from "./CifrasPortal";
 import { ContadorContrataciones } from "./ContadorContrataciones";
+import { PieInicio } from "./PieInicio";
 
 const TOTALES = { ofertasPublicadas: 12, empresas: 5, postulantes: 1500, derivaciones: 9, contrataciones: 3 };
 
@@ -66,5 +68,37 @@ describe("ContadorContrataciones (D-066)", () => {
     const { container } = render(<ContadorContrataciones />);
 
     expect(container.textContent).toBe("");
+  });
+});
+
+describe("PieInicio", () => {
+  test("shows login links when there is no active session", () => {
+    render(
+      <ContextoSesion.Provider value={{ usuario: null, error: null }}>
+        <PieInicio />
+      </ContextoSesion.Provider>,
+    );
+
+    expect(screen.getByRole("link", { name: "Ingresar como postulante" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Acceso para empresas" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Ofertas de trabajo" })).toBeDefined();
+  });
+
+  test("hides login links when a session is active", () => {
+    render(
+      <ContextoSesion.Provider
+        value={{
+          usuario: { email: "ana@example.com", rol: "postulante" },
+          error: null,
+        }}
+      >
+        <PieInicio />
+      </ContextoSesion.Provider>,
+    );
+
+    expect(screen.queryByRole("link", { name: "Ingresar como postulante" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Acceso para empresas" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Ofertas de trabajo" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Ayuda" })).toBeDefined();
   });
 });
