@@ -22,7 +22,6 @@ import { exito, falla, sinPermiso, type Resultado } from "./resultado";
 export type DatosEmpresaPropia = {
   perfil: PerfilEmpresa | null;
   cuit: string | null;
-  emailCuenta?: string | null;
   estado: EstadoEmpresa;
   motivoRechazo: string | null;
 };
@@ -55,7 +54,6 @@ export async function guardarPerfil(
   return exito({
     perfil: resultado.perfil,
     cuit: resultado.perfil.cuit,
-    emailCuenta: resultado.perfil.contactoEmail,
     estado: resultado.estado,
     motivoRechazo: resultado.motivoRechazo,
   });
@@ -82,10 +80,19 @@ export async function publicarOferta(
   if (negado) return negado;
 
   const { perfil, estado } = await leerPerfilEmpresa(usuario.id);
-  if (!perfil) {
-    return falla("conflict", "Tenés que completar los datos de tu empresa antes de publicar una oferta.");
+  if (
+    !perfil ||
+    !perfil.cuit.trim() ||
+    !perfil.razonSocial.trim() ||
+    !perfil.contactoNombre.trim() ||
+    !perfil.contactoTelefono.trim() ||
+    !perfil.contactoEmail.trim()
+  ) {
+    return falla(
+      "conflict",
+      "Tenés que completar todos los datos de tu empresa (incluyendo el CUIT y la razón social) antes de publicar una oferta.",
+    );
   }
-
   // The database refuses it too (policy ofertas_insert_propias): this is the clear message for the screen.
   if (estado !== "aprobada") {
     return falla(
@@ -96,22 +103,7 @@ export async function publicarOferta(
     );
   }
 
-  if (
-    (perfil.cuit !== undefined && !perfil.cuit?.trim()) ||
-    (perfil.razonSocial !== undefined && !perfil.razonSocial?.trim())
-  ) {
-    return falla(
-      "conflict",
-      "Tenés que completar todos los datos de tu empresa (incluyendo el CUIT y la razón social) antes de publicar una oferta.",
-    );
-  }
-
-  const id = await crearOferta({
-    ...datos,
-    sueldo: datos.sueldo || null,
-    modalidad: datos.modalidad,
-    tipoJornada: datos.tipoJornada,
-  });
+  const id = await crearOferta({ ...datos, sueldo: datos.sueldo || null });
   const oferta = await leerOferta(id);
   if (!oferta) throw new Error("The new offer cannot be read back.");
   return exito({ oferta: aOfertaEmpresa(oferta) });

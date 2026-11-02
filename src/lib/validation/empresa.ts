@@ -4,7 +4,8 @@ import { textoObligatorio } from "./texto";
 
 /*
  * The company's own data (P10, RF1.3.2): business name, CUIT, description and
- * the contact person.
+ * the contact person. PROVISIONAL (DT-005): RF1.3.2 lists these fields but not
+ * their exact shape; adjust when the companies table is modeled.
  */
 
 /** Weights of the CUIT check digit (AFIP's modulo 11 algorithm). */
@@ -80,14 +81,12 @@ export const estadoEmpresaSchema = z.enum(["pendiente", "aprobada", "rechazada"]
 export type EstadoEmpresa = z.infer<typeof estadoEmpresaSchema>;
 
 /**
- * Answer of GET and PUT /api/empresa/perfil: `perfil` is null until the company fills it in.
- * `cuit` and `emailCuenta` are sent to pre-fill it so the user doesn't duplicate input.
+ * Answer of GET and PUT /api/empresa/perfil: `perfil` is null until the company fills it in. `cuit` is sent to pre-fill it.
  * `estado` is where the company stands with the Office, and `motivoRechazo` is only set while it is "rechazada".
  */
 export const respuestaPerfilEmpresaSchema = z.object({
   perfil: perfilEmpresaSchema.nullable(),
   cuit: z.string().nullable().optional(),
-  emailCuenta: z.string().nullable().optional(),
   estado: estadoEmpresaSchema,
   motivoRechazo: z.string().nullable(),
 });

@@ -12,8 +12,6 @@ function oferta(id: string, cambios: Partial<OfertaOficina> = {}): OfertaOficina
     requisitos: "Requisitos de prueba",
     lugar: "Funes",
     jornada: "Lunes a viernes",
-    modalidad: "presencial",
-    tipoJornada: "completa",
     sueldo: null,
     rubros: ["gastronomia"],
     estado: "pendiente",

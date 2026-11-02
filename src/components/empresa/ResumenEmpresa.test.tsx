@@ -72,8 +72,6 @@ function oferta(id: string, estado: OfertaEmpresa["estado"]): OfertaEmpresa {
     requisitos: "",
     lugar: "",
     jornada: "",
-    modalidad: "presencial",
-    tipoJornada: "completa",
     sueldo: null,
     rubros: ["otros"],
     estado,

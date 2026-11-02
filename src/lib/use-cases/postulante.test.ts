@@ -60,8 +60,6 @@ function oferta(datos: Partial<Oferta>): Oferta {
     descripcion: "Tareas",
     requisitos: "Requisitos",
     lugar: "Centro",
-    modalidad: "presencial",
-    tipoJornada: "completa",
     jornada: "Mañana",
     sueldo: null,
     rubros: ["otros"],

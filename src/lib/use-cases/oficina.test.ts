@@ -109,8 +109,6 @@ function oferta(datos: Partial<OfertaConEmpresa>): OfertaConEmpresa {
     descripcion: "Tareas",
     requisitos: "Requisitos",
     lugar: "Centro",
-    modalidad: "presencial",
-    tipoJornada: "completa",
     jornada: "Mañana",
     sueldo: null,
     rubros: ["otros"],

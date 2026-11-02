@@ -3,11 +3,7 @@ import "server-only";
 import { randomInt } from "node:crypto";
 
 import type { CurrentUser } from "@/lib/dal/auth";
-import {
-  crearCuentaOficina as guardarCuentaOficina,
-  eliminarCuentaOficina as borrarCuentaOficina,
-  listarCuentasOficina,
-} from "@/lib/dal/equipo";
+import { crearCuentaOficina as guardarCuentaOficina, listarCuentasOficina } from "@/lib/dal/equipo";
 import type { CuentaOficina, CuentaOficinaCreada, DatosNuevaCuentaOficina } from "@/lib/validation/equipo";
 
 import { exito, falla, sinPermiso, type Resultado } from "./resultado";
@@ -59,36 +55,4 @@ export async function crearCuentaOficina(
     return falla("conflict", "Ya hay una cuenta con ese email. Si es de una operadora, ya puede ingresar.");
   }
   return exito({ email, contrasenaTemporal });
-}
-
-/**
- * Deactivates/removes an Office account with 2 safety guards:
- * 1. An operator cannot delete their own account (prevents accidental lockout).
- * 2. Cannot delete the last remaining admin (ensures the system is never orphaned).
- */
-export async function darDeBajaCuentaOficina(
-  usuario: CurrentUser,
-  idParaEliminar: string,
-): Promise<Resultado<{ id: string }>> {
-  const negado = sinPermiso(usuario, "admin");
-  if (negado) return negado;
-
-  // Guard 1: Cannot delete self
-  if (usuario.id === idParaEliminar) {
-    return falla("invalid", "No podés dar de baja tu propia cuenta de administrador.");
-  }
-
-  // Guard 2: Cannot delete last remaining admin
-  const cuentas = await listarCuentasOficina();
-  if (cuentas.length <= 1) {
-    return falla("conflict", "Debe haber al menos un administrador activo en el sistema.");
-  }
-
-  const cuentaExiste = cuentas.some((c) => c.id === idParaEliminar);
-  if (!cuentaExiste) {
-    return falla("not_found", "No se encontró la cuenta que querés dar de baja.");
-  }
-
-  await borrarCuentaOficina(idParaEliminar);
-  return exito({ id: idParaEliminar });
 }

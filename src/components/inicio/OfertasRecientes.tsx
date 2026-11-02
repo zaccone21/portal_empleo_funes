@@ -90,7 +90,7 @@ export function OfertasRecientes() {
 
       {ofertas && ofertas.length === 0 && (
         <p className="text-base text-muted-foreground">
-          No hay ofertas publicadas en este momento.
+          Por ahora no hay ofertas publicadas. Cuando la Oficina publique una, la vas a ver acá.
         </p>
       )}
 

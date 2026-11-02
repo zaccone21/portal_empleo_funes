@@ -7,12 +7,11 @@ vi.mock("server-only", () => ({}));
 const dal = vi.hoisted(() => ({
   listarCuentasOficina: vi.fn(),
   crearCuentaOficina: vi.fn(),
-  eliminarCuentaOficina: vi.fn(),
 }));
 
 vi.mock("@/lib/dal/equipo", () => dal);
 
-import { crearCuentaOficina, darDeBajaCuentaOficina, generarContrasenaTemporal, verEquipoOficina } from "./equipo";
+import { crearCuentaOficina, generarContrasenaTemporal, verEquipoOficina } from "./equipo";
 
 const oficina: CurrentUser = { id: "oficina-1", rol: "admin", email: "oficina@ejemplo.com" };
 const empresa: CurrentUser = { id: "empresa-1", rol: "empresa", email: "empresa@ejemplo.com" };

@@ -60,14 +60,3 @@ export async function crearCuentaOficina(email: string, contrasena: string): Pro
   }
   return { ok: true };
 }
-
-/**
- * Deletes an Office account using the admin client.
- */
-export async function eliminarCuentaOficina(id: string): Promise<void> {
-  const admin = createAdminClient();
-  const { error } = await admin.auth.admin.deleteUser(id);
-  if (error) {
-    throw new Error("Could not delete the Office account.");
-  }
-}

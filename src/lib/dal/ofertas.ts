@@ -5,16 +5,8 @@ import { z } from "zod";
 import { COLUMNAS_EMPRESA, aPerfilEmpresa, filaEmpresaSchema } from "@/lib/dal/empresas";
 import { fechaSchema } from "@/lib/dal/fecha";
 import { createClient } from "@/lib/supabase/server";
-import { calcularRango, crearRespuestaPaginada, type ParametrosPaginacion, type RespuestaPaginada } from "@/lib/paginacion";
 import type { PerfilEmpresa } from "@/lib/validation/empresa";
-import {
-  estadoOfertaSchema,
-  modalidadLaboralSchema,
-  tipoJornadaSchema,
-  type EstadoOferta,
-  type ModalidadLaboral,
-  type TipoJornada,
-} from "@/lib/validation/ofertas";
+import { estadoOfertaSchema, type EstadoOferta } from "@/lib/validation/ofertas";
 import { rubroSchema, type Rubro } from "@/lib/validation/rubros";
 
 /*
@@ -31,8 +23,6 @@ export type Oferta = {
   requisitos: string;
   lugar: string;
   jornada: string;
-  modalidad: ModalidadLaboral;
-  tipoJornada: TipoJornada;
   sueldo: string | null;
   rubros: Rubro[];
   estado: EstadoOferta;
@@ -50,7 +40,7 @@ export type OfertaConEmpresa = Oferta & {
 };
 
 const COLUMNAS_OFERTA =
-  "id, empresa_id, titulo, descripcion, requisitos, lugar, jornada, modalidad, tipo_jornada, sueldo, estado, motivo_rechazo, cierre_solicitado, creada_el, publicada_el, oferta_rubros(rubros(slug))";
+  "id, empresa_id, titulo, descripcion, requisitos, lugar, jornada, sueldo, estado, motivo_rechazo, cierre_solicitado, creada_el, publicada_el, oferta_rubros(rubros(slug))";
 
 const COLUMNAS_OFICINA = `${COLUMNAS_OFERTA}, empresas(${COLUMNAS_EMPRESA}, perfiles(email)), postulaciones(count)`;
 
@@ -62,8 +52,6 @@ const filaOfertaSchema = z.object({
   requisitos: z.string(),
   lugar: z.string(),
   jornada: z.string(),
-  modalidad: modalidadLaboralSchema.default("presencial"),
-  tipo_jornada: tipoJornadaSchema.default("completa"),
   sueldo: z.string().nullable(),
   estado: estadoOfertaSchema,
   motivo_rechazo: z.string().nullable(),
@@ -87,8 +75,6 @@ function aOferta(fila: z.infer<typeof filaOfertaSchema>): Oferta {
     requisitos: fila.requisitos,
     lugar: fila.lugar,
     jornada: fila.jornada,
-    modalidad: fila.modalidad,
-    tipoJornada: fila.tipo_jornada,
     sueldo: fila.sueldo,
     rubros: fila.oferta_rubros.map((r) => r.rubros.slug),
     estado: fila.estado,
@@ -152,8 +138,6 @@ export type DatosOfertaNueva = {
   requisitos: string;
   lugar: string;
   jornada: string;
-  modalidad?: ModalidadLaboral;
-  tipoJornada?: TipoJornada;
   sueldo: string | null;
   rubros: Rubro[];
 };
@@ -180,8 +164,6 @@ export async function crearOferta(datos: DatosOfertaNueva): Promise<string> {
     jornada: datos.jornada,
     sueldo: datos.sueldo,
     rubros: idsRubros,
-    modalidad: datos.modalidad ?? "presencial",
-    tipo_jornada: datos.tipoJornada ?? "completa",
   });
 
   if (error) throw new Error("Could not create the offer.");
@@ -247,76 +229,4 @@ export async function contarOfertas(estado: EstadoOferta, soloConPedidoDeCierre 
   const { count, error } = await consulta;
   if (error) throw new Error("Could not count the offers.");
   return count ?? 0;
-}
-
-export type FiltrosConsultaOfertas = {
-  q?: string;
-  rubro?: Rubro | null;
-  modalidad?: ModalidadLaboral | "";
-  tipoJornada?: TipoJornada | "";
-  pago?: "con_sueldo" | "a_convenir" | "todos";
-  orden?: "recientes" | "antiguas";
-};
-
-/**
- * Paged published offers using native Supabase .range() with complete server-side filters.
- */
-export async function listarOfertasPublicadasPaginadas(
-  paginacion: ParametrosPaginacion = { pagina: 1, porPagina: 12 },
-  filtros: FiltrosConsultaOfertas = {},
-): Promise<RespuestaPaginada<Oferta>> {
-  const supabase = await createClient();
-  const { desde, hasta } = calcularRango(paginacion.pagina, paginacion.porPagina);
-
-  let query = supabase
-    .from("ofertas")
-    .select(COLUMNAS_OFERTA, { count: "exact" })
-    .eq("estado", "publicada");
-
-  if (filtros.rubro) {
-    const { data: relaciones, error: errRelaciones } = await supabase
-      .from("oferta_rubros")
-      .select("oferta_id, rubros!inner(slug)")
-      .eq("rubros.slug", filtros.rubro);
-
-    if (errRelaciones) throw new Error("Could not filter by trade: " + errRelaciones.message);
-    const idsConRubro = relaciones?.map((r) => r.oferta_id) ?? [];
-    if (idsConRubro.length === 0) {
-      return crearRespuestaPaginada([], 0, paginacion.pagina, paginacion.porPagina);
-    }
-    query = query.in("id", idsConRubro);
-  }
-
-  if (filtros.modalidad) {
-    query = query.eq("modalidad", filtros.modalidad);
-  }
-
-  if (filtros.tipoJornada) {
-    query = query.eq("tipo_jornada", filtros.tipoJornada);
-  }
-
-  if (filtros.pago === "con_sueldo") {
-    query = query
-      .not("sueldo", "is", null)
-      .neq("sueldo", "")
-      .not("sueldo", "ilike", "%convenir%");
-  } else if (filtros.pago === "a_convenir") {
-    query = query.or("sueldo.is.null,sueldo.eq.'',sueldo.ilike.%convenir%");
-  }
-
-  if (filtros.q && filtros.q.trim()) {
-    const qLimpio = filtros.q.trim().replace(/[,()]/g, "");
-    if (qLimpio) {
-      query = query.or(`titulo.ilike.%${qLimpio}%,descripcion.ilike.%${qLimpio}%,lugar.ilike.%${qLimpio}%`);
-    }
-  }
-
-  const ascendente = filtros.orden === "antiguas";
-  const { data, error, count } = await query
-    .order("publicada_el", { ascending: ascendente })
-    .range(desde, hasta);
-
-  if (error) throw new Error("Could not load paged published offers: " + error.message);
-  const items = z.array(filaOfertaSchema).parse(data).map(aOferta);
-  return crearRespuestaPaginada(items, count ?? 0, paginacion.pagina, paginacion.porPagina);
 }

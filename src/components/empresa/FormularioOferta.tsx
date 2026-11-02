@@ -8,7 +8,6 @@ import { z } from "zod";
 import { BotonEnviar } from "@/components/auth/BotonEnviar";
 import { ErrorDelServidor } from "@/components/auth/ErrorDelServidor";
 import { CampoTexto } from "@/components/formularios/CampoTexto";
-import { SelectorNativo } from "@/components/formularios/SelectorNativo";
 import { IconoRubro } from "@/components/ofertas/IconoRubro";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,12 +21,6 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { useCrearOferta } from "@/hooks/useCrearOferta";
-import {
-  MODALIDADES_LABORALES,
-  NOMBRE_MODALIDAD,
-  NOMBRE_TIPO_JORNADA,
-  TIPOS_JORNADA,
-} from "@/lib/validation/estandarizacion";
 import { MAXIMO_RUBROS_OFERTA, nuevaOfertaSchema, type DatosNuevaOferta } from "@/lib/validation/ofertas";
 import { NOMBRE_RUBRO, RUBROS, type Rubro } from "@/lib/validation/rubros";
 
@@ -70,8 +63,6 @@ export function FormularioOferta({ ofertaPrevia }: { ofertaPrevia?: DatosNuevaOf
       titulo: formData.get("titulo"),
       descripcion: formData.get("descripcion"),
       requisitos: formData.get("requisitos"),
-      modalidad: formData.get("modalidad") || "presencial",
-      tipoJornada: formData.get("tipoJornada") || "completa",
       lugar: formData.get("lugar"),
       jornada: formData.get("jornada"),
       sueldo: formData.get("sueldo") ?? "",
@@ -165,31 +156,6 @@ export function FormularioOferta({ ofertaPrevia }: { ofertaPrevia?: DatosNuevaOf
           maxLength={2000}
           obligatorio
         />
-
-        {/* Modalidad de trabajo */}
-        <div className="flex flex-col gap-1.5">
-          <FieldLabel htmlFor="modalidad">
-            Modalidad de trabajo <span className="text-destructive">*</span>
-          </FieldLabel>
-          <FieldDescription id="modalidad-descripcion">
-            Indicá si el puesto es presencial en Funes, híbrido o remoto.
-          </FieldDescription>
-          <SelectorNativo
-            id="modalidad"
-            name="modalidad"
-            defaultValue={ofertaPrevia?.modalidad ?? "presencial"}
-            aria-describedby="modalidad-descripcion"
-          >
-            {MODALIDADES_LABORALES.map((mod) => (
-              <option key={mod} value={mod}>
-                {NOMBRE_MODALIDAD[mod]}
-              </option>
-            ))}
-          </SelectorNativo>
-          {errores.modalidad && <FieldError>{errores.modalidad[0]}</FieldError>}
-        </div>
-
-        {/* Dirección / Lugar de trabajo */}
         <CampoTexto
           id="lugar"
           label="Dirección del trabajo"
@@ -199,41 +165,15 @@ export function FormularioOferta({ ofertaPrevia }: { ofertaPrevia?: DatosNuevaOf
           maxLength={120}
           obligatorio
         />
-
-        {/* Tipo de Jornada */}
-        <div className="flex flex-col gap-1.5">
-          <FieldLabel htmlFor="tipoJornada">
-            Tipo de jornada <span className="text-destructive">*</span>
-          </FieldLabel>
-          <FieldDescription id="tipo-jornada-descripcion">
-            Elegí la carga horaria general del puesto.
-          </FieldDescription>
-          <SelectorNativo
-            id="tipoJornada"
-            name="tipoJornada"
-            defaultValue={ofertaPrevia?.tipoJornada ?? "completa"}
-            aria-describedby="tipo-jornada-descripcion"
-          >
-            {TIPOS_JORNADA.map((tipo) => (
-              <option key={tipo} value={tipo}>
-                {NOMBRE_TIPO_JORNADA[tipo]}
-              </option>
-            ))}
-          </SelectorNativo>
-          {errores.tipoJornada && <FieldError>{errores.tipoJornada[0]}</FieldError>}
-        </div>
-
-        {/* Días y horario (texto libre) */}
         <CampoTexto
           id="jornada"
           label="Días y horario"
-          descripcion="Detallá los días y el rango horario exacto. Por ejemplo: Lunes a viernes de 8 a 16 hs o Sábados de 9 a 13 hs."
+          descripcion="Por ejemplo: Lunes a viernes de 8 a 16."
           defaultValue={ofertaPrevia?.jornada}
           error={errores.jornada?.[0]}
           maxLength={120}
           obligatorio
         />
-
         <CampoTexto
           id="sueldo"
           label="Sueldo (opcional)"
