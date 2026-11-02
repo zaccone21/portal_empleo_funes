@@ -1,15 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { ClockIcon, MapPinIcon } from "lucide-react";
+import { useContext } from "react";
 
 import { LogoMunicipalidad } from "@/components/marca/LogoMunicipalidad";
-
-const ENLACES_PORTAL = [
-  { texto: "Ofertas de trabajo", href: "/ofertas" },
-  { texto: "Ingresar como postulante", href: "/postulante/ingresar" },
-  { texto: "Acceso para empresas", href: "/empresa/ingresar" },
-  { texto: "Ayuda", href: "/ayuda" },
-  { texto: "Privacidad y uso de tus datos", href: "/privacidad" },
-];
+import { ContextoSesion } from "@/components/sesion/ProveedorSesion";
 
 const ENLACES_MUNICIPALIDAD = [
   { texto: "Sitio oficial de Funes", href: "https://www.funes.gob.ar/" },
@@ -23,11 +19,27 @@ const ENLACES_MUNICIPALIDAD = [
 
 /**
  * Plain site footer, full width like the navigation bar (not a card): the
- * Office's identity and hours, the portal's links, the municipal links (new tab)
- * and the privacy notice. Compacted on mobile into a neat 2-column links layout
- * so it never dominates the whole phone screen height.
+ * Office's identity and hours, the portal's links (hiding login links when a
+ * session is already active), the municipal links (new tab) and the privacy
+ * notice. Compacted on mobile into a neat 2-column links layout so it never
+ * dominates the whole phone screen height.
  */
 export function PieInicio() {
+  const sesion = useContext(ContextoSesion);
+  const usuario = sesion?.usuario;
+
+  const ENLACES_PORTAL = [
+    { texto: "Ofertas de trabajo", href: "/ofertas" },
+    ...(!usuario
+      ? [
+          { texto: "Ingresar como postulante", href: "/postulante/ingresar" },
+          { texto: "Acceso para empresas", href: "/empresa/ingresar" },
+        ]
+      : []),
+    { texto: "Ayuda", href: "/ayuda" },
+    { texto: "Privacidad y uso de tus datos", href: "/privacidad" },
+  ];
+
   return (
     <footer className="w-full border-t border-border bg-card pb-[var(--alto-barra-inferior,0px)] text-sm">
       <div className="grid w-full gap-5 px-4 py-5 sm:gap-8 sm:px-8 sm:py-8 md:grid-cols-3 lg:px-14">

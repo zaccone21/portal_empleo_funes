@@ -15,7 +15,12 @@ export async function createClient() {
       setAll(cookiesToSet) {
         try {
           for (const { name, value, options } of cookiesToSet) {
-            cookieStore.set(name, value, options);
+            cookieStore.set(name, value, {
+              ...options,
+              httpOnly: true,
+              sameSite: options?.sameSite ?? "lax",
+              secure: process.env.NODE_ENV === "production",
+            });
           }
         } catch {
           // Server Components cannot write cookies. This only happens on a

@@ -56,8 +56,14 @@ function refrescarAdmin() {
 
 async function obtenerUrlBasePedido(): Promise<string> {
   const encabezados = await headers();
-  const host = encabezados.get("x-forwarded-host") ?? encabezados.get("host");
-  const proto = encabezados.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
+  const urlConfigurada = (process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL)?.trim();
+  if (urlConfigurada && /^https?:\/\/[a-zA-Z0-9.-]+(:\d{1,5})?$/.test(urlConfigurada.replace(/\/$/, ""))) {
+    return urlConfigurada.replace(/\/$/, "");
+  }
+  const hostRaw = encabezados.get("host") ?? encabezados.get("x-forwarded-host");
+  const host = hostRaw && /^[a-zA-Z0-9.-]+(:\d{1,5})?$/.test(hostRaw) ? hostRaw : null;
+  const protoRaw = encabezados.get("x-forwarded-proto");
+  const proto = protoRaw === "http" || protoRaw === "https" ? protoRaw : host?.startsWith("localhost") ? "http" : "https";
   return host ? `${proto}://${host}` : "http://localhost:3000";
 }
 

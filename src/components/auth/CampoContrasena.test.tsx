@@ -5,7 +5,7 @@ import { CampoContrasena } from "./CampoContrasena";
 
 afterEach(cleanup);
 
-function renderCampo(props: { error?: string; descripcion?: string } = {}) {
+function renderCampo(props: { error?: string; descripcion?: string; mostrarFuerza?: boolean } = {}) {
   render(
     <CampoContrasena
       id="password"
@@ -45,4 +45,18 @@ test("links the description and the error to the input", () => {
   expect(input.getAttribute("aria-invalid")).toBe("true");
   expect(input.getAttribute("aria-describedby")).toBe("password-descripcion password-error");
   expect(screen.getByText("Ingresá tu contraseña")).toBeDefined();
+});
+
+test("shows visual strength levels (Débil, Regular, Segura) and flags Contraseña123 as Débil", () => {
+  const input = renderCampo({ mostrarFuerza: true });
+
+  fireEvent.change(input, { target: { value: "Contraseña123" } });
+  expect(screen.getByText("Débil")).toBeDefined();
+  expect(screen.getByText(/Evitá palabras comunes/i)).toBeDefined();
+
+  fireEvent.change(input, { target: { value: "Montaña84" } });
+  expect(screen.getByText("Regular")).toBeDefined();
+
+  fireEvent.change(input, { target: { value: "Montaña84!" } });
+  expect(screen.getByText("Segura")).toBeDefined();
 });

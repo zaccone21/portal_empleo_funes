@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
-
 import { getCurrentUser } from "@/lib/dal/auth";
-import { esIdValido, noEncontrado, responder, sinSesion } from "@/lib/respuestas-api";
+import { esIdValido, noEncontrado, redirigirUrlFirmada, responder, sinSesion } from "@/lib/respuestas-api";
 import { abrirCvPostulante } from "@/lib/use-cases/oficina";
 
 /**
@@ -19,6 +17,6 @@ export async function GET(request: Request, ctx: { params: Promise<{ id: string 
   const descargar = url.searchParams.get("descargar") === "1";
 
   const resultado = await abrirCvPostulante(usuario, id, descargar);
-  if (resultado.ok) redirect(resultado.datos.url);
+  if (resultado.ok) return redirigirUrlFirmada(resultado.datos.url);
   return responder(resultado);
 }

@@ -9,7 +9,12 @@ import {
   type FiltrosConsultaOfertas,
 } from "@/lib/dal/ofertas";
 import { crearRespuestaPaginada, type ParametrosPaginacion, type RespuestaPaginada } from "@/lib/paginacion";
-import { crearPostulacion, idsDeOfertasPostuladas, listarPostulacionesPropias } from "@/lib/dal/postulaciones";
+import {
+  confirmarPreentrevistaConToken,
+  crearPostulacion,
+  idsDeOfertasPostuladas,
+  listarPostulacionesPropias,
+} from "@/lib/dal/postulaciones";
 import { guardarPerfilPostulante, leerPerfilPostulante, perfilCompletoPostulante, type ResultadoLeerPerfilPostulante } from "@/lib/dal/postulantes";
 import type { CvPropio } from "@/lib/validation/cv";
 import type { OfertaPublica } from "@/lib/validation/ofertas";
@@ -154,4 +159,19 @@ export async function abrirMiCv(usuario: CurrentUser): Promise<Resultado<{ url: 
   const ruta = cv.ruta ?? `${usuario.id}/cv.${extension}`;
   const url = await crearUrlFirmadaCv(ruta);
   return exito({ url });
+}
+
+/**
+ * Confirms or cancels a pre-interview slot using the one-time UUID token from
+ * the applicant's email link (`GET /acceso/preentrevista`, AGENTS §6).
+ */
+export async function responderPreentrevistaPorToken(
+  token: string,
+  confirmar: boolean,
+): Promise<Resultado<{ resultado: "confirmada" | "cancelada" }>> {
+  const actualizado = await confirmarPreentrevistaConToken(token, confirmar);
+  if (!actualizado) {
+    return falla("not_found", "El enlace de preentrevista no es válido o ya fue utilizado.");
+  }
+  return exito({ resultado: confirmar ? "confirmada" : "cancelada" });
 }

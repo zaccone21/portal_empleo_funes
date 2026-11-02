@@ -28,10 +28,10 @@ export const INGRESO_POR_ROL: Record<Role, string> = {
 };
 
 /**
- * True for a path inside this site ("/…" but not "//…", which browsers read
- * as another site). Used before navigating to a path that came in the URL,
- * such as ?volver=, so a crafted link cannot send anyone elsewhere.
+ * True for a path inside this site ("/…" but not "//…" or "/\…", which browsers
+ * read as another site — ASVS V1.2.1). Used before navigating to a path that came
+ * in the URL, such as ?volver=, so a crafted link cannot send anyone elsewhere.
  */
 export function esRutaInterna(ruta: string | undefined): ruta is string {
-  return typeof ruta === "string" && /^\/(?!\/)/.test(ruta);
+  return typeof ruta === "string" && /^\/(?![/\\])/.test(ruta);
 }
