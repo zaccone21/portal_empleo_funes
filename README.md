@@ -10,7 +10,6 @@ Plataforma municipal de intermediación laboral diseñada para conectar a vecino
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript&style=flat-square)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?logo=tailwindcss&style=flat-square)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_%7C_Auth_%7C_Storage-3ECF8E?logo=supabase&style=flat-square)](https://supabase.com/)
-[![WCAG AA](https://img.shields.io/badge/Accesibilidad-WCAG_2.2_AA-green?style=flat-square)](https://www.w3.org/WAI/standards-guidelines/wcag/)
 
 </div>
 
