@@ -2,10 +2,8 @@ import { z } from "zod";
 
 import {
   modalidadLaboralSchema,
-  rangoExperienciaSchema,
   tipoJornadaSchema,
   type ModalidadLaboral,
-  type RangoExperiencia,
   type TipoJornada,
 } from "./estandarizacion";
 import { rubroSchema } from "./rubros";
@@ -44,8 +42,6 @@ export const ofertaPublicaSchema = z.object({
   modalidad: modalidadLaboralSchema.optional(),
   /** Tipo de jornada laboral estandarizada (completa, parcial, etc.). */
   tipoJornada: tipoJornadaSchema.optional(),
-  /** Experiencia previa mínima requerida. */
-  experienciaMinima: rangoExperienciaSchema.optional(),
   /** Pay as free text ("A convenir" or an amount), or null when the company left it out (D-032). */
   sueldo: z.string().nullable(),
   /** Trades or sectors, 1 to 3, for the catalog filter (D-029, D-032). */
@@ -80,9 +76,8 @@ export const nuevaOfertaSchema = z.object({
   requisitos: textoObligatorio("Contá qué necesita tener la persona", 2000),
   lugar: textoObligatorio("Indicá la dirección del trabajo", 120),
   jornada: textoObligatorio("Indicá los días y el horario", 120),
-  modalidad: modalidadLaboralSchema.optional(),
-  tipoJornada: tipoJornadaSchema.optional(),
-  experienciaMinima: rangoExperienciaSchema.optional(),
+  modalidad: modalidadLaboralSchema.default("presencial"),
+  tipoJornada: tipoJornadaSchema.default("completa"),
   /** Optional (D-032): an empty field means the offer shows no pay. */
   sueldo: z.string().trim().max(120, "Puede tener hasta 120 caracteres").optional(),
   rubros: rubrosOfertaSchema,
@@ -112,5 +107,15 @@ export const listaOfertasEmpresaSchema = z.array(ofertaEmpresaSchema);
 /** Answer of the endpoints that create or change one offer. */
 export const respuestaOfertaEmpresaSchema = z.object({ oferta: ofertaEmpresaSchema });
 
+export const respuestaPaginadaOfertasSchema = z.object({
+  items: z.array(ofertaPublicaSchema),
+  total: z.number(),
+  pagina: z.number(),
+  porPagina: z.number(),
+  totalPaginas: z.number(),
+});
+
+export type RespuestaPaginadaOfertas = z.infer<typeof respuestaPaginadaOfertasSchema>;
+
 export type OfertaEmpresa = z.infer<typeof ofertaEmpresaSchema>;
-export type { ModalidadLaboral, TipoJornada, RangoExperiencia };
+export { modalidadLaboralSchema, tipoJornadaSchema, type ModalidadLaboral, type TipoJornada };

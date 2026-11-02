@@ -2,7 +2,12 @@ import "server-only";
 
 import type { CurrentUser } from "@/lib/dal/auth";
 import { crearUrlFirmadaCv, guardarCv, leerCv } from "@/lib/dal/cv";
-import { leerOferta, listarOfertasPublicadas, listarOfertasPublicadasPaginadas } from "@/lib/dal/ofertas";
+import {
+  leerOferta,
+  listarOfertasPublicadas,
+  listarOfertasPublicadasPaginadas,
+  type FiltrosConsultaOfertas,
+} from "@/lib/dal/ofertas";
 import { crearRespuestaPaginada, type ParametrosPaginacion, type RespuestaPaginada } from "@/lib/paginacion";
 import { crearPostulacion, idsDeOfertasPostuladas, listarPostulacionesPropias } from "@/lib/dal/postulaciones";
 import { guardarPerfilPostulante, leerPerfilPostulante, perfilCompletoPostulante, type ResultadoLeerPerfilPostulante } from "@/lib/dal/postulantes";
@@ -63,7 +68,7 @@ export async function verOfertasPublicadas(usuario: CurrentUser | null): Promise
 export async function verOfertasPublicadasPaginadas(
   usuario: CurrentUser | null,
   paginacion?: ParametrosPaginacion,
-  filtros?: { rubro?: string | null; q?: string }
+  filtros?: FiltrosConsultaOfertas,
 ): Promise<Resultado<RespuestaPaginada<OfertaPublica>>> {
   const paginada = await listarOfertasPublicadasPaginadas(paginacion, filtros);
   const postuladas = usuario?.rol === "postulante" ? await idsDeOfertasPostuladas(usuario.id) : new Set<string>();

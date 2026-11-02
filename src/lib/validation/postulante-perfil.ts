@@ -1,11 +1,5 @@
 import { z } from "zod";
 
-import {
-  nivelEducativoSchema,
-  rangoExperienciaSchema,
-  type NivelEducativo,
-  type RangoExperiencia,
-} from "./estandarizacion";
 import { rubroSchema } from "./rubros";
 
 /** Schema del formulario y del body del PUT. */
@@ -38,8 +32,6 @@ export const perfilPostulanteSchema = z.object({
   rubros: z.array(rubroSchema).min(1, "Elegí al menos un rubro"),
   /** Work experience (RF1.6.7), optional. Left out, it is not changed; empty, it is erased. */
   experiencia: z.string().trim().max(2000, "Puede tener hasta 2000 caracteres").optional(),
-  nivelEducativo: nivelEducativoSchema.optional().nullable(),
-  rangoExperiencia: rangoExperienciaSchema.optional().nullable(),
 });
 
 export type PerfilPostulante = z.infer<typeof perfilPostulanteSchema>;
@@ -55,8 +47,4 @@ export const perfilPostulanteRespuestaSchema = z.object({
   rubros: z.array(z.object({ slug: rubroSchema, nombre: z.string() })),
   tieneCv: z.boolean(),
   experiencia: z.string().nullable(),
-  nivelEducativo: nivelEducativoSchema.nullable().optional(),
-  rangoExperiencia: rangoExperienciaSchema.nullable().optional(),
 });
-
-export type { NivelEducativo, RangoExperiencia };

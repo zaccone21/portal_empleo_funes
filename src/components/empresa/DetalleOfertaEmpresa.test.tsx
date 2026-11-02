@@ -48,6 +48,8 @@ const base: OfertaEmpresa = {
   requisitos: "Moto.",
   lugar: "Centro",
   jornada: "Lunes a viernes",
+  modalidad: "presencial",
+  tipoJornada: "completa",
   sueldo: null,
   rubros: ["otros"],
   estado: "pendiente",

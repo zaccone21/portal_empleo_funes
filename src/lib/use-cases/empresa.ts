@@ -111,7 +111,6 @@ export async function publicarOferta(
     sueldo: datos.sueldo || null,
     modalidad: datos.modalidad,
     tipoJornada: datos.tipoJornada,
-    experienciaMinima: datos.experienciaMinima,
   });
   const oferta = await leerOferta(id);
   if (!oferta) throw new Error("The new offer cannot be read back.");

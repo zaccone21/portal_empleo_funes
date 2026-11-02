@@ -1,31 +1,49 @@
--- Estandarización de datos de filtrado (ofertas y postulantes) y corrección
--- de actualización de CUIT en empresas.
--- (Refactor UI/UX: Paginación, filtros estructurados y perfil empresa).
+-- Estandarización de datos de filtrado en ofertas (modalidad y tipo de jornada)
+-- y corrección de actualización de CUIT en empresas.
 
--- 1. Ofertas: Modalidad, tipo de jornada y experiencia mínima requerida
+-- 1. Ofertas: Modalidad y tipo de jornada (coexisten con la columna existente 'jornada text')
 alter table public.ofertas
-  add column if not exists modalidad text check (modalidad in ('presencial', 'hibrido', 'remoto')) default 'presencial' not null,
-  add column if not exists tipo_jornada text check (tipo_jornada in ('completa', 'media_jornada', 'flexible')) default 'completa' not null,
-  add column if not exists experiencia_minima text check (experiencia_minima in ('sin_experiencia', 'menos_de_1', '1_a_3', 'mas_de_3')) default 'sin_experiencia' not null;
+  add column if not exists modalidad text default 'presencial',
+  add column if not exists tipo_jornada text default 'completa';
+
+-- Asignar valores por defecto a filas existentes si fueran nulas
+update public.ofertas set modalidad = 'presencial' where modalidad is null;
+update public.ofertas set tipo_jornada = 'completa' where tipo_jornada is null;
+
+-- Asegurar restricción NOT NULL
+alter table public.ofertas
+  alter column modalidad set not null,
+  alter column tipo_jornada set not null;
+
+-- Constraints condicionales para evitar duplicados si se re-ejecuta
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'ofertas_modalidad_check'
+  ) then
+    alter table public.ofertas
+      add constraint ofertas_modalidad_check check (modalidad in ('presencial', 'hibrido', 'remoto'));
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint where conname = 'ofertas_tipo_jornada_check'
+  ) then
+    alter table public.ofertas
+      add constraint ofertas_tipo_jornada_check check (tipo_jornada in ('completa', 'media_jornada', 'flexible'));
+  end if;
+end $$;
 
 -- Permisos de inserción en ofertas para las nuevas columnas
-grant insert (modalidad, tipo_jornada, experiencia_minima) on table public.ofertas to authenticated;
+grant insert (modalidad, tipo_jornada) on table public.ofertas to authenticated;
 
--- Índices para acelerar el filtrado y paginación en el catálogo y mesa de trabajo
+-- Índices para acelerar el filtrado y orden en el catálogo
 create index if not exists ofertas_modalidad_idx on public.ofertas (modalidad);
 create index if not exists ofertas_tipo_jornada_idx on public.ofertas (tipo_jornada);
-create index if not exists ofertas_experiencia_idx on public.ofertas (experiencia_minima);
 
--- 2. Postulantes: Nivel educativo y rango de experiencia laboral
-alter table public.postulantes
-  add column if not exists nivel_educativo text check (nivel_educativo in ('secundario_incompleto', 'secundario_completo', 'terciario', 'universitario')),
-  add column if not exists rango_experiencia text check (rango_experiencia in ('sin_experiencia', 'menos_de_1', '1_a_3', 'mas_de_3'));
+-- 2. Eliminar la sobrecarga vieja (7 argumentos) para evitar error de ambigüedad en RPC de Postgres
+drop function if exists public.crear_oferta(text, text, text, text, text, text, smallint[]);
 
--- Índices para búsqueda de candidatos
-create index if not exists postulantes_nivel_educativo_idx on public.postulantes (nivel_educativo);
-create index if not exists postulantes_rango_experiencia_idx on public.postulantes (rango_experiencia);
-
--- 3. Actualizar función crear_oferta con los nuevos campos estandarizados (con defaults para retrocompatibilidad)
+-- Actualizar función crear_oferta con los campos estandarizados (con defaults para retrocompatibilidad)
 create or replace function public.crear_oferta(
   titulo text,
   descripcion text,
@@ -35,8 +53,7 @@ create or replace function public.crear_oferta(
   sueldo text,
   rubros smallint[],
   modalidad text default 'presencial',
-  tipo_jornada text default 'completa',
-  experiencia_minima text default 'sin_experiencia'
+  tipo_jornada text default 'completa'
 )
 returns uuid
 language plpgsql
@@ -59,8 +76,7 @@ begin
     jornada,
     sueldo,
     modalidad,
-    tipo_jornada,
-    experiencia_minima
+    tipo_jornada
   )
   values (
     (select auth.uid()),
@@ -71,8 +87,7 @@ begin
     crear_oferta.jornada,
     crear_oferta.sueldo,
     coalesce(crear_oferta.modalidad, 'presencial'),
-    coalesce(crear_oferta.tipo_jornada, 'completa'),
-    coalesce(crear_oferta.experiencia_minima, 'sin_experiencia')
+    coalesce(crear_oferta.tipo_jornada, 'completa')
   )
   returning id into nueva_oferta_id;
 
@@ -83,10 +98,10 @@ begin
 end;
 $$;
 
-revoke execute on function public.crear_oferta(text, text, text, text, text, text, smallint[], text, text, text) from public, anon;
-grant execute on function public.crear_oferta(text, text, text, text, text, text, smallint[], text, text, text) to authenticated;
+revoke execute on function public.crear_oferta(text, text, text, text, text, text, smallint[], text, text) from public, anon;
+grant execute on function public.crear_oferta(text, text, text, text, text, text, smallint[], text, text) to authenticated;
 
--- 4. Corrección en antes_de_actualizar_empresa para evitar falsos positivos al comparar CUIT (ignora guiones)
+-- 3. Corrección en antes_de_actualizar_empresa para evitar falsos positivos al comparar CUIT (ignora guiones)
 -- y asegurar que new.estado nulo mantenga old.estado
 create or replace function private.antes_de_actualizar_empresa()
 returns trigger

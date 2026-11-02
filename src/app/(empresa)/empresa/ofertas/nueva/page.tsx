@@ -32,6 +32,8 @@ export default async function EmpresaNuevaOfertaPage({
             requisitos: duplicada.requisitos,
             lugar: duplicada.lugar,
             jornada: duplicada.jornada,
+            modalidad: duplicada.modalidad,
+            tipoJornada: duplicada.tipoJornada,
             sueldo: duplicada.sueldo || "",
             rubros: duplicada.rubros,
           };
