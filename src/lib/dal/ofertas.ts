@@ -16,6 +16,7 @@ import {
   type TipoJornada,
 } from "@/lib/validation/ofertas";
 import { rubroSchema, type Rubro } from "@/lib/validation/rubros";
+import { limpiarFiltroPostgrest } from "@/lib/validation/texto";
 
 /*
  * Offers in the database (`ofertas` + `oferta_rubros`). Every query uses the
@@ -115,7 +116,8 @@ export async function listarOfertasPublicadas(): Promise<Oferta[]> {
     .from("ofertas")
     .select(COLUMNAS_OFERTA)
     .eq("estado", "publicada")
-    .order("publicada_el", { ascending: false });
+    .order("publicada_el", { ascending: false })
+    .limit(200);
 
   if (error) throw new Error("Could not load the published offers.");
   return z.array(filaOfertaSchema).parse(data).map(aOferta);
@@ -204,7 +206,7 @@ export async function listarOfertasParaOficina(): Promise<OfertaConEmpresa[]> {
     .order("creada_el", { ascending: false });
 
   if (error) {
-    console.error("Supabase error in listarOfertasParaOficina:", error.message, error.details, error.hint, error.code);
+
     throw new Error("Could not load the offers.");
   }
   return z.array(filaOficinaSchema).parse(data).map(aOfertaConEmpresa);
@@ -216,7 +218,7 @@ export async function leerOfertaParaOficina(id: string): Promise<OfertaConEmpres
 
   if (error) {
     if (error.code === "22P02") return null;
-    console.error("Supabase error in leerOfertaParaOficina:", error.message, error.details, error.hint, error.code);
+
     throw new Error("Could not load the offer.");
   }
   return data ? aOfertaConEmpresa(filaOficinaSchema.parse(data)) : null;
@@ -305,7 +307,7 @@ export async function listarOfertasPublicadasPaginadas(
   }
 
   if (filtros.q && filtros.q.trim()) {
-    const qLimpio = filtros.q.trim().replace(/[,()]/g, "");
+    const qLimpio = limpiarFiltroPostgrest(filtros.q);
     if (qLimpio) {
       query = query.or(`titulo.ilike.%${qLimpio}%,descripcion.ilike.%${qLimpio}%,lugar.ilike.%${qLimpio}%`);
     }

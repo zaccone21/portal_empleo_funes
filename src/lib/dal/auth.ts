@@ -66,25 +66,19 @@ async function resolverEmailDeIdentificador(identificador: string): Promise<stri
     return null;
   }
 
-  const supabase = await createClient();
-  try {
-    const { data: emailRpc, error: errorRpc } = await supabase.rpc(
-      "resolver_email_por_documento",
-      { p_documento: soloNumeros },
-    );
-    if (!errorRpc && typeof emailRpc === "string" && emailRpc.includes("@")) {
-      return emailRpc;
-    }
-  } catch {
-    // Fallback below if the RPC does not exist yet
-  }
-
-  if (!process.env.SUPABASE_SECRET_KEY) {
-    return null;
-  }
-
   try {
     const admin = createAdminClient();
+    try {
+      const { data: emailRpc, error: errorRpc } = await admin.rpc(
+        "resolver_email_por_documento",
+        { p_documento: soloNumeros },
+      );
+      if (!errorRpc && typeof emailRpc === "string" && emailRpc.includes("@")) {
+        return emailRpc;
+      }
+    } catch {
+      // Fallback below if the RPC does not exist yet
+    }
     if (soloNumeros.length === 7 || soloNumeros.length === 8) {
       const { data: postulante } = await admin
         .from("postulantes")
@@ -188,7 +182,6 @@ export async function registrar(
   });
 
   if (error) {
-    console.error("[supabase.auth.signUp error]:", error.message, error.code, error.status);
     if (error.code === "user_already_exists" || error.code === "email_exists") {
       return { ok: true, sesionIniciada: false };
     }
@@ -225,7 +218,6 @@ export async function enviarRecuperacion(email: string, urlConfirmacion: string)
   const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: urlConfirmacion });
 
   if (error) {
-    console.error("[supabase.auth.resend error]:", error.message, error.code, error.status);
     if (error.code && ERRORES_DE_ENVIO.has(error.code)) return { ok: false };
     throw new Error("Password recovery failed unexpectedly.");
   }
@@ -344,7 +336,6 @@ export async function reenviarConfirmacionRegistro(
   });
 
   if (error) {
-    console.error("[supabase.auth.resend error]:", error.message, error.code, error.status);
     if (
       (error.code && ERRORES_DE_ENVIO.has(error.code)) ||
       error.message?.toLowerCase().includes("email") ||

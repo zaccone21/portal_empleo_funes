@@ -2,13 +2,13 @@ import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 
-import { confirmarPreentrevistaConToken } from "@/lib/dal/postulaciones";
+import { responderPreentrevistaPorToken } from "@/lib/use-cases/postulante";
 
 const tokenSchema = z.string().uuid();
 
 /**
  * GET /acceso/preentrevista: handles the candidate's click from the pre-interview
- * email (`?token=<uuid>&accion=confirmar|cancelar`).
+ * email (`?token=<uuid>&accion=confirmar|cancelar`) through its use case (AGENTS §6).
  * - `confirmar`: transitions the pre-interview from `pendiente_confirmacion` to `agendada`.
  * - `cancelar`: notifies the Office that the candidate cannot attend that slot (`no_agendada`).
  */
@@ -23,11 +23,11 @@ export async function GET(request: NextRequest) {
   }
 
   const confirmar = accion === "confirmar";
-  const actualizado = await confirmarPreentrevistaConToken(parsedToken.data, confirmar);
+  const respuesta = await responderPreentrevistaPorToken(parsedToken.data, confirmar);
 
-  if (!actualizado) {
+  if (!respuesta.ok) {
     redirect("/preentrevista/confirmada?resultado=invalido");
   }
 
-  redirect(`/preentrevista/confirmada?resultado=${confirmar ? "confirmada" : "cancelada"}`);
+  redirect(`/preentrevista/confirmada?resultado=${respuesta.datos.resultado}`);
 }

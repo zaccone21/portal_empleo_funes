@@ -5,6 +5,7 @@ import { z } from "zod";
 import { calcularRango, crearRespuestaPaginada, type ParametrosPaginacion, type RespuestaPaginada } from "@/lib/paginacion";
 import { createClient } from "@/lib/supabase/server";
 import { estadoEmpresaSchema, type EstadoEmpresa, type PerfilEmpresa } from "@/lib/validation/empresa";
+import { limpiarFiltroPostgrest } from "@/lib/validation/texto";
 
 /** Columns of `empresas` behind PerfilEmpresa (P10). */
 export const COLUMNAS_EMPRESA = "razon_social, cuit, descripcion, contacto_nombre, contacto_telefono, contacto_email";
@@ -209,7 +210,10 @@ export async function listarEmpresas(filtros: FiltrosEmpresas = {}): Promise<Emp
   }
 
   if (filtros.q) {
-    query = query.or(`razon_social.ilike.%${filtros.q}%,cuit.ilike.%${filtros.q}%,contacto_email.ilike.%${filtros.q}%`);
+    const qLimpio = limpiarFiltroPostgrest(filtros.q);
+    if (qLimpio) {
+      query = query.or(`razon_social.ilike.%${qLimpio}%,cuit.ilike.%${qLimpio}%,contacto_email.ilike.%${qLimpio}%`);
+    }
   }
 
   const { data, error } = await query;
@@ -235,7 +239,10 @@ export async function listarEmpresasPaginadas(
   }
 
   if (filtros.q) {
-    query = query.or(`razon_social.ilike.%${filtros.q}%,cuit.ilike.%${filtros.q}%,contacto_email.ilike.%${filtros.q}%`);
+    const qLimpio = limpiarFiltroPostgrest(filtros.q);
+    if (qLimpio) {
+      query = query.or(`razon_social.ilike.%${qLimpio}%,cuit.ilike.%${qLimpio}%,contacto_email.ilike.%${qLimpio}%`);
+    }
   }
 
   const { data, error, count } = await query

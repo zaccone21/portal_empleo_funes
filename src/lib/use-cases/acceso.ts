@@ -58,7 +58,7 @@ export async function registrarse(
       return falla("conflict", "Ya existe una cuenta registrada con este CUIT.");
     }
     if (resultado.motivo === "contrasena_debil") {
-      return falla("invalid", "Elegí una contraseña más difícil de adivinar.");
+      return falla("invalid", "Ingrese otra contraseña más segura");
     }
     return falla("unavailable", MENSAJE_EMAIL_NO_ENVIADO);
   }
@@ -82,7 +82,7 @@ export async function elegirNuevaContrasena(datos: { password: string }): Promis
     if (resultado.motivo === "misma_contrasena") {
       return falla("invalid", "Elegí una contraseña distinta de la anterior.");
     }
-    return falla("invalid", "Elegí una contraseña más difícil de adivinar.");
+    return falla("invalid", "Ingrese otra contraseña más segura");
   }
   return exito({ destino: INICIO_POR_ROL[resultado.rol] });
 }

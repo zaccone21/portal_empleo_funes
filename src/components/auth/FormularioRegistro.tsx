@@ -96,7 +96,7 @@ export function FormularioRegistro({ rol, volver }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3.5 sm:gap-4">
+    <form method="post" onSubmit={handleSubmit} noValidate className="flex flex-col gap-3.5 sm:gap-4">
       <FieldGroup className="gap-2.5 sm:gap-3">
         <CampoEmail error={errores.email?.[0]} obligatorio />
         {rol === "postulante" && <CampoDni error={errores.dni?.[0]} obligatorio />}
@@ -106,7 +106,8 @@ export function FormularioRegistro({ rol, volver }: Props) {
           name="password"
           label="Contraseña"
           autoComplete="new-password"
-          descripcion={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres.`}
+          descripcion={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres, con mayúsculas, minúsculas y números.`}
+          mostrarFuerza
           error={errores.password?.[0]}
           obligatorio
         />

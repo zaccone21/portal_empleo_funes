@@ -58,7 +58,7 @@ export function FormularioRecuperarContrasena() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+    <form method="post" onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <FieldGroup className="gap-5">
         <CampoEmail error={errores.email?.[0]} obligatorio />
       </FieldGroup>

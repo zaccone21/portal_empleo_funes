@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { calcularRango, crearRespuestaPaginada, type ParametrosPaginacion, type RespuestaPaginada } from "@/lib/paginacion";
 import type { PerfilPostulante } from "@/lib/validation/postulante-perfil";
 import { rubroSchema } from "@/lib/validation/rubros";
+import { limpiarFiltroPostgrest } from "@/lib/validation/texto";
 
 /** Columns of `postulantes` behind PerfilPostulante (P03). */
 const COLUMNAS_POSTULANTE = "nombre, apellido, telefono, direccion, dni, experiencia, cv_ruta, cv_nombre, cv_tamano_bytes, cv_subido_el";
@@ -226,7 +227,7 @@ export async function buscarPostulantes(
   `);
 
   if (filtros.q && filtros.q.trim()) {
-    const qLimpio = filtros.q.trim().replace(/[,()]/g, "");
+    const qLimpio = limpiarFiltroPostgrest(filtros.q);
     if (qLimpio) {
       query = query.or(`nombre.ilike.%${qLimpio}%,apellido.ilike.%${qLimpio}%,dni.ilike.%${qLimpio}%`);
     }
@@ -345,7 +346,7 @@ export async function buscarPostulantesPaginados(
   `, { count: "exact" });
 
   if (filtros.q && filtros.q.trim()) {
-    const qLimpio = filtros.q.trim().replace(/[,()]/g, "");
+    const qLimpio = limpiarFiltroPostgrest(filtros.q);
     if (qLimpio) {
       query = query.or(`nombre.ilike.%${qLimpio}%,apellido.ilike.%${qLimpio}%,dni.ilike.%${qLimpio}%`);
     }
