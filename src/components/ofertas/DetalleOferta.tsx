@@ -46,14 +46,7 @@ export function DetalleOferta({ oferta, elegida, onPostulado, volverHref = "/ofe
         )
       }
     >
-      <DatosOferta
-        rubros={oferta.rubros}
-        lugar={oferta.lugar}
-        jornada={oferta.jornada}
-        modalidad={oferta.modalidad}
-        tipoJornada={oferta.tipoJornada}
-        sueldo={oferta.sueldo}
-      />
+      <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
       <section className="flex flex-col gap-2">
         <h3 className="text-lg font-semibold">Qué vas a hacer</h3>
         <p className="text-base whitespace-pre-line">{oferta.descripcion}</p>

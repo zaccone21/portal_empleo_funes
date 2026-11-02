@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
@@ -17,15 +18,11 @@ type Props = {
   detalle: ReactNode;
   /** Key identifying the selected item so detail cross-fades smoothly between items. */
   detalleKey?: string;
-  /** Classes defining the two-column grid proportions on desktop. */
-  columnasClase?: string;
-  /** Componente opcional al pie de la columna de listado (ej: paginador). */
-  pieLista?: ReactNode;
 };
 
 /**
  * Layout of a list with the detail on the same page, like job boards do
- * (D-025, Computrabajo / Indeed style).
+ * (D-025, Computrabajo style).
  *
  * - Desktop (`lg`):
  *   - The left column (`section`) has an independently scrollable list of cards (`ul`
@@ -35,17 +32,9 @@ type Props = {
  * - Phone: without a choice only the list is visible; with a choice only the
  *   detail (which has its own "Volver").
  */
-export function ListaConDetalle({
-  eligio,
-  resumen,
-  accion,
-  children,
-  detalle,
-  columnasClase = "lg:grid-cols-[minmax(350px,420px)_minmax(0,1fr)]",
-  pieLista,
-}: Props) {
+export function ListaConDetalle({ eligio, resumen, accion, children, detalle, detalleKey }: Props) {
   return (
-    <div className={cn("grid gap-5 lg:gap-6 lg:h-full lg:min-h-0 lg:items-stretch", columnasClase)}>
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:h-full lg:min-h-0 lg:items-stretch">
       <section
         aria-labelledby="lista-resumen"
         className={cn(
@@ -54,22 +43,24 @@ export function ListaConDetalle({
         )}
       >
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-          <p
-            id="lista-resumen"
-            className="text-base text-muted-foreground font-medium"
-          >
-            {resumen}
-          </p>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.p
+              key={resumen}
+              id="lista-resumen"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="text-base text-muted-foreground font-medium"
+            >
+              {resumen}
+            </motion.p>
+          </AnimatePresence>
           {accion}
         </div>
-        <ul className="relative flex flex-1 min-h-0 flex-col gap-2.5 p-1 lg:overflow-y-auto lg:px-1.5 lg:py-1.5 lg:pr-2 lg:pb-6 [scrollbar-width:thin] [scrollbar-gutter:stable]">
+        <ul className="relative flex flex-1 min-h-0 flex-col gap-3 lg:overflow-y-auto lg:pr-2 lg:pb-6 [scrollbar-width:thin] [scrollbar-gutter:stable]">
           {children}
         </ul>
-        {pieLista && (
-          <div className="shrink-0 border-t border-border/40 bg-card/60 backdrop-blur-xs rounded-b-xl px-2 py-1">
-            {pieLista}
-          </div>
-        )}
       </section>
 
       <div
@@ -78,7 +69,18 @@ export function ListaConDetalle({
           eligio ? "block" : "hidden lg:block"
         )}
       >
-        {detalle}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={detalleKey ?? (eligio ? "seleccionado" : "vacio")}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="h-full min-h-0"
+          >
+            {detalle}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

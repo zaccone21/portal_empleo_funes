@@ -1,4 +1,4 @@
-import { CircleXIcon, FileTextIcon, InfoIcon, UsersIcon } from "lucide-react";
+import { CircleXIcon, InfoIcon } from "lucide-react";
 import Link from "next/link";
 
 import { PanelDetalle } from "@/components/marca/PanelDetalle";
@@ -6,7 +6,6 @@ import { DatosOferta } from "@/components/ofertas/DatosOferta";
 import { EstadoOferta } from "@/components/ofertas/EstadoOferta";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatearDia } from "@/lib/fechas";
 import type { EstadoOferta as Estado, OfertaEmpresa } from "@/lib/validation/ofertas";
 
@@ -32,8 +31,16 @@ type Props = {
 /**
  * Detail of one of the company's offers (P12), on the same page as the list.
  *
- * Uses dedicated tabs for Candidatos vs Detalle del Puesto to provide
- * a clean, comfortable review experience (P17, RF1.6.3, D-044).
+ * What it shows, in order:
+ * 1. The status with what it means (RF1.3.4).
+ * 2. If rejected, the Office's reason (RF1.3.5). Only the owning company gets
+ *    this field from the server.
+ * 3. If the company asked to close it, that the offer stays published until
+ *    the Office closes it (RF1.3.6).
+ * 4. On published and closed offers, the applicants the Office referred, with
+ *    the company's answer about each one (P17, D-044).
+ * 5. The offer as it was sent.
+ * 6. A button to duplicate rejected and closed offers (D-048).
  */
 export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) {
   const puedePedirCierre = oferta.estado === "publicada" && !oferta.cierreSolicitado;
@@ -63,9 +70,8 @@ export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) 
       <section className="flex flex-col items-start gap-2">
         <h3 className="sr-only">Estado</h3>
         <EstadoOferta estado={oferta.estado} />
-        <p className="text-base text-muted-foreground">{EXPLICACION[oferta.estado]}</p>
+        <p className="text-base">{EXPLICACION[oferta.estado]}</p>
       </section>
-
       {oferta.estado === "rechazada" && oferta.motivoRechazo && (
         <Alert variant="destructive">
           <CircleXIcon aria-hidden="true" />
@@ -73,7 +79,6 @@ export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) 
           <AlertDescription className="text-base">{oferta.motivoRechazo}</AlertDescription>
         </Alert>
       )}
-
       {oferta.cierreSolicitado && oferta.estado === "publicada" && (
         <Alert>
           <InfoIcon aria-hidden="true" />
@@ -83,49 +88,16 @@ export function DetalleOfertaEmpresa({ oferta, elegida, onActualizada }: Props) 
           </AlertDescription>
         </Alert>
       )}
-
-      {tieneCandidatos ? (
-        <Tabs defaultValue="candidatos" className="flex flex-col gap-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="candidatos" className="gap-2">
-              <UsersIcon className="size-4" aria-hidden="true" />
-              <span>Candidatos propuestos</span>
-            </TabsTrigger>
-            <TabsTrigger value="puesto" className="gap-2">
-              <FileTextIcon className="size-4" aria-hidden="true" />
-              <span>Detalle del puesto</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="candidatos" className="pt-2">
-            <CandidatosDerivados ofertaId={oferta.id} />
-          </TabsContent>
-
-          <TabsContent value="puesto" className="flex flex-col gap-6 pt-2">
-            <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
-            <section className="flex flex-col gap-2">
-              <h3 className="text-lg font-semibold text-foreground">Descripción del puesto</h3>
-              <p className="text-base text-muted-foreground whitespace-pre-line">{oferta.descripcion}</p>
-            </section>
-            <section className="flex flex-col gap-2">
-              <h3 className="text-lg font-semibold text-foreground">Requisitos</h3>
-              <p className="text-base text-muted-foreground whitespace-pre-line">{oferta.requisitos}</p>
-            </section>
-          </TabsContent>
-        </Tabs>
-      ) : (
-        <div className="flex flex-col gap-6 pt-2">
-          <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
-          <section className="flex flex-col gap-2">
-            <h3 className="text-lg font-semibold text-foreground">Descripción del puesto</h3>
-            <p className="text-base text-muted-foreground whitespace-pre-line">{oferta.descripcion}</p>
-          </section>
-          <section className="flex flex-col gap-2">
-            <h3 className="text-lg font-semibold text-foreground">Requisitos</h3>
-            <p className="text-base text-muted-foreground whitespace-pre-line">{oferta.requisitos}</p>
-          </section>
-        </div>
-      )}
+      {tieneCandidatos && <CandidatosDerivados ofertaId={oferta.id} />}
+      <DatosOferta rubros={oferta.rubros} lugar={oferta.lugar} jornada={oferta.jornada} sueldo={oferta.sueldo} />
+      <section className="flex flex-col gap-2">
+        <h3 className="text-lg font-semibold">Descripción del puesto</h3>
+        <p className="text-base whitespace-pre-line">{oferta.descripcion}</p>
+      </section>
+      <section className="flex flex-col gap-2">
+        <h3 className="text-lg font-semibold">Requisitos</h3>
+        <p className="text-base whitespace-pre-line">{oferta.requisitos}</p>
+      </section>
     </PanelDetalle>
   );
 }

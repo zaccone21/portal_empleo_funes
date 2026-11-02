@@ -1,5 +1,4 @@
 import { AccionesOferta } from "@/components/admin/acciones-oferta";
-import { BuscarCandidatosOferta } from "@/components/admin/buscar-candidatos-oferta";
 import { Ausente, nombreCompleto } from "@/components/admin/celdas";
 import { EnlaceAccion } from "@/components/admin/enlace-accion";
 import { FichaAdmin, FichaSeccion } from "@/components/admin/ficha";
@@ -121,18 +120,7 @@ export function FichaOferta({ oferta, postulaciones, volver, aqui, destinoTrasDe
         <p className="leading-[1.6] whitespace-pre-line">{oferta.requisitos}</p>
       </FichaSeccion>
 
-      <FichaSeccion
-        titulo={`Postulaciones (${postulaciones.length})`}
-        extra={
-          oferta.estado === "publicada" ? (
-            <BuscarCandidatosOferta
-              ofertaId={oferta.id}
-              rubrosOferta={oferta.rubros}
-              idsYaPostulados={postulaciones.map((p) => p.postulante.id)}
-            />
-          ) : null
-        }
-      >
+      <FichaSeccion titulo={`Postulaciones (${postulaciones.length})`}>
         <ListaPostulaciones postulaciones={postulaciones} aqui={aqui} />
       </FichaSeccion>
     </FichaAdmin>

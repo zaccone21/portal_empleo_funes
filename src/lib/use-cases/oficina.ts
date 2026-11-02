@@ -1,4 +1,3 @@
-import type { ParametrosPaginacion, RespuestaPaginada } from "@/lib/paginacion";
 import "server-only";
 
 import { puedeTransicionarPostulacion } from "@/features/postulaciones/domain/estados";
@@ -41,7 +40,6 @@ import {
 } from "@/lib/dal/postulaciones";
 import {
   buscarPostulantes as dalBuscarPostulantes,
-  buscarPostulantesPaginados as dalBuscarPostulantesPaginados,
   contarPostulantes,
   leerPerfilPostulanteAdmin,
   type ResultadoBusquedaPostulante,
@@ -183,18 +181,6 @@ export async function buscarPostulantes(
   if (negado) return negado;
 
   return exito(await dalBuscarPostulantes(filtros));
-}
-
-/** The applicant pool paginated from Supabase backend range (P16, RF1.5.7). */
-export async function buscarPostulantesPaginados(
-  usuario: CurrentUser,
-  filtros: { q?: string; rubros?: string[] } = {},
-  paginacion: ParametrosPaginacion = { pagina: 1, porPagina: 50 },
-): Promise<Resultado<RespuestaPaginada<ResultadoBusquedaPostulante>>> {
-  const negado = sinPermiso(usuario, "admin");
-  if (negado) return negado;
-
-  return exito(await dalBuscarPostulantesPaginados(filtros, paginacion));
 }
 
 export async function buscarEmpresas(usuario: CurrentUser, filtros: { q?: string }): Promise<Resultado<EmpresaLista[]>> {

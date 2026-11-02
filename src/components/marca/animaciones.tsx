@@ -180,7 +180,7 @@ export function BloqueReluciente({ className }: { className?: string }) {
 
 /**
  * Gleaming skeleton that mirrors the exact leaf shape and internal structure of
- * a compact job offer card (`TarjetaOferta`) while loading.
+ * a job offer card (`TarjetaOferta`) while loading.
  */
 export function EsqueletoTarjetaOferta({ className }: { className?: string }) {
   const reducir = useReducedMotion();
@@ -189,7 +189,7 @@ export function EsqueletoTarjetaOferta({ className }: { className?: string }) {
     <div
       aria-hidden="true"
       className={cn(
-        "relative flex flex-col gap-2 overflow-hidden rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-3.5 sm:p-4 ring-1 ring-foreground/8",
+        "relative flex flex-col gap-3.5 overflow-hidden rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-5 ring-1 ring-foreground/8",
         className,
       )}
     >
@@ -207,18 +207,21 @@ export function EsqueletoTarjetaOferta({ className }: { className?: string }) {
       ) : null}
 
       <div className="flex items-center justify-between gap-2">
-        <BloqueReluciente className="h-4 w-16 rounded-full" />
-        <BloqueReluciente className="h-3.5 w-12 rounded-full" />
+        <div className="flex items-center gap-2">
+          <BloqueReluciente className="size-7 rounded-tl-lg rounded-br-lg rounded-tr-xs rounded-bl-xs bg-secondary/70" />
+          <BloqueReluciente className="h-4 w-24 rounded-full" />
+        </div>
+        <BloqueReluciente className="h-5 w-20 rounded-full" />
       </div>
 
-      <div className="flex flex-col gap-1.5 py-0.5">
-        <BloqueReluciente className="h-4.5 w-4/5 rounded-md" />
-        <BloqueReluciente className="h-3.5 w-2/5 rounded-md" />
+      <div className="flex flex-col gap-2 pt-1">
+        <BloqueReluciente className="h-5 w-4/5 rounded-md" />
+        <BloqueReluciente className="h-4 w-3/5 rounded-md" />
       </div>
 
-      <div className="flex items-center gap-1.5 pt-0.5">
-        <BloqueReluciente className="h-4 w-20 rounded-md" />
-        <BloqueReluciente className="h-4 w-24 rounded-md" />
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/50 pt-3">
+        <BloqueReluciente className="h-4 w-28 rounded-md" />
+        <BloqueReluciente className="h-5 w-24 rounded-full" />
       </div>
     </div>
   );

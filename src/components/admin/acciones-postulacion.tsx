@@ -9,19 +9,12 @@ import { resolverPostulacionAccion } from "@/lib/actions/oficina";
 
 type Props = {
   id: string;
-  /**
-   * Opcional: si se pasa, se puede usar para navegación explícita,
-   * pero por defecto permanece en la misma pantalla (flujo continuo individual).
-   */
+  /** Where to go after resolving (the next application, or the queue when none is left). */
   destinoSiguiente?: string;
 };
 
-/**
- * Runs a status change, shows the toast and refreshes in-place so the operator
- * stays in the same candidate's flow (pre-interview, referral, feedback)
- * without an unwanted forced jump.
- */
-function useResolver(id: string) {
+/** Runs a status change, shows the toast and (optionally) moves on. */
+function useResolver(id: string, destinoSiguiente?: string) {
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
 
@@ -30,10 +23,11 @@ function useResolver(id: string) {
       const respuesta = await resolverPostulacionAccion(id, estado);
       if (respuesta.ok) {
         toast.success(respuesta.mensaje);
+        if (destinoSiguiente) router.push(destinoSiguiente);
       } else {
         toast.error(respuesta.mensaje);
+        router.refresh();
       }
-      router.refresh();
     });
   }
 
@@ -41,8 +35,8 @@ function useResolver(id: string) {
 }
 
 /** Footer buttons of the evaluation screen (06): "Marcar no apto" and "Preseleccionar" (RF1.5.6). */
-export function BotonesEvaluacion({ id }: Props) {
-  const { resolver, pendiente } = useResolver(id);
+export function BotonesEvaluacion({ id, destinoSiguiente }: Props) {
+  const { resolver, pendiente } = useResolver(id, destinoSiguiente);
   return (
     <div className="flex items-center gap-2">
       <BotonAdmin variante="destructivo" disabled={pendiente} onClick={() => resolver("no_apto")}>

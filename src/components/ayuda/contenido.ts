@@ -129,7 +129,7 @@ export const PREGUNTAS: Record<Publico, PreguntaFrecuente[]> = {
     {
       pregunta: "¿Por qué no veo en qué estado está mi postulación?",
       respuesta:
-        "La Oficina de Empleo revisa todas las postulaciones y se comunicará directamente si tu perfil encaja con la búsqueda laboral.",
+        "La Oficina de Empleo revisa cada postulación y se comunica con vos cuando hay novedades. El portal te muestra a qué ofertas te postulaste y cuándo, pero no los pasos internos de la revisión.",
     },
     {
       pregunta: "¿Quién ve mis datos y mi CV?",
@@ -188,12 +188,12 @@ export const PREGUNTAS: Record<Publico, PreguntaFrecuente[]> = {
     },
     {
       pregunta: "Me equivoqué al responder por un candidato.",
-      respuesta: "Para modificar una resolución informada sobre un candidato, comunicate con la Oficina de Empleo para que puedan actualizarlo.",
+      respuesta: "La respuesta se da una sola vez. Avisale a la Oficina de Empleo y ella la corrige.",
     },
     {
       pregunta: "¿Puedo borrar una oferta?",
       respuesta:
-        "Las ofertas enviadas no se pueden eliminar. Cuando finalices la búsqueda, solicitá el cierre desde el detalle de la oferta.",
+        "No: ninguna oferta se borra, así queda el historial. Cuando ya no buscás a nadie, pedí el cierre y deja de verse en el portal.",
     },
   ],
 };

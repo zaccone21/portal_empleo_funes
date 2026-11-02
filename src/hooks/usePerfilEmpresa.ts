@@ -9,8 +9,6 @@ import { respuestaPerfilEmpresaSchema, type EstadoEmpresa, type PerfilEmpresa } 
  * Loading (GET):
  * - `perfil`: the saved data, null if the company never filled it in,
  *   undefined while loading;
- * - `cuitRegistrado`: CUIT from registration;
- * - `emailCuenta`: Email from auth registration to prefill the contact email;
  * - `estado` and `motivoRechazo`: where the company stands with the Office
  *   (D-068). It cannot send offers until it is "aprobada";
  * - `sinAcceso`: 401 or 403, the screen asks to log in as a company;
@@ -25,7 +23,6 @@ import { respuestaPerfilEmpresaSchema, type EstadoEmpresa, type PerfilEmpresa } 
 export function usePerfilEmpresa() {
   const [perfil, setPerfil] = useState<PerfilEmpresa | null | undefined>(undefined);
   const [cuitRegistrado, setCuitRegistrado] = useState<string | null>(null);
-  const [emailCuenta, setEmailCuenta] = useState<string | null>(null);
   // "pendiente" until loaded is the safe side: nothing that publishes is shown by mistake.
   const [estado, setEstado] = useState<EstadoEmpresa>("pendiente");
   const [motivoRechazo, setMotivoRechazo] = useState<string | null>(null);
@@ -43,7 +40,6 @@ export function usePerfilEmpresa() {
         if (vigente) {
           setPerfil(respuesta.perfil);
           setCuitRegistrado(respuesta.cuit ?? null);
-          setEmailCuenta(respuesta.emailCuenta ?? null);
           setEstado(respuesta.estado);
           setMotivoRechazo(respuesta.motivoRechazo);
         }
@@ -65,7 +61,6 @@ export function usePerfilEmpresa() {
   function recargar() {
     setPerfil(undefined);
     setCuitRegistrado(null);
-    setEmailCuenta(null);
     setError(null);
     setSinAcceso(false);
     setIntento((n) => n + 1);
@@ -82,7 +77,6 @@ export function usePerfilEmpresa() {
       });
       setPerfil(respuesta.perfil);
       setCuitRegistrado(respuesta.cuit ?? null);
-      setEmailCuenta(respuesta.emailCuenta ?? null);
       setEstado(respuesta.estado);
       setMotivoRechazo(respuesta.motivoRechazo);
       return true;
@@ -97,7 +91,6 @@ export function usePerfilEmpresa() {
   return {
     perfil,
     cuitRegistrado,
-    emailCuenta,
     estado,
     motivoRechazo,
     loading: perfil === undefined && error === null && !sinAcceso,
