@@ -48,6 +48,8 @@ const base: OfertaEmpresa = {
   requisitos: "Moto.",
   lugar: "Centro",
   jornada: "Lunes a viernes",
+  modalidad: "presencial",
+  tipoJornada: "completa",
   sueldo: null,
   rubros: ["otros"],
   estado: "pendiente",
@@ -115,7 +117,7 @@ test("a published offer shows the applicants the Office referred (P17)", () => {
   renderDetalle({ estado: "publicada" });
 
   expect(screen.getByRole("heading", { name: "Persona De Prueba" })).toBeDefined();
-  expect(screen.getByText(/Te falta contarnos si contrataste a 1 persona/)).toBeDefined();
+  expect(screen.getByText(/Tenés 1 candidato pendiente de respuesta/)).toBeDefined();
   expect(screen.getByRole("link", { name: "Ver CV" }).getAttribute("href")).toBe("/api/empresa/candidatos/p-1/cv");
 });
 

@@ -71,7 +71,7 @@ describe("registrarse", () => {
 
     await expect(registrarse(datosEmpresa, "u")).resolves.toEqual({
       ok: true,
-      datos: { destino: "/empresa" },
+      datos: { destino: "/empresa/perfil" },
     });
   });
 
@@ -113,7 +113,7 @@ describe("abrirEnlace", () => {
 
     await expect(abrirEnlace({ tokenHash: "t", tipo: "signup" }, false)).resolves.toEqual({
       ok: true,
-      datos: { destino: "/empresa" },
+      datos: { destino: "/empresa/perfil" },
     });
   });
 

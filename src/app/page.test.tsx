@@ -48,4 +48,5 @@ test("offers a shortcut per trade, the help (also for companies) and the Office'
   expect(screen.getByRole("link", { name: "Acceso para empresas" }).getAttribute("href")).toBe(
     "/empresa/ingresar",
   );
+  expect(screen.queryByRole("link", { name: "Ingreso para la Oficina de Empleo" })).toBeNull();
 });

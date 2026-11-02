@@ -122,8 +122,8 @@ export function CarruselOfertas({
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs text-muted-foreground">
             {autoPlay && !pausadoUsuario
-              ? "Se desliza solo · usá las flechas para moverlo vos"
-              : "Usá las flechas para recorrer las ofertas"}
+              ? "Ofertas recientes en Funes"
+              : "Explorá las ofertas recientes"}
           </span>
           <div className="flex items-center gap-2">
             {autoPlay && (

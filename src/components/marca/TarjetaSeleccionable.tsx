@@ -15,34 +15,35 @@ type Props = {
    * on a phone only the list is visible and nothing should look selected.
    */
   soloEnEscritorio: boolean;
+  className?: string;
   children: ReactNode;
 };
 
 /**
  * Card of a list with the detail on the same page (D-025), with the portal's
- * "leaf" shape. The whole card is a link, so the back button returns to the
- * list and an item can be shared. `aria-current` tells screen readers which
- * one is open. `scroll={false}` keeps the list where it was on desktop; on
- * phones the detail scrolls itself into view (see PanelDetalle).
- *
- * It fills the height it is given (`h-full`), so the cards of a row or a
- * slider are the same height (D-066).
+ * "leaf" shape. Fills full height uniformly so footers align cleanly (D-066).
  */
-export function TarjetaSeleccionable({ href, seleccionada, soloEnEscritorio, children }: Props) {
+export function TarjetaSeleccionable({ href, seleccionada, soloEnEscritorio, className, children }: Props) {
   return (
     <Link
       href={href}
       scroll={false}
       aria-current={seleccionada && !soloEnEscritorio ? "true" : undefined}
       className={cn(
-        "flex h-full items-start gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 ring-1 ring-foreground/5 outline-none sm:p-5",
-        "hover:ring-foreground/20 focus-visible:ring-3 focus-visible:ring-ring/50",
+        "group flex h-full min-h-[12.5rem] w-full items-stretch justify-between gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4.5 ring-1 ring-foreground/10 outline-none transition-all sm:p-5",
+        "hover:ring-foreground/20 hover:shadow-xs focus-visible:ring-3 focus-visible:ring-ring/50",
         seleccionada &&
-          (soloEnEscritorio ? "lg:bg-secondary lg:ring-2 lg:ring-primary" : "bg-secondary ring-2 ring-primary"),
+          (soloEnEscritorio ? "lg:bg-secondary lg:ring-2 lg:ring-primary lg:ring-inset" : "bg-secondary ring-2 ring-primary ring-inset"),
+        className,
       )}
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-3">{children}</div>
-      <ChevronRightIcon aria-hidden="true" className="mt-1 size-5 shrink-0 text-muted-foreground" />
+      <div className="flex h-full min-w-0 flex-1 flex-col justify-between gap-3">{children}</div>
+      <div className="flex shrink-0 items-center justify-center self-center">
+        <ChevronRightIcon
+          aria-hidden="true"
+          className="size-5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
+        />
+      </div>
     </Link>
   );
 }

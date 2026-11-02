@@ -138,11 +138,15 @@ Sin "Buscá por rubro" (repetía los atajos) ni "Para empresas" (las empresas ll
 
 ### Catálogo de ofertas (P05 y P06, D-029)
 
-- **Todo el filtro vive en la URL** (`q`, `rubro`, `orden` y `oferta`). Así funcionan el "atrás" del celular, recargar y compartir el link, y el inicio puede llevar a un catálogo ya filtrado.
-- **Buscador** con label visible ("Buscá por puesto, tarea o barrio") y botón "Buscar". Busca en título, descripción, requisitos, lugar, horario y rubro, **sin importar tildes ni mayúsculas** ("jardineria" encuentra "Jardinería").
-- **Rubros**: chips con ícono, con "Todos" primero. El elegido se pinta de verde y se anuncia con `aria-current`. En el celular, la fila se desliza de costado.
-- **Ordenar**: "Más recientes" (por defecto) o "Más antiguas", con el selector nativo del teléfono (`SelectorNativo`).
-- **"Limpiar filtros"** aparece solo cuando hay algún filtro.
+- **Todo el filtro vive en la URL** (`q`, `rubro`, `modalidad`, `tipoJornada`, `pago`, `orden` y `oferta`). Así funcionan el "atrás" del celular, recargar y compartir el link, y el inicio puede llevar a un catálogo ya filtrado.
+- **Barra lineal compacta estilo CompuTrabajo / Indeed**:
+  - En escritorio, una sola fila horizontal delgada (~48 px) que combina el buscador amplio redondeado (lupa, input de puesto o palabra clave y botón Buscar) con los filtros desplegables en pastillas (`Rubro`, `Modalidad`, `Jornada`, `Salario`) y `Ordenar` como opción pequeña aparte a la derecha. Sin filtro de zona de Funes.
+  - En celular, dos líneas compactas: el buscador arriba y la fila deslizable horizontal de pastillas abajo, con `Ordenar` y `Limpiar` integrados.
+  - Al activar un filtro, la pastilla muestra el valor elegido en verde suave (ej: `Rubro: Gastronomía`) y el botón `Limpiar` permite restablecer todo con un toque.
+  - Máximo espacio vertical dedicado al listado de tarjetas a la izquierda y el detalle a la derecha, sin doble altura ni dispersión de filtros.
+
+
+
 - **Una frase dice qué se está viendo**: "Hay 2 ofertas de Gastronomía para “cocina”." También nombra la lista para los lectores de pantalla.
 - **Sin resultados**: "No encontramos ofertas con esa búsqueda" y un botón "Ver todas las ofertas". Nunca una lista vacía sin salida.
 - Al abrir una oferta, el filtro se conserva (`/ofertas?rubro=jardineria&oferta=…`). El "Volver" del celular vuelve a la lista filtrada.
@@ -190,7 +194,7 @@ La Oficina trabaja como en una **mesa de trabajo de escritorio**: colas de tarea
 | Navegar a otra pantalla | `<Link>` de `next/link` | Nunca `<a href>` para rutas internas |
 | Link con forma de botón (Duplicar, Llamar, Ver CV) | `<Link>` o `<a>` con `className={buttonVariants(...)}` | No `Button render={<Link />}`: Base UI le pone `role="button"` y el lector de pantalla no lo anuncia como link |
 | Lista con detalle (catálogo de ofertas, ofertas de la empresa, gestión de la Oficina) | Lista + panel de detalle en la misma página, con la selección en la URL (`?oferta=<id>`) | **No usar `Dialog` para contenido largo ni formularios**: en celulares de gama baja un modal es frágil (D-025). En desktop van lado a lado; en mobile el detalle reemplaza a la lista y tiene "Volver" |
-| Tarjetas de una lista o carrusel | `TarjetaSeleccionable` (`h-full`) con título de dos líneas (`line-clamp-2 min-h-[2lh]`) y datos de una línea | **Todas las tarjetas del mismo tipo miden lo mismo** (D-066): en una fila o carrusel se estiran al alto de la mayor; en una columna, el título reserva dos líneas y `DatosOferta compacto` reserva cuatro |
+| Tarjetas de una lista o carrusel | `TarjetaSeleccionable` con título de dos líneas (`line-clamp-2`) y datos de una línea | En `/ofertas`, tarjeta compacta estilo Computrabajo / Indeed (~120-130 px) para mostrar 4 a 5 ofertas simultáneas sin scroll (D-071). En carruseles o filas se estiran al alto de la mayor (D-066) |
 | Confirmar una acción que no se deshace | `AlertDialog` | Por ejemplo, solicitar el cierre de una oferta. Texto corto y dos botones |
 | Pedir un texto antes de una decisión (motivo del rechazo) | El campo aparece ahí mismo, en la barra de acciones | No es un modal: el teclado del celular y el modal se llevan mal (D-025) |
 | Elegir de una lista corta (ordenar, estado de una postulación) | `SelectorNativo` (el `<select>` del navegador con el estilo del portal) | Abre el selector propio del teléfono, que la gente ya conoce y siempre entra en la pantalla. El `Select` de shadcn queda para listas que necesiten buscar o mostrar íconos |
@@ -467,3 +471,11 @@ Una línea por decisión, en orden. Cuando se vuelve atrás, se agrega una líne
   - **Panel de detalle 100 % inmóvil en el viewport:** En `PanelDetalle`, la cabecera verde de marca con el título de la oferta es `shrink-0` (siempre visible en la parte superior), el pie con el botón `"Postularme"` / aviso es `shrink-0` (siempre accesible al pie), y el cuerpo intermedio con los requisitos y tareas es el único que scrollea si el texto es extenso.
   - **Reinicio de scroll al cambiar de oferta:** Cada vez que el postulante selecciona una oferta (incluso la última del final), el scroll del cuerpo se reinicia automáticamente a `top: 0`, garantizando que el título y el comienzo de la descripción estén inmediatamente a la vista sin saltos de página.
   - **Comportamiento móvil óptimo:** Por debajo de `lg`, se mantiene el scroll vertical natural; al tocar una tarjeta se abre el detalle a pantalla completa con botón `"Volver a las ofertas"`. (§4, §10, §11)
+- **2026-11-01 — Barra lineal compacta de búsqueda y filtros en `/ofertas` estilo CompuTrabajo / Indeed (`FiltrosOfertas`).**
+  - **Barra lineal de altura mínima:** En escritorio, una sola fila horizontal (~48 px) que combina el buscador amplio redondeado con los filtros en pastillas (`Rubro`, `Modalidad`, `Jornada`, `Salario`), sin filtro de zona de Funes y con `Ordenar` como opción pequeña aparte a la derecha, maximizando el espacio de visualización de ofertas en el viewport bloqueado.
+  - **Filtros en pastillas con estado activo visible:** Cada pastilla desplegable (`Select`) muestra su nombre (`Rubro`, `Modalidad`, etc.) y, al activarse, el valor elegido resaltado en verde municipal (`Rubro: Gastronomía`) junto a un botón `Limpiar`.
+  - **Comportamiento móvil óptimo:** En pantallas táctiles angostas (< 768 px), dos líneas compactas: buscador arriba y cinta deslizable con pastillas de filtros y orden abajo. (§4 ter, §10, §11)
+- **2026-11-01 — Proporciones del body y compactación de tarjetas en `/ofertas` estilo Computrabajo e Indeed (`TarjetaOferta`, `TarjetaSeleccionable`, `ListaConDetalle`).**
+  - **Proporción de columnas maestro-detalle balanceada:** En escritorio, la grilla del body de `/ofertas` pasa de `5fr / 7fr` (que ensanchaba las tarjetas a 700 px en pantallas grandes) a `minmax(350px, 420px) 1fr`. La columna izquierda de tarjetas mantiene un ancho de lectura óptimo (~380-420 px) y el panel de detalle derecho toma el resto (~62-65% del ancho), brindando una lectura cómoda de la oferta sin deformar la lista.
+  - **Tarjetas de ofertas compactas (~120-130 px):** Se eliminó la reserva artificial de 4 líneas verticales con íconos grandes y el `min-h-[12.5rem]` (200 px). La tarjeta muestra una primera fila con badge de estado ("Te postulaste" / "Nueva") y fecha relativa a la derecha, título conciso en `text-base sm:text-[17px]`, línea de ubicación y modalidad con ícono pin, y fila de pastillas discretas para rubros, jornada y sueldo. El padding se redujo a `p-3.5 sm:p-4`.
+  - **Densidad de visualización:** En un monitor convencional de 1080p, ahora se visualizan **4 a 5 ofertas simultáneas** en el viewport sin necesidad de desplazarse verticalmente, eliminando la sensación de escasez. (§0, §4, §10, §11, D-071)

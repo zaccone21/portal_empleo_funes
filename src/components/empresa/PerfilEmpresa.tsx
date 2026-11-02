@@ -20,8 +20,20 @@ import { VistaPerfilEmpresa } from "./VistaPerfilEmpresa";
  * Shows a read-only view if data exists, or the form if it is empty or editing.
  */
 export function PerfilEmpresa() {
-  const { perfil, cuitRegistrado, estado, motivoRechazo, loading, error, sinAcceso, recargar, guardar, guardando, errorGuardado } =
-    usePerfilEmpresa();
+  const {
+    perfil,
+    cuitRegistrado,
+    emailCuenta,
+    estado,
+    motivoRechazo,
+    loading,
+    error,
+    sinAcceso,
+    recargar,
+    guardar,
+    guardando,
+    errorGuardado,
+  } = usePerfilEmpresa();
   const [editando, setEditando] = useState(false);
   const [version, setVersion] = useState(0);
 
@@ -82,6 +94,7 @@ export function PerfilEmpresa() {
               key={version}
               perfil={perfil ?? null}
               cuitRegistrado={cuitRegistrado}
+              emailCuenta={emailCuenta}
               estado={estado}
               onGuardar={handleGuardar}
               onCancelar={perfil ? () => setEditando(false) : undefined}
