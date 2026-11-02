@@ -38,6 +38,9 @@ describe("leerFiltros", () => {
       ...FILTROS_VACIOS,
       q: "cocina",
       rubro: "gastronomia",
+      pago: "todos",
+      barrio: "",
+      horario: "",
       orden: "antiguas",
     });
     expect(leerFiltros({ rubro: "inventado", orden: "al-azar" })).toEqual(FILTROS_VACIOS);
