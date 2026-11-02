@@ -18,7 +18,12 @@ export async function updateSession(request: NextRequest) {
         }
         response = NextResponse.next({ request });
         for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options);
+          response.cookies.set(name, value, {
+            ...options,
+            httpOnly: true,
+            sameSite: options?.sameSite ?? "lax",
+            secure: process.env.NODE_ENV === "production",
+          });
         }
         for (const [key, value] of Object.entries(headers)) {
           response.headers.set(key, value);

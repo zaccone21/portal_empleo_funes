@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
-
 import { getCurrentUser } from "@/lib/dal/auth";
-import { esIdValido, noEncontrado, responder, sinSesion } from "@/lib/respuestas-api";
+import { esIdValido, noEncontrado, redirigirUrlFirmada, responder, sinSesion } from "@/lib/respuestas-api";
 import { abrirCvCandidato } from "@/lib/use-cases/empresa";
 
 /**
@@ -17,6 +15,6 @@ export async function GET(_request: Request, ctx: { params: Promise<{ id: string
   if (!esIdValido(id)) return noEncontrado("No encontramos a esa persona entre tus candidatos.");
 
   const resultado = await abrirCvCandidato(usuario, id);
-  if (resultado.ok) redirect(resultado.datos.url);
+  if (resultado.ok) return redirigirUrlFirmada(resultado.datos.url);
   return responder(resultado);
 }
