@@ -1,16 +1,13 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
-
-import { useState } from "react";
 import Link from "next/link";
-import { FilterIcon, MegaphoneIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
+import { MegaphoneIcon, PlusIcon } from "lucide-react";
 
 import { ErrorAlCargar } from "@/components/estados/ErrorAlCargar";
 import { PedirIngreso } from "@/components/estados/PedirIngreso";
 import { ListaConDetalle } from "@/components/marca/ListaConDetalle";
 import { ItemNoDisponible } from "@/components/ofertas/ItemNoDisponible";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -26,16 +23,6 @@ import { cn } from "@/lib/utils";
 import { DetalleOfertaEmpresa } from "./DetalleOfertaEmpresa";
 import { TarjetaOfertaEmpresa } from "./TarjetaOfertaEmpresa";
 
-type EstadoFiltro = "todas" | "publicada" | "pendiente" | "rechazada" | "cerrada";
-
-const ETIQUETAS_ESTADO: Record<EstadoFiltro, string> = {
-  todas: "Todas",
-  publicada: "Publicadas",
-  pendiente: "Pendientes",
-  rechazada: "Rechazadas",
-  cerrada: "Cerradas",
-};
-
 /**
  * "Mis ofertas" (P12): the company's offers with their status, in a list with
  * the detail on the same page (D-025). Loads them with useOfertasEmpresa; the
@@ -47,8 +34,6 @@ const ETIQUETAS_ESTADO: Record<EstadoFiltro, string> = {
  */
 export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) {
   const { ofertas, loading, error, sinAcceso, recargar, reemplazar } = useOfertasEmpresa();
-  const [filtroEstado, setFiltroEstado] = useState<EstadoFiltro>("todas");
-  const [busqueda, setBusqueda] = useState<string>("");
 
   if (loading) {
     return (
@@ -89,7 +74,7 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
           </EmptyMedia>
           <EmptyTitle>Todavía no publicaste ofertas</EmptyTitle>
           <EmptyDescription className="text-base">
-            Publicá tu primera oferta laboral para encontrar candidatos en Funes.
+            Contá qué puesto buscás y la Oficina de Empleo la publica después de revisarla.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
@@ -102,135 +87,42 @@ export function OfertasEmpresa({ seleccionadaId }: { seleccionadaId?: string }) 
     );
   }
 
-  const ofertasFiltradas = ofertas.filter((oferta) => {
-    if (filtroEstado !== "todas" && oferta.estado !== filtroEstado) return false;
-    if (busqueda) {
-      const q = busqueda.trim().toLowerCase();
-      const matchTitulo = oferta.titulo.toLowerCase().includes(q);
-      const matchLugar = oferta.lugar.toLowerCase().includes(q);
-      if (!matchTitulo && !matchLugar) return false;
-    }
-    return true;
-  });
-
   const eligio = seleccionadaId !== undefined;
-  const enDetalle = eligio
-    ? ofertas.find((oferta) => oferta.id === seleccionadaId)
-    : (ofertasFiltradas[0] ?? ofertas[0]);
+  const enDetalle = eligio ? ofertas.find((oferta) => oferta.id === seleccionadaId) : ofertas[0];
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Barra de filtros rápidos por estado */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-card p-4 shadow-xs ring-1 ring-foreground/5">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-1 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-            <FilterIcon className="size-4" /> Filtrar:
-          </span>
-          {(["todas", "publicada", "pendiente", "rechazada"] as const).map((estado) => {
-            const cantidad = estado === "todas" ? ofertas.length : ofertas.filter((o) => o.estado === estado).length;
-            const activo = filtroEstado === estado;
-            return (
-              <Button
-                key={estado}
-                variant={activo ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFiltroEstado(estado)}
-                className="gap-1.5"
-              >
-                <span>{ETIQUETAS_ESTADO[estado]}</span>
-                {cantidad > 0 && (
-                  <span
-                    className={cn(
-                      "rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums",
-                      activo ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {cantidad}
-                  </span>
-                )}
-              </Button>
-            );
-          })}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="relative min-w-[180px] sm:w-56">
-            <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-            <input
-              type="search"
-              value={busqueda}
-              placeholder="Buscar por puesto o lugar…"
-              aria-label="Buscar en mis ofertas"
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="h-8 w-full rounded-md border border-input bg-card pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
-            {busqueda && (
-              <button
-                type="button"
-                onClick={() => setBusqueda("")}
-                aria-label="Borrar búsqueda"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                <XIcon className="size-3.5" />
-              </button>
-            )}
-          </div>
-          <Link href="/empresa/ofertas/nueva" className={buttonVariants({ variant: "default", size: "sm" })}>
-            <PlusIcon data-icon="inline-start" aria-hidden="true" />
-            Publicar oferta
-          </Link>
-        </div>
-      </div>
-
-      <ListaConDetalle
-        eligio={eligio}
-        detalleKey={enDetalle?.id ?? "no-disponible"}
-        resumen={
-          filtroEstado === "todas"
-            ? ofertas.length === 1
-              ? "Tenés 1 oferta."
-              : `Tenés ${ofertas.length} ofertas.`
-            : `Mostrando ${ofertasFiltradas.length} de ${ofertas.length} ofertas (${ETIQUETAS_ESTADO[filtroEstado].toLowerCase()}).`
-        }
-        detalle={
-          enDetalle ? (
-            <DetalleOfertaEmpresa oferta={enDetalle} elegida={eligio} onActualizada={reemplazar} />
-          ) : (
-            <ItemNoDisponible
-              titulo="No encontramos esa oferta"
-              descripcion="Elegí una de la lista."
-              volverHref="/empresa/ofertas"
-              volverTexto="Ver mis ofertas"
-            />
-          )
-        }
-      >
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div
-            key={`${filtroEstado}-${busqueda}`}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className="flex flex-col gap-3"
-          >
-            {ofertasFiltradas.length === 0 ? (
-              <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground bg-card/40">
-                No tenés ofertas en estado &ldquo;{ETIQUETAS_ESTADO[filtroEstado].toLowerCase()}&rdquo;.
-              </div>
-            ) : (
-              ofertasFiltradas.map((oferta) => (
-                <TarjetaOfertaEmpresa
-                  key={oferta.id}
-                  oferta={oferta}
-                  seleccionada={oferta.id === enDetalle?.id}
-                  soloEnEscritorio={!eligio}
-                />
-              ))
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </ListaConDetalle>
-    </div>
+    <ListaConDetalle
+      eligio={eligio}
+      detalleKey={enDetalle?.id ?? "no-disponible"}
+      resumen={ofertas.length === 1 ? "Tenés 1 oferta." : `Tenés ${ofertas.length} ofertas.`}
+      accion={
+        <Link href="/empresa/ofertas/nueva" className={buttonVariants({ variant: "outline" })}>
+          <PlusIcon data-icon="inline-start" aria-hidden="true" />
+          Publicar oferta
+        </Link>
+      }
+      detalle={
+        enDetalle ? (
+          <DetalleOfertaEmpresa oferta={enDetalle} elegida={eligio} onActualizada={reemplazar} />
+        ) : (
+          <ItemNoDisponible
+            titulo="No encontramos esa oferta"
+            descripcion="Elegí una de la lista."
+            volverHref="/empresa/ofertas"
+            volverTexto="Ver mis ofertas"
+          />
+        )
+      }
+    >
+      {ofertas.map((oferta) => (
+        <li key={oferta.id}>
+          <TarjetaOfertaEmpresa
+            oferta={oferta}
+            seleccionada={oferta.id === enDetalle?.id}
+            soloEnEscritorio={!eligio}
+          />
+        </li>
+      ))}
+    </ListaConDetalle>
   );
 }

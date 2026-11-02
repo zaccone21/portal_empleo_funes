@@ -61,8 +61,8 @@ export function CandidatosDerivados({ ofertaId }: { ofertaId: string }) {
           {sinRespuesta === 0
             ? "Ya respondiste por todas las personas. ¡Gracias!"
             : sinRespuesta === 1
-              ? "Tenés 1 candidato pendiente de respuesta sobre contratación."
-              : `Tenés ${sinRespuesta} candidatos pendientes de respuesta sobre contratación.`}
+              ? "Te falta contarnos si contrataste a 1 persona. Así la Oficina sabe cómo siguió la búsqueda."
+              : `Te falta contarnos si contrataste a ${sinRespuesta} personas. Así la Oficina sabe cómo siguió la búsqueda.`}
         </p>
         <ul className="flex flex-col gap-3">
           {candidatos.map((candidato) => (

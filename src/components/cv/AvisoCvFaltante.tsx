@@ -27,7 +27,7 @@ export function AvisoCvFaltante() {
     <Alert>
       <FileUpIcon aria-hidden="true" />
       <AlertTitle className="text-base">Subí tu CV para poder postularte</AlertTitle>
-      <AlertDescription className="text-base">Podés subir tu CV en formato PDF o imagen PNG.</AlertDescription>
+      <AlertDescription className="text-base">Es un PDF y lleva un minuto.</AlertDescription>
       {/* Outside AlertDescription, which underlines every link inside it. */}
       <Link
         href="/postulante/perfil#cv"

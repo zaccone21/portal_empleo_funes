@@ -92,7 +92,7 @@ export function FichaPostulante({
       lateral={
         <>
           <FichaSeccion titulo="Asociar a una oferta">
-            <AsociarOferta postulanteId={postulante.id} ofertas={ofertasParaAsociar} rubrosPostulante={postulante.rubros} />
+            <AsociarOferta postulanteId={postulante.id} ofertas={ofertasParaAsociar} />
           </FichaSeccion>
           <CursosPostulante
             postulanteId={postulante.id}
@@ -171,10 +171,10 @@ function Seguimiento({ resumen }: { resumen: ResumenSeguimiento }) {
       {resumen.rechazos >= RECHAZOS_PARA_CURSO && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-[8px] border border-attention-card-border bg-attention-card px-3 py-2 text-attention-foreground">
           <span className="font-medium">
-            Candidato apto para cursos de formación ({resumen.rechazos} procesos sin contratación).
+            Tiene {resumen.rechazos} rechazos de empresas. Podés ofrecerle un curso de capacitación.
           </span>
           <a href="#cursos" className="font-semibold text-primary hover:underline">
-            Asignar curso
+            Derivar a un curso
           </a>
         </div>
       )}

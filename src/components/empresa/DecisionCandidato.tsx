@@ -89,7 +89,7 @@ export function DecisionCandidato({ candidato, nombre, onDecidido }: Props) {
             <CampoTexto
               id={idMotivo}
               label="¿Por qué no la contratás?"
-              descripcion="Información confidencial para el seguimiento de la Oficina de Empleo."
+              descripcion="Lo lee solo la Oficina de Empleo, para seguir ayudando a esta persona."
               error={errorMotivo}
               multilinea
               maxLength={500}
@@ -132,7 +132,7 @@ export function DecisionCandidato({ candidato, nombre, onDecidido }: Props) {
                 : `¿Confirmás que no contrataste a ${nombre}?`}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-base">
-              Esta resolución no se podrá modificar desde el portal.
+              Después no se puede cambiar. Si te equivocás, escribile a la Oficina de Empleo.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <ErrorDelServidor error={error} />
